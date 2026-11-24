@@ -33,10 +33,11 @@ Todos los certificados ya tienen el **nombre completo**, el **documento de ident
 
 - **Detalle** — el nombre del dato, tal como lo leen la persona solicitante y el personal (por ejemplo, *Horas*).
 - **Clave** — cómo lo escribe el texto del certificado, entre llaves: letras minúsculas, dígitos y `_` (por ejemplo, `horas`). No puede ser `name`, `document` ni `study`, que ya están cogidas. Si la cambia, el texto se actualiza en todos los idiomas.
-- **Tipo de dato** — **Texto corto**, **Texto largo**, **Número** (puede tener decimales, como una nota media de 7,45), **Fecha**, **Sí/No**, **Curso escolar** (el formulario sugiere los cursos que tiene EMS) o **Empresa colaboradora** (la persona solicitante escribe su nombre y su NIF, y el centro vincula la empresa).
+- **Tipo de dato** — **Texto corto**, **Texto largo**, **Número** (puede tener decimales, como una nota media de 7,45), **Fecha**, **Sí/No**, **Curso escolar** (se escribe 2024-25 o 2024-2025, con años consecutivos, y se guarda como 2024-25; el formulario sugiere los cursos que tiene EMS) o **Empresa colaboradora** (la persona solicitante escribe su nombre y su NIF, y el centro vincula la empresa).
 - **Solicitante** — **Obligatorio**: el formulario lo pide y hay que rellenarlo para enviar la solicitud; **Opcional**: el formulario lo pide; **No se pide**: solo lo rellena el centro.
 - **Obligatorio antes de** — el paso del circuito que no se puede hacer hasta que esté rellenado (ni ninguno posterior). Déjalo vacío si el circuito nunca lo exige. Para elegir un paso, guarda primero el circuito.
-- **Ayuda** (columna opcional) — un texto breve que la persona solicitante lee bajo el dato.
+- **Indicación** — qué hay que escribir y cómo, con un ejemplo (por ejemplo, *Formato AAAA-AA, por ejemplo 2024-25.*). La persona solicitante la lee bajo el dato, y el personal del centro, a su lado en la solicitud.
+- **No anterior a** (columna opcional, solo para fechas) — otra fecha del tipo a la que no puede ser anterior: en la FCT, la fecha de finalización no puede ser anterior a la de inicio.
 
 En una solicitud, el personal rellena estos datos en la pestaña **Datos del certificado**. Los que aún están vacíos y que exige el paso actual aparecen resaltados.
 

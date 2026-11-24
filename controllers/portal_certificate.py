@@ -89,7 +89,7 @@ class EmsPortalCertificateController(CustomerPortal):
             'studies': self._ems_certificate_studies(certificate_type, current_study),
             'type_fields': certificate_type._ems_applicant_fields(),
             'portal_documents': self._ems_certificate_portal_documents(certificate_type),
-            'open': (kwargs.get('error') == 'missing' and error_type == str(certificate_type.id))
+            'open': (kwargs.get('error') in ('missing', 'invalid') and error_type == str(certificate_type.id))
                     or (bool(kwargs.get('new')) and len(types) == 1),
         } for certificate_type in types]
         return request.render('ems.portal_certificates', self._ems_certificate_values(
@@ -118,6 +118,8 @@ class EmsPortalCertificateController(CustomerPortal):
         values, details, missing = Certificate._ems_parse_portal_form(post, certificate_type)
         if missing:
             return request.redirect(f'{self._certificate_redirect}?error=missing&type_id={certificate_type.id}')
+        if Certificate._ems_portal_detail_errors(details, certificate_type):
+            return request.redirect(f'{self._certificate_redirect}?error=invalid&type_id={certificate_type.id}')
         certificate = Certificate.create({
             'type_id': certificate_type.id,
             'student_id': student.id,
@@ -188,6 +190,8 @@ class EmsPortalCertificateController(CustomerPortal):
         values, details, missing = certificate._ems_parse_portal_form(post)
         if missing:
             return request.redirect(self._ems_certificate_url(certificate, 'error=missing'))
+        if certificate._ems_portal_detail_errors(details):
+            return request.redirect(self._ems_certificate_url(certificate, 'error=invalid'))
         was_draft = certificate.state == 'draft'
         certificate._ems_portal_fill(values, details, self._ems_certificate_files())
         return request.redirect(self._ems_certificate_url(certificate, 'submitted=1' if was_draft else 'updated=1'))

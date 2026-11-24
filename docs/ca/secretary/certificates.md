@@ -45,7 +45,7 @@ Navega a: **Gestió acadèmica → Certificats**. La llista s'obre amb el filtre
 
 ![Sol·licitud d'un exalumne que no és a EMS](../../assets/secretary/certificats-02-exalumne.png)
 
-Si ja tens totes les dades obligatòries (document d'identitat i estudi a la pestanya **Sol·licitant**, i les obligatòries de la pestanya **Dades del certificat**, com el curs de la formació per a la FCT), **Enviar formulari** també passa la sol·licitud al primer pas. L'exalumne encara pot completar o corregir les seves dades des de l'enllaç fins que algú del centre canviï la sol·licitud o hi faci alguna acció.
+Si ja tens totes les dades obligatòries (document d'identitat i estudi a la pestanya **Sol·licitant**, i les obligatòries de la pestanya **Dades del certificat**, com el curs acadèmic per a la FCT), **Enviar formulari** també passa la sol·licitud al primer pas. L'exalumne encara pot completar o corregir les seves dades des de l'enllaç fins que algú del centre canviï la sol·licitud o hi faci alguna acció.
 
 Si la sol·licitud t'arriba en paper i no cal enviar res, omple totes les dades i fes clic a **Accions → Iniciar la sol·licitud**.
 

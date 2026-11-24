@@ -75,7 +75,7 @@ def create_certificate_fixtures(cls, prefix='TCRT'):
             (0, 0, {'sequence': 30, 'name': 'From', 'key': 'start', 'field_type': 'date', 'required_step_id': complete}),
             (0, 0, {'sequence': 40, 'name': 'To', 'key': 'end', 'field_type': 'date', 'required_step_id': complete}),
             (0, 0, {'sequence': 50, 'name': 'Hours', 'key': 'hours', 'field_type': 'number',
-                    'required_step_id': complete}),
+                    'required_step_id': complete, 'help': 'The total hours, e.g. 400.'}),
             (0, 0, {'sequence': 60, 'name': 'Agreement number', 'key': 'agreement', 'field_type': 'char'}),
         ],
     })
@@ -84,6 +84,7 @@ def create_certificate_fixtures(cls, prefix='TCRT'):
         "training in the school year {school_year} at the company {company}[, with VAT number {company_vat}], from "
         "{start} to {end}.\n\nSource: the training agreement[ registered with number {agreement}].")
     cls.type_fields = {field.key: field for field in cls.certificate_type.field_ids}
+    cls.type_fields['end'].after_field_id = cls.type_fields['start']
     cls.agreement_document, cls.report_document = cls.certificate_type.document_ids.sorted('sequence')
     cls.student = cls.env['res.partner'].create({
         'name': f'{prefix} Student', 'contact_type': 'student', 'student_id': next_student_id(),
@@ -396,7 +397,49 @@ class TestCertificate(TransactionCase):
         self.assertEqual(details['company'], {'value_char': 'Written SL', 'value_vat': 'B1'})
         certificate.sudo()._ems_portal_fill(values, details, {})
         self.assertEqual((certificate.state, certificate.step_id), ('in_progress', self.steps[0]))
-        self.assertEqual(self._value(certificate, 'school_year').value_char, '2019-2020')
+        self.assertEqual(self._value(certificate, 'school_year').value_char, '2019-20', "Stored as 2019-20 (issue #858).")
+
+    def test_school_year_format(self):
+        """Issue #858: a school year is written as 2024-25 or 2024-2025, with consecutive years, and
+        stored as 2024-25."""
+        Value = self.env['ems.certificate.value']
+        for text, expected in (('2024-25', '2024-25'), ('2024-2025', '2024-25'), (' 2024 / 25 ', '2024-25'),
+                               ('2099-2100', '2099-00'), ('2024-26', None), ('2024-2026', None),
+                               ('1111111111', None), ('24-25', None), ('', None)):
+            self.assertEqual(Value._ems_normalize_school_year(text), expected, text)
+        certificate = self._submitted()
+        line = self._value(certificate, 'school_year')
+        self.assertEqual(line.value_char, '2025-26')
+        with self.assertRaises(ValidationError):
+            line.with_user(self.coordinator).value_char = '1111111111'
+
+    def test_end_not_before_start(self):
+        """Issue #858: a date the type says cannot be earlier than another one is refused, whichever
+        of the two is written last."""
+        certificate = self._submitted({'start': '2026-03-01', 'end': '2026-06-15'})
+        start, end = self._value(certificate, 'start'), self._value(certificate, 'end')
+        with self.assertRaises(ValidationError):
+            end.with_user(self.coordinator).value_date = '2026-02-28'
+        with self.assertRaises(ValidationError):
+            start.with_user(self.coordinator).value_date = '2026-06-16'
+        end.with_user(self.coordinator).value_date = '2026-03-01'
+        with self.assertRaises(ValidationError):
+            self.type_fields['hours'].after_field_id = self.type_fields['start']
+
+    def test_step_checks_details_written_before(self):
+        """Issue #858: a value written before the checks existed stops the next step until it is
+        corrected."""
+        certificate = self._submitted()
+        self._complete_training(certificate)
+        line = self._value(certificate, 'school_year')
+        self.env.flush_all()
+        self.env.cr.execute("UPDATE ems_certificate_value SET value_char = '1111111111' WHERE id = %s", (line.id,))
+        line.invalidate_recordset(['value_char'])
+        with self.assertRaises(ValidationError):
+            certificate.with_user(self.coordinator).action_done_step()
+        line.with_user(self.coordinator).value_char = '2025-2026'
+        certificate.with_user(self.coordinator).action_done_step()
+        self.assertEqual(certificate.step_id, self.steps[1])
 
     def test_former_student_personal_email(self):
         """Issue #858: choosing a former student fills in their personal email. A legacy contact

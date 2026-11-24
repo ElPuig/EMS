@@ -21,14 +21,15 @@ registry.category("web_tour.tours").add("ems_certificate_complete", {
             run: "click",
         },
         {
-            // The details' names are the fixture's own text, not translatable labels.
-            trigger: ".o_field_widget[name='value_ids'] .o_data_row:contains('Company') td[name='value_company_id']",
-            content: "Edit the company detail",
+            // Issue #858: one line per detail (its name, its hint, its value); a click opens a dialog
+            // with only the input of its data type. The details' names are the fixture's own text.
+            trigger: ".o_field_widget[name='value_ids'] .o_data_row:contains('Company') td[name='name']",
+            content: "Open the company detail",
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='value_ids'] .o_selected_row .o_field_widget[name='value_company_id'] input",
-            content: "Choose the collaborating company",
+            trigger: ".modal .o_field_widget[name='value_company_id'] input",
+            content: "Choose the collaborating company: the dialog only shows the company's input",
             run: "edit TCTR Company",
         },
         {
@@ -37,14 +38,36 @@ registry.category("web_tour.tours").add("ems_certificate_complete", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='value_ids'] .o_data_row:contains('Hours') td[name='value_number']",
-            content: "Edit the hours detail",
+            trigger: ".modal:not(:has(.o_field_widget[name='value_date'])) .o_form_button_save",
+            content: "Save the detail",
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='value_ids'] .o_selected_row .o_field_widget[name='value_number'] input",
+            trigger: ".o_field_widget[name='value_ids'] .o_data_row:contains('Company') td[name='display_value']:contains('TCTR Company SL')",
+            content: "The company is the detail's value",
+        },
+        {
+            trigger: ".o_field_widget[name='value_ids'] .o_data_row:contains('Hours') td[name='hint']:contains('e.g. 400')",
+            content: "Each detail shows how to write it",
+        },
+        {
+            trigger: ".o_field_widget[name='value_ids'] .o_data_row:contains('Hours') td[name='name']",
+            content: "Open the hours detail",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='value_number'] input",
             content: "Write the hours",
             run: "edit 400",
+        },
+        {
+            trigger: ".modal .o_form_button_save",
+            content: "Save the detail",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='value_ids'] .o_data_row:contains('Hours') td[name='display_value']:contains('400')",
+            content: "The hours are the detail's value",
         },
         {
             trigger: ".o_form_view .o_notebook .nav-link[name='documentation']",

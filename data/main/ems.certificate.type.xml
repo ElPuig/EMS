@@ -54,10 +54,11 @@
         <record id="certificate_field_fct_school_year" model="ems.certificate.type.field">
             <field name="type_id" ref="certificate_type_fct"/>
             <field name="sequence">10</field>
-            <field name="name">School year of the training</field>
+            <field name="name">Academic course</field>
             <field name="key">school_year</field>
             <field name="field_type">school_year</field>
             <field name="applicant_input">required</field>
+            <field name="help">As YYYY-YY, e.g. 2024-25.</field>
         </record>
         <record id="certificate_field_fct_company" model="ems.certificate.type.field">
             <field name="type_id" ref="certificate_type_fct"/>
@@ -67,6 +68,7 @@
             <field name="field_type">company</field>
             <field name="applicant_input">optional</field>
             <field name="required_step_id" ref="certificate_step_fct_complete"/>
+            <field name="help">The company where the training was done and, if you know it, its VAT number.</field>
         </record>
         <record id="certificate_field_fct_start" model="ems.certificate.type.field">
             <field name="type_id" ref="certificate_type_fct"/>
@@ -76,6 +78,7 @@
             <field name="field_type">date</field>
             <field name="applicant_input">optional</field>
             <field name="required_step_id" ref="certificate_step_fct_complete"/>
+            <field name="help">The first day of the training at the company.</field>
         </record>
         <record id="certificate_field_fct_end" model="ems.certificate.type.field">
             <field name="type_id" ref="certificate_type_fct"/>
@@ -85,6 +88,8 @@
             <field name="field_type">date</field>
             <field name="applicant_input">optional</field>
             <field name="required_step_id" ref="certificate_step_fct_complete"/>
+            <field name="help">The last day of the training at the company.</field>
+            <field name="after_field_id" ref="certificate_field_fct_start"/>
         </record>
         <record id="certificate_field_fct_hours" model="ems.certificate.type.field">
             <field name="type_id" ref="certificate_type_fct"/>
@@ -94,6 +99,7 @@
             <field name="field_type">number</field>
             <field name="applicant_input">optional</field>
             <field name="required_step_id" ref="certificate_step_fct_complete"/>
+            <field name="help">The total hours of the training, e.g. 400.</field>
         </record>
         <record id="certificate_field_fct_agreement" model="ems.certificate.type.field">
             <field name="type_id" ref="certificate_type_fct"/>
@@ -102,6 +108,7 @@
             <field name="key">agreement</field>
             <field name="field_type">char</field>
             <field name="applicant_input">optional</field>
+            <field name="help">The agreement's number in sBID, e.g. 2025146951.</field>
         </record>
 
         <!-- Written once its details exist: the type refuses a text with keys it does not have

@@ -36,6 +36,9 @@ VALUE_COLUMNS = {
 CIRCUIT_FIELDS = {'state', 'step_id', 'name', 'course_id', 'stamp_ids', 'certificate_pdf_id', 'origin',
                   'applicant_form_open'}
 
+# A school year as 2024-25 or 2024-2025 (issue #858): stored as 2024-25.
+SCHOOL_YEAR = re.compile(r'^(\d{4})\s*[-/]\s*(\d{2}|\d{4})$')
+
 # Files a document appended to the certificate may come as: a PDF, or photos/scans of its pages.
 ANNEX_IMAGE_MIMETYPES = ('image/jpeg', 'image/png')
 
@@ -93,7 +96,6 @@ class EmsCertificate(models.Model):
     # The details of its type.
     value_ids = fields.One2many(string="Certificate details", comodel_name='ems.certificate.value',
                                 inverse_name='certificate_id', copy=False)
-    value_field_types = fields.Char(string="Data types of its details", compute='_compute_value_field_types')
     document_ids = fields.One2many(string="Required documentation", comodel_name='ems.certificate.document',
                                    inverse_name='certificate_id', copy=False)
     other_attachment_ids = fields.Many2many(string="Other documentation", comodel_name='ir.attachment',
@@ -201,11 +203,6 @@ class EmsCertificate(models.Model):
             if issue_step not in issuers_by_step:
                 issuers_by_step[issue_step] = issue_step._ems_users()
             certificate.can_issue_now = is_admin or self.env.user in issuers_by_step[issue_step]
-
-    @api.depends('value_ids.field_type')
-    def _compute_value_field_types(self):
-        for certificate in self:
-            certificate.value_field_types = ",".join(sorted(set(certificate.value_ids.mapped('field_type'))))
 
     @api.depends('name', 'student_id', 'student_name', 'type_id')
     def _compute_display_name(self):
@@ -321,6 +318,32 @@ class EmsCertificate(models.Model):
         stale.sudo().unlink()
         lines.sudo().create(to_create)
 
+    def _ems_details_by_field(self):
+        """Each detail of the request (ems.certificate.type.field) with the values it holds."""
+        self.ensure_one()
+        return {line.field_id: {'value_char': line.value_char, 'value_date': line.value_date}
+                for line in self.value_ids}
+
+    def _ems_check_details(self):
+        """Raise if a detail is not valid (_ems_detail_errors): when it is written, and before any
+        step, for a value written before the check existed."""
+        Value = self.env['ems.certificate.value']
+        for certificate in self:
+            errors = Value._ems_detail_errors(certificate._ems_details_by_field())
+            if errors:
+                raise ValidationError("\n".join(errors))
+
+    def _ems_portal_detail_errors(self, details, certificate_type=None):
+        """What is wrong in the details of a submitted form ({key: column values}, as
+        _ems_parse_portal_form gives them), together with those the request already holds."""
+        certificate_type = certificate_type or self.type_id
+        by_field = self._ems_details_by_field() if self else {}
+        by_key = {field.key: field for field in certificate_type.field_ids}
+        for key, values in details.items():
+            if key in by_key:
+                by_field[by_key[key]] = {**by_field.get(by_key[key], {}), **values}
+        return self.env['ems.certificate.value']._ems_detail_errors(by_field)
+
     def _ems_set_values(self, values_by_key):
         """Write details by their key: {key: value}, the value in its type's column; a company's
         value may be a dict of columns (e.g. the name and VAT number the applicant wrote)."""
@@ -401,6 +424,7 @@ class EmsCertificate(models.Model):
         applicant's details always; the details the type requires by that step or an earlier one;
         every document the type requires before issuing."""
         self._ems_check_applicant_data()
+        self._ems_check_details()
         for certificate in self:
             checked_action = action or certificate.step_id.action
             step = certificate._ems_issue_step() if action == 'issue' else certificate.step_id
@@ -892,6 +916,7 @@ class EmsCertificateValue(models.Model):
                                        ondelete='restrict',
                                        domain=[('contact_type', '=', 'company'), ('parent_id', '=', False)])
     value_vat = fields.Char(string="VAT number (as written by the applicant)")
+    hint = fields.Char(related='field_id.help')
     display_value = fields.Char(string="Value", compute='_compute_display_value')
     is_pending = fields.Boolean(string="Pending", compute='_compute_is_pending',
                                 help="Required by now and still empty.")
@@ -932,11 +957,50 @@ class EmsCertificateValue(models.Model):
         if any(line.value_number < 0 for line in self):
             raise ValidationError(_("A number of a certificate cannot be negative."))
 
+    @api.constrains('value_char', 'value_date')
+    def _check_values(self):
+        self.certificate_id._ems_check_details()
+
+    @api.model
+    def _ems_normalize_school_year(self, text):
+        """2024-25 for "2024-25" or "2024-2025"; None when it is not a school year (the second year
+        must follow the first)."""
+        match = SCHOOL_YEAR.match((text or '').strip())
+        if not match:
+            return None
+        first, second = int(match[1]), match[2]
+        following = first + 1
+        if int(second) != (following if len(second) == 4 else following % 100):
+            return None
+        return f'{first}-{following % 100:02d}'
+
+    @api.model
+    def _ems_detail_errors(self, values_by_field):
+        """What is wrong in a request's details, as messages: `values_by_field` maps each detail of
+        the type (ems.certificate.type.field) to its column values. One check for the backend and
+        the portal (issue #858)."""
+        errors = []
+        dates = {}
+        for field, values in values_by_field.items():
+            if field.field_type == 'school_year' and values.get('value_char') \
+                    and not self._ems_normalize_school_year(values['value_char']):
+                errors.append(_("%(detail)s: write the school year as 2024-25.", detail=field.name))
+            elif field.field_type == 'date':
+                dates[field] = values.get('value_date')
+        for field, value in dates.items():
+            earliest = dates.get(field.after_field_id)
+            if value and earliest and value < earliest:
+                errors.append(_("%(detail)s cannot be earlier than %(earlier)s.", detail=field.name,
+                                earlier=field.after_field_id.name))
+        return errors
+
     def write(self, vals):
         if not self.env.su:
             if self.certificate_id.filtered(lambda certificate: certificate.state not in ('draft',) + OPEN_STATES):
                 raise UserError(_("A certificate request that is closed cannot be changed."))
             self.certificate_id._ems_close_applicant_form()
+        if vals.get('value_char') and self and all(line.field_type == 'school_year' for line in self):
+            vals = dict(vals, value_char=self._ems_normalize_school_year(vals['value_char']) or vals['value_char'])
         return super().write(vals)
 
     def _ems_column(self):

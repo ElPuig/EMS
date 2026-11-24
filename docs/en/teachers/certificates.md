@@ -23,9 +23,9 @@ As long as you change nothing, the student may still complete or correct their d
 ## Completing the training
 
 1. Open the request.
-2. In the **Certificate details** tab, each line is a detail of the certificate. Click a line's value to fill it in:
-   - In **Collaborating company**, choose the company. If it does not exist and the student wrote its name, click **Create company** on that line: it is created with the name and VAT number they wrote (if there is already one with that VAT number, that one is linked).
-   - Fill in **Start date**, **End date**, **Hours** and the **Agreement registration number (sBID)**.
+2. In the **Certificate details** tab, each line is a detail of the certificate: its name, a **Hint** on what to write and how, and its **Value**. Click a line to fill it in: a dialog opens with its input, and **Save & Close** keeps it.
+   - In **Collaborating company**, choose the company. If it does not exist and the student wrote its name, click **Create company** in the dialog: it is created with the name and VAT number they wrote (if there is already one with that VAT number, that one is linked).
+   - Fill in **Start date**, **End date**, **Hours** and the **Agreement registration number (sBID)**. The end date cannot be earlier than the start date.
 3. In the **Documentation** tab, check the **FCT agreement**. If it is missing, open the line, attach it (a PDF or photos of its pages) and save.
 4. Open **Actions → Done: send to the next step**. The request moves on to the secretariat.
 

@@ -45,7 +45,7 @@ Navigate to: **Academic management → Certificates**. The list opens with the *
 
 ![Request of a former student who is not in EMS](../../assets/secretary/certificats-02-exalumne.png)
 
-If you already have every mandatory detail (identity document and study in the **Applicant** tab, and the mandatory ones of the **Certificate details** tab, such as the school year of the training for FCT), **Send form** also moves the request to its first step. The former student may still complete or correct their details from the link until someone of the centre changes the request or acts on it.
+If you already have every mandatory detail (identity document and study in the **Applicant** tab, and the mandatory ones of the **Certificate details** tab, such as the academic course for FCT), **Send form** also moves the request to its first step. The former student may still complete or correct their details from the link until someone of the centre changes the request or acts on it.
 
 If the request reaches you on paper and nothing needs to be sent, fill in every detail and click **Actions → Start the request**.
 

@@ -150,9 +150,15 @@ class EmsCertificateType(models.Model):
         copies = super().copy(default)
         for certificate_type, new_type in zip(self, copies):
             steps = dict(zip(certificate_type.step_ids.sorted('sequence'), new_type.step_ids.sorted('sequence')))
+            new_fields = {}
             for field in certificate_type.field_ids:
-                field.copy({'type_id': new_type.id,
-                            'required_step_id': steps.get(field.required_step_id, field.required_step_id.browse()).id})
+                new_fields[field] = field.copy({
+                    'type_id': new_type.id, 'after_field_id': False,
+                    'required_step_id': steps.get(field.required_step_id, field.required_step_id.browse()).id,
+                })
+            # Once every detail exists: a date compared with another one of the copy.
+            for field in certificate_type.field_ids.filtered('after_field_id'):
+                new_fields[field].after_field_id = new_fields[field.after_field_id]
             # The text once its details exist (_check_certificate_text), in every language.
             for lang, _name in self.env['res.lang'].get_installed():
                 new_type.with_context(lang=lang).certificate_text = \
@@ -242,7 +248,13 @@ class EmsCertificateTypeField(models.Model):
                                        ondelete='restrict',
                                        help="The step that cannot be done until it is filled in (nor any later one). "
                                             "Empty: the circuit never requires it. Save the circuit's steps first.")
-    help = fields.Char(string="Hint", translate=True, help="Shown to the applicant under the detail.")
+    help = fields.Char(string="Hint", translate=True,
+                       help="What to write and how, with an example: shown to the applicant under the detail, and "
+                            "next to it in the request.")
+    after_field_id = fields.Many2one(string="Not before", comodel_name='ems.certificate.type.field',
+                                     ondelete='set null',
+                                     help="For a date: another date of the type it cannot be earlier than (e.g. the "
+                                          "end of a period, not before its start).")
 
     @api.constrains('key', 'field_type')
     def _check_key(self):
@@ -259,6 +271,15 @@ class EmsCertificateTypeField(models.Model):
         for field in self:
             if field.required_step_id and field.required_step_id.type_id != field.type_id:
                 raise ValidationError(_("%s must be required by a step of its own certificate type.", field.name))
+
+    @api.constrains('after_field_id', 'field_type', 'type_id')
+    def _check_after_field(self):
+        for field in self.filtered('after_field_id'):
+            after = field.after_field_id
+            if field.field_type != 'date' or after.field_type != 'date' or after.type_id != field.type_id \
+                    or after == field:
+                raise ValidationError(_("%s can only be compared with another date of its own certificate type.",
+                                        field.name))
 
     @api.model_create_multi
     def create(self, vals_list):

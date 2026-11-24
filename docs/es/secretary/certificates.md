@@ -45,7 +45,7 @@ Navega a: **Gestión académica → Certificados**. La lista se abre con el filt
 
 ![Solicitud de un exalumno que no está en EMS](../../assets/secretary/certificats-02-exalumne.png)
 
-Si ya tienes todos los datos obligatorios (documento de identidad y estudio en la pestaña **Solicitante**, y los obligatorios de la pestaña **Datos del certificado**, como el curso de la formación para la FCT), **Enviar formulario** también pasa la solicitud al primer paso. El exalumno aún puede completar o corregir sus datos desde el enlace hasta que alguien del centro cambie la solicitud o haga alguna acción.
+Si ya tienes todos los datos obligatorios (documento de identidad y estudio en la pestaña **Solicitante**, y los obligatorios de la pestaña **Datos del certificado**, como el curso académico para la FCT), **Enviar formulario** también pasa la solicitud al primer paso. El exalumno aún puede completar o corregir sus datos desde el enlace hasta que alguien del centro cambie la solicitud o haga alguna acción.
 
 Si la solicitud te llega en papel y no hace falta enviar nada, rellena todos los datos y haz clic en **Acciones → Iniciar la solicitud**.
 

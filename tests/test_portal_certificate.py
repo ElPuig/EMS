@@ -80,6 +80,11 @@ class TestPortalCertificate(HttpCase):
         self.assertIn('error=missing', response.url)
         self.assertIn(f'{body} class="collapse show"', response.text, "Back with an error, its form is open.")
         self.assertFalse(self._requests())
+        # Issue #858: a detail written wrong is reported, not dropped.
+        response = self.url_open('/my/certificats/submit', data=self._form(school_year='2025-2027'))
+        self.assertIn('error=invalid', response.url)
+        self.assertIn(f'{body} class="collapse show"', response.text)
+        self.assertFalse(self._requests())
 
         # The agreement (anyone attaches it) and an optional file; the training report is only the
         # first step's position's, so the portal does not offer it and ignores it if sent.
@@ -136,6 +141,10 @@ class TestPortalCertificate(HttpCase):
 
         token = certificate.access_token
         response = self.url_open(f'/my/certificats/{certificate.id}/submit?access_token={token}',
+                                 data=self._form(start='2026-06-15', end='2026-03-01'))
+        self.assertIn('error=invalid', response.url, "Issue #858: the training cannot end before it starts.")
+        self.assertEqual(certificate.state, 'draft')
+        response = self.url_open(f'/my/certificats/{certificate.id}/submit?access_token={token}',
                                  data=self._form(hours='300'))
         self.assertIn('submitted=1', response.url)
         self.assertEqual((certificate.state, self._value(certificate, 'hours').value_number), ('in_progress', 300))
@@ -159,7 +168,7 @@ class TestPortalCertificate(HttpCase):
         self.authenticate(None, None)
         html = self.url_open(certificate.get_portal_url()).text
         self.assertIn('o_ems_certificate_summary', html)
-        for text in ('12345678Z', '2025-2026', self.company.name, 'B12345678', '380', self.steps[0].name):
+        for text in ('12345678Z', '2025-26', self.company.name, 'B12345678', '380', self.steps[0].name):
             self.assertIn(text, html)
         self.assertNotIn('As Written SL', html, "The company the centre linked replaces the one written.")
 

@@ -57,7 +57,8 @@
                                    t-att-value="defaults.get(input_name) or ''"/>
                             <!-- One of the courses EMS has, or any other written by hand (an older year). -->
                             <input t-elif="type_field.field_type == 'school_year'" t-att-id="input_name" type="text"
-                                   t-att-name="input_name" class="form-control" maxlength="20" placeholder="2024-2025"
+                                   t-att-name="input_name" class="form-control" maxlength="20" placeholder="2024-25"
+                                   pattern="\s*\d{4}\s*[\-\/]\s*(\d{2}|\d{4})\s*" title="2024-25"
                                    t-attf-list="certificate_courses#{form_suffix or ''}" autocomplete="off" t-att-required="input_required or None"
                                    t-att-value="defaults.get(input_name)"/>
                             <input t-else="" t-att-id="input_name" type="text" t-att-name="input_name" class="form-control"
@@ -129,6 +130,9 @@
                 </div>
                 <div t-if="error == 'missing'" class="alert alert-danger mb-3">
                     <i class="fa fa-exclamation-triangle me-1"/> Fill in all your details: they are mandatory.
+                </div>
+                <div t-if="error == 'invalid'" class="alert alert-danger mb-3">
+                    <i class="fa fa-exclamation-triangle me-1"/> Some details are not written correctly: check the hint under each one.
                 </div>
 
                 <!-- One folded card per type, as convalidations: most visits check the requests already
@@ -258,6 +262,9 @@
                 </div>
                 <div t-if="error == 'missing'" class="alert alert-danger mb-3">
                     <i class="fa fa-exclamation-triangle me-1"/> Fill in all your details: they are mandatory.
+                </div>
+                <div t-if="error == 'invalid'" class="alert alert-danger mb-3">
+                    <i class="fa fa-exclamation-triangle me-1"/> Some details are not written correctly: check the hint under each one.
                 </div>
                 <div t-if="error == 'reply'" class="alert alert-danger mb-3">
                     <i class="fa fa-exclamation-triangle me-1"/> Write an answer or attach a document before sending.

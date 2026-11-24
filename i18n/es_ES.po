@@ -56143,3 +56143,57 @@ msgstr "Color de la sustitución"
 #: model:ir.model.fields,field_description:ems.field_hr_employee_public__acting_user_ids
 msgid "Users acting as this teacher"
 msgstr "Usuarios que actúan como este docente"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__transferred_group_id model:ir.model.fields,field_description:ems.field_res_users__transferred_group_id
+msgid "Tutorship transferred to"
+msgstr "Tutoría traspasada a"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__transferred_group_id model:ir.model.fields,help:ems.field_res_users__transferred_group_id
+msgid "The group whose tutor follows this student (attendance, family, notices), when it isn't their main group: the main group and its tutor remain the official ones (Esfer@, grades)."
+msgstr "El grupo cuyo tutor hace el seguimiento de este alumno (asistencia, familia, avisos), cuando no es su grupo principal: el grupo principal y su tutor siguen siendo los oficiales (Esfer@, notas)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__tutorship_group_id model:ir.model.fields,field_description:ems.field_res_users__tutorship_group_id
+msgid "Tutorship group"
+msgstr "Grupo de tutoría"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__official_tutor_id model:ir.model.fields,field_description:ems.field_res_users__official_tutor_id
+msgid "Official tutor (Esfer@)"
+msgstr "Tutor/a oficial (Esfer@)"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__official_tutor_id model:ir.model.fields,help:ems.field_res_users__official_tutor_id
+msgid "The main group's tutor, the one in Esfer@."
+msgstr "El tutor del grupo principal, el que consta en Esfer@."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_transfer_tutorship model:ir.model.fields,field_description:ems.field_res_users__can_transfer_tutorship
+msgid "Can transfer the tutorship"
+msgstr "Puede traspasar la tutoría"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "Only the secretary's office, academic administration and the Head of Studies can transfer a student's tutorship."
+msgstr "Solo la secretaría, la administración académica y el jefe de estudios pueden traspasar la tutoría de un alumno."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "The tutorship can only be transferred to a group other than the main one."
+msgstr "La tutoría solo se puede traspasar a un grupo distinto del principal."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "The tutorship can only be transferred to a main group."
+msgstr "La tutoría solo se puede traspasar a un grupo principal."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "The tutorship can only be transferred to a group of the student's own study."
+msgstr "La tutoría solo se puede traspasar a un grupo del mismo estudio del alumno."

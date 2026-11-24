@@ -105,6 +105,20 @@ class TestExOfficioWithdrawal(TransactionCase):
 
     # --- deadlines ---------------------------------------------------------------------------
 
+    def test_tutor_follows_a_tutorship_transfer(self):
+        """Issue #807: the case file is the follow-up tutor's, the one of the group the student's
+        tutorship was transferred to, not the official (Esfer@) one."""
+        other_tutor = self.other_tutor_user.employee_id
+        transferred = self.env['ems.group'].create({
+            'course': 2, 'acronym': 'T', 'level_id': self.post_level.id, 'study_id': self.post_study.id,
+            'tutor_id': other_tutor.id})
+        self.post_student.sudo().transferred_group_id = transferred
+        case_file = self._open(self.post_student, date(2041, 12, 17))
+        self.assertEqual(case_file.tutor_id, other_tutor)
+        case_file.with_user(self.other_tutor_user).check_access('write')
+        with self.assertRaises(AccessError):
+            case_file.with_user(self.tutor_user).check_access('write')
+
     def test_post_compulsory_deadlines_are_school_days_skipping_the_break(self):
         """D0 (a Tuesday) counts as the first day of absence; weekends and the break don't."""
         case_file = self._open(self.post_student, date(2041, 12, 17))

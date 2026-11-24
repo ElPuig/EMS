@@ -166,6 +166,20 @@ class TestStudentWalkout(TransactionCase):
 
     # Calling
 
+    def test_transferred_students_join_their_tutorship_group(self):
+        """Issue #807: a student whose tutorship was transferred takes part in the walkouts of the
+        group it was transferred to, not in their main group's."""
+        other = self.env['ems.group'].create({
+            'course': 2, 'acronym': 'T', 'level_id': self.level.id, 'study_id': self.study.id})
+        incoming = self.env['res.partner'].create({
+            'name': 'WLK Incoming', 'contact_type': 'student', 'main_group_id': other.id,
+            'student_id': next_student_id(), 'birth_date': self.today - relativedelta(years=16)})
+        incoming.sudo().transferred_group_id = self.group
+        self.offline.sudo().transferred_group_id = other
+        students = open_walkout(self).line_ids.student_id
+        self.assertIn(incoming, students)
+        self.assertNotIn(self.offline, students)
+
     def test_delegate_calls_the_vote_at_once(self):
         walkout = open_walkout(self)
         self.assertEqual(walkout.state, 'voting', "No review first: the group votes at once.")

@@ -39,6 +39,7 @@ Aquesta secció conté els manuals per a **cap d'estudis, cap d'estudis adjunt/a
 - [Notes públiques i notes privades de l'alumne](../teachers/student-notes.md) — On tot el professorat llegeix les notes públiques d'un alumne, i qui pot llegir i escriure les privades de tutoria.
 - [Erasmus+: consultar l'economia dels projectes](erasmus-economy.md) — La direcció consulta la subvenció, els compromisos, els pagaments, les despeses i el suport organitzatiu de cada projecte Erasmus+, i els exporta a Excel.
 - [Inassistències col·lectives: validar-les](student-walkout.md) — L'acta quan es tanca una proposta, i validar-la o no.
+- [Traspassar la tutoria d'un alumne](tutorship-transfer.md) — Un alumne que només assisteix a les classes d'un altre grup passa a ser seguit pel tutor d'aquest grup, mentre el seu grup i el seu tutor d'Esfer@ continuen sent els oficials.
 
 ---
 

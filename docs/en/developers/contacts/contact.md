@@ -88,6 +88,55 @@ Tests: `tests/test_student_private_note.py` (access matrix, create/write, direct
 
 ---
 
+## Tutorship transfer (issue #807)
+
+A student enrolled in 2nd year with 1st-year subjects pending may drop every 2nd-year subject
+and attend only 1st. In Esfer@ they stay in their 2nd-year group, with its tutor, who still
+grades them there; but the follow-up (family, absences, strikes, student walkouts, the daily
+summary) belongs to the 1st-year tutor. `res.partner.transferred_group_id` ("Tutorship
+transferred to") records it:
+
+```mermaid
+flowchart LR
+    S["res.partner (student)"] -->|"main_group_id<br/>(Esfer@: enrollment, grades,<br/>year record, schedule declaration)"| M["ems.group 2nd A"]
+    S -->|"transferred_group_id"| T["ems.group 1st A"]
+    S -->|"tutorship_group_id =<br/>transferred_group_id or main_group_id"| T
+    T -->|"tutor_id"| NT["hr.employee<br/>(student's tutor_id)"]
+    M -->|"tutor_id"| OT["hr.employee<br/>(official_tutor_id)"]
+```
+
+| Field | Kind | Notes |
+|-------|------|-------|
+| `transferred_group_id` | Many2one `ems.group`, indexed | Empty = no transfer. A main group of the student's own study other than `main_group_id` (`_check_transferred_group`; e.g. SMX2A to SMX1C, never to DAW2A). A change of main group that no longer fits (no group, the transferred one, another study) ends it before the write (`_ems_end_stale_tutorship_transfers`). Only academic administration, the secretary's office and Heads of Studies/Deputies/Director write it (`_ems_user_can_transfer_tutorship()`, checked in `write()`, mirrored by `can_transfer_tutorship` on the form). |
+| `tutorship_group_id` | stored compute | `transferred_group_id or main_group_id`: the group the student attends with. |
+| `tutor_id` | stored related `tutorship_group_id.tutor_id` | The student's tutor for everything a tutor does. Stored so the record rules matching on `tutor_id.tutor_scope_user_ids` resolve it in SQL, and recomputed when either group's tutor changes. `write()` drops it: a tutor is changed on the group. |
+| `official_tutor_id` | related `main_group_id.tutor_id` | Shown on the form, under the tutor, only while a transfer is set ("Official tutor (Esfer@)"). |
+
+**Why one field and no co-tutors.** Every tutor rule (about 40 record rules), every
+`user_acts_as_tutor(self, student.tutor_id)` check and every tutor notice already went through
+`res.partner.tutor_id`, so pointing it at the transferred group's tutor moves all of them with no
+other change. The official tutor keeps what goes by group, not by student: grade sessions, the
+evaluation matrix and the year record read `group.tutor_id`. Co-tutors (two tutors with the same
+rights) were considered and left out: there is no such case today, and if one comes it will be
+per group, not per student.
+
+**What follows `tutorship_group_id` instead of `main_group_id`:** the "My students" facet
+(`_ems_my_students_domain`), the students a walkout proposal gathers and the school hours its
+emails wait for (`ems.student_walkout`), and the tutorship survey's group and tutor in LimeSurvey.
+The places that used to read `main_group_id.tutor_id` directly (justifications, attendance notices,
+expected withdrawals, the ex officio withdrawal case file, Erasmus+ notices and appeals, the
+portal profile) now read `tutor_id`. Everything else keeps the main group: enrollment placement,
+the schedule declaration, the shift and break period.
+
+**Schedule.** Nothing specific: the student's schedule comes from their subject enrollments, so
+dropping the 2nd-year tutorship and enrolling the 1st-year one (in the 1st-year group) is what
+makes only the latter show.
+
+**End of a transfer.** Cleared by `_ems_clear_operational_records()` (a withdrawal, and the
+course transition for every student in its scope: a transfer belongs to one year), and when the
+student's main group changes to the transferred group, to another study's or to none. Covered by
+`tests/test_student_tutorship_transfer.py` and `tests/test_student_tutorship_transfer_tour.py`.
+
 ## Birth date of a student (issue #640)
 
 Without a `birth_date` EMS takes a student for a minor (`is_adult` is `False`): the family keeps managing the portal, receives the notices meant for a minor, and the Google account stays in the minors' OU. So:
@@ -128,7 +177,7 @@ flowchart LR
     U["res.users<br/>(current user)"] --> E["hr.employee"]
     E -->|"teaching_ids.group_id"| G["ems.group"]
     E -->|"tutorship_ids"| G
-    G -->|"main_student_ids<br/>(main_group_id)"| S["res.partner<br/>(student)"]
+    G -->|"tutorship_group_id<br/>(main group, or the transferred one)"| S["res.partner<br/>(student)"]
     G -->|"ems.enrollment<br/>(group + subject)"| S
 ```
 
@@ -263,7 +312,7 @@ One thing this reuses **unchanged**, worth calling out explicitly since it's pre
 
 Covered by `tests/test_contact.py::TestContactCreateWithStudy` (auto-pick, template-driven creation, the explicit-group-given parity no-op, the applicant/bulk-import exclusions, the `env.su` exclusion, and the no-group/no-template no-op cases).
 
-**`tutor_id` is now `readonly=True` at the field level (bug found 2026-09-06, same testing pass).** `related="main_group_id.tutor_id"` had no explicit `readonly`; per Odoo's `Field.setup_related()`, a related field only skips auto-generating a write-through inverse when *it or its target* is already readonly — neither was true here, so Odoo silently wired one up. Without the fix, editing "Tutor" from a **student's own form** would not merely have updated a display value for that one student: it would have reassigned `main_group_id.tutor_id` on the underlying `ems.group` record itself, changing the tutor for *every* student in that group. `readonly=True` removes the inverse entirely (a `write()` including `tutor_id` is now silently ignored — Odoo does not raise for a compute field with no inverse, it just cannot persist the value; only the calling recordset's own in-memory cache reflects it until next recompute). The view's own conditional `readonly="is_tutor_readonly"` on this field was dropped as redundant. Covered by `tests/test_contact.py::test_tutor_id_write_does_not_reassign_the_group_tutor`.
+**`tutor_id` is never written from a student.** It is `readonly=True` and `res.partner.write()` drops it: without `readonly`, Odoo used to build a write-through inverse on the related field, so editing "Tutor" on a student's form reassigned the tutor of the student's whole group (bug found 2026-09-06). A tutor is changed on the `ems.group`. Covered by `tests/test_contact.py::test_tutor_id_write_does_not_reassign_the_group_tutor`.
 
 ### `_check_nuss` (`@api.constrains('nuss')`)
 

@@ -35,6 +35,8 @@ from . import test_enrollment_head_of_studies_tour
 from . import test_portal_convalidation
 from . import test_convalidation_tour
 from . import test_tutor_scope
+from . import test_student_tutorship_transfer
+from . import test_student_tutorship_transfer_tour
 from . import test_student_document_tour
 from . import test_student_google_workspace
 from . import test_coming_of_age

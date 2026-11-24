@@ -34,6 +34,7 @@ Aquesta secció conté els manuals per al **personal de secretaria**.
 - [Actualitzar dades de l'alumnat des d'un CSV](student-update-csv.md) — Actualització massiva genèrica, de qualsevol format CSV, per a alumnat existent (mai en crea), amb columnes mapejables i actualització opcional del compte bancari.
 - [Aprovar les absències del personal PAS](absences.md) — Qui aprova les absències de l'àrea ASP i en què es diferencia de prefectura d'estudis.
 - [Erasmus+: serveis pagats pel centre, despeses i projectes](erasmus-economy.md) — Registrar les factures que el centre paga per als participants, registrar i pagar les altres despeses dels projectes Erasmus+, i consultar el pressupost de cada projecte.
+- [Traspassar la tutoria d'un alumne](tutorship-transfer.md) — Un alumne que només assisteix a les classes d'un altre grup passa a ser seguit pel tutor d'aquest grup, mentre el seu grup i el seu tutor d'Esfer@ continuen sent els oficials.
 
 ## Temes previstos
 

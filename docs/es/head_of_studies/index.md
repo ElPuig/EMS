@@ -39,6 +39,7 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 - [Notas públicas y notas privadas del alumno](../teachers/student-notes.md) — Dónde todo el profesorado lee las notas públicas de un alumno, y quién puede leer y escribir las privadas de tutoría.
 - [Erasmus+: consultar la economía de los proyectos](erasmus-economy.md) — La dirección consulta la subvención, los compromisos, los pagos, los gastos y el apoyo organizativo de cada proyecto Erasmus+, y los exporta a Excel.
 - [Inasistencias colectivas: validarlas](student-walkout.md) — El acta cuando se cierra una propuesta, y validarla o no.
+- [Traspasar la tutoría de un alumno](tutorship-transfer.md) — Un alumno que solo asiste a las clases de otro grupo pasa a ser seguido por el tutor de ese grupo, mientras su grupo y su tutor de Esfer@ siguen siendo los oficiales.
 
 ---
 

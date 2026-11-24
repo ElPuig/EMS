@@ -65,8 +65,8 @@ class TestDepartment(TransactionCase):
         self.assertEqual(moved.job_id, job)
 
     def test_migration_infers_department_job_from_members(self):
-        """migrations/18.0.0.51.1: a department whose ASP members share one job takes it."""
-        path = Path(__file__).resolve().parent.parent / 'migrations' / '18.0.0.51.1' / 'post-migrate.py'
+        """migrations/18.0.0.52.0: a department whose ASP members share one job takes it."""
+        path = Path(__file__).resolve().parent.parent / 'migrations' / '18.0.0.52.0' / 'post-migrate.py'
         spec = importlib.util.spec_from_file_location('migrate_51_1', path)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

@@ -97,8 +97,9 @@
                         </div>
                         <div class="oe_title">
                             <div class="text-muted" invisible="not name"><field name="name"/></div>
+                            <!-- Former students and withdrawals are archived: the dropdown looks for them too (issue #858). -->
                             <h1><field name="student_id" placeholder="Student (if in EMS)" options="{'no_create': True}"
-                                       readonly="state != 'draft'"/></h1>
+                                       context="{'active_test': False}" readonly="state != 'draft'"/></h1>
                             <div class="text-muted small" invisible="student_id or state != 'draft'">
                                 <i class="fa fa-info-circle me-1"/>A former student who is not in EMS: leave it empty, write
                                 their full name and email, and send them the form to fill in the rest.

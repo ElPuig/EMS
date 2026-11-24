@@ -121,3 +121,44 @@ registry.category("web_tour.tours").add("ems_certificate_issue_now", {
         },
     ],
 });
+
+// Issue #858 - a former student is archived when they graduate or leave: the secretary still finds
+// them in the Student dropdown when opening a request for them.
+registry.category("web_tour.tours").add("ems_certificate_former_student", {
+    url: "/odoo/action-ems.action_certificate/new",
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_field_widget[name='type_id'] input",
+            content: "Choose the certificate type",
+            run: "edit TCTR FCT",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item a:contains('TCTR FCT')",
+            content: "Pick it",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='student_id'] input",
+            content: "Look for the former student, who is archived",
+            run: "edit TCTR Alumna",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item a:contains('TCTR Alumna Archived')",
+            content: "They are offered",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='applicant_email'] input:value(tctr.alumna@example.com)",
+            content: "Their details are filled in from the contact",
+        },
+        {
+            trigger: ".o_form_view .o_form_button_save",
+            content: "Save the request",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_form_saved",
+            content: "And the form is saved",
+        },
+    ],
+});

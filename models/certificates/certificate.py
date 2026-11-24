@@ -72,7 +72,7 @@ class EmsCertificate(models.Model):
     ])
     submission_date = fields.Date(string="Request date", readonly=True, copy=False)
     student_id = fields.Many2one(string="Student", comodel_name='res.partner', ondelete='restrict', index=True,
-                                 domain=[('contact_type', 'in', ('student', 'alumni', 'withdrawal'))],
+                                 domain=[('contact_type', 'in', ('student', 'alumni', 'withdrawal', 'expelled'))],
                                  help="The student or former student in EMS. A former student who is not in EMS can "
                                       "be left empty: the applicant's details and email are enough.")
     requester_id = fields.Many2one(string="Requested by", comodel_name='res.partner', readonly=True,

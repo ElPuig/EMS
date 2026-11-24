@@ -74,6 +74,10 @@ La cuenta de usuario del profesor se actualiza de inmediato: se concede el grupo
 
 ---
 
+## Puesto de trabajo de un departamento (PAS)
+
+En el formulario de un departamento PAS (**Empleados → Departamentos**), elija su **Puesto de trabajo** (p. ej. Secretaría para Secretariat). Todo el personal PAS del departamento lo adopta y no se muestra en la ficha del empleado. Si cambia el puesto del departamento, o mueve a un empleado a otro departamento, se actualiza. El puesto sigue concediendo su grupo de seguridad (p. ej. Secretaría). El listado de departamentos muestra el gestor que se aplica, también el que el departamento comparte con su padre.
+
 ## Quitar un rol
 
 1. Abrir la ficha del empleado del profesor.

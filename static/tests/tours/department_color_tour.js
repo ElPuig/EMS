@@ -17,6 +17,11 @@ registry.category("web_tour.tours").add("ems_department_color_smoke", {
             content: "Color swatch rendered in the list",
         },
         {
+            // Issue #815: the Manager shown is the effective one.
+            trigger: ".o_list_view .o_data_row:first-child td[name='effective_manager_id']",
+            content: "Effective manager column rendered in the list",
+        },
+        {
             trigger: ".o_list_view .o_data_row:first-child td[name='name']",
             content: "Open the first department",
             run: "click",

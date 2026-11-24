@@ -6044,7 +6044,7 @@ msgid "Item '%(name)s' is already enrolled in this record."
 msgstr "L'element '%(name)s' ja està matriculat en aquest registre."
 
 #. module: ems
-#: model:ir.model,name:ems.model_hr_job model:ir.model.fields,field_description:ems.field_hr_employee__job_id model:ir.model.fields,field_description:ems.field_hr_employee_base__job_id model:ir.model.fields,field_description:ems.field_hr_employee_public__job_id model_terms:ir.ui.view,arch_db:ems.view_employee_form
+#: model:ir.model,name:ems.model_hr_job model:ir.model.fields,field_description:ems.field_hr_employee__job_id model:ir.model.fields,field_description:ems.field_hr_employee_base__job_id model:ir.model.fields,field_description:ems.field_hr_employee_public__job_id model:ir.model.fields,field_description:ems.field_hr_department__job_id model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Job Position"
 msgstr "Lloc de treball"
 
@@ -56042,3 +56042,28 @@ msgstr "Només els grups principals tenen declaració horària."
 #: model:ir.model.fields,field_description:ems.field_ems_study__duration_hours
 msgid "Duration (hours)"
 msgstr "Durada (hores)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_department__is_asp_area
+msgid "ASP area"
+msgstr "Àrea PAS"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_department__effective_manager_id
+msgid "Applicable Manager"
+msgstr "Gestor/a aplicable"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__job_id
+msgid "The job position of the ASP staff of this department: every member takes it, so it is not chosen on each employee's form."
+msgstr "El lloc de treball del personal PAS d'aquest departament: tots els membres l'adopten, per això no es tria a la fitxa de cada empleat."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__is_asp_area
+msgid "Whether this department belongs to the ASP area (its top-level department is ASP)."
+msgstr "Si aquest departament pertany a l'àrea PAS (el seu departament top-level és PAS)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__effective_manager_id
+msgid "The Manager that applies to this department: its own, or the one of the parent department when it shares it."
+msgstr "El gestor que s'aplica a aquest departament: el propi o, si el comparteix, el del departament pare."

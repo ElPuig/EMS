@@ -480,6 +480,73 @@ class TestAttendanceSessionHeader(TransactionCase):
         self.assertNotIn(replacement.id, planned_ids)
         self.assertIn(self.schedule2.id, planned_ids)
 
+    # --- a guard teacher sent to a class (issue #856) ----------------------------------------
+
+    def _guard_with_cover(self, **cover_values):
+        """A guard teacher (user + employee) and a cover sending them to self.group today 8-9."""
+        guard_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Cover Guard User (Attendance Session)', 'login': 'test_cover_guard_tas',
+            'groups_id': [(4, self.env.ref('ems.group_teacher').id), (4, self.env.ref('base.group_user').id)],
+        })
+        guard = self.env['hr.employee'].create({
+            'name': 'Cover Guard (Attendance Session)', 'employee_type': 'teacher',
+            'user_id': guard_user.id, 'tz': 'Europe/Madrid',
+        })
+        values = {
+            'date': self.today, 'hour_from': 8.0, 'hour_to': 9.0, 'absent_employee_id': self.teacher.id,
+            'group_id': self.group.id, 'cover_type': 'guard', 'guard_employee_id': guard.id,
+        }
+        values.update(cover_values)
+        cover = self.env['ems.absence_cover'].create(values)
+        return guard_user, cover
+
+    def test_guard_sent_to_a_class_gets_it_in_automatic_mode(self):
+        guard_user, _cover = self._guard_with_cover()
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': self.schedule.id, 'date': self.today,
+            'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+        })
+        result = self.env['ems.attendance_session_header'].with_user(guard_user).get_normal_sessions_and_planned(
+            self.today.isoformat())
+        self.assertEqual([(entry['id'], entry['is_cover']) for entry in result['sessions']], [(session.id, True)])
+        # Only the hour they were sent to, not the group's next lesson.
+        self.assertEqual(result['planned'], [])
+
+    def test_class_started_by_the_guard_stays_a_cover(self):
+        guard_user, _cover = self._guard_with_cover()
+        guard = guard_user.employee_id
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': self.schedule.id, 'date': self.today,
+            'mode': 'scheduled', 'session_teacher_id': guard.id,
+        })
+        result = self.env['ems.attendance_session_header'].with_user(guard_user).get_normal_sessions_and_planned(
+            self.today.isoformat())
+        self.assertEqual([(entry['id'], entry['is_cover']) for entry in result['sessions']], [(session.id, True)])
+
+    def test_guard_sent_to_a_class_gets_its_planned_roll_call(self):
+        guard_user, _cover = self._guard_with_cover()
+        result = self.env['ems.attendance_session_header'].with_user(guard_user).get_normal_sessions_and_planned(
+            self.today.isoformat())
+        self.assertEqual([(entry['id'], entry['is_cover']) for entry in result['planned']], [(self.schedule.id, True)])
+
+    def test_released_support_or_other_day_cover_shows_nothing(self):
+        guard_user, cover = self._guard_with_cover(state='released')
+        Header = self.env['ems.attendance_session_header'].with_user(guard_user)
+        self.assertEqual(Header.get_normal_sessions_and_planned(self.today.isoformat())['planned'], [])
+        cover.write({'state': 'assigned'})
+        yesterday = self.today - timedelta(days=1)
+        self.assertEqual(Header.get_normal_sessions_and_planned(yesterday.isoformat())['planned'], [])
+        # An arrangement's own teacher teaches their own class: nothing extra either.
+        cover.write({'cover_type': 'arrangement', 'arrangement_type': 'manual', 'message': 'Agreed'})
+        self.assertEqual(Header.get_normal_sessions_and_planned(self.today.isoformat())['planned'], [])
+
+    def test_own_class_is_not_flagged_as_cover(self):
+        _guard_user, cover = self._guard_with_cover(guard_employee_id=self.teacher.id, absent_employee_id=self.teacher.id)
+        result = self.env['ems.attendance_session_header'].with_user(self.teacher_user).get_normal_sessions_and_planned(
+            self.today.isoformat())
+        flags = {entry['id']: entry['is_cover'] for entry in result['planned']}
+        self.assertEqual(flags.get(self.schedule.id), False)
+
     def test_replaced_slot_cannot_get_a_second_session_the_same_day(self):
         _session, replacement = self._replace_schedule_after_roll_call()
         with self.assertRaises(ValidationError):

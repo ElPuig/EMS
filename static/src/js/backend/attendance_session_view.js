@@ -274,8 +274,13 @@ class AttendanceSessionView extends Component {
         return parseInt(this.state.selected.split("_")[1]);
     }
 
+    // A class the user does not teach: the guard mode's own, or one they were sent to (issue #856).
+    get isGuardSelection() {
+        return this.state.viewMode === 'guard' || Boolean(this.selectedSession?.is_cover);
+    }
+
     async _writeSessionLine(lineId, values) {
-        if (this.state.viewMode === 'guard') {
+        if (this.isGuardSelection) {
             await this.orm.call(
                 "ems.attendance_session_header", "write_guard_session_line", [lineId, values]
             );
@@ -501,7 +506,7 @@ class AttendanceSessionView extends Component {
         this.state.saving[lineId] = true;
         try {
             await this.orm.call("ems.attendance_session_line", "change_justified_status",
-                [lineId, statusId, this.state.viewMode === 'guard']);
+                [lineId, statusId, this.isGuardSelection]);
             // The server decides the final state: reload the session's lines.
             await this._loadLines(this._parseSelectedId());
         } finally {

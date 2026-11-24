@@ -604,6 +604,8 @@ class EmsAttendanceSessionHeader(models.Model):
         is_admin = self.env.user.has_group('ems.group_academic_admin')
         own_emp  = self.env['hr.employee'].search([['user_id', '=', self.env.uid]], limit=1)
         is_teacher_emp = own_emp.employee_type == 'teacher'
+        session_fields = ['id', 'time_range', 'subject_id', 'study_ids', 'attendance_schedule_id',
+                          'attendance_session_line_ids', 'start_time', 'end_time']
 
         session_domain = [['date', '=', date]]
         if is_teacher_emp:
@@ -616,19 +618,52 @@ class EmsAttendanceSessionHeader(models.Model):
             # without this, they'd see every teacher's current session, unfiltered.
             session_domain += [('id', '=', False)]
         # else: admin with no teaching employee - stays unfiltered, sees everything.
-        sessions = self.search_read(
-            session_domain,
-            fields=['id', 'time_range', 'subject_id', 'study_ids', 'attendance_schedule_id',
-                    'attendance_session_line_ids', 'start_time', 'end_time'],
-            order='start_time asc',
-        )
+        sessions = self.search_read(session_domain, fields=session_fields, order='start_time asc')
 
         sched_domain = []
         if is_teacher_emp:
             sched_domain.append(['attendance_template_id.teacher_ids', 'in', own_emp.id])
         elif not is_admin:
             sched_domain.append(('id', '=', False))
-        return {'sessions': sessions, 'planned': self._read_planned(date, sched_domain)}
+        planned = self._read_planned(date, sched_domain)
+        for entry in sessions + planned:
+            entry['is_cover'] = False
+
+        # Issue #856: the classes a guard teacher was sent to are theirs to roll-call, no need to
+        # switch to the guard mode. Read like the guard mode does (sudo, other teachers' sessions).
+        if is_teacher_emp:
+            cover_domain = self._covered_class_domain(date, own_emp)
+            if cover_domain:
+                covered = {entry['id']: entry for entry in self.sudo().search_read(
+                    [['date', '=', date]] + cover_domain['session'], fields=session_fields, order='start_time asc')}
+                # Already listed as theirs once they started it: still a colleague's class.
+                for entry in sessions:
+                    entry['is_cover'] = entry['id'] in covered
+                sessions += [dict(entry, is_cover=True) for entry in covered.values()
+                             if entry['id'] not in {listed['id'] for listed in sessions}]
+                planned += [dict(entry, is_cover=True) for entry in self._read_planned(date, cover_domain['schedule'], sudo=True)]
+        return {'sessions': sessions, 'planned': planned}
+
+    @api.model
+    def _covered_class_domain(self, date, employee):
+        """The session and schedule domains of the classes `employee` was sent to on `date` (the
+        guard teacher, or the support, of an ems.absence_cover still assigned): the group's lessons
+        overlapping the cover's hours. False when they were sent nowhere."""
+        covers = self.env['ems.absence_cover'].sudo().search([
+            ('date', '=', date), ('guard_employee_id', '=', employee.id), ('state', '=', 'assigned'),
+            ('cover_type', 'in', ('guard', 'support')), ('group_id', '!=', False)])
+        if not covers:
+            return False
+
+        def domain(prefix):
+            # Their own lessons are theirs whatever a cover says.
+            teaching = [(f'{prefix}attendance_template_id.teacher_ids', 'not in', employee.ids)]
+            terms = [term for cover in covers for term in (
+                '&', '&', (f'{prefix}attendance_template_id.group_ids', 'in', cover.group_id.ids),
+                (f'{prefix}start_time', '<', cover.hour_to), (f'{prefix}end_time', '>', cover.hour_from))]
+            return teaching + ['|'] * (len(covers) - 1) + terms
+
+        return {'schedule': domain(''), 'session': domain('attendance_schedule_id.')}
 
     @api.model
     def _read_planned(self, date, domain, sudo=False):

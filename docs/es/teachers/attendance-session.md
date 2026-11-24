@@ -158,6 +158,11 @@ sustitución). Muestra, solo para el día de hoy:
 
 ![Modo Guardia, mostrando una franja de una compañera aún no iniciada](../../assets/teachers/passlist-02-mode-guarida.png)
 
+**Si el horario de guardias te envía a una clase** (eres su docente de guardia, o su apoyo, esa
+hora), no necesitas cambiar de modo: la clase aparece en **Actual** a su hora, como las tuyas, y
+desde ahí la inicias y pasas lista. Solo se ofrecen las horas a las que te han enviado, no el resto
+de clases del grupo.
+
 Marcar estados, añadir notas y poner strikes funciona exactamente igual que en tus propias
 sesiones. El botón **Eliminar sesión** no está disponible en modo Guardia — solo el docente titular
 de la franja (o un administrador) puede eliminar una sesión cubierta en guardia.

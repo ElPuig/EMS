@@ -61,7 +61,7 @@
                 </div>
 
                 <!-- Delete session button -->
-                <button t-if="selectedSession and state.viewMode !== 'guard'"
+                <button t-if="selectedSession and !isGuardSelection"
                         class="ems-av-delete-btn"
                         t-on-click="onDeleteSession">
                     <i class="fa fa-trash"/>

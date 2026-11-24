@@ -225,7 +225,16 @@ returns not-yet-created schedules for **other** teachers today. Both `get_guard_
 out any line whose class already has a session that day (`_is_slot_taken`: same template,
 overlapping hours, any line, archived or not), so a line replaced after a room change is never
 offered again on the days taken with the original. Planned slots are labelled with the line's
-`display_name` (weekday in the reader's language), like the sessions. `create_scheduled_session`
+`display_name` (weekday in the reader's language), like the sessions. `get_normal_sessions_and_planned` also returns the classes a guard teacher was sent to (issue #856):
+`_covered_class_domain` turns the caller's still-assigned `ems.absence_cover` of the day (`guard`
+and `support` types, not `arrangement`, whose teacher teaches their own class) into session and
+schedule domains (the cover's group, lessons overlapping its hours, never the caller's own
+lessons), read under `sudo()` like the guard mode. Every entry carries `is_cover`; it stays `True`
+after the guard starts the session, and the client then writes through `write_guard_session_line`
+/ `change_justified_status(guard=True)` and hides Delete session (`isGuardSelection`). Cost: one
+indexed search of covers per load (by date), plus the session and schedule searches only when it
+finds any; nothing is looped per record.
+`create_scheduled_session`
 is the click-to-start-a-session entry point (when the caller has no teaching employee, e.g. an
 admin, who sees every slot, the session's teacher is the slot's own first template teacher instead
 of the caller - `teacher_ids` is required on the template, so there always is one), returning whether the new session is a

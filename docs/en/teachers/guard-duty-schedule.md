@@ -173,6 +173,14 @@ The board's address keeps the week, day, shift, view and areas you are looking a
 
 Click **PDF** in the toolbar to download the day and shift currently shown (not the whole week) as a printable document — whatever area filter is currently checked is applied to the PDF too, which uses the same stretches of time and the same columns as the screen. The PDF prints whichever of the two views is on screen: the timetable if **Guard duty schedule** is active, or the Absences table if **Absences table** is active, with its guards, colours and struck-through lines as on screen.
 
+## Videos
+
+> ⚠️ **The videos may be out of date.** EMS is updated often and not every video is remade after each change, so a screen or a step may differ from what you see. If something differs, follow this manual. The videos are in Catalan and have no voice-over: all the text is shown on screen.
+
+- ▶ [Reading the guard duty board](https://drive.google.com/file/d/191MPigr_wHHVomni1mheu2hOUNhlCZ6M/view?usp=drivesdk)
+- ▶ [Everything through EMS](https://drive.google.com/file/d/1Vce04MgTVhrpyV12KMWclYaUaz-By6BM/view?usp=drivesdk)
+- ▶ [Guard duties live](https://drive.google.com/file/d/1zUi_8nxIBFvpPGiQsZpRo1G66Yml41P7/view?usp=drivesdk)
+
 ---
 
 [← Back to main index](index.md)

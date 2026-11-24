@@ -173,6 +173,14 @@ L'adreça de l'horari conserva la setmana, el dia, el torn, la vista i les àree
 
 Fes clic a **PDF** a la barra d'eines per descarregar el dia i el torn que s'estan mostrant (no tota la setmana) com a document imprimible — el filtre d'àrea que tinguis marcat s'aplica també al PDF, que fa servir els mateixos trams de temps i les mateixes columnes que la pantalla. El PDF imprimeix la vista que tinguis activa a la pantalla: l'horari si està activa **Horari de guàrdies**, o la taula d'absències si està activa **Taula d'absències**.
 
+## Vídeos
+
+> ⚠️ **Els vídeos poden estar desactualitzats.** L'EMS s'actualitza sovint i no tots els vídeos es tornen a fer després de cada canvi: pot ser que alguna pantalla o algun pas no coincideixi amb el que veus. Si hi ha alguna diferència, fes cas d'aquest manual. Els vídeos són en català i no tenen veu: tot el text apareix a la pantalla.
+
+- ▶ [Llegir el quadre de guàrdies](https://drive.google.com/file/d/191MPigr_wHHVomni1mheu2hOUNhlCZ6M/view?usp=drivesdk)
+- ▶ [Tot per l'EMS](https://drive.google.com/file/d/1Vce04MgTVhrpyV12KMWclYaUaz-By6BM/view?usp=drivesdk)
+- ▶ [Les guàrdies en directe](https://drive.google.com/file/d/1zUi_8nxIBFvpPGiQsZpRo1G66Yml41P7/view?usp=drivesdk)
+
 ---
 
 [← Tornar a l'índex principal](index.md)

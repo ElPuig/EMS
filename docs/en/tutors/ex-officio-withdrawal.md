@@ -87,3 +87,10 @@ While the case file is open (a proposal too), EMS reviews the roll-calls of the 
 When you accept your step, the case file goes to the next responsible (Coexistence, the Secretariat or Direction), who gets their task on its day. You can still see the case file and its **History**, with every step done, who did it and when.
 
 If the student asks for a voluntary withdrawal or is expelled, the case file closes on its own.
+
+## Videos
+
+> ⚠️ **The videos may be out of date.** EMS is updated often and not every video is remade after each change, so a screen or a step may differ from what you see. If something differs, follow this manual. The videos are in Catalan and have no voice-over: all the text is shown on screen.
+
+- ▶ [Ex officio withdrawal, post-compulsory education](https://drive.google.com/file/d/1Ia0xGFlXyh7MbUxH3aFdJjZdhn-Tye8b/view?usp=drivesdk)
+- ▶ [Ex officio withdrawal, compulsory education](https://drive.google.com/file/d/1f80ulfZ_bxHEuzLJ_MyxgVnHgCNzWRd1/view?usp=drivesdk)

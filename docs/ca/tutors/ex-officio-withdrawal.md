@@ -18,6 +18,7 @@ Aquesta guia explica què has de fer quan un alumne teu deixa de venir a classe:
 4. [El teu pas: contacte amb la família](#el-teu-pas-contacte-amb-la-família)
 5. [Si els passis de llista diuen una altra cosa](#si-els-passis-de-llista-diuen-una-altra-cosa)
 6. [Què passa després](#què-passa-després)
+7. [Vídeos](#vídeos)
 
 ---
 
@@ -87,3 +88,10 @@ Mentre l'expedient està obert (també si encara és una proposta), EMS revisa e
 Quan acceptes el teu pas, l'expedient passa al responsable següent (Convivència, Secretaria o Direcció), que rep la seva tasca el dia que toca. Tu continues veient l'expedient i el seu **Històric**, amb cada pas fet, qui el va fer i quan.
 
 Si l'alumne demana la baixa voluntària o és expulsat, l'expedient es tanca sol.
+
+## Vídeos
+
+> ⚠️ **Els vídeos poden estar desactualitzats.** L'EMS s'actualitza sovint i no tots els vídeos es tornen a fer després de cada canvi: pot ser que alguna pantalla o algun pas no coincideixi amb el que veus. Si hi ha alguna diferència, fes cas d'aquest manual. Els vídeos són en català i no tenen veu: tot el text apareix a la pantalla.
+
+- ▶ [Baixa d'ofici postobligatòria](https://drive.google.com/file/d/1Ia0xGFlXyh7MbUxH3aFdJjZdhn-Tye8b/view?usp=drivesdk)
+- ▶ [Baixa d'ofici obligatòria](https://drive.google.com/file/d/1f80ulfZ_bxHEuzLJ_MyxgVnHgCNzWRd1/view?usp=drivesdk)

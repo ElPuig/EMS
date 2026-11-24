@@ -193,6 +193,12 @@ Si una ausencia se rechaza, se anula o se acorta, o resulta que otro docente sí
 
 ![Recuadro rojo de correcciones: una propuesta con su paso de rectificación y, al final, solo avisar a las familias](../../assets/teachers/guard-duty-10-correccions.png)
 
+## Vídeos
+
+> ⚠️ **Los vídeos pueden estar desactualizados.** El EMS se actualiza a menudo y no todos los vídeos se rehacen tras cada cambio: puede que alguna pantalla o algún paso no coincida con lo que ves. Si hay alguna diferencia, haz caso de este manual. Los vídeos están en catalán y no tienen voz: todo el texto aparece en pantalla.
+
+- ▶ [Organizar una ausencia](https://drive.google.com/file/d/1qgrK0HfhyVUIQdm5OHJmuQ8m5BgTkJR8/view?usp=drivesdk)
+
 ---
 
 [← Volver al índice principal](index.md)

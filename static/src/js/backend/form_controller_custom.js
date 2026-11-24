@@ -35,6 +35,8 @@ export class StudentPopupFormController extends FormController {
         // update (or give) their portal access, and the answer travels in this same save as
         // `portal_email_decision` (consumed by res.partner.write). Closing the dialog does not
         // save. See get_portal_email_question in models/contacts/portal.py.
+        // Custom on purpose: an onchange warning (what this replaced) can only inform, never ask
+        // for a two-way decision that has to travel with the save.
         if (!record.resId || !("email" in changes)) {
             return super.onWillSaveRecord(...arguments);
         }

@@ -644,8 +644,8 @@ class EmsAttendanceSessionHeader(models.Model):
                 # Already listed as theirs once they started it: still a colleague's class.
                 for entry in sessions:
                     entry['is_cover'] = entry['id'] in covered
-                sessions += [dict(entry, is_cover=True) for entry in covered.values()
-                             if entry['id'] not in {listed['id'] for listed in sessions}]
+                listed = {entry['id'] for entry in sessions}
+                sessions += [dict(entry, is_cover=True) for entry in covered.values() if entry['id'] not in listed]
                 planned += [dict(entry, is_cover=True) for entry in self._read_planned(date, cover_domain['schedule'], sudo=True)]
         return {'sessions': sessions, 'planned': planned}
 

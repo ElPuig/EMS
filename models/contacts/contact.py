@@ -262,6 +262,7 @@ class ResPartner(models.Model):
         # a type change (applicant -> student, graduation...) that doesn't touch the email.
         for partner in self.filtered(lambda p: p.contact_type in PERSONAL_EMAIL_CONTACT_TYPES):
             (partner.company_id or self.env.company)._ems_check_personal_email(partner.email)
+
     def _check_email_not_shared_with_family(self):
         """A student's personal email can never be a family contact's (issue #842): each of them
         gets a portal login of their own, and a login is unique. Called by write() only for the

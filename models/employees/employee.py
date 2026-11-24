@@ -818,7 +818,9 @@ class ems_employee(models.AbstractModel):
         string="Archived reason color", related="departure_reason_id.color",
         groups="hr.group_hr_user,ems.group_teacher")
 
-    # Issue #748: a teacher who replaces another one while they are away. Setting it copies the
+    # Issue #748: a teacher who replaces another one while they are away. Custom on purpose: no Odoo
+    # core HR module nor any OCA repository this project uses has a teacher substitution (a copy of
+    # the schedule plus the tutor scope), checked 2026-11-24. Setting it copies the
     # replaced teacher's schedule onto this one (_ems_start_substitution). It ends when the
     # replaced teacher is back and the substitute is archived (their calendar goes with them);
     # clearing it by hand only corrects it, the schedule stays. Unarchiving a substitute ends their

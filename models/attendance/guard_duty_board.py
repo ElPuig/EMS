@@ -374,7 +374,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         copy of their schedule, so the board shows the substitute's classes and guard duties and
         nothing of the teacher who is away - no absence to cover, no "co-teaching" row. sudo: who is
         substituted is no secret on the board, and the field is not readable by every role."""
-        substituted = self.env['hr.employee'].sudo().search([('substituted_by_ids', '!=', False)])
+        substituted = self.env['hr.employee'].sudo().with_context(active_test=True).search([('substituted_by_ids', '!=', False)])
         return self.env['resource.calendar.attendance'].search([
             ('calendar_id.is_framework', '=', False),
             ('calendar_id.active', '=', True),

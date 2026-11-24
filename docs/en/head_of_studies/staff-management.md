@@ -114,6 +114,8 @@ When a teacher is replaced while they are away, register it on the **substitute'
 2. In the **Teaching** tab, under **Substitution**, choose the teacher being replaced in **Substitute of**. EMS warns you that the substitute's schedule is going to be replaced.
 3. Click **Save**.
 
+![A substitute's form: the Substitute ribbon and, in the Teaching tab, whom they substitute](../../assets/head_of_studies/hos-substitucio.png)
+
 From then on, until the substitution ends:
 
 - **Schedule:** the substitute's schedule becomes a copy of the replaced teacher's, classes and guard duties included. The copy is made once: if the replaced teacher's schedule changes later, edit the substitute's too.
@@ -126,7 +128,7 @@ From then on, until the substitution ends:
 
 Clearing **Substitute of** by hand only undoes the substitution (use it if you chose the wrong teacher): the copied schedule stays as it is, so adjust it in the **Schedule** tab or choose the right teacher, which copies their schedule again.
 
-If the substitute is replaced in turn, register the new substitute as **Substitute of** the first one: they act as the original teacher too.
+If the substitute is replaced in turn, choose the first substitute in the new one's **Substitute of** field: they act as the original teacher too.
 
 ---
 

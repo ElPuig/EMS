@@ -186,9 +186,10 @@ graph TD
 | `_ems_start_substitution()` | Replaces the substitute's personal calendar with `resource.calendar._ems_schedule_cells()` of the titular's, through `apply_schedule_changes()` - the same path the Schedule tab saves by, so teachings, roll-call templates (the copied classes become co-teaching) and the groups' classroom follow. sudo: the right to set the field is the right to set the schedule. The copy is a snapshot: a later change of the titular's schedule is not followed. |
 | Ending | Archiving the substitute: `action_archive()` already archives their calendar and blocks, and every reading of the substitution only counts active substitutes (`substituted_by_ids` and `_ems_substitutes()` through `active_test`, `_ems_substituted()` explicitly, since the rules' searches run with `active_test=False` and the substitute's user may still be active). The archived form keeps `substitute_of_id` as a record. Clearing the field by hand only undoes the substitution (a correction): the copied schedule stays. |
 | `_ems_end_substitution()` | Called by `action_unarchive()`: a substitute coming back does not take up their old substitution, so the field is cleared and the restored copy is emptied (`apply_schedule_changes([])`, roll-call history kept). |
-| `acting_user_ids` | `ems_employee_base`, non-stored, searchable: own user + the users of `_ems_substitutes()` (the chain downwards). The "own" record rules of a teacher's attendance templates, schedule lines, sessions and lines, justifications and grade sessions/lines (`security/rules/{attendance,grading}.xml`) match on it instead of `user_id`, as do the attendance reports' domain and `ems.group._ems_my_ids()`. Its `_search` adds `_ems_substituted()` (the chain upwards). |
+| `_ems_substitution_map()` | Every active substitution of the centre in one query (`{titular id: substitutes}`), read once per compute batch and walked in memory by `_ems_substitutes()` (the chain downwards): there are only a handful at a time, so a recordset of any size costs one query (124 teachers: `acting_user_ids` 14.6 ms cold, `tutor_scope_user_ids` 40.5 ms). `active_test=True` is forced, so a screen listing archived records never brings an ended substitution back. |
+| `acting_user_ids` | `ems_employee_base`, non-stored, searchable: own user + the users of `_ems_substitutes()`. The "own" record rules of a teacher's attendance templates, schedule lines, sessions and lines, justifications and grade sessions/lines (`security/rules/{attendance,grading}.xml`) match on it instead of `user_id`, as do the attendance reports' domain and `ems.group._ems_my_ids()`. Its `_search` adds `_ems_substituted()` (the chain upwards). |
 | `tutor_scope_user_ids` | Includes the substitutes' users too, so every tutor-scope rule and `user_acts_as_tutor()` work unchanged. Never the chief rung: a substitute of a Department Chief does not get their department (see [role_hierarchy.md](role_hierarchy.md)). |
-| `_ems_acting_teacher()` | Who acts as the teacher now (the last substitute of the chain, the first by id when there are several). The tutor's attendance issues and daily summary, the expected-withdrawal and Erasmus+ notices, the contact data review task and the walkout emails go to them. |
+| `_ems_acting_teacher()` | Who acts as the teacher now (the last substitute of the chain, the first by id when there are several). The tutor's attendance issues and daily summary, the expected-withdrawal and Erasmus+ notices, the contact data review task, the walkout emails and the tutor's copy of a strike notice go to them. |
 | `substitution_label` / `substitution_color` | The form ribbon (shared `ems_archived_reason_ribbon` widget): "Substitute" (orange) or "Substituted" (grey), empty on an archived employee. |
 | `_onchange_substitute_of_id` | Warns that saving replaces the substitute's schedule. |
 
@@ -196,8 +197,9 @@ What is deliberately **not** passed on, being the titular's own: their absences 
 `ems.absence_pending`), attendance corrections, strike declarations, Erasmus+ roles, certificate
 step roles and any `ems.role`/group membership.
 
-Covered by `tests/test_employee_substitution.py` and the tour `employee_substitution_tour.js` (as
-the Head of Studies).
+Covered by `tests/test_employee_substitution.py`, the routing tests in `test_attendance_issue.py`,
+`test_strike.py` and `test_absence_detection.py`, and the tour `employee_substitution_tour.js` (as the
+Head of Studies). Manual screenshot: `tests/test_docs_screenshots_substitution.py`.
 
 ## Views
 

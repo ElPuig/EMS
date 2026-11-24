@@ -253,7 +253,7 @@ Reimportar un archivo actualizado para un puesto todavía sin cubrir (el mismo c
 Usa esto para reiniciar a un docente con un marco distinto (p. ej. ahora imparte otro nivel), o para partir del horario de un compañero:
 
 1. Abre la pestaña **Horario** del docente y haz clic en **Nuevo**.
-2. Elige un **marco horario** (empieza en blanco, siguiendo las franjas de ese marco) o **otro docente** (copia sus asignaturas/grupos reales).
+2. Elige un **marco horario** (empieza en blanco, siguiendo las franjas de ese marco) u **otro docente** (copia sus asignaturas/grupos reales).
 3. Haz clic en **Cargar** — verás el horario cargado en modo edición.
 4. Ajusta lo que haga falta y haz clic en **Guardar** para aplicarlo, o en **Cancelar** para descartarlo y mantener el horario anterior del docente intacto.
 

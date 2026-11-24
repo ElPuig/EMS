@@ -114,9 +114,11 @@ Cuando un docente es sustituido mientras está ausente, registradlo en la ficha 
 2. En la pestaña **Enseñanza**, en **Sustitución**, elegid al docente sustituido en **Sustituto de**. EMS os avisa de que se reemplazará el horario del sustituto.
 3. Haced clic en **Guardar**.
 
+![La ficha de un sustituto: la cinta Sustituto y, en la pestaña Enseñanza, a quién sustituye](../../assets/head_of_studies/hos-substitucio.png)
+
 A partir de ese momento, y hasta que termine la sustitución:
 
-- **Horario:** el horario del sustituto pasa a ser una copia del del docente sustituido, con sus clases y guardias. La copia se hace una sola vez: si más adelante cambia el horario del docente sustituido, modificad también el del sustituto.
+- **Horario:** el horario del sustituto pasa a ser una copia del horario del docente sustituido, con sus clases y guardias. La copia se hace una sola vez: si más adelante cambia el horario del docente sustituido, modificad también el del sustituto.
 - **Cinta:** la ficha del sustituto muestra la cinta **Sustituto** y la del docente sustituido, la cinta **Sustituido**, con el nombre del sustituto en **Sustituido por** (pestaña Enseñanza).
 - **Tablero de guardias:** el docente sustituido ya no aparece. Sus clases y guardias (lavabos, patio...) son del sustituto, así que no hay que cubrirlas.
 - **Qué ve el sustituto:** lo mismo que el docente sustituido como docente y como tutor: el alumnado de su grupo de tutoría y sus incidencias de asistencia, sus pases de lista y sus notas. Los avisos y las tareas de tutoría también le llegan al sustituto.
@@ -126,7 +128,7 @@ A partir de ese momento, y hasta que termine la sustitución:
 
 Vaciar **Sustituto de** a mano solo deshace la sustitución (hacedlo si os habéis equivocado de docente): el horario copiado se queda tal cual, así que ajustadlo en la pestaña **Horario** o elegid al docente correcto, lo que vuelve a copiar su horario.
 
-Si el sustituto también es sustituido, registrad al nuevo sustituto como **Sustituto de** el primero: también actúa como el docente original.
+Si el sustituto también es sustituido, indicad el primer sustituto en el campo **Sustituto de** del nuevo: también actúa como el docente original.
 
 ---
 

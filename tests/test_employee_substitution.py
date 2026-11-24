@@ -145,6 +145,14 @@ class TestEmployeeSubstitution(GuardDutyBoardCase):
         self.assertEqual(self.titular.acting_user_ids, self.titular_user)
         self.assertEqual(self.titular._ems_acting_teacher(), self.titular)
         self.assertFalse(self.titular.substitution_label)
+        # Not even from a screen that lists archived records (active_test=False in the context).
+        unfiltered = self.titular.with_context(active_test=False)
+        unfiltered.invalidate_recordset()
+        self.assertEqual(unfiltered.acting_user_ids, self.titular_user)
+        self.assertEqual(unfiltered._ems_acting_teacher(), self.titular)
+        self.assertFalse(unfiltered.substitution_label)
+        self.assertIn(self.titular, self.env['ems.course'].with_context(active_test=False)
+                      ._get_guard_duty_board_attendance_ids([('dayofweek', '=', '0')]).employee_id)
         self.assertNotIn(self.titular, self.env['hr.employee'].search([('acting_user_ids', '=', self.substitute_user.id)]))
         with self.assertRaises(AccessError):
             issue.with_user(self.substitute_user).check_access('read')

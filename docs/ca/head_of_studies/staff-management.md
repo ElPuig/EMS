@@ -114,9 +114,11 @@ Quan un docent és substituït mentre és absent, registreu-ho a la fitxa del **
 2. A la pestanya **Ensenyament**, a **Substitució**, trieu el docent substituït a **Substitut de**. L'EMS us avisa que es reemplaçarà l'horari del substitut.
 3. Feu clic a **Desa**.
 
+![La fitxa d'un substitut: la cinta Substitut i, a la pestanya Ensenyament, a qui substitueix](../../assets/head_of_studies/hos-substitucio.png)
+
 A partir d'aquest moment, i fins que s'acabi la substitució:
 
-- **Horari:** l'horari del substitut passa a ser una còpia del del docent substituït, amb les classes i les guàrdies. La còpia es fa una sola vegada: si després canvia l'horari del docent substituït, modifiqueu també el del substitut.
+- **Horari:** l'horari del substitut passa a ser una còpia de l'horari del docent substituït, amb les classes i les guàrdies. La còpia es fa una sola vegada: si després canvia l'horari del docent substituït, modifiqueu també el del substitut.
 - **Cinta:** la fitxa del substitut mostra la cinta **Substitut** i la del docent substituït, la cinta **Substituït**, amb el nom del substitut a **Substituït per** (pestanya Ensenyament).
 - **Tauler de guàrdies:** el docent substituït ja no hi apareix. Les seves classes i guàrdies (lavabos, pati...) són del substitut, de manera que no cal cobrir-les.
 - **Què veu el substitut:** el mateix que el docent substituït com a docent i com a tutor: l'alumnat del seu grup de tutoria i les seves incidències d'assistència, els seus passis de llista i les seves notes. Els avisos i les tasques de tutoria també arriben al substitut.
@@ -126,7 +128,7 @@ A partir d'aquest moment, i fins que s'acabi la substitució:
 
 Si buideu a mà el camp **Substitut de**, només es desfà la substitució (feu-ho si us heu equivocat de docent): l'horari copiat es queda tal com està, així que ajusteu-lo a la pestanya **Horari** o trieu el docent correcte, cosa que en torna a copiar l'horari.
 
-Si el substitut també és substituït, registreu el nou substitut com a **Substitut de** el primer: també actua com el docent original.
+Si el substitut també és substituït, a la fitxa del nou substitut, trieu el primer al camp **Substitut de**: també actua com el docent original.
 
 ---
 

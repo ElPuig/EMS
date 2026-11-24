@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import base64
+from collections import defaultdict
 from datetime import timedelta
 
 from pytz import UTC
@@ -168,22 +169,36 @@ class ems_employee_base(models.AbstractModel):
     # can already read a schedule may also export it.
     can_edit_schedule = fields.Boolean(string="Can edit schedule", compute="_compute_can_edit_schedule", compute_sudo=True, store=False)
 
-    def _ems_substitutes(self):
+    def _ems_substitution_map(self):
+        """`{titular id: their active substitutes}` for the whole centre, in one query: there are
+        only a handful of substitutions at a time. Active only, whatever the caller's context (an
+        archived substitute's substitution is over, issue #748)."""
+        Employee = self.env['hr.employee'].sudo().with_context(active_test=True)
+        substitutes_of = defaultdict(lambda: Employee)
+        for substitute in Employee.search([('substitute_of_id', '!=', False)]):
+            substitutes_of[substitute.substitute_of_id.id] |= substitute
+        return substitutes_of
+
+    def _ems_substitutes(self, substitutes_of=None):
         """The teachers substituting these (issue #748), through the chain: whoever replaces a
         substitute also replaces the teacher they replace. As hr.employee, also from the public
-        profile."""
-        Employee = self.env['hr.employee'].sudo()
-        found, current = Employee, Employee.search([('substitute_of_id', 'in', self.ids)])
-        while current:
-            found |= current
-            current = Employee.search([('substitute_of_id', 'in', current.ids)]) - found
+        profile. `substitutes_of` (_ems_substitution_map) when already read."""
+        if substitutes_of is None:
+            substitutes_of = self._ems_substitution_map()
+        found = self.env['hr.employee'].sudo()
+        pending = list(self.ids)
+        while pending:
+            for substitute in substitutes_of.get(pending.pop(), ()):
+                if substitute not in found:
+                    found |= substitute
+                    pending.append(substitute.id)
         return found
 
     def _ems_substituted(self):
         """The mirror of _ems_substitutes: the teachers these substitute, through the chain. Only
         while the substitute is active: archiving them (the titular is back) ends the substitution,
         even if their user is still active (_ems_substitutes skips them the same way)."""
-        Employee = self.env['hr.employee'].sudo()
+        Employee = self.env['hr.employee'].sudo().with_context(active_test=False)
         found, current = Employee, Employee.browse(self.ids).filtered('active').substitute_of_id
         while current:
             found |= current
@@ -198,8 +213,9 @@ class ems_employee_base(models.AbstractModel):
         return [user_id for user_id in ([value] if isinstance(value, int) else value or []) if user_id]
 
     def _compute_acting_user_ids(self):
+        substitutes_of = self._ems_substitution_map()
         for employee in self:
-            employee.acting_user_ids = employee.user_id | employee._ems_substitutes().user_id
+            employee.acting_user_ids = employee.user_id | employee._ems_substitutes(substitutes_of).user_id
 
     def _search_acting_user_ids(self, operator, value):
         """The employees the given users act as: their own, and those they substitute."""
@@ -208,8 +224,9 @@ class ems_employee_base(models.AbstractModel):
         return [('id', 'in', (own | own._ems_substituted()).ids)]
 
     def _compute_tutor_scope_user_ids(self):
+        substitutes_of = self._ems_substitution_map()
         for employee in self:
-            users = employee.user_id | employee.company_id.director_id.user_id | employee._ems_substitutes().user_id
+            users = employee.user_id | employee.company_id.director_id.user_id | employee._ems_substitutes(substitutes_of).user_id
             ancestor, seen = employee.parent_id, employee
             while ancestor and ancestor not in seen:
                 if ancestor.user_id and ancestor.user_id.has_group(TUTOR_SCOPE_CHIEF_GROUP):
@@ -854,7 +871,8 @@ class ems_employee(models.AbstractModel):
 
     @api.depends('substitute_of_id', 'substituted_by_ids', 'active')
     def _compute_substitution_label(self):
-        for employee in self:
+        # Active substitutes only, whatever the caller's context (see _ems_substitution_map).
+        for employee in self.with_context(active_test=True):
             if not employee.active:
                 employee.substitution_label = False
             elif employee.substitute_of_id:
@@ -1023,7 +1041,7 @@ class ems_employee(models.AbstractModel):
         go to them. With several substitutes, the first one (a split job has one tutor)."""
         acting = self.browse()
         for employee in self:
-            current = employee.sudo()
+            current = employee.sudo().with_context(active_test=True)  # active substitutes only
             while current.substituted_by_ids:
                 current = current.substituted_by_ids.sorted('id')[:1]
             acting |= current.with_env(self.env)

@@ -4,7 +4,7 @@
 
 # Traspasar la tutoría de un alumno
 
-A veces, un alumno matriculado en 2.º con asignaturas de 1.º pendientes se da de baja de todas las de 2.º y solo cursa las de 1.º. En Esfer@ sigue en su grupo de 2.º, con su tutor, que sigue poniéndole las notas allí. En EMS, en cambio, el seguimiento pasa al tutor de 1.º: la familia, las faltas, los strikes, las inasistencias colectivas y el resumen diario. Traspasar la tutoría sirve para registrarlo.
+A veces, un alumno matriculado en 2.º con asignaturas pendientes de 1.º se da de baja de todas las de 2.º y solo cursa las de 1.º. En Esfer@ sigue en su grupo de 2.º, con su tutor, que sigue poniéndole las notas allí. En EMS, en cambio, el seguimiento pasa al tutor de 1.º: la familia, las faltas, los strikes, las inasistencias colectivas y el resumen diario. Traspasar la tutoría sirve para registrarlo.
 
 **Rol necesario:** secretaría
 

@@ -128,3 +128,5 @@ SMX2A
 SMX1C
 DAW2A
 PAS
+strikes
+Secretariat

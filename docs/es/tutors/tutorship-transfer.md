@@ -4,7 +4,7 @@
 
 # Traspasar la tutoría de un alumno
 
-A veces, un alumno matriculado en 2.º con asignaturas de 1.º pendientes se da de baja de todas las de 2.º y solo cursa las de 1.º. Entonces la secretaría (o el jefe de estudios) puede traspasar su tutoría al grupo de 1.º: el alumno sigue en su grupo de 2.º en Esfer@, pero el seguimiento pasa a ti, el tutor de 1.º.
+A veces, un alumno matriculado en 2.º con asignaturas pendientes de 1.º se da de baja de todas las de 2.º y solo cursa las de 1.º. Entonces la secretaría (o el jefe de estudios) puede traspasar su tutoría al grupo de 1.º: el alumno sigue en su grupo de 2.º en Esfer@, pero el seguimiento pasa a ti, el tutor de 1.º.
 
 **Rol necesario:** tutor
 

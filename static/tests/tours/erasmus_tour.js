@@ -56,7 +56,10 @@ registry.category("web_tour.tours").add("ems_portal_erasmus_apply", {
 });
 
 // The Erasmus team reviews a submitted application from Erasmus+ > Applications: marks the
-// document valid, records the requirements check and saves. Then opens the calls.
+// document valid, records the requirements check and saves, then sends the document back to
+// correct with a comment. Then opens the calls.
+const CV_ROW = ".o_form_view .o_field_widget[name='document_ids'] .o_data_row:contains('Europass CV')";
+
 registry.category("web_tour.tours").add("ems_erasmus_review", {
     test: true,
     url: "/odoo/action-ems.action_erasmus_application",
@@ -102,6 +105,36 @@ registry.category("web_tour.tours").add("ems_erasmus_review", {
         {
             trigger: ".o_form_view .o_field_widget[name='requirements_check_user_id']:contains('Test Erasmus User')",
             content: "The check records who made it",
+        },
+        // Issue #859: sending a document back to correct leaves no Valid button next to the comment.
+        {
+            trigger: ".o_form_view .o_notebook a[name='documents']",
+            content: "Back to the documents",
+            run: "click",
+        },
+        {
+            trigger: `${CV_ROW} button[name='action_mark_needs_change']`,
+            content: "Send the document back to correct",
+            run: "click",
+        },
+        {
+            trigger: `${CV_ROW}:has(td[name='file_state'] .text-bg-warning):not(:has(button[name='action_mark_valid'])) td[name='review_comment']`,
+            content: "Needs changes, and no Valid button next to the comment: write it",
+            run: "click",
+        },
+        {
+            trigger: `${CV_ROW}.o_selected_row td.o_ems_review_comment input[placeholder]`,
+            content: "The comment has a placeholder",
+            run: "edit Upload it in English",
+        },
+        {
+            trigger: ".o_form_view .o_form_button_save",
+            content: "Save",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_form_saved",
+            content: "Saved",
         },
     ],
 });

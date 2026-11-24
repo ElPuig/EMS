@@ -35,7 +35,9 @@ class TestErasmusTour(HttpCase):
         self.start_tour('/odoo/action-ems.action_erasmus_application', 'ems_erasmus_review',
                         login='test_erasmus_team')
         self.assertEqual(application.requirements_check, 'met')
-        self.assertEqual(application.document_ids.filtered('is_required').review_state, 'valid')
+        document = application.document_ids.filtered('is_required')
+        self.assertEqual(document.review_state, 'needs_change', "Sent back after being marked valid")
+        self.assertEqual(document.review_comment, 'Upload it in English')
 
     def test_calls_tour(self):
         self.start_tour('/odoo/action-ems.action_erasmus_call', 'ems_erasmus_calls', login='test_erasmus_team')

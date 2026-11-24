@@ -11,8 +11,9 @@ import {
 // A record's own files (models inheriting ems.attachment_mixin): the stock upload widget - one
 // click, several files, each named after its file, no list of existing files to pick from - with
 // three matching actions on every file: preview in Odoo's own file viewer (the chatter's, only for
-// what it can show: PDF, images, text, video), download and delete. Removing a file deletes it on
-// save (ems.attachment_mixin.write()).
+// what it can show: PDF, images, text, video), download and delete. A link (an attachment of type
+// url, e.g. a video handed in as a link) is opened in a new tab instead (issue #859). Removing a
+// file deletes it on save (ems.attachment_mixin.write()).
 // View only: a record whose own 'confidential' field is set (an Erasmus+ health card, the evidence
 // of fewer opportunities) offers no download, and its file viewer none either (see
 // file_viewer_view_only.js); the server refuses the download too (models/erasmus/binary.py).
@@ -35,6 +36,8 @@ export class EmsAttachmentsField extends Many2ManyBinaryField {
                 name: record.data.name,
                 mimetype: record.data.mimetype,
                 checksum: record.data.checksum,
+                type: record.data.type,
+                url: record.data.url,
                 emsViewOnly: this.viewOnly,
             })
         );
@@ -50,7 +53,8 @@ export class EmsAttachmentsField extends Many2ManyBinaryField {
 export const emsAttachmentsField = {
     ...many2ManyBinaryField,
     component: EmsAttachmentsField,
-    relatedFields: [...many2ManyBinaryField.relatedFields, { name: "checksum", type: "char" }],
+    relatedFields: [...many2ManyBinaryField.relatedFields, { name: "checksum", type: "char" },
+        { name: "type", type: "selection" }, { name: "url", type: "char" }],
 };
 
 registry.category("fields").add("ems_attachments", emsAttachmentsField);

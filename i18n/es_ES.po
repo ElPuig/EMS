@@ -56529,3 +56529,18 @@ msgstr "Ver el borrador"
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "The certificate as it stands now, marked DRAFT: the details still empty are shown by their name. Only for the centre's staff."
 msgstr "El certificado tal como está ahora, marcado como BORRADOR: los datos aún vacíos se muestran por su nombre. Solo para el personal del centro."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/attachments_field.xml:0
+msgid "Open link"
+msgstr "Abrir el enlace"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_document_list
+msgid "Write what to correct"
+msgstr "Escribe qué hay que corregir"

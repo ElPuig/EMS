@@ -4,7 +4,7 @@
 
 # Com gestionar l'accés al portal dels alumnes i famílies
 
-Aquesta guia explica com el tutor pot **donar d'alta**, **donar de baixa** o **reenviar** les invitacions d'accés al portal per als seus alumnes i, en el cas dels menors, per a les seves famílies.
+Aquesta guia explica com el tutor pot **donar d'alta**, **donar de baixa** o **regenerar les credencials** d'accés al portal per als seus alumnes i, en el cas dels menors, per a les seves famílies.
 
 El portal és l'espai on alumnes i famílies consulten i confirmen la informació de l'alumne (matrícules, autoritzacions, etc.). Per accedir-hi, cada destinatari rep un correu d'invitació amb un enllaç per establir la contrasenya. Aquest enllaç **caduca al cap d'uns dies**, de manera que si algú no l'utilitza a temps caldrà tornar-li a enviar la invitació.
 
@@ -50,13 +50,13 @@ Un cop feta la selecció, obre el menú **Accions** a la barra superior i fes cl
 
 S'obrirà el quadre de diàleg **Accés al portal**.
 
-1. A l'apartat **Acció** **(1)**, tria què vols fer: **Atorgar accés**, **Revocar accés** o **Reenviar invitació**.
-2. Revisa la llista de **Destinataris (previsualització)** per comprovar a qui afectarà l'acció.
+1. A l'apartat **Acció** **(1)**, tria què vols fer: **Atorgar accés**, **Regenerar credencials** o **Revocar accés**.
+2. A la llista de **Destinataris (previsualització)**, marca o desmarca la casella **Aplica** de cada persona. Per defecte hi ha marcades les que l'acció té sentit.
 3. Fes clic a **Aplicar** **(2)** per executar l'acció.
 
 ![Quadre de diàleg d'accés al portal](../../assets/tutors/tutor-accesalportal1.png)
 
-En acabar, es mostrarà un missatge resum amb el nombre d'accessos atorgats, revocats o invitacions reenviades, i els possibles avisos (per exemple, destinataris sense correu electrònic).
+En acabar, es mostrarà un missatge resum amb el nombre d'accessos atorgats, revocats o enllaços de contrasenya enviats, i els possibles avisos (per exemple, destinataris sense correu electrònic).
 
 ---
 
@@ -64,7 +64,7 @@ En acabar, es mostrarà un missatge resum amb el nombre d'accessos atorgats, rev
 
 - **Atorgar accés** — Crea l'usuari del portal (si encara no existeix) i envia el correu d'invitació per establir la contrasenya. Els qui ja tenen accés s'ometen.
 - **Revocar accés** — Retira l'accés al portal als destinataris que el tenien.
-- **Reenviar invitació d'accés al portal (usuaris que no han entrat mai)** — Torna a enviar el correu d'invitació, amb un enllaç nou, **només** als destinataris que tenen l'accés concedit, però que **mai s'han connectat** (perquè no van utilitzar la invitació a temps i els ha caducat). En seleccionar aquesta acció, la llista de destinataris es filtra automàticament i només hi queden aquests casos.
+- **Regenerar credencials (envia un enllaç nou de contrasenya)** — Envia un correu nou amb un enllaç per fixar la contrasenya als destinataris que ja tenen accés, hagin entrat o no. Serveix quan un familiar o un alumne ha oblidat la contrasenya (l'alumne entra amb el correu personal) o la invitació ha caducat.
 
 ---
 
@@ -116,3 +116,15 @@ Si més endavant l'alumne té un correu propi, canvieu-lo a la seva fitxa: el se
 ---
 
 [← Tornar a l'índex de tutors](index.md)
+
+## Quan el correu no es pot fer servir
+
+L'usuari del portal és únic. Si un destinatari no pot tenir accés perquè un altre contacte ja té aquest correu com a usuari, una finestra explica quin contacte l'utilitza (nom, tipus de contacte, usuari, actiu o arxivat) i si està assignat a l'alumne. Si **no** hi està assignat, probablement és un duplicat o un contacte perdut: fusioneu-lo o arxiveu-lo, o doneu a un dels dos un correu diferent. Si **hi està** assignat (per exemple, un pare i un tutor legal que comparteixen la bústia), no poden compartir usuari: doneu a un d'ells un correu diferent.
+
+## Canviar un correu
+
+Quan deses un correu principal nou d'un alumne o d'un contacte familiar, una finestra et pregunta què fer amb l'accés al portal. Si **té accés**, tria **Actualitza l'accés al portal** (es revoca l'accés del correu antic i s'envia una invitació per fixar la contrasenya al nou) o **No canviïs l'accés** (no es revoca ni s'envia res). Si **no té accés, o es va revocar**, tria **Dona accés al portal** (s'envia una invitació al correu nou) o **Ara no** (el correu es desa i l'accés es pot donar més endavant des d'**Accions > Accés al portal**). Si tanques la finestra, no es desa. Quan revoques un accés, la casella **Accés actual** de la llista es desmarca.
+
+## Correus
+
+Un alumne i la seva família han de tenir **correus diferents**, i un contacte familiar no pot fer servir mai una adreça del centre (corporativa): el formulari no deixa desar-ho. L'alumne conserva l'accés amb el correu personal fins i tot quan se li suprimeix el compte corporatiu.

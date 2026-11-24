@@ -6,6 +6,7 @@ from odoo.tools import email_normalize, format_date
 from odoo.osv import expression
 from ..shared import base
 from .coming_of_age import ADULT_AGE
+from .portal import STUDENT_LIKE_TYPES
 import re
 from dateutil.relativedelta import relativedelta
 from markupsafe import Markup
@@ -239,6 +240,13 @@ class ResPartner(models.Model):
     document_id = fields.Char(string="Document ID")
     passport_id = fields.Char(string="Passport")
     student_email = fields.Char(string="Student email")
+    # Set by the form's own save (static/src/js/backend/form_controller_custom.js) after the user
+    # answered the "update the portal access?" dialog of a main email change (issue #842); never
+    # stored, write() consumes it. Without it (imports, other code) an active access still moves
+    # to the new email by itself.
+    portal_email_decision = fields.Selection(
+        [('apply', 'Update the portal access'), ('keep', "Don't change the portal access")],
+        string="Portal access decision", store=False)
 
     @api.constrains('email', 'student_email')
     def _check_email_format(self):
@@ -254,6 +262,28 @@ class ResPartner(models.Model):
         # a type change (applicant -> student, graduation...) that doesn't touch the email.
         for partner in self.filtered(lambda p: p.contact_type in PERSONAL_EMAIL_CONTACT_TYPES):
             (partner.company_id or self.env.company)._ems_check_personal_email(partner.email)
+    def _check_email_not_shared_with_family(self):
+        """A student's personal email can never be a family contact's (issue #842): each of them
+        gets a portal login of their own, and a login is unique. Called by write() only for the
+        partners whose email really changes: a constraint would also fire when something
+        rewrites the same value (the portal grant does), which would block a legacy shared pair
+        the student form already warns about."""
+        candidates = self.filtered(lambda p: p.email_normalized and (
+            p.contact_type in STUDENT_LIKE_TYPES or p.contact_type == 'family'))
+        if not candidates:
+            return
+        related = self.env['res.partner.relation.all'].sudo().search([
+            ('this_partner_id', 'in', candidates.ids),
+            ('other_partner_id.email_normalized', 'in', candidates.mapped('email_normalized')),
+        ])
+        for relation in related:
+            partner, other = relation.this_partner_id, relation.other_partner_id
+            if partner._ems_is_family_email_clash(other):
+                raise ValidationError(_(
+                    "%(email)s is already the email of %(other)s, linked to %(partner)s: a student "
+                    "and their family must have different emails (each gets a portal login of "
+                    "their own).", email=partner.email, other=other.name, partner=partner.name))
+
     student_id = fields.Char(string="Student ID", copy=False)
     medical_id = fields.Char(string="Medical ID")
     nuss = fields.Char(string="NUSS")
@@ -1205,6 +1235,10 @@ class ResPartner(models.Model):
             self._ems_store_private_notes(values.pop('private_notes'))
             if not values:
                 return True
+        portal_decision = False
+        if 'portal_email_decision' in values:
+            values = dict(values)
+            portal_decision = values.pop('portal_email_decision')
         if set(PERSON_NAME_FIELDS) & set(values) and self and (
                 values.get('contact_type') in PERSON_NAME_CONTACT_TYPES
                 or all(partner.contact_type in PERSON_NAME_CONTACT_TYPES for partner in self)):
@@ -1225,12 +1259,16 @@ class ResPartner(models.Model):
         # to change while they hold active portal access: their access must be moved
         # from the old email to the new one (see _apply_portal_email_change).
         portal_email_changed = self.env['res.partner']
+        portal_email_granted = self.env['res.partner']
+        email_changed = self.env['res.partner']
         if 'email' in values:
             new_email = email_normalize(values.get('email'))
-            portal_email_changed = self.filtered(
-                lambda p: p.contact_type in ('student', 'family')
-                and email_normalize(p.email) != new_email
-                and p._has_active_portal_user())
+            email_changed = self.filtered(lambda p: email_normalize(p.email) != new_email)
+            if portal_decision != 'keep':
+                portal_email_changed = email_changed.filtered(
+                    lambda p: p.contact_type in ('student', 'family') and p._has_active_portal_user())
+            if portal_decision == 'apply' and new_email:
+                portal_email_granted = (email_changed - portal_email_changed)._ems_portal_grantable()
         # Capture (before the write) the previous main group of every partner about to
         # change it, so their subject enrollments in that group can follow them to the new
         # one (see _migrate_enrollments_on_group_change below). Skipped under env.su: that
@@ -1310,8 +1348,10 @@ class ResPartner(models.Model):
         if study_refresh_candidates:
             study_refresh_candidates._ems_refresh_enrollments_from_template()
 
+        email_changed._check_email_not_shared_with_family()
         for partner in portal_email_changed:
             partner._apply_portal_email_change()
+        portal_email_granted._ems_grant_portal_after_email_change()
 
         # Google Workspace: with form autosave the student is created with partial
         # data; enqueue once the required fields are completed (deduplicated).
@@ -1367,21 +1407,6 @@ class ResPartner(models.Model):
                 others.toggle_active()
             return students.action_withdrawal_wizard()
         return super().toggle_active()
-
-    @api.onchange('email')
-    def _onchange_email_portal_warning(self):
-        """Inform the user, before saving, that changing the main email of a
-        contact with portal access will move that access to the new email."""
-        if self.contact_type in ('student', 'family') and self._has_active_portal_user():
-            return {
-                'warning': {
-                    'title': _("Portal access will be updated"),
-                    'message': _(
-                        "Changing the main email revokes the portal access linked to "
-                        "the old email and sends a new portal invitation to the new "
-                        "email. Discard the change if you don't want this."),
-                }
-            }
 
     def _has_active_portal_user(self):
         """True when the partner has a non-archived portal user (access enabled now)."""

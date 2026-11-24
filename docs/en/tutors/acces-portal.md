@@ -4,7 +4,7 @@
 
 # How to manage portal access for students and families
 
-This guide explains how a tutor can **grant**, **revoke** or **resend** portal access invitations for their students and, for minors, for their families.
+This guide explains how a tutor can **grant**, **revoke** or **regenerate** portal access credentials for their students and, for minors, for their families.
 
 The portal is the space where students and families review and confirm the student's information (enrollments, authorizations, etc.). To access it, each recipient receives an invitation email with a link to set their password. This link **expires after a few days**, so if someone does not use it in time you will need to send them the invitation again.
 
@@ -50,13 +50,13 @@ Once selected, open the **Actions** menu in the top bar and click **Portal acces
 
 The **Portal access** dialog will open.
 
-1. In the **Action** section **(1)**, choose what you want to do: **Grant access**, **Revoke access** or **Resend invitation**.
-2. Review the **Recipients (preview)** list to check who the action will affect.
+1. In the **Action** section **(1)**, choose what you want to do: **Grant access**, **Regenerate credentials** or **Revoke access**.
+2. In the **Recipients (preview)** list, tick or untick the **Apply** box of each person. By default the ones the action makes sense for are ticked.
 3. Click **Apply** **(2)** to run the action.
 
 ![Portal access dialog](../../assets/tutors/tutor-accesalportal1.png)
 
-When finished, a summary message will show the number of accesses granted, revoked or invitations resent, along with any warnings (for example, recipients without an email address).
+When finished, a summary message will show the number of accesses granted, revoked or password links sent, along with any warnings (for example, recipients without an email address).
 
 ---
 
@@ -64,7 +64,7 @@ When finished, a summary message will show the number of accesses granted, revok
 
 - **Grant access** — Creates the portal user (if it does not exist yet) and sends the invitation email to set the password. Those who already have access are skipped.
 - **Revoke access** — Removes portal access from recipients who had it.
-- **Resend portal invitation (users who never logged in)** — Sends the invitation email again, with a new link, **only** to recipients who have access granted but who have **never connected** (because they did not use the invitation in time and it expired). When you select this action, the recipients list is automatically filtered to keep only these cases.
+- **Regenerate credentials (send a new password link)** — Sends a new email with a link to set the password, to the recipients who already have access, whether or not they ever connected. Use it when a family member or a student has forgotten the password (a student signs in with their personal email) or the invitation expired.
 
 ---
 
@@ -116,3 +116,15 @@ If the student gets an email of their own later, change it on their form: their 
 ---
 
 [← Back to the tutors index](index.md)
+
+## When the email cannot be used
+
+A portal login is unique. If a recipient cannot get access because another contact already has that email as login, a window explains which contact holds it (name, contact type, login, active or archived) and whether it is assigned to the student. If it is **not** assigned, it is probably a duplicate or a stray contact: merge or archive it, or give one of the two a different email. If it **is** assigned (for example a parent and a guardian sharing a mailbox), they cannot share a login: give one of them a different email.
+
+## Changing an email
+
+When you save a new main email of a student or family contact, a window asks what to do with the portal access. If they **have access**, choose **Update the portal access** (the old email's access is revoked and an invitation to set the password goes to the new one) or **Don't change the access** (nothing is revoked or sent). If they **have no access, or it was revoked**, choose **Give portal access** (an invitation goes to the new email) or **Not now** (the email is saved and access can be given later from **Actions > Portal access**). Closing the window cancels the save. Revoking an access unticks **Current access** in the list.
+
+## Emails
+
+A student and their family must have **different emails**, and a family contact can never use a centre (corporate) address: the form refuses to save otherwise. The student keeps access with their personal email even after their corporate account is removed.

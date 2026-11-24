@@ -2572,12 +2572,6 @@ msgid "Change grade session state"
 msgstr "Canviar l'estat de la sessió d'avaluació"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/contact.py:0
-msgid "Changing the main email revokes the portal access linked to the old email and sends a new portal invitation to the new email. Discard the change if you don't want this."
-msgstr "Canviar el correu electrònic principal revoca l'accés al portal vinculat al correu antic i envia una nova invitació al portal al correu nou. Descarta el canvi si no ho vols."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "Check attendance records and schedules"
 msgstr "Consultar registres d'assistència i horaris"
@@ -8139,12 +8133,6 @@ msgid "Portal access recipient (preview)"
 msgstr "Destinatari de l'accés al portal (previsualització)"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/contact.py:0
-msgid "Portal access will be updated"
-msgstr "L'accés al portal s'actualitzarà"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_zip
 msgid "Postal code"
 msgstr "Codi postal"
@@ -8534,9 +8522,9 @@ msgid "Required when accepting"
 msgstr "Obligatori en acceptar"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_portal_access_wizard__mode__resend
-msgid "Resend portal invitation (users who never logged in)"
-msgstr "Reenviar invitació d'accés al portal (usuaris que no han entrat mai)"
+#: model:ir.model.fields.selection,name:ems.selection__ems_portal_access_wizard__mode__regenerate
+msgid "Regenerate credentials (send a new password link)"
+msgstr "Regenera les credencials (envia un enllaç nou de contrasenya)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
@@ -9836,6 +9824,7 @@ msgstr "Nota de l'assignatura suggerida aplicant les ponderacions de la planific
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_log__name
 #: code:addons/ems/models/erasmus/export.py:0
 #: code:addons/ems/models/erasmus/economy.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_result__summary
 msgid "Summary"
 msgstr "Resum"
 
@@ -14647,6 +14636,7 @@ msgstr "Previsualitzar"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__result
 #: code:addons/ems/models/erasmus/export.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__outcome
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_result_line__result_id
 msgid "Result"
 msgstr "Resultat"
 
@@ -56141,6 +56131,111 @@ msgid "Can transfer the tutorship"
 msgstr "Pot traspassar la tutoria"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_result__conflict_ids
+msgid "Conflict"
+msgstr "Conflicte"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_result_line__contact_id
+msgid "Contact without access"
+msgstr "Contacte sense accés"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_result_line__login
+msgid "Login in use"
+msgstr "Usuari en ús"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_result_line__holder_id
+msgid "Contact holding it"
+msgstr "Contacte que el té"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_result_line__holder_type
+msgid "Contact type"
+msgstr "Tipus de contacte"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_result_line__holder_active
+msgid "Active"
+msgstr "Actiu"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_result_line__related
+msgid "Related to the student"
+msgstr "Relacionat amb l'alumne"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_result_line__advice
+msgid "What to do"
+msgstr "Què cal fer"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__selected
+msgid "Apply"
+msgstr "Aplica"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Staff"
+msgstr "Personal"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "%(holder)s is also assigned to this student, and two contacts cannot share a portal login. Give one of them a different email."
+msgstr "%(holder)s també està assignat a aquest alumne, i dos contactes no poden compartir un usuari del portal. Doneu a un d'ells un correu diferent."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "%(holder)s is not assigned to this student: it is probably a duplicate or a stray contact. Merge or archive it, or give one of the two a different email."
+msgstr "%(holder)s no està assignat a aquest alumne: probablement és un duplicat o un contacte perdut. Fusioneu-lo o arxiveu-lo, o doneu a un dels dos un correu diferent."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "The contact \"%(contact)s\" cannot get portal access: %(login)s is already the login of %(holder)s (%(type)s, %(state)s, %(related)s). %(advice)s"
+msgstr "El contacte «%(contact)s» no pot tenir accés al portal: %(login)s ja és l'usuari de %(holder)s (%(type)s, %(state)s, %(related)s). %(advice)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "active"
+msgstr "actiu"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "archived"
+msgstr "arxivat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "assigned to this student"
+msgstr "assignat a aquest alumne"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "not assigned to this student"
+msgstr "no assignat a aquest alumne"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal_access_wizard.py:0
+msgid "%s password link(s) sent"
+msgstr "%s enllaços de contrasenya enviats"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_result_form
+msgid "Contacts that could not get access: their login is already in use"
+msgstr "Contactes que no han pogut tenir accés: el seu usuari ja està en ús"
+
+#. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/contact.py:0
 msgid "Only the secretary's office, academic administration and the Head of Studies can transfer a student's tutorship."
@@ -56188,3 +56283,91 @@ msgstr "Si aquest departament pertany a l'àrea PAS (el seu departament top-leve
 #: model:ir.model.fields,help:ems.field_hr_department__effective_manager_id
 msgid "The Manager that applies to this department: its own, or the one of the parent department when it shares it."
 msgstr "El gestor que s'aplica a aquest departament: el propi o, si el comparteix, el del departament pare."
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "%(email)s is already the email of %(other)s, linked to %(partner)s: a student and their family must have different emails (each gets a portal login of their own)."
+msgstr "%(email)s ja és el correu de %(other)s, vinculat a %(partner)s: un alumne i la seva família han de tenir correus diferents (cadascú té el seu propi usuari del portal)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_relation.py:0
+msgid "%(left)s and %(right)s have the same email (%(email)s): a student and their family must have different emails."
+msgstr "%(left)s i %(right)s tenen el mateix correu (%(email)s): un alumne i la seva família han de tenir correus diferents."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid "%(student)s: the email %(email)s is the student's own and the student is an adult: family contact %(family)s was left without email."
+msgstr "%(student)s: el correu %(email)s és el de l'alumne i l'alumne és major d'edat: el contacte familiar %(family)s s'ha deixat sense correu."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid "%(student)s: the only email received, %(email)s, is also the family's and the student is a minor: it stays with %(family)s and the student has no personal email, ask for one."
+msgstr "%(student)s: l'únic correu rebut, %(email)s, també és de la família i l'alumne és menor: es queda amb %(family)s i l'alumne no té correu personal, cal demanar-ne un."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Update the portal access?"
+msgstr "Actualitzar l'accés al portal?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "%(name)s has portal access with the email %(old)s, and you are changing it to %(new)s.\n\nUpdate the portal access: the access of the old email is revoked and an invitation to set the password is sent to %(new)s.\n\nDon't change the access: nothing is revoked or sent, and %(old)s keeps being the login."
+msgstr "%(name)s té accés al portal amb el correu %(old)s i el canvies per %(new)s.\n\nActualitza l'accés al portal: es revoca l'accés del correu antic i s'envia una invitació per fixar la contrasenya a %(new)s.\n\nNo canviïs l'accés: no es revoca ni s'envia res, i %(old)s continua sent l'usuari."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Update the portal access"
+msgstr "Actualitza l'accés al portal"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Don't change the access"
+msgstr "No canviïs l'accés"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Give portal access?"
+msgstr "Donar accés al portal?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "The portal access of %(name)s was revoked.\n\n"
+msgstr "L'accés al portal de %(name)s es va revocar.\n\n"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "%(name)s has no portal access.\n\n"
+msgstr "%(name)s no té accés al portal.\n\n"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Give portal access: an invitation to set the password is sent to %(new)s.\n\nNot now: the email is saved and the access stays as it is; it can be given later from Actions > Portal access."
+msgstr "Dona accés al portal: s'envia una invitació per fixar la contrasenya a %(new)s.\n\nAra no: el correu es desa i l'accés queda com està; es pot donar més endavant des d'Accions > Accés al portal."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Give portal access"
+msgstr "Dona accés al portal"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Not now"
+msgstr "Ara no"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__portal_email_decision
+msgid "Portal access decision"
+msgstr "Decisió sobre l'accés al portal"

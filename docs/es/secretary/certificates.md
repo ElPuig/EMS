@@ -39,7 +39,7 @@ Navega a: **Gestión académica → Certificados**. La lista se abre con el filt
 
 1. Haz clic en **Nuevo**.
 2. Elige el **Tipo de certificado**.
-3. Si el exalumno está en EMS, elígelo en **Estudiante (si está en EMS)**: sus datos se rellenan solos. Si no está, déjalo vacío y escribe su **Nombre completo** y el **Correo de la persona solicitante**.
+3. Si el exalumno está en EMS, elígelo en **Estudiante (si está en EMS)**: sus datos se rellenan solos, con el correo personal (no el del centro). Si el correo queda vacío, escribe su correo personal. Si no está, déjalo vacío y escribe su **Nombre completo** y el **Correo de la persona solicitante**.
 4. Guarda.
 5. Abre **Acciones → Enviar formulario**. El exalumno recibe un correo con un enlace al formulario, donde rellena los datos que faltan y adjunta la documentación que tenga, sin iniciar sesión.
 

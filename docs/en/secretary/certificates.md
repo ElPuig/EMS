@@ -39,7 +39,7 @@ Navigate to: **Academic management → Certificates**. The list opens with the *
 
 1. Click **New**.
 2. Choose the **Certificate type**.
-3. If the former student is in EMS, choose them in **Student (if in EMS)**: their details fill in by themselves. If they are not, leave it empty and write their **Full name** and the **Applicant's email**.
+3. If the former student is in EMS, choose them in **Student (if in EMS)**: their details fill in by themselves, with their personal email (not the centre's). If the email stays empty, write their personal one. If they are not, leave it empty and write their **Full name** and the **Applicant's email**.
 4. Save.
 5. Open **Actions → Send form**. The former student gets an email with a link to the form, where they fill in the missing details and attach whatever documentation they have, without logging in.
 

@@ -39,7 +39,7 @@ Navega a: **Gestió acadèmica → Certificats**. La llista s'obre amb el filtre
 
 1. Fes clic a **Nou**.
 2. Tria el **Tipus de certificat**.
-3. Si l'exalumne és a EMS, tria'l a **Estudiant (si és a EMS)**: les seves dades s'omplen soles. Si no hi és, deixa-ho buit i escriu-ne el **Nom complet** i el **Correu de la persona sol·licitant**.
+3. Si l'exalumne és a EMS, tria'l a **Estudiant (si és a EMS)**: les seves dades s'omplen soles, amb el correu personal (no el del centre). Si el correu queda buit, escriu el seu correu personal. Si no hi és, deixa-ho buit i escriu-ne el **Nom complet** i el **Correu de la persona sol·licitant**.
 4. Desa.
 5. Obre **Accions → Enviar formulari**. L'exalumne rep un correu amb un enllaç al formulari, on omple les dades que falten i adjunta la documentació que tingui, sense iniciar sessió.
 

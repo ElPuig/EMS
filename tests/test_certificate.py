@@ -9,6 +9,7 @@ from odoo.tests.common import TransactionCase, tagged
 from odoo.tools.pdf import PdfFileReader
 
 from .common import (capture_template_emails, create_level_study_group, create_role_employee, create_role_user,
+                     enforce_corporate_email_policy,
                      mock_outgoing_email, next_student_id)
 
 
@@ -396,6 +397,21 @@ class TestCertificate(TransactionCase):
         certificate.sudo()._ems_portal_fill(values, details, {})
         self.assertEqual((certificate.state, certificate.step_id), ('in_progress', self.steps[0]))
         self.assertEqual(self._value(certificate, 'school_year').value_char, '2019-2020')
+
+    def test_former_student_personal_email(self):
+        """Issue #858: choosing a former student fills in their personal email. A legacy contact
+        that still keeps the centre's corporate address there (from before issue #514) gets none:
+        that account is suspended once they leave, so the secretariat writes their personal one."""
+        personal, legacy = self.env['res.partner'].create([
+            {'name': 'TCRT Personal Alumna', 'contact_type': 'alumni', 'student_id': 'TCRT858P',
+             'email': 'personal.alumna@example.com', 'student_email': 'p.alumna@school.example.com'},
+            {'name': 'TCRT Legacy Alumna', 'contact_type': 'alumni', 'student_id': 'TCRT858L',
+             'email': 'l.alumna@school.example.com'},
+        ])
+        enforce_corporate_email_policy(self)
+        Certificate = self.env['ems.certificate']
+        self.assertEqual(Certificate._ems_student_defaults(personal)['applicant_email'], 'personal.alumna@example.com')
+        self.assertFalse(Certificate._ems_student_defaults(legacy)['applicant_email'])
 
     def test_former_student_not_in_ems(self):
         """A former student who is not in EMS: no contact, only their email; the form, the circuit

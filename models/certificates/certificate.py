@@ -248,13 +248,16 @@ class EmsCertificate(models.Model):
 
     @api.model
     def _ems_student_defaults(self, student):
-        """What EMS knows about the student for the applicant's details and the email."""
+        """What EMS knows about the student for the applicant's details and the email: their
+        personal one. A legacy contact that still keeps the centre's corporate address there (from
+        before issue #514) gets none (issue #858): that account is suspended once they leave."""
         student = student.sudo()
+        company = student.company_id or self.env.company
         return {
             'student_name': student.name,
             'student_document': student.document_id,
             'study_id': student.main_group_id.study_id.id,
-            'applicant_email': student.email,
+            'applicant_email': False if company._ems_is_corporate_email(student.email) else student.email,
         }
 
     @api.model_create_multi

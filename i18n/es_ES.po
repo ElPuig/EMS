@@ -3514,6 +3514,7 @@ msgstr "Fecha"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_strike__date model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
 #: model:ir.model.fields,field_description:ems.field_ems_minute__start_datetime
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "Date and time"
 msgstr "Fecha y hora"
 
@@ -7914,6 +7915,7 @@ msgstr "Plan de pago"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__step_role_ids
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_value__is_pending
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Pending"
 msgstr "Pendiente"
 
@@ -10820,6 +10822,7 @@ msgstr "Coordinador/a de FP"
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_response__value model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
 #: code:addons/ems/models/erasmus/satisfaction.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_value__display_value
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "Value"
 msgstr "Valor"
 
@@ -27739,6 +27742,7 @@ msgstr "Cuándo, con palabras"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_panel__post
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__role_id
 msgid "Post"
 msgstr "Cargo"
 
@@ -27867,7 +27871,7 @@ msgstr "Enviada a aprobar en el EMS"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Approved in EMS"
 msgstr "Aprobada en el EMS"
 
@@ -53092,12 +53096,12 @@ msgid "Approve the certificate"
 msgstr "Dar el visto bueno al certificado"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Approved by the director"
 msgstr "Visto bueno de la dirección"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Approved by:"
 msgstr "Visto bueno de:"
 
@@ -53136,7 +53140,7 @@ msgstr "Puede rechazarla o cancelarla"
 #: model:ir.actions.report,name:ems.action_report_certificate
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__certificate_pdf_link
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__certificate_id
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "Certificate"
 msgstr "Certificado"
@@ -53158,7 +53162,7 @@ msgid "Certificate number"
 msgstr "Número de certificado"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Certificate number:"
 msgstr "Número de certificado:"
 
@@ -53385,12 +53389,12 @@ msgid "Issued"
 msgstr "Expedido"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Issued by:"
 msgstr "Expedido por:"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Issued in EMS"
 msgstr "Expedido en EMS"
 
@@ -53521,11 +53525,6 @@ msgstr "Motivo de la devolución"
 #: code:addons/ems/models/certificates/certificate.py:0
 msgid "Returned to \"%s\" by %s:"
 msgstr "Devuelta a \"%s\" por %s:"
-
-#. module: ems
-#: model:ems.certificate.type.field,name:ems.certificate_field_fct_school_year
-msgid "School year of the training"
-msgstr "Curso de la formación"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__access_token
@@ -53665,7 +53664,7 @@ msgid "The secretariat, and whoever does the current step."
 msgstr "La secretaría y quien hace el paso actual."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "The secretary"
 msgstr "El/la secretario/a"
 
@@ -55609,11 +55608,6 @@ msgid "Data type"
 msgstr "Tipo de dato"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__value_field_types
-msgid "Data types of its details"
-msgstr "Tipo de dato"
-
-#. module: ems
 #: model:ir.model,name:ems.model_ems_certificate_type_field
 msgid "Detail a certificate type needs, and who fills it in."
 msgstr "Dato que necesita un tipo de certificado y quién lo rellena."
@@ -55646,8 +55640,10 @@ msgstr "Rellena primero los datos del certificado: %s."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__help
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__hint
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "Hint"
-msgstr "Ayuda"
+msgstr "Indicación"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_certificate_type_field__key
@@ -56406,3 +56402,130 @@ msgstr "Ahora no"
 #: model:ir.model.fields,field_description:ems.field_res_partner__portal_email_decision
 msgid "Portal access decision"
 msgstr "Decisión sobre el acceso al portal"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "%(detail)s cannot be earlier than %(earlier)s."
+msgstr "%(detail)s no puede ser anterior a %(earlier)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "%(detail)s: write the school year as 2024-25."
+msgstr "%(detail)s: escribe el curso con el formato 2024-25."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate_type.py:0
+msgid "%s can only be compared with another date of its own certificate type."
+msgstr "%s solo se puede comparar con otra fecha de su tipo de certificado."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
+msgid "<i class=\"fa fa-exclamation-triangle me-1\"/> Some details are not written correctly: check the hint under each one."
+msgstr "<i class=\"fa fa-exclamation-triangle me-1\"/> Algunos datos no están bien escritos: revisa la indicación de debajo de cada uno."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_type_field__after_field_id
+msgid "For a date: another date of the type it cannot be earlier than (e.g. the end of a period, not before its start)."
+msgstr "Para una fecha: otra fecha del tipo a la que no puede ser anterior (p. ej. el final de un periodo, no antes de su inicio)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__after_field_id
+msgid "Not before"
+msgstr "No anterior a"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_type_field__help
+#: model:ir.model.fields,help:ems.field_ems_certificate_value__hint
+msgid "What to write and how, with an example: shown to the applicant under the detail, and next to it in the request."
+msgstr "Qué hay que escribir y cómo, con un ejemplo: se muestra a la persona solicitante debajo del dato, y a su lado en la solicitud."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "Written by the applicant"
+msgstr "Escrito por la persona solicitante"
+
+#. module: ems
+#: model:ems.certificate.type.field,name:ems.certificate_field_fct_school_year
+msgid "Academic course"
+msgstr "Curso académico"
+
+#. module: ems
+#: model:ems.certificate.type.field,help:ems.certificate_field_fct_school_year
+msgid "As YYYY-YY, e.g. 2024-25."
+msgstr "Formato AAAA-AA, por ejemplo 2024-25."
+
+#. module: ems
+#: model:ems.certificate.type.field,help:ems.certificate_field_fct_company
+msgid "The company where the training was done and, if you know it, its VAT number."
+msgstr "La empresa donde se hizo la formación y, si lo sabes, su NIF."
+
+#. module: ems
+#: model:ems.certificate.type.field,help:ems.certificate_field_fct_start
+msgid "The first day of the training at the company."
+msgstr "El primer día de la formación en la empresa."
+
+#. module: ems
+#: model:ems.certificate.type.field,help:ems.certificate_field_fct_end
+msgid "The last day of the training at the company."
+msgstr "El último día de la formación en la empresa."
+
+#. module: ems
+#: model:ems.certificate.type.field,help:ems.certificate_field_fct_hours
+msgid "The total hours of the training, e.g. 400."
+msgstr "El total de horas de la formación, por ejemplo 400."
+
+#. module: ems
+#: model:ems.certificate.type.field,help:ems.certificate_field_fct_agreement
+msgid "The agreement's number in sBID, e.g. 2025146951."
+msgstr "El número del convenio en sBID, por ejemplo 2025146951."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "%(name)s, %(position)s of %(centre)s,"
+msgstr "%(name)s, %(position)s del centro %(centre)s,"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_stamp__role_id
+msgid "The post the step was done under: the certificate names the signer by it."
+msgstr "El cargo con el que se hizo el paso: el certificado nombra a quien firma por este cargo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
+msgid "DRAFT"
+msgstr "BORRADOR"
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_report_certificate_draft
+msgid "Draft certificate"
+msgstr "Borrador del certificado"
+
+#. module: ems
+#: model:ir.model,name:ems.model_report_ems_report_certificate_draft
+msgid "Draft certificate, for the staff."
+msgstr "Borrador del certificado, para el personal del centro."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Only the centre's staff can see a draft certificate."
+msgstr "Solo el personal del centro puede ver el borrador de un certificado."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
+msgid "Pending issue"
+msgstr "Pendiente de expedir"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "See the draft"
+msgstr "Ver el borrador"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "The certificate as it stands now, marked DRAFT: the details still empty are shown by their name. Only for the centre's staff."
+msgstr "El certificado tal como está ahora, marcado como BORRADOR: los datos aún vacíos se muestran por su nombre. Solo para el personal del centro."

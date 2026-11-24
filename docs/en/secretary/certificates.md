@@ -39,13 +39,13 @@ Navigate to: **Academic management → Certificates**. The list opens with the *
 
 1. Click **New**.
 2. Choose the **Certificate type**.
-3. If the former student is in EMS, choose them in **Student (if in EMS)**: their details fill in by themselves. If they are not, leave it empty and write their **Full name** and the **Applicant's email**.
+3. If the former student is in EMS, choose them in **Student (if in EMS)**: their details fill in by themselves, with their personal email (not the centre's). If the email stays empty, write their personal one. If they are not, leave it empty and write their **Full name** and the **Applicant's email**.
 4. Save.
 5. Open **Actions → Send form**. The former student gets an email with a link to the form, where they fill in the missing details and attach whatever documentation they have, without logging in.
 
 ![Request of a former student who is not in EMS](../../assets/secretary/certificats-02-exalumne.png)
 
-If you already have every mandatory detail (identity document and study in the **Applicant** tab, and the mandatory ones of the **Certificate details** tab, such as the school year of the training for FCT), **Send form** also moves the request to its first step. The former student may still complete or correct their details from the link until someone of the centre changes the request or acts on it.
+If you already have every mandatory detail (identity document and study in the **Applicant** tab, and the mandatory ones of the **Certificate details** tab, such as the academic course for FCT), **Send form** also moves the request to its first step. The former student may still complete or correct their details from the link until someone of the centre changes the request or acts on it.
 
 If the request reaches you on paper and nothing needs to be sent, fill in every detail and click **Actions → Start the request**.
 
@@ -76,6 +76,10 @@ The earlier steps are skipped and their pending tasks closed, and the request's 
 
 ---
 
+## Seeing the draft
+
+While a request is not closed, **Actions → See the draft** shows the certificate as it stands now, marked **DRAFT** and without a number: the details still empty appear by their name in red (for example, **[Hours]**), and the signatures still to come appear as **Pending**. It is only for the centre's staff: the applicant never sees it.
+
 ## Other actions
 
 In the request's **Actions** menu:
@@ -86,7 +90,7 @@ In the request's **Actions** menu:
 - **Reject** — write the reason; the applicant gets it by email.
 - **Cancel request** — only before the certificate is issued (for example, a duplicate). A cancelled request can be **Reopen**ed.
 
-The **Certificate** tab holds the issued PDF and the stamps (who did each step and when).
+The **Certificate** tab holds the issued PDF and the stamps (who did each step, under which post, and the date and time). The certificate names whoever issues it and whoever approves it by their post in EMS: if someone other than the Secretary issues it (for example, the Director while the Secretary is away), it shows that person's post.
 
 ---
 

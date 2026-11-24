@@ -15,7 +15,7 @@ Al portal, els certificats de FCT els pot demanar l'alumnat de cicles formatius 
 1. Entra al portal i fes clic a la targeta **Certificats**.
 2. Fes clic a **Nova sol·licitud** seguit del certificat que necessites (per exemple, **Nova sol·licitud - FCT (Formació en Centres de Treball)**) per desplegar-ne el formulari. Cada certificat té el seu formulari.
 3. Comprova **Les teves dades**.
-4. A **Dades del certificat**, emplena el que demana el certificat. Les que tenen asterisc són obligatòries; la resta, emplena-les tant com puguis i el centre les completa. Per a la FCT: el **Curs de la formació** (en pots triar un de la llista o escriure'n un altre) i, si els tens, l'empresa i el NIF, les dates, les hores i el número de registre del conveni.
+4. A **Dades del certificat**, emplena el que demana el certificat. Les que tenen asterisc són obligatòries; la resta, emplena-les tant com puguis i el centre les completa. Per a la FCT: el **Curs acadèmic** (en pots triar un de la llista o escriure'l amb el format 2024-25) i, si els tens, l'empresa i el NIF, les dates, les hores i el número de registre del conveni.
 5. A **Documentació**, adjunta el **Conveni de FCT** si en tens una còpia (un PDF o fotos de les pàgines). Si no el tens, l'adjunta el centre. També pots afegir **Altra documentació**.
 6. Fes clic a **Enviar sol·licitud**.
 

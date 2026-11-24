@@ -51,3 +51,16 @@ class TestCertificateTour(HttpCase):
         self.assertEqual(certificate.step_id, self.steps[2])
         self.assertTrue(certificate.name)
         self.assertEqual(certificate.activity_ids.user_id, self.director)
+
+    def test_secretary_finds_an_archived_former_student(self):
+        """Issue #858: former students and withdrawals are archived, and the Student dropdown still
+        offers them."""
+        alumna = self.env['res.partner'].create({
+            'name': 'TCTR Alumna Archived', 'contact_type': 'alumni', 'student_id': 'TCTR858ALUMNA',
+            'email': 'tctr.alumna@example.com',
+            'active': False,
+        })
+        self.start_tour("/odoo", 'ems_certificate_former_student', login=self.secretary.login)
+        certificate = self.env['ems.certificate'].search([('student_id', '=', alumna.id)])
+        self.assertEqual((len(certificate), certificate.student_name, certificate.applicant_email),
+                         (1, 'TCTR Alumna Archived', 'tctr.alumna@example.com'))

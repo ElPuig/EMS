@@ -39,13 +39,13 @@ Navega a: **Gestión académica → Certificados**. La lista se abre con el filt
 
 1. Haz clic en **Nuevo**.
 2. Elige el **Tipo de certificado**.
-3. Si el exalumno está en EMS, elígelo en **Estudiante (si está en EMS)**: sus datos se rellenan solos. Si no está, déjalo vacío y escribe su **Nombre completo** y el **Correo de la persona solicitante**.
+3. Si el exalumno está en EMS, elígelo en **Estudiante (si está en EMS)**: sus datos se rellenan solos, con el correo personal (no el del centro). Si el correo queda vacío, escribe su correo personal. Si no está, déjalo vacío y escribe su **Nombre completo** y el **Correo de la persona solicitante**.
 4. Guarda.
 5. Abre **Acciones → Enviar formulario**. El exalumno recibe un correo con un enlace al formulario, donde rellena los datos que faltan y adjunta la documentación que tenga, sin iniciar sesión.
 
 ![Solicitud de un exalumno que no está en EMS](../../assets/secretary/certificats-02-exalumne.png)
 
-Si ya tienes todos los datos obligatorios (documento de identidad y estudio en la pestaña **Solicitante**, y los obligatorios de la pestaña **Datos del certificado**, como el curso de la formación para la FCT), **Enviar formulario** también pasa la solicitud al primer paso. El exalumno aún puede completar o corregir sus datos desde el enlace hasta que alguien del centro cambie la solicitud o haga alguna acción.
+Si ya tienes todos los datos obligatorios (documento de identidad y estudio en la pestaña **Solicitante**, y los obligatorios de la pestaña **Datos del certificado**, como el curso académico para la FCT), **Enviar formulario** también pasa la solicitud al primer paso. El exalumno aún puede completar o corregir sus datos desde el enlace hasta que alguien del centro cambie la solicitud o haga alguna acción.
 
 Si la solicitud te llega en papel y no hace falta enviar nada, rellena todos los datos y haz clic en **Acciones → Iniciar la solicitud**.
 
@@ -76,6 +76,10 @@ Los pasos anteriores se saltan y sus tareas pendientes se cierran, y el historia
 
 ---
 
+## Ver el borrador
+
+Mientras una solicitud no está cerrada, **Acciones → Ver el borrador** muestra el certificado tal como está ahora, marcado como **BORRADOR** y sin número: los datos aún vacíos aparecen por su nombre en rojo (por ejemplo, **[Horas]**), y las firmas que aún faltan, como **Pendiente**. Es solo para el personal del centro: la persona solicitante nunca lo ve.
+
 ## Otras acciones
 
 En el menú **Acciones** de la solicitud:
@@ -86,7 +90,7 @@ En el menú **Acciones** de la solicitud:
 - **Rechazar** — escribe el motivo; la persona solicitante lo recibe por correo.
 - **Anular la solicitud** — solo antes de expedir el certificado (por ejemplo, si está duplicada). Una solicitud anulada se puede **Reabrir**.
 
-La pestaña **Certificado** contiene el PDF expedido y los sellos (quién hizo cada paso y cuándo).
+La pestaña **Certificado** contiene el PDF expedido y los sellos (quién hizo cada paso, con qué cargo, y la fecha y la hora). El certificado nombra a quien lo expide y a quien lo aprueba por su cargo en EMS: si lo expide alguien que no es el secretario o la secretaria (por ejemplo, la dirección mientras el secretario está ausente), aparece el cargo de esa persona.
 
 ---
 

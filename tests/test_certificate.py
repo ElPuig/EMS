@@ -9,6 +9,7 @@ from odoo.tests.common import TransactionCase, tagged
 from odoo.tools.pdf import PdfFileReader
 
 from .common import (capture_template_emails, create_level_study_group, create_role_employee, create_role_user,
+                     enforce_corporate_email_policy,
                      mock_outgoing_email, next_student_id)
 
 
@@ -74,7 +75,7 @@ def create_certificate_fixtures(cls, prefix='TCRT'):
             (0, 0, {'sequence': 30, 'name': 'From', 'key': 'start', 'field_type': 'date', 'required_step_id': complete}),
             (0, 0, {'sequence': 40, 'name': 'To', 'key': 'end', 'field_type': 'date', 'required_step_id': complete}),
             (0, 0, {'sequence': 50, 'name': 'Hours', 'key': 'hours', 'field_type': 'number',
-                    'required_step_id': complete}),
+                    'required_step_id': complete, 'help': 'The total hours, e.g. 400.'}),
             (0, 0, {'sequence': 60, 'name': 'Agreement number', 'key': 'agreement', 'field_type': 'char'}),
         ],
     })
@@ -83,6 +84,7 @@ def create_certificate_fixtures(cls, prefix='TCRT'):
         "training in the school year {school_year} at the company {company}[, with VAT number {company_vat}], from "
         "{start} to {end}.\n\nSource: the training agreement[ registered with number {agreement}].")
     cls.type_fields = {field.key: field for field in cls.certificate_type.field_ids}
+    cls.type_fields['end'].after_field_id = cls.type_fields['start']
     cls.agreement_document, cls.report_document = cls.certificate_type.document_ids.sorted('sequence')
     cls.student = cls.env['res.partner'].create({
         'name': f'{prefix} Student', 'contact_type': 'student', 'student_id': next_student_id(),
@@ -215,6 +217,13 @@ class TestCertificate(TransactionCase):
         self.assertEqual(certificate.state, 'issued')
         self.assertFalse(certificate.activity_ids)
         self.assertEqual(certificate.stamp_ids.mapped('user_id'), self.coordinator | self.secretary | self.director)
+        # Issue #858: each stamp keeps the position its step was done under, and the certificate
+        # names the issuer by it (first letter lowercase in the sentence) and heads each signature.
+        self.assertEqual(certificate.stamp_ids.mapped('role_id'),
+                         self.roles['complete'] | self.roles['issue'] | self.roles['approve'])
+        self.assertEqual(str(certificate._ems_report_paragraphs()[0]),
+                         f"<strong>{self.secretary.name}</strong>, <strong>TCRT issue position</strong> of "
+                         f"<strong>{self.env.company.name}</strong>,")
         # The certificate, then the agreement's PDF page and the image as one more page: neither the
         # training report (not appended) nor the optional documentation.
         reader = PdfFileReader(io.BytesIO(certificate.certificate_pdf_id.raw))
@@ -297,6 +306,9 @@ class TestCertificate(TransactionCase):
         self.assertTrue(certificate.with_user(admin).can_issue_now)
         certificate.with_user(admin).action_issue_now()
         self.assertEqual((certificate.state, certificate.step_id), ('in_progress', self.steps[2]))
+        # Issue #858: the administrator holds no position, so the certificate falls back to the
+        # issuing step's own position.
+        self.assertEqual(certificate.stamp_ids.role_id, self.roles['issue'])
         self.assertTrue(certificate.submission_date)
         self.assertNotIn(self.coordinator, certificate.activity_ids.user_id)
 
@@ -395,7 +407,64 @@ class TestCertificate(TransactionCase):
         self.assertEqual(details['company'], {'value_char': 'Written SL', 'value_vat': 'B1'})
         certificate.sudo()._ems_portal_fill(values, details, {})
         self.assertEqual((certificate.state, certificate.step_id), ('in_progress', self.steps[0]))
-        self.assertEqual(self._value(certificate, 'school_year').value_char, '2019-2020')
+        self.assertEqual(self._value(certificate, 'school_year').value_char, '2019-20', "Stored as 2019-20 (issue #858).")
+
+    def test_school_year_format(self):
+        """Issue #858: a school year is written as 2024-25 or 2024-2025, with consecutive years, and
+        stored as 2024-25."""
+        Value = self.env['ems.certificate.value']
+        for text, expected in (('2024-25', '2024-25'), ('2024-2025', '2024-25'), (' 2024 / 25 ', '2024-25'),
+                               ('2099-2100', '2099-00'), ('2024-26', None), ('2024-2026', None),
+                               ('1111111111', None), ('24-25', None), ('', None)):
+            self.assertEqual(Value._ems_normalize_school_year(text), expected, text)
+        certificate = self._submitted()
+        line = self._value(certificate, 'school_year')
+        self.assertEqual(line.value_char, '2025-26')
+        with self.assertRaises(ValidationError):
+            line.with_user(self.coordinator).value_char = '1111111111'
+
+    def test_end_not_before_start(self):
+        """Issue #858: a date the type says cannot be earlier than another one is refused, whichever
+        of the two is written last."""
+        certificate = self._submitted({'start': '2026-03-01', 'end': '2026-06-15'})
+        start, end = self._value(certificate, 'start'), self._value(certificate, 'end')
+        with self.assertRaises(ValidationError):
+            end.with_user(self.coordinator).value_date = '2026-02-28'
+        with self.assertRaises(ValidationError):
+            start.with_user(self.coordinator).value_date = '2026-06-16'
+        end.with_user(self.coordinator).value_date = '2026-03-01'
+        with self.assertRaises(ValidationError):
+            self.type_fields['hours'].after_field_id = self.type_fields['start']
+
+    def test_step_checks_details_written_before(self):
+        """Issue #858: a value written before the checks existed stops the next step until it is
+        corrected."""
+        certificate = self._submitted()
+        self._complete_training(certificate)
+        line = self._value(certificate, 'school_year')
+        self.env.flush_all()
+        self.env.cr.execute("UPDATE ems_certificate_value SET value_char = '1111111111' WHERE id = %s", (line.id,))
+        line.invalidate_recordset(['value_char'])
+        with self.assertRaises(ValidationError):
+            certificate.with_user(self.coordinator).action_done_step()
+        line.with_user(self.coordinator).value_char = '2025-2026'
+        certificate.with_user(self.coordinator).action_done_step()
+        self.assertEqual(certificate.step_id, self.steps[1])
+
+    def test_former_student_personal_email(self):
+        """Issue #858: choosing a former student fills in their personal email. A legacy contact
+        that still keeps the centre's corporate address there (from before issue #514) gets none:
+        that account is suspended once they leave, so the secretariat writes their personal one."""
+        personal, legacy = self.env['res.partner'].create([
+            {'name': 'TCRT Personal Alumna', 'contact_type': 'alumni', 'student_id': 'TCRT858P',
+             'email': 'personal.alumna@example.com', 'student_email': 'p.alumna@school.example.com'},
+            {'name': 'TCRT Legacy Alumna', 'contact_type': 'alumni', 'student_id': 'TCRT858L',
+             'email': 'l.alumna@school.example.com'},
+        ])
+        enforce_corporate_email_policy(self)
+        Certificate = self.env['ems.certificate']
+        self.assertEqual(Certificate._ems_student_defaults(personal)['applicant_email'], 'personal.alumna@example.com')
+        self.assertFalse(Certificate._ems_student_defaults(legacy)['applicant_email'])
 
     def test_former_student_not_in_ems(self):
         """A former student who is not in EMS: no contact, only their email; the form, the circuit
@@ -543,6 +612,51 @@ class TestCertificate(TransactionCase):
         self.assertIn('Revisió: 17/11/2026', footer[:300])
 
     # --- the type's details and text (issue #851) ------------------------------
+
+    def test_draft_certificate(self):
+        """Issue #858: the staff see the certificate as it stands before it is issued: marked DRAFT,
+        without number, the issuer the holder of the issuing step's post, the details still empty
+        marked by their label, and every signature still to come."""
+        certificate = self._submitted()
+        first = str(certificate._ems_report_paragraphs(draft=True)[0])
+        self.assertIn(f"<strong>{self.secretary.name}</strong>, <strong>TCRT issue position</strong>", first)
+        text = str(certificate._ems_report_paragraphs(draft=True)[2])
+        self.assertIn('<strong class="o_ems_certificate_missing">[Hours]</strong>', text)
+        self.assertIn('<strong>2025-26</strong>', text)
+        self.assertNotIn('VAT number', text, "An optional part with empty details is still left out.")
+        self.assertNotIn('o_ems_certificate_missing', str(certificate._ems_report_paragraphs()[2]),
+                         "The certificate itself never marks them.")
+        signatures = certificate._ems_report_signatures(draft=True)
+        self.assertEqual([(signature['stamp'], signature['role'], signature['action']) for signature in signatures],
+                         [(False, self.roles['issue'], 'issue'), (False, self.roles['approve'], 'approve')])
+        self.assertFalse(certificate._ems_report_signatures())
+
+        action = certificate.with_user(self.coordinator).action_preview_draft()
+        self.assertEqual(action['report_name'], 'ems.report_certificate_draft')
+        html = self.env['ir.actions.report'].with_user(self.coordinator)._render_qweb_html(
+            'ems.action_report_certificate_draft', certificate.ids)[0].decode()
+        self.assertIn('o_ems_certificate_watermark', html)
+        self.assertIn('o_ems_certificate_pending', html)
+
+    def test_draft_certificate_not_for_the_applicant(self):
+        """Issue #858: a portal user who can read their own request still gets no draft."""
+        certificate = self._submitted()
+        portal = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'TCRT Portal', 'login': 'test_tcrt_portal', 'partner_id': self.student.id,
+            'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
+        })
+        with self.assertRaises(AccessError):
+            self.env['ir.actions.report'].with_user(portal)._render_qweb_html(
+                'ems.action_report_certificate_draft', certificate.ids)
+
+    def test_position_in_a_sentence(self):
+        """Issue #858: a position goes into the certificate's sentence with its first letter in
+        lowercase, unless it starts with an acronym."""
+        Certificate = self.env['ems.certificate']
+        for name, expected in (('Director/a', 'director/a'), ('Secretaria', 'secretaria'),
+                               ("Tècnic/a de secretaria", "tècnic/a de secretaria"), ('FP coordinator', 'FP coordinator'),
+                               ('', '')):
+            self.assertEqual(Certificate._ems_position_in_sentence(name), expected, name)
 
     def test_render_text(self):
         """Every {key} in bold and escaped; a [part] only when its details have a value; a blank

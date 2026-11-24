@@ -56197,3 +56197,27 @@ msgstr "%s enlaces de contraseña enviados"
 #: model_terms:ir.ui.view,arch_db:ems.view_portal_access_result_form
 msgid "Contacts that could not get access: their login is already in use"
 msgstr "Contactos que no han podido tener acceso: su usuario ya está en uso"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "%(email)s is already the email of %(other)s, linked to %(partner)s: a student and their family must have different emails (each gets a portal login of their own)."
+msgstr "%(email)s ya es el correo de %(other)s, vinculado a %(partner)s: un alumno y su familia deben tener correos diferentes (cada uno tiene su propio usuario del portal)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_relation.py:0
+msgid "%(left)s and %(right)s have the same email (%(email)s): a student and their family must have different emails."
+msgstr "%(left)s y %(right)s tienen el mismo correo (%(email)s): un alumno y su familia deben tener correos diferentes."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid "%(student)s: the email %(email)s is the student's own and the student is an adult: family contact %(family)s was left without email."
+msgstr "%(student)s: el correo %(email)s es el del alumno y el alumno es mayor de edad: el contacto familiar %(family)s se ha dejado sin correo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid "%(student)s: the only email received, %(email)s, is also the family's and the student is a minor: it stays with %(family)s and the student has no personal email, ask for one."
+msgstr "%(student)s: el único correo recibido, %(email)s, también es de la familia y el alumno es menor: se queda con %(family)s y el alumno no tiene correo personal, hay que pedir uno."

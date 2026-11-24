@@ -8,6 +8,10 @@ The portal access window now has three actions: grant, regenerate credentials an
 
 When access cannot be granted because another contact already holds that login, a popup lists which contact has it (type, login, active or archived), whether it is assigned to the student, and what to do (merge or archive a duplicate, or give one of them a different email).
 
+## Stricter email rules for students and families:
+
+A family contact can never have a centre (corporate) email, and a student's personal email can never be the same as their family's: the forms refuse to save it. When an import brings a single email shared by both, a minor's stays with the family (the student is reported as needing their own) and an adult's stays with the student.
+
 # Fixes
 
 ## Revoking portal access now unchecks it:

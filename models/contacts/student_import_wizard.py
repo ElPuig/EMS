@@ -10,6 +10,7 @@ from markupsafe import Markup
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+from odoo.tools import email_normalize
 
 _logger = logging.getLogger(__name__)
 
@@ -407,6 +408,7 @@ class EmsStudentImportWizard(models.TransientModel):
             if self._is_worth_noting('Tutors comparteixen domicili', shared):
                 tutor_notes.append(f"Comparteix domicili amb Tutor 1: {shared}")
 
+        email = self._split_shared_email(student, email, full_name, stats)
         family, accio = self._get_or_create_family(
             full_name, doc_num, phone, mobile, email,
             {'street': street, 'city': city, 'zip': zip_code,
@@ -433,6 +435,28 @@ class EmsStudentImportWizard(models.TransientModel):
             student.comment = f"{student.comment}<br/>{note}".strip() if student.comment else note
 
         student._ems_link_family(family, relation_type)
+
+    def _split_shared_email(self, student, family_email, family_name, stats):
+        """The email a tutor row brings when it is the student's own (the source often has a
+        single address for the whole family): a student and their family must have different
+        emails (issue #842), so it stays with the family of a minor (the student is left without
+        a personal email, to be filled in) and with an adult student (the family contact gets
+        none). Returns the email the family contact keeps, and reports the choice."""
+        if not family_email or not student.email_normalized \
+                or email_normalize(family_email) != student.email_normalized:
+            return family_email
+        if student.is_adult:
+            stats['warnings'].append(_(
+                "%(student)s: the email %(email)s is the student's own and the student is an adult: "
+                "family contact %(family)s was left without email.",
+                student=student.name, email=family_email, family=family_name))
+            return False
+        stats['warnings'].append(_(
+            "%(student)s: the only email received, %(email)s, is also the family's and the student "
+            "is a minor: it stays with %(family)s and the student has no personal email, "
+            "ask for one.", student=student.name, email=family_email, family=family_name))
+        student.write({'email': False})
+        return family_email
 
     def _get_or_create_family(self, name, doc_num, phone, mobile, email, address_data, notes=None,
                               firstname=None, lastname=None, stats=None, student=None):

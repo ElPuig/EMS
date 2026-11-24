@@ -219,3 +219,11 @@ A plain teacher who is not currently tutoring anyone cannot even open this wizar
 > This exists because the four requirements otherwise form a closed loop: portal access needs `student`/`applicant`, becoming a student needs a confirmed enrollment, confirming needs the required authorizations answered, and those are answered *from the portal*. Sending the offer is the only deliberate act that can break it. See `docs/en/developers/enrollment/enrollment.md`.
 
 Registered as a `data` entry in `__manifest__.py` (line ~97), alongside the rest of `views/community/contact/`.
+
+## Email rules and the portal login (issue #842)
+
+- A family contact's email can never be corporate (`res.partner._check_email_not_corporate`, same rule as the student's personal email).
+- A student's personal email can never equal the email of a family contact linked to them: checked when either email changes (`res.partner.write` → `_check_email_not_shared_with_family`, only for emails that really change, since the portal grant rewrites the same value) and when they are linked (`res.partner.relation` constraint). A pair that already shares an email (legacy) is left alone, with the student form's warning, until one of the emails is edited.
+- Portal login of a student: the personal email; the corporate email is linked to the same user through Google OAuth (`portal_google_signin.py`), so the student can use either. A legacy student sharing the email with the family gets the corporate email as login (`_ems_portal_login`, issue #833). When the corporate account is removed (withdrawal, graduation), a student with a personal login keeps access.
+- Importing from a source that brings a single email (`ems.student_import_wizard._split_shared_email`): if it is the student's and the family's, a **minor** keeps it on the family contact and is left without a personal email (reported in the import summary), an **adult** keeps it and the family contact gets none.
+- Not covered: giving portal access to a student that has no personal email (it would need the corporate email as login and an invitation to it).

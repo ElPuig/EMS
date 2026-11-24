@@ -383,5 +383,5 @@ from . import test_erasmus_polish_grant_names
 from . import test_erasmus_polish_economy_services
 from . import test_erasmus_polish_actions_tour
 from . import test_erasmus_polish_quality_dashboard
-from . import test_portal_shared_email
+from . import test_portal_shared_email, test_student_family_email
 from . import test_file_compression

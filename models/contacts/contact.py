@@ -6,6 +6,7 @@ from odoo.tools import email_normalize, format_date
 from odoo.osv import expression
 from ..shared import base
 from .coming_of_age import ADULT_AGE
+from .portal import STUDENT_LIKE_TYPES
 import re
 from dateutil.relativedelta import relativedelta
 from markupsafe import Markup
@@ -238,6 +239,30 @@ class ResPartner(models.Model):
         # a type change (applicant -> student, graduation...) that doesn't touch the email.
         for partner in self.filtered(lambda p: p.contact_type in PERSONAL_EMAIL_CONTACT_TYPES):
             (partner.company_id or self.env.company)._ems_check_personal_email(partner.email)
+    def _check_email_not_shared_with_family(self):
+        """A student's personal email can never be a family contact's (issue #842): each of them
+        gets a portal login of their own, and a login is unique. Called by write() only for the
+        partners whose email really changes: a constraint would also fire when something
+        rewrites the same value (the portal grant does), which would block a legacy shared pair
+        the student form already warns about."""
+        candidates = self.filtered(lambda p: p.email_normalized and (
+            p.contact_type in STUDENT_LIKE_TYPES or p.contact_type == 'family'))
+        if not candidates:
+            return
+        related = self.env['res.partner.relation.all'].sudo().search([
+            ('this_partner_id', 'in', candidates.ids),
+            ('other_partner_id.email_normalized', 'in', candidates.mapped('email_normalized')),
+        ])
+        for relation in related:
+            partner, other = relation.this_partner_id, relation.other_partner_id
+            if partner.email_normalized == other.email_normalized \
+                    and (partner.contact_type == 'family') != (other.contact_type == 'family') \
+                    and {partner.contact_type, other.contact_type} & set(STUDENT_LIKE_TYPES):
+                raise ValidationError(_(
+                    "%(email)s is already the email of %(other)s, linked to %(partner)s: a student "
+                    "and their family must have different emails (each gets a portal login of "
+                    "their own).", email=partner.email, other=other.name, partner=partner.name))
+
     student_id = fields.Char(string="Student ID", copy=False)
     medical_id = fields.Char(string="Medical ID")
     nuss = fields.Char(string="NUSS")
@@ -1156,8 +1181,10 @@ class ResPartner(models.Model):
         # to change while they hold active portal access: their access must be moved
         # from the old email to the new one (see _apply_portal_email_change).
         portal_email_changed = self.env['res.partner']
+        email_changed = self.env['res.partner']
         if 'email' in values:
             new_email = email_normalize(values.get('email'))
+            email_changed = self.filtered(lambda p: email_normalize(p.email) != new_email)
             portal_email_changed = self.filtered(
                 lambda p: p.contact_type in ('student', 'family')
                 and email_normalize(p.email) != new_email
@@ -1240,6 +1267,7 @@ class ResPartner(models.Model):
         if study_refresh_candidates:
             study_refresh_candidates._ems_refresh_enrollments_from_template()
 
+        email_changed._check_email_not_shared_with_family()
         for partner in portal_email_changed:
             partner._apply_portal_email_change()
 

@@ -180,6 +180,7 @@ from . import test_company_director
 from . import test_role
 from . import test_role_color_tour
 from . import test_department_color_tour
+from . import test_department_job_tour
 from . import test_department_head_optional_tour
 from . import test_attendance_template_color_tour
 from . import test_withdrawal_tour

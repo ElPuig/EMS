@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 from unittest.mock import patch
 
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
 
 from .common import create_role_user
@@ -88,6 +88,20 @@ class TestDepartment(TransactionCase):
         department = self._asp_department('Test ASP (Admin)')
         member = self.env['hr.employee'].create({'name': 'ASP admin member', 'employee_type': 'asp', 'department_id': department.id})
         department.with_user(admin).write({'job_id': job.id})
+        self.assertEqual(member.job_id, job)
+
+    def test_only_employee_managers_can_set_department_job(self):
+        """The job carries a security group every member gets, so a teacher (who can write a
+        department through Odoo's own ACL) must not be able to set it."""
+        teacher = create_role_user(self, 'teacher', 'dept_job_teacher')
+        secretary = create_role_user(self, 'secretary', 'dept_job_secretary_w')
+        job = self.env['hr.job'].create({'name': 'Guarded job 815', 'employee_type': 'asp', 'group_id': self.env.ref('ems.group_secretary').id})
+        department = self._asp_department('Test ASP (Guarded)')
+        member = self.env['hr.employee'].create({'name': 'ASP guarded member', 'employee_type': 'asp', 'department_id': department.id})
+        with self.assertRaises(AccessError):
+            department.with_user(teacher).write({'job_id': job.id})
+        self.assertFalse(member.job_id)
+        department.with_user(secretary).write({'job_id': job.id})
         self.assertEqual(member.job_id, job)
 
     def test_effective_manager_is_shown_when_shared_with_parent(self):

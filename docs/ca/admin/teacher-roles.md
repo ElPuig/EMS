@@ -76,7 +76,7 @@ El compte d'usuari del professor s'actualitza immediatament: es concedeix el gru
 
 ## Lloc de treball d'un departament (PAS)
 
-Al formulari d'un departament PAS (**Empleats → Departaments**), trieu-ne el **Lloc de treball** (p. ex. Secretaria per a Secretariat). Tot el personal PAS del departament l'adopta i no es mostra a la fitxa de l'empleat. Si canvieu el lloc de treball del departament, o moveu un empleat a un altre departament, s'actualitza. El lloc de treball continua concedint el seu grup de seguretat (p. ex. Secretaria). El llistat de departaments mostra el gestor que s'aplica, també el que el departament comparteix amb el seu pare.
+Al formulari d'un departament PAS (**Empleats → Departaments**), trieu-ne el **Lloc de treball** (només ho poden fer qui gestiona empleats) (p. ex. Secretaria per a Secretariat). Tot el personal PAS del departament l'adopta i no es mostra a la fitxa de l'empleat. Si canvieu el lloc de treball del departament, o moveu un empleat a un altre departament, s'actualitza. El lloc de treball continua concedint el seu grup de seguretat (p. ex. Secretaria). El llistat de departaments mostra el gestor que s'aplica, també el que el departament comparteix amb el seu pare.
 
 ## Treure un rol
 

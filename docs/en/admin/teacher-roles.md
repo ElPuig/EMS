@@ -76,7 +76,7 @@ The teacher's user account is updated immediately: the security group tied to th
 
 ## Job position of a department (ASP)
 
-On the form of an ASP department (**Employees → Departments**), choose its **Job Position** (e.g. Secretary for Secretariat). Every ASP member of the department takes it, and it is not shown on the employee's form. Changing the department's job position, or moving an employee to another department, updates it. The job position still grants its security group (e.g. Secretary). The departments list shows the Manager that applies, including the one a department shares with its parent.
+On the form of an ASP department (**Employees → Departments**), choose its **Job Position** (only people who manage employees can) (e.g. Secretary for Secretariat). Every ASP member of the department takes it, and it is not shown on the employee's form. Changing the department's job position, or moving an employee to another department, updates it. The job position still grants its security group (e.g. Secretary). The departments list shows the Manager that applies, including the one a department shares with its parent.
 
 ## Remove a Role
 

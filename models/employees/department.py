@@ -19,6 +19,9 @@ class ems_department(models.Model):
 
     job_id = fields.Many2one(
         string="Job Position", comodel_name="hr.job", domain="[('employee_type', '=', 'asp')]",
+        # The job carries a security group that every member gets, and Odoo's own ACL lets any
+        # internal user write a department: only who already manages employees may set it.
+        groups="hr.group_hr_user,ems.group_academic_admin",
         help="The job position of the ASP staff of this department: every member takes it, so it "
              "is not chosen on each employee's form.")
     is_asp_area = fields.Boolean(
@@ -221,7 +224,9 @@ class ems_department(models.Model):
     def _apply_job_to_members(self):
         """Gives the ASP staff of these departments the department's job position. Written through
         the employee's own write(), which re-syncs the security groups the job carries."""
-        for department in self.filtered('job_id'):
+        # sudo only to read the job (a field restricted to employee managers): the members are
+        # written with the acting user's own rights.
+        for department in self.sudo().filtered('job_id'):
             members = self.env['hr.employee'].search([
                 ('department_id', '=', department.id), ('employee_type', '=', 'asp'),
                 ('job_id', '!=', department.job_id.id)])

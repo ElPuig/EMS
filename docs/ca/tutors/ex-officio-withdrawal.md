@@ -93,5 +93,5 @@ Si l'alumne demana la baixa voluntària o és expulsat, l'expedient es tanca sol
 
 > ⚠️ **Els vídeos poden estar desactualitzats.** L'EMS s'actualitza sovint i no tots els vídeos es tornen a fer després de cada canvi: pot ser que alguna pantalla o algun pas no coincideixi amb el que veus. Si hi ha alguna diferència, fes cas d'aquest manual. Els vídeos són en català i no tenen veu: tot el text apareix a la pantalla.
 
-- ▶ [Baixa d'ofici postobligatòria](https://drive.google.com/file/d/1Ia0xGFlXyh7MbUxH3aFdJjZdhn-Tye8b/view?usp=drivesdk)
-- ▶ [Baixa d'ofici obligatòria](https://drive.google.com/file/d/1f80ulfZ_bxHEuzLJ_MyxgVnHgCNzWRd1/view?usp=drivesdk)
+- ▶ [Baixa d'ofici en l'ensenyament postobligatori](https://drive.google.com/file/d/1Ia0xGFlXyh7MbUxH3aFdJjZdhn-Tye8b/view?usp=drivesdk)
+- ▶ [Baixa d'ofici en l'ensenyament obligatori](https://drive.google.com/file/d/1f80ulfZ_bxHEuzLJ_MyxgVnHgCNzWRd1/view?usp=drivesdk)

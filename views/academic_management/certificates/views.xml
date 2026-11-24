@@ -57,6 +57,9 @@
                                     invisible="not can_issue_now"
                                     confirm="Confirm you have every mandatory detail and document of the request. The steps before issuing are skipped (their pending tasks are closed) and the certificate gets its number and your stamp. If anything mandatory is missing, it is not issued and you are told what. Continue?"
                                     help="Skip the steps before issuing (e.g. completing the certificate details) when you already have every detail and document."/>
+                            <button name="action_preview_draft" type="object" string="See the draft" icon="fa-file-pdf-o"
+                                    invisible="state not in ('draft', 'in_progress', 'documentation')"
+                                    help="The certificate as it stands now, marked DRAFT: the details still empty are shown by their name. Only for the centre's staff."/>
                             <button name="action_open_wizard" type="object" string="Request documentation"
                                     invisible="not can_act" context="{'certificate_wizard_mode': 'info'}"/>
                             <button name="action_documentation_received" type="object" string="Documentation received"
@@ -218,7 +221,9 @@
                                         <field name="action"/>
                                         <field name="user_id"/>
                                         <field name="role_id"/>
-                                        <field name="date"/>
+                                        <!-- Issue #858: when each step was done, to the minute (the PDF
+                                             prints the date alone). -->
+                                        <field name="create_date" string="Date and time"/>
                                     </list>
                                 </field>
                             </page>

@@ -29,6 +29,8 @@ Mentre no facis cap canvi, l'alumne encara pot completar o corregir les seves da
 3. A la pestanya **Documentació**, comprova el **Conveni de FCT**. Si no hi és, obre la línia, adjunta'l (PDF o fotos de les pàgines) i desa.
 4. Obre **Accions → Fet: enviar al pas següent**. La sol·licitud passa a secretaria.
 
+Abans de passar-la, **Accions → Veure l'esborrany** mostra el certificat tal com és ara, marcat com a **ESBORRANY**, amb les dades encara buides en vermell.
+
 ![Les dades del certificat d'una sol·licitud](../../assets/teachers/certificats-04-formacio.png)
 
 ![La documentació d'una sol·licitud](../../assets/teachers/certificats-05-documentacio.png)

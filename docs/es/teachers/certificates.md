@@ -29,6 +29,8 @@ Mientras no hagas ningún cambio, el alumno aún puede completar o corregir sus 
 3. En la pestaña **Documentación**, comprueba el **Convenio de FCT**. Si no está, abre la línea, adjúntalo (PDF o fotos de las páginas) y guarda.
 4. Abre **Acciones → Hecho: enviar al paso siguiente**. La solicitud pasa a secretaría.
 
+Antes de pasarla, **Acciones → Ver el borrador** muestra el certificado tal como está, marcado como **BORRADOR**, con los datos aún vacíos en rojo.
+
 ![Los datos del certificado de una solicitud](../../assets/teachers/certificats-04-formacio.png)
 
 ![La documentación de una solicitud](../../assets/teachers/certificats-05-documentacio.png)

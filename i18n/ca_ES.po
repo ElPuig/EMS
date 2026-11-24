@@ -3519,6 +3519,7 @@ msgstr "Data"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_strike__date model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
 #: model:ir.model.fields,field_description:ems.field_ems_minute__start_datetime
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "Date and time"
 msgstr "Data i hora"
 
@@ -7919,6 +7920,7 @@ msgstr "Pla de pagament"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__step_role_ids
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_value__is_pending
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Pending"
 msgstr "Pendent"
 
@@ -27879,7 +27881,7 @@ msgstr "Enviada a aprovar a l'EMS"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Approved in EMS"
 msgstr "Aprovada a l'EMS"
 
@@ -53071,12 +53073,12 @@ msgid "Approve the certificate"
 msgstr "Donar el vistiplau al certificat"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Approved by the director"
 msgstr "Vistiplau de la direcció"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Approved by:"
 msgstr "Vistiplau de:"
 
@@ -53115,7 +53117,7 @@ msgstr "Pot rebutjar-la o cancel·lar-la"
 #: model:ir.actions.report,name:ems.action_report_certificate
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__certificate_pdf_link
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__certificate_id
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "Certificate"
 msgstr "Certificat"
@@ -53137,7 +53139,7 @@ msgid "Certificate number"
 msgstr "Número de certificat"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Certificate number:"
 msgstr "Número de certificat:"
 
@@ -53365,12 +53367,12 @@ msgid "Issued"
 msgstr "Expedit"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Issued by:"
 msgstr "Expedit per:"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Issued in EMS"
 msgstr "Expedit a EMS"
 
@@ -53640,7 +53642,7 @@ msgid "The secretariat, and whoever does the current step."
 msgstr "La secretaria i qui fa el pas actual."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "The secretary"
 msgstr "El/la secretari/ària"
 
@@ -56127,3 +56129,39 @@ msgstr "%(name)s, %(position)s del centre %(centre)s,"
 #: model:ir.model.fields,help:ems.field_ems_certificate_stamp__role_id
 msgid "The post the step was done under: the certificate names the signer by it."
 msgstr "El càrrec amb què es va fer el pas: el certificat anomena qui signa per aquest càrrec."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
+msgid "DRAFT"
+msgstr "ESBORRANY"
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_report_certificate_draft
+msgid "Draft certificate"
+msgstr "Esborrany del certificat"
+
+#. module: ems
+#: model:ir.model,name:ems.model_report_ems_report_certificate_draft
+msgid "Draft certificate, for the staff."
+msgstr "Esborrany del certificat, per al personal del centre."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Only the centre's staff can see a draft certificate."
+msgstr "Només el personal del centre pot veure l'esborrany d'un certificat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
+msgid "Pending issue"
+msgstr "Pendent d'expedir"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "See the draft"
+msgstr "Veure l'esborrany"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "The certificate as it stands now, marked DRAFT: the details still empty are shown by their name. Only for the centre's staff."
+msgstr "El certificat tal com és ara, marcat com a ESBORRANY: les dades encara buides es mostren pel seu nom. Només per al personal del centre."

@@ -492,6 +492,11 @@ class EmsCertificate(models.Model):
                 return held[:1]
         return step.role_ids[:1]
 
+    def action_preview_draft(self):
+        """The certificate as it stands, before it is issued: for the staff only (issue #858)."""
+        self.ensure_one()
+        return self.env.ref('ems.action_report_certificate_draft').report_action(self)
+
     def action_issue_now(self):
         """Whoever issues the certificate already has every detail: the steps before theirs are
         skipped (their tasks closed, a note says who skipped them) and the certificate is issued
@@ -717,9 +722,11 @@ class EmsCertificate(models.Model):
 
     # --- the PDF -------------------------------------------------------------
 
-    def _ems_report_paragraphs(self):
+    def _ems_report_paragraphs(self, draft=False):
         """The certificate's text, one translatable sentence each so every language keeps its own
-        word order, in the environment's language (the report renders in the centre's)."""
+        word order, in the environment's language (the report renders in the centre's). A `draft`
+        (issue #858), before it is issued, names whoever holds the issuing step's post, marks every
+        detail still empty with its label and is dated today."""
         self.ensure_one()
         env = self.env
 
@@ -728,22 +735,28 @@ class EmsCertificate(models.Model):
             return Markup(escape(template)) % bold
 
         issue = self._ems_stamps_to_print().filtered(lambda stamp: stamp.action == 'issue')[:1]
-        position = issue.role_id.with_env(env).name
+        issuer, role, date = issue.user_id, issue.role_id, issue.date
+        if draft and not issue:
+            role = self._ems_issue_step().role_ids[:1]
+            issuer = env['ems.base'].role_users(role)[:1]
+            date = fields.Date.context_today(self)
+        position = role.with_env(env).name
         # Issue #858: the issuer's real position; a stamp from before it was recorded says secretary.
-        first = sentence(env._("%(name)s, %(position)s of %(centre)s,"), name=issue.user_id.name,
+        first = sentence(env._("%(name)s, %(position)s of %(centre)s,"), name=issuer.name,
                          position=self._ems_position_in_sentence(position), centre=env.company.name) \
             if position else sentence(env._("%(secretary)s, secretary of %(centre)s,"),
-                                      secretary=issue.user_id.name, centre=env.company.name)
+                                      secretary=issuer.name, centre=env.company.name)
         paragraphs = [
             first,
             Markup('<strong>{}</strong>').format(env._("CERTIFIES:")),
         ]
+        missing = dict(self.type_id.with_env(env)._ems_text_key_labels()) if draft else None
         paragraphs += self._ems_render_text(self.type_id.with_env(env).certificate_text,
-                                            self.with_env(env)._ems_placeholder_values())
+                                            self.with_env(env)._ems_placeholder_values(), missing)
         paragraphs.append(Markup(escape(env._(
             "And for the record, I issue this certificate at the request of the person concerned."))))
         city = env.company.city
-        date = format_date(env, issue.date)
+        date = format_date(env, date)
         paragraphs.append(Markup(escape(f"{city}, {date}" if city else date)))
         return paragraphs
 
@@ -767,15 +780,20 @@ class EmsCertificate(models.Model):
         return values
 
     @api.model
-    def _ems_render_text(self, text, values):
+    def _ems_render_text(self, text, values, missing=None):
         """The certificate text as paragraphs of escaped HTML: each {key} replaced by its value in
         bold, each [optional part] kept only when every key inside it has a value. A blank line
-        separates paragraphs."""
+        separates paragraphs. `missing` ({key: label}, a draft's) marks an empty value by its label."""
         def fill(part):
             pieces, position = [], 0
             for match in PLACEHOLDER.finditer(part):
                 pieces.append(escape(part[position:match.start()]))
-                pieces.append(Markup('<strong>{}</strong>').format(values.get(match[1]) or ''))
+                value = values.get(match[1])
+                if not value and missing and match[1] in missing:
+                    pieces.append(Markup('<strong class="o_ems_certificate_missing">[{}]</strong>').format(
+                        missing[match[1]]))
+                else:
+                    pieces.append(Markup('<strong>{}</strong>').format(value or ''))
                 position = match.end()
             pieces.append(escape(part[position:]))
             return Markup('').join(pieces)
@@ -797,6 +815,18 @@ class EmsCertificate(models.Model):
         """The stamps the certificate carries: who issued it and who approved it."""
         self.ensure_one()
         return self.stamp_ids.filtered(lambda stamp: stamp.action in ('issue', 'approve')).sorted('id')
+
+    def _ems_report_signatures(self, draft=False):
+        """The certificate's signature boxes: each stamp to print, and - a `draft` (issue #858) - one
+        per issuing or approving step still to be done, headed by its post and left empty."""
+        self.ensure_one()
+        stamps = self._ems_stamps_to_print()
+        signatures = [{'stamp': stamp, 'role': stamp.role_id, 'action': stamp.action} for stamp in stamps]
+        if draft:
+            signatures += [{'stamp': False, 'role': step.role_ids[:1], 'action': step.action}
+                           for step in self._ems_steps()
+                           if step.action in ('issue', 'approve') and step not in stamps.step_id]
+        return signatures
 
     def _ems_generate_pdf(self):
         """Render the certificate and append the pages of the required documents the type adds to
@@ -1200,3 +1230,18 @@ class EmsCertificatePartner(models.Model):
         return student.contact_type == 'student' \
             and (student == self or self._ems_can_file_requests_for(student)) \
             and bool(self.env['ems.certificate']._ems_portal_types(student))
+
+
+class ReportEmsCertificateDraft(models.AbstractModel):
+    """The draft certificate (issue #858): for the staff only, never for the applicant, even one who
+    knows the report's URL and can read the request from the portal."""
+    _name = 'report.ems.report_certificate_draft'
+    _description = "Draft certificate, for the staff."
+
+    @api.model
+    def _get_report_values(self, docids, data=None):
+        if not self.env.su and not self.env.user._is_internal():
+            raise AccessError(_("Only the centre's staff can see a draft certificate."))
+        docs = self.env['ems.certificate'].browse(docids)
+        docs.check_access('read')
+        return {'doc_ids': docids, 'doc_model': 'ems.certificate', 'docs': docs}

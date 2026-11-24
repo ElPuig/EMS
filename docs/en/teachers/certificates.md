@@ -29,6 +29,8 @@ As long as you change nothing, the student may still complete or correct their d
 3. In the **Documentation** tab, check the **FCT agreement**. If it is missing, open the line, attach it (a PDF or photos of its pages) and save.
 4. Open **Actions → Done: send to the next step**. The request moves on to the secretariat.
 
+Before handing it over, **Actions → See the draft** shows the certificate as it stands, marked **DRAFT**, with the details still empty in red.
+
 ![A request's certificate details](../../assets/teachers/certificats-04-formacio.png)
 
 ![A request's documentation](../../assets/teachers/certificats-05-documentacio.png)

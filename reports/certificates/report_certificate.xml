@@ -14,7 +14,30 @@
             <field name="report_file">ems.report_certificate</field>
         </record>
 
+        <!-- Issue #858: the certificate as it stands, before it is issued, for the staff only
+             (report.ems.report_certificate_draft refuses anyone else): a DRAFT watermark, no number,
+             the details still empty marked by their label, and the signatures still to come. -->
+        <record id="action_report_certificate_draft" model="ir.actions.report">
+            <field name="name">Draft certificate</field>
+            <field name="model">ems.certificate</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_certificate_draft</field>
+            <field name="report_file">ems.report_certificate_draft</field>
+        </record>
+
         <template id="report_certificate">
+            <t t-call="ems.report_certificate_document">
+                <t t-set="draft" t-value="False"/>
+            </t>
+        </template>
+
+        <template id="report_certificate_draft">
+            <t t-call="ems.report_certificate_document">
+                <t t-set="draft" t-value="True"/>
+            </t>
+        </template>
+
+        <template id="report_certificate_document">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
                     <!-- ISO 9001: the controlled document every certificate is printed on, in the
@@ -23,7 +46,7 @@
                          model means editing it here. -->
                     <t t-set="ems_footer_note" t-value="&quot;PC3.02.01 Model de certificat (EMS) – Revisió: 17/11/2026&quot;"/>
                     <t t-call="web.external_layout">
-                        <t t-set="stamps" t-value="doc._ems_stamps_to_print()"/>
+                        <t t-set="signatures" t-value="doc._ems_report_signatures(draft)"/>
                         <!-- The brand colour is the company's own, the one minutes use for their
                              headings. -->
                         <t t-set="brand" t-value="doc.env.company.primary_color or '#a51d2d'"/>
@@ -50,16 +73,20 @@
                                 table.o_ems_certificate_signatures th { color: #fff; background-color: <t t-out="brand"/>; font-weight: normal; text-transform: uppercase; font-size: 9pt; }
                                 table.o_ems_certificate_signatures > tbody > tr > td { height: 34mm; }
                                 .o_ems_certificate_signer { margin-top: 2pt; font-weight: bold; }
+                                .o_ems_certificate_missing { color: #c62828; }
+                                .o_ems_certificate_pending { color: #777; font-style: italic; }
+                                .o_ems_certificate_watermark { position: absolute; top: 95mm; left: 0; right: 0; text-align: center; font-size: 90pt; font-weight: bold; letter-spacing: 8pt; color: rgba(198, 40, 40, 0.15); -webkit-transform: rotate(-35deg); transform: rotate(-35deg); z-index: 10; }
                             </style>
+                            <div t-if="draft" class="o_ems_certificate_watermark">DRAFT</div>
 
                             <table class="o_ems_certificate_header o_ignore_layout_styling">
                                 <tr>
                                     <td class="o_ems_certificate_title">Certificate</td>
-                                    <td class="o_ems_certificate_number">Certificate number: <strong t-esc="doc.name"/></td>
+                                    <td class="o_ems_certificate_number">Certificate number: <strong t-if="doc.name" t-esc="doc.name"/><strong t-else="">Pending issue</strong></td>
                                 </tr>
                             </table>
 
-                            <t t-set="paragraphs" t-value="doc._ems_report_paragraphs()"/>
+                            <t t-set="paragraphs" t-value="doc._ems_report_paragraphs(draft)"/>
                             <p t-foreach="paragraphs[:-1]" t-as="paragraph" t-out="paragraph"/>
                             <p class="o_ems_certificate_place" t-out="paragraphs[-1]"/>
 
@@ -69,17 +96,21 @@
                                         <tr>
                                             <!-- Issue #858: the signer's real position; a stamp from
                                                  before it was recorded keeps the old heading. -->
-                                            <th t-foreach="stamps" t-as="stamp">
-                                                <t t-if="stamp.role_id" t-esc="stamp.role_id.name"/>
-                                                <t t-elif="stamp.action == 'issue'">The secretary</t>
+                                            <th t-foreach="signatures" t-as="signature">
+                                                <t t-if="signature['role']" t-esc="signature['role'].name"/>
+                                                <t t-elif="signature['action'] == 'issue'">The secretary</t>
                                                 <t t-else="">Approved by the director</t>
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td t-foreach="stamps" t-as="stamp">
-                                                <t t-if="stamp.action == 'issue'" t-call="ems.report_validation_stamp">
+                                            <td t-foreach="signatures" t-as="signature">
+                                                <t t-set="stamp" t-value="signature['stamp']"/>
+                                                <t t-if="not stamp">
+                                                    <div class="o_ems_certificate_pending">Pending</div>
+                                                </t>
+                                                <t t-elif="stamp.action == 'issue'" t-call="ems.report_validation_stamp">
                                                     <t t-set="stamp_title">Issued in EMS</t>
                                                     <t t-set="stamp_by_label">Issued by:</t>
                                                     <t t-set="stamp_by" t-value="stamp.user_id.name"/>
@@ -93,7 +124,7 @@
                                                     <t t-set="stamp_date" t-value="stamp.date"/>
                                                     <t t-set="stamp_reference" t-value="doc.name"/>
                                                 </t>
-                                                <div class="o_ems_certificate_signer" t-esc="stamp.user_id.name"/>
+                                                <div t-if="stamp" class="o_ems_certificate_signer" t-esc="stamp.user_id.name"/>
                                             </td>
                                         </tr>
                                     </tbody>

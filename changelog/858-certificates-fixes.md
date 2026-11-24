@@ -17,3 +17,8 @@
 ## Certificates (the PDF names the signers by their real post):
 
 - Each step's stamp now records the post it was done under, and the certificate names whoever issues it ("Name, <post> of <centre>") and heads each signature box with that post, instead of always saying "secretary" and "director". Whoever covers for the Secretary (e.g. the Director, as administrator) is shown with their own post; certificates stamped before this keep the previous wording.
+
+## Certificates (draft certificate and time of each step):
+
+- A request's Actions offer See the draft while it is open: the certificate as it stands, marked DRAFT, without number, with the details still empty marked in red by their name and the signatures still to come. Staff only; nothing is stored.
+- The stamps list on the Certificate tab shows the date and time each step was done.

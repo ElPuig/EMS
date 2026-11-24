@@ -76,6 +76,10 @@ The earlier steps are skipped and their pending tasks closed, and the request's 
 
 ---
 
+## Seeing the draft
+
+While a request is not closed, **Actions → See the draft** shows the certificate as it stands now, marked **DRAFT** and without a number: the details still empty appear by their name in red (for example, **[Hours]**), and the signatures still to come appear as **Pending**. It is only for the centre's staff: the applicant never sees it.
+
 ## Other actions
 
 In the request's **Actions** menu:
@@ -86,7 +90,7 @@ In the request's **Actions** menu:
 - **Reject** — write the reason; the applicant gets it by email.
 - **Cancel request** — only before the certificate is issued (for example, a duplicate). A cancelled request can be **Reopen**ed.
 
-The **Certificate** tab holds the issued PDF and the stamps (who did each step, under which post, and when). The certificate names whoever issues it and whoever approves it by their post in EMS: if someone other than the Secretary issues it (for example, the Director while the Secretary is away), it shows that person's post.
+The **Certificate** tab holds the issued PDF and the stamps (who did each step, under which post, and the date and time). The certificate names whoever issues it and whoever approves it by their post in EMS: if someone other than the Secretary issues it (for example, the Director while the Secretary is away), it shows that person's post.
 
 ---
 

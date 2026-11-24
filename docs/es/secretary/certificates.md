@@ -76,6 +76,10 @@ Los pasos anteriores se saltan y sus tareas pendientes se cierran, y el historia
 
 ---
 
+## Ver el borrador
+
+Mientras una solicitud no está cerrada, **Acciones → Ver el borrador** muestra el certificado tal como está ahora, marcado como **BORRADOR** y sin número: los datos aún vacíos aparecen por su nombre en rojo (por ejemplo, **[Horas]**), y las firmas que aún faltan, como **Pendiente**. Es solo para el personal del centro: la persona solicitante nunca lo ve.
+
 ## Otras acciones
 
 En el menú **Acciones** de la solicitud:
@@ -86,7 +90,7 @@ En el menú **Acciones** de la solicitud:
 - **Rechazar** — escribe el motivo; la persona solicitante lo recibe por correo.
 - **Anular la solicitud** — solo antes de expedir el certificado (por ejemplo, si está duplicada). Una solicitud anulada se puede **Reabrir**.
 
-La pestaña **Certificado** contiene el PDF expedido y los sellos (quién hizo cada paso, con qué cargo y cuándo). El certificado nombra a quien lo expide y a quien lo aprueba por su cargo en EMS: si lo expide alguien que no es el secretario o la secretaria (por ejemplo, la dirección mientras el secretario está ausente), aparece el cargo de esa persona.
+La pestaña **Certificado** contiene el PDF expedido y los sellos (quién hizo cada paso, con qué cargo, y la fecha y la hora). El certificado nombra a quien lo expide y a quien lo aprueba por su cargo en EMS: si lo expide alguien que no es el secretario o la secretaria (por ejemplo, la dirección mientras el secretario está ausente), aparece el cargo de esa persona.
 
 ---
 

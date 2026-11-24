@@ -76,6 +76,10 @@ Els passos anteriors se salten i les seves tasques pendents es tanquen, i l'hist
 
 ---
 
+## Veure l'esborrany
+
+Mentre una sol·licitud no està tancada, **Accions → Veure l'esborrany** mostra el certificat tal com és ara, marcat com a **ESBORRANY** i sense número: les dades encara buides hi surten pel seu nom en vermell (per exemple, **[Hores]**), i les signatures que encara falten, com a **Pendent**. És només per al personal del centre: la persona sol·licitant no el veu mai.
+
 ## Altres accions
 
 Al menú **Accions** de la sol·licitud:
@@ -86,7 +90,7 @@ Al menú **Accions** de la sol·licitud:
 - **Rebutjar** — escriu el motiu; la persona sol·licitant el rep per correu.
 - **Anul·la la sol·licitud** — només abans d'expedir el certificat (per exemple, si és duplicada). Una sol·licitud anul·lada es pot **Reobrir**.
 
-La pestanya **Certificat** conté el PDF expedit i els segells (qui va fer cada pas, amb quin càrrec i quan). El certificat anomena qui l'expedeix i qui l'aprova pel seu càrrec a EMS: si l'expedeix algú que no és el secretari o la secretària (per exemple, la direcció mentre el secretari és absent), hi surt el càrrec d'aquesta persona.
+La pestanya **Certificat** conté el PDF expedit i els segells (qui va fer cada pas, amb quin càrrec, i la data i l'hora). El certificat anomena qui l'expedeix i qui l'aprova pel seu càrrec a EMS: si l'expedeix algú que no és el secretari o la secretària (per exemple, la direcció mentre el secretari és absent), hi surt el càrrec d'aquesta persona.
 
 ---
 

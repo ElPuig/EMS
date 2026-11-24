@@ -85,25 +85,26 @@ class EmsCertificateType(models.Model):
 
     @api.depends('field_ids.key', 'field_ids.name', 'field_ids.field_type')
     def _compute_placeholder_help(self):
-        common = [('name', _("Full name")), ('document', _("Identity document")), ('study', _("Study"))]
         for certificate_type in self:
-            keys = list(common)
-            for field in certificate_type.field_ids.sorted('sequence').filtered('key'):
-                keys.append((field.key, field.name))
-                if field.field_type == 'company':
-                    keys.append((f'{field.key}_vat', _("%s (VAT number)", field.name)))
             certificate_type.placeholder_help = Markup(", ").join(
-                Markup("<code>{{{}}}</code> {}").format(key, label) for key, label in keys)
+                Markup("<code>{{{}}}</code> {}").format(key, label)
+                for key, label in certificate_type._ems_text_key_labels())
+
+    def _ems_text_key_labels(self):
+        """Every key the type's text may use, with its label, in order: the common ones and the
+        type's (a company's VAT number too). Listed under the text, and what a draft certificate
+        shows where a detail is still empty (issue #858)."""
+        self.ensure_one()
+        keys = [('name', _("Full name")), ('document', _("Identity document")), ('study', _("Study"))]
+        for field in self.field_ids.sorted('sequence').filtered('key'):
+            keys.append((field.key, field.name))
+            if field.field_type == 'company':
+                keys.append((f'{field.key}_vat', _("%s (VAT number)", field.name)))
+        return keys
 
     def _ems_text_keys(self):
         """The keys the type's text may write between braces."""
-        self.ensure_one()
-        keys = set(COMMON_KEYS)
-        for field in self.field_ids:
-            keys.add(field.key)
-            if field.field_type == 'company':
-                keys.add(f'{field.key}_vat')
-        return keys
+        return {key for key, _label in self._ems_text_key_labels()}
 
     @api.constrains('certificate_text', 'field_ids')
     def _check_certificate_text(self):

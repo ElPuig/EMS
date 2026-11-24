@@ -161,7 +161,7 @@ Constraints (`_check_steps` on the type): at least one step, exactly one `issue`
 | `value_ids` | O2m `ems.certificate.value` | One line per datum of the type, created with the request (`_ems_sync_values`, again when the type changes in draft or a datum is added to a type with open requests). |
 | `document_ids` | O2m `ems.certificate.document` | One line per required document of the type, created with the request (`_ems_sync_documents`, again if the type changes while in draft). Each must have files before the `issue` step. |
 | `other_attachment_ids` | M2m `ir.attachment` | Optional documentation, anyone taking part. Never appended. |
-| `stamp_ids` | O2m `ems.certificate.stamp` | One per finished step: step, action, user, post (`role_id`), date. The PDF prints those of `issue` and `approve` steps. |
+| `stamp_ids` | O2m `ems.certificate.stamp` | One per finished step: step, action, user, post (`role_id`), date. The PDF prints those of `issue` and `approve` steps; the form lists them with their `create_date` (date and time). |
 | `certificate_pdf_id` | M2o `ir.attachment` | The final PDF. |
 | `applicant_form_open` | Boolean | The applicant may still edit their form from the link: set when the form is sent or the portal request filed, cleared as soon as someone of the centre writes the request (or one of its documents) or acts on it (step done, return, request documentation, reject, cancel). `_ems_portal_can_edit()`: in draft, or in progress with this flag. While open, the portal shows the form with **Save changes** (`_ems_portal_fill` updates and leaves a note). |
 | `info_request`, `return_reason`, `reject_reason`, `cancel_reason` | Text | Last request for documentation, the last return to the previous step, why it was rejected or cancelled. |
@@ -237,6 +237,14 @@ stateDiagram-v2
   anyway); approvals after the issue step are never skipped.
 - Every step change closes the previous task and schedules the next one quietly
   (`mail_activity_quick_update`): the holders find it in their daily summary.
+- `action_preview_draft()` (*See the draft*, any open state) renders `ems.action_report_certificate_draft`:
+  the same body as the certificate (`ems.report_certificate_document`, `draft` set), with a DRAFT
+  watermark, "Pending issue" for the number, the issuer taken from the issuing step's post when it is
+  not issued yet, every empty `{key}` marked by its label (`ems.certificate.type._ems_text_key_labels`,
+  the same list the type's form shows under the text) and the signatures still to come
+  (`_ems_report_signatures(draft=True)`). Nothing is stored. Staff only: its report model
+  (`report.ems.report_certificate_draft`) refuses a non-internal user, so a portal applicant who can
+  read the request cannot fetch it from the report URL.
 - `ems.certificate.wizard` (`mode`: `info`, `return`, `reject`, `cancel`) asks for the text and runs
   the matching method.
 - The PDF (`ems.report_certificate`, in the centre language, `CENTRE_LANG_REPORTS`) is one page: a

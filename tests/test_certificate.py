@@ -613,6 +613,42 @@ class TestCertificate(TransactionCase):
 
     # --- the type's details and text (issue #851) ------------------------------
 
+    def test_draft_certificate(self):
+        """Issue #858: the staff see the certificate as it stands before it is issued: marked DRAFT,
+        without number, the issuer the holder of the issuing step's post, the details still empty
+        marked by their label, and every signature still to come."""
+        certificate = self._submitted()
+        first = str(certificate._ems_report_paragraphs(draft=True)[0])
+        self.assertIn(f"<strong>{self.secretary.name}</strong>, <strong>TCRT issue position</strong>", first)
+        text = str(certificate._ems_report_paragraphs(draft=True)[2])
+        self.assertIn('<strong class="o_ems_certificate_missing">[Hours]</strong>', text)
+        self.assertIn('<strong>2025-26</strong>', text)
+        self.assertNotIn('VAT number', text, "An optional part with empty details is still left out.")
+        self.assertNotIn('o_ems_certificate_missing', str(certificate._ems_report_paragraphs()[2]),
+                         "The certificate itself never marks them.")
+        signatures = certificate._ems_report_signatures(draft=True)
+        self.assertEqual([(signature['stamp'], signature['role'], signature['action']) for signature in signatures],
+                         [(False, self.roles['issue'], 'issue'), (False, self.roles['approve'], 'approve')])
+        self.assertFalse(certificate._ems_report_signatures())
+
+        action = certificate.with_user(self.coordinator).action_preview_draft()
+        self.assertEqual(action['report_name'], 'ems.report_certificate_draft')
+        html = self.env['ir.actions.report'].with_user(self.coordinator)._render_qweb_html(
+            'ems.action_report_certificate_draft', certificate.ids)[0].decode()
+        self.assertIn('o_ems_certificate_watermark', html)
+        self.assertIn('o_ems_certificate_pending', html)
+
+    def test_draft_certificate_not_for_the_applicant(self):
+        """Issue #858: a portal user who can read their own request still gets no draft."""
+        certificate = self._submitted()
+        portal = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'TCRT Portal', 'login': 'test_tcrt_portal', 'partner_id': self.student.id,
+            'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
+        })
+        with self.assertRaises(AccessError):
+            self.env['ir.actions.report'].with_user(portal)._render_qweb_html(
+                'ems.action_report_certificate_draft', certificate.ids)
+
     def test_position_in_a_sentence(self):
         """Issue #858: a position goes into the certificate's sentence with its first letter in
         lowercase, unless it starts with an acronym."""

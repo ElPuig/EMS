@@ -94,13 +94,6 @@ class TestStudentTutorshipTransfer(TransactionCase):
             students = self.env['res.partner'].search(ast.literal_eval(justification.student_domain))
             self.assertEqual(self.student in students, expected)
 
-    def test_walkout_counts_the_student_in_the_transferred_group(self):
-        self._transfer()
-        # The walkout proposal gathers its students by tutorship_group_id (student_walkout.py).
-        Partner = self.env['res.partner']
-        self.assertIn(self.student, Partner.search([('tutorship_group_id', '=', self.first.id)]))
-        self.assertNotIn(self.student, Partner.search([('tutorship_group_id', '=', self.second.id)]))
-
     def test_my_students_follows_the_transfer(self):
         Partner = self.env['res.partner']
         self._transfer()

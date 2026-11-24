@@ -271,7 +271,9 @@ class ResPartner(models.Model):
 
     @api.model
     def _ems_user_can_transfer_tutorship(self):
-        """The secretary's office, academic administration and Heads of Studies (Director included)."""
+        """The secretary's office and Heads of Studies (Director included), with the academic
+        administrator above everyone. A system administrator without it edits no student (record
+        rules), so they aren't offered this either - the same criterion as editing enrollments."""
         return (base.EmsBase.get_user_is_admin(self) or base.EmsBase.get_user_is_secretary(self)
                 or base.EmsBase.get_user_is_head_of_studies(self))
 

@@ -36,25 +36,6 @@ class TestDepartment(TransactionCase):
             vals['user_id'] = user.id
         return self.env['hr.employee'].create(vals)
 
-    def test_employee_work_location_follows_department(self):
-        """Issue #815: the employee's place is the department's; a department without one leaves it."""
-        location = self.env['hr.work.location'].create({'name': 'Test location 815', 'location_type': 'office', 'address_id': self.env.company.partner_id.id})
-        other = self.env['hr.work.location'].create({'name': 'Other location 815', 'location_type': 'office', 'address_id': self.env.company.partner_id.id})
-        department = self.env['hr.department'].create({'name': 'Test Department (Location)'})
-        employee = self._create_employee('Location Employee', department=department)
-        self.assertFalse(employee.work_location_id)
-        department.work_location_id = location
-        self.assertEqual(employee.work_location_id, location)
-        department.work_location_id = other
-        self.assertEqual(employee.work_location_id, other)
-        department.work_location_id = False
-        self.assertEqual(employee.work_location_id, other, "A department without a place must not wipe the employee's")
-
-    def test_pas_employee_form_hides_work_location(self):
-        """Issue #815: redundant with the department, so not offered on the PAS form."""
-        arch = self.env['hr.employee'].get_view(self.env.ref('hr.view_employee_form').id)['arch']
-        self.assertRegex(arch, r'name="work_location_id"[^>]*invisible="employee_type == \'asp\'"')
-
     def test_seminar_chief_becomes_manager_of_other_members(self):
         department = self.env['hr.department'].create({'name': 'Test Department (Seminar Cascade)'})
         head = self._create_employee('Test Head (Seminar Cascade)', department)

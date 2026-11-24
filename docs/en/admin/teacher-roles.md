@@ -74,10 +74,6 @@ The teacher's user account is updated immediately: the security group tied to th
 
 ---
 
-## Work location of a department
-
-On the department's own form (**Employees → Departments**), set **Work Location** to where that department works (e.g. Secretariat). Every member of the department takes it as their own work location and it can't be edited on the employee: change it on the department. The field isn't shown on the form of ASP staff, since it would only repeat their department. Locations themselves are managed under **Educational Community → Configuration → Human resources → Work locations**.
-
 ## Remove a Role
 
 1. Open the teacher's employee record.

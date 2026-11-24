@@ -74,10 +74,6 @@ La cuenta de usuario del profesor se actualiza de inmediato: se concede el grupo
 
 ---
 
-## Lugar de trabajo de un departamento
-
-En el formulario del departamento (**Empleados → Departamentos**), establezca el **Lugar de trabajo** donde trabaja ese departamento (p. ej. Secretaría). Todos los miembros del departamento lo adoptan como lugar de trabajo propio y no se puede editar en el empleado: se cambia en el departamento. El campo no se muestra en el formulario del personal PAS, porque solo repetiría su departamento. Los lugares se gestionan en **Comunidad educativa → Configuración → Recursos humanos → Lugares de trabajo**.
-
 ## Quitar un rol
 
 1. Abrir la ficha del empleado del profesor.

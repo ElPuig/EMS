@@ -44,9 +44,6 @@
                 </group>
             </field>
             <field name="manager_id" position="after">
-                <group>
-                    <field name="work_location_id"/>
-                </group>
                 <group invisible="is_top_level or shares_manager_with_parent">
                     <field name="seminar_chief_id" widget="many2one_avatar_employee"/>
                 </group>

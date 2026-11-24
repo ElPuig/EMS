@@ -17,9 +17,6 @@ class ems_department(models.Model):
         'shares_manager_with_parent',
     )
 
-    work_location_id = fields.Many2one(
-        string="Work Location", comodel_name="hr.work.location",
-        help="Where this department works. Its members' work location follows it.")
     custom_color = fields.Char(
         string="Color", default="#3A8DDE",
         help="Free-pick display color for this department (not Odoo's native, fixed-palette "

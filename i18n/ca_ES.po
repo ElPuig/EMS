@@ -27750,6 +27750,7 @@ msgstr "Quan, amb paraules"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_panel__post
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__role_id
 msgid "Post"
 msgstr "Càrrec"
 
@@ -56115,3 +56116,14 @@ msgstr "El total d'hores de la formació, per exemple 400."
 #: model:ems.certificate.type.field,help:ems.certificate_field_fct_agreement
 msgid "The agreement's number in sBID, e.g. 2025146951."
 msgstr "El número del conveni a sBID, per exemple 2025146951."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "%(name)s, %(position)s of %(centre)s,"
+msgstr "%(name)s, %(position)s del centre %(centre)s,"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_stamp__role_id
+msgid "The post the step was done under: the certificate names the signer by it."
+msgstr "El càrrec amb què es va fer el pas: el certificat anomena qui signa per aquest càrrec."

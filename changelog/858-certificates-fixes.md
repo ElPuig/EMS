@@ -13,3 +13,7 @@
 - Every detail type can carry a hint (what to write and how, with an example), shown to the applicant on the portal and to the staff in the request.
 - Values are validated, with one check shared by the backend and the portal: a school year must be written as 2024-25 or 2024-2025 with consecutive years (stored as 2024-25), and a date can be configured not to be earlier than another one (Not before). The portal reports a wrong detail instead of silently dropping it, and a step cannot be done while a value written before this check is still wrong.
 - The FCT certificate's school year is now called "Curs acadèmic", every FCT detail has a hint, and its end date cannot be earlier than its start date (a migration applies it to existing installations, only where the centre has not changed those details).
+
+## Certificates (the PDF names the signers by their real post):
+
+- Each step's stamp now records the post it was done under, and the certificate names whoever issues it ("Name, <post> of <centre>") and heads each signature box with that post, instead of always saying "secretary" and "director". Whoever covers for the Secretary (e.g. the Director, as administrator) is shown with their own post; certificates stamped before this keep the previous wording.

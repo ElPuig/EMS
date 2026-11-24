@@ -217,6 +217,13 @@ class TestCertificate(TransactionCase):
         self.assertEqual(certificate.state, 'issued')
         self.assertFalse(certificate.activity_ids)
         self.assertEqual(certificate.stamp_ids.mapped('user_id'), self.coordinator | self.secretary | self.director)
+        # Issue #858: each stamp keeps the position its step was done under, and the certificate
+        # names the issuer by it (first letter lowercase in the sentence) and heads each signature.
+        self.assertEqual(certificate.stamp_ids.mapped('role_id'),
+                         self.roles['complete'] | self.roles['issue'] | self.roles['approve'])
+        self.assertEqual(str(certificate._ems_report_paragraphs()[0]),
+                         f"<strong>{self.secretary.name}</strong>, <strong>TCRT issue position</strong> of "
+                         f"<strong>{self.env.company.name}</strong>,")
         # The certificate, then the agreement's PDF page and the image as one more page: neither the
         # training report (not appended) nor the optional documentation.
         reader = PdfFileReader(io.BytesIO(certificate.certificate_pdf_id.raw))
@@ -299,6 +306,9 @@ class TestCertificate(TransactionCase):
         self.assertTrue(certificate.with_user(admin).can_issue_now)
         certificate.with_user(admin).action_issue_now()
         self.assertEqual((certificate.state, certificate.step_id), ('in_progress', self.steps[2]))
+        # Issue #858: the administrator holds no position, so the certificate falls back to the
+        # issuing step's own position.
+        self.assertEqual(certificate.stamp_ids.role_id, self.roles['issue'])
         self.assertTrue(certificate.submission_date)
         self.assertNotIn(self.coordinator, certificate.activity_ids.user_id)
 
@@ -602,6 +612,15 @@ class TestCertificate(TransactionCase):
         self.assertIn('Revisió: 17/11/2026', footer[:300])
 
     # --- the type's details and text (issue #851) ------------------------------
+
+    def test_position_in_a_sentence(self):
+        """Issue #858: a position goes into the certificate's sentence with its first letter in
+        lowercase, unless it starts with an acronym."""
+        Certificate = self.env['ems.certificate']
+        for name, expected in (('Director/a', 'director/a'), ('Secretaria', 'secretaria'),
+                               ("Tècnic/a de secretaria", "tècnic/a de secretaria"), ('FP coordinator', 'FP coordinator'),
+                               ('', '')):
+            self.assertEqual(Certificate._ems_position_in_sentence(name), expected, name)
 
     def test_render_text(self):
         """Every {key} in bold and escaped; a [part] only when its details have a value; a blank

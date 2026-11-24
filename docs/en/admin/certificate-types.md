@@ -45,7 +45,7 @@ In a request, the staff fill in these details in the **Certificate details** tab
 
 ## Certificate text
 
-**Certificate text** is what the certificate says after "CERTIFIES:". The heading with the secretary's name, the closing, the place, the date and the stamps are the same for every certificate.
+**Certificate text** is what the certificate says after "CERTIFIES:". The heading with the name and post of whoever issues it, the closing, the place, the date and the stamps are the same for every certificate.
 
 - Write a detail's key between braces where its value goes: `{hours}`. Under the text you can see every key you can use. A **Collaborating company** detail also has its VAT number, `{company_vat}` if its key is `company`.
 - A part between square brackets is only printed when every detail inside it has a value: `[, with VAT number {company_vat}]`.

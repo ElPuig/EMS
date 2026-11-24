@@ -67,8 +67,11 @@
                                 <table class="o_ems_certificate_signatures o_ignore_layout_styling">
                                     <thead>
                                         <tr>
+                                            <!-- Issue #858: the signer's real position; a stamp from
+                                                 before it was recorded keeps the old heading. -->
                                             <th t-foreach="stamps" t-as="stamp">
-                                                <t t-if="stamp.action == 'issue'">The secretary</t>
+                                                <t t-if="stamp.role_id" t-esc="stamp.role_id.name"/>
+                                                <t t-elif="stamp.action == 'issue'">The secretary</t>
                                                 <t t-else="">Approved by the director</t>
                                             </th>
                                         </tr>

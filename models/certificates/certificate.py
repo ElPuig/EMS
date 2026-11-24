@@ -467,7 +467,8 @@ class EmsCertificate(models.Model):
                 course = self.env['ems.course'].search([('is_current', '=', True)], limit=1)
                 vals.update(name=certificate._ems_next_number(course), course_id=course.id)
             vals['stamp_ids'] = [(0, 0, {'step_id': step.id, 'action': step.action, 'name': step.name,
-                                         'user_id': self.env.user.id, 'date': today})]
+                                         'user_id': self.env.user.id, 'role_id': certificate._ems_signer_role(step).id,
+                                         'date': today})]
             next_step = certificate._ems_next_step()
             vals.update(step_id=next_step.id, return_reason=False)
             certificate._ems_close_tasks()
@@ -477,6 +478,19 @@ class EmsCertificate(models.Model):
                 certificate._ems_schedule_task()
             else:
                 certificate._ems_finish()
+
+    def _ems_signer_role(self, step):
+        """The position the current user does `step` under (issue #858): theirs among the step's;
+        else another of theirs in the circuit (e.g. the Director, as administrator, issuing while
+        the Secretary is away); else - an administrator with no position - the step's own."""
+        self.ensure_one()
+        base = self.env['ems.base']
+        user = self.env.user
+        for roles in (step.role_ids, self._ems_steps().role_ids):
+            held = roles.filtered(lambda role: user in base.role_users(role))
+            if held:
+                return held[:1]
+        return step.role_ids[:1]
 
     def action_issue_now(self):
         """Whoever issues the certificate already has every detail: the steps before theirs are
@@ -714,9 +728,14 @@ class EmsCertificate(models.Model):
             return Markup(escape(template)) % bold
 
         issue = self._ems_stamps_to_print().filtered(lambda stamp: stamp.action == 'issue')[:1]
+        position = issue.role_id.with_env(env).name
+        # Issue #858: the issuer's real position; a stamp from before it was recorded says secretary.
+        first = sentence(env._("%(name)s, %(position)s of %(centre)s,"), name=issue.user_id.name,
+                         position=self._ems_position_in_sentence(position), centre=env.company.name) \
+            if position else sentence(env._("%(secretary)s, secretary of %(centre)s,"),
+                                      secretary=issue.user_id.name, centre=env.company.name)
         paragraphs = [
-            sentence(env._("%(secretary)s, secretary of %(centre)s,"), secretary=issue.user_id.name,
-                     centre=env.company.name),
+            first,
             Markup('<strong>{}</strong>').format(env._("CERTIFIES:")),
         ]
         paragraphs += self._ems_render_text(self.type_id.with_env(env).certificate_text,
@@ -727,6 +746,14 @@ class EmsCertificate(models.Model):
         date = format_date(env, issue.date)
         paragraphs.append(Markup(escape(f"{city}, {date}" if city else date)))
         return paragraphs
+
+    @api.model
+    def _ems_position_in_sentence(self, name):
+        """A position inside a sentence: its first letter in lowercase (Director/a -> director/a),
+        unless it starts with an acronym (FP coordinator)."""
+        if not name or (len(name) > 1 and name[1].isupper()):
+            return name or ''
+        return name[0].lower() + name[1:]
 
     def _ems_placeholder_values(self):
         """What each key of the text prints: the common details and the type's, as displayed in the
@@ -1142,6 +1169,8 @@ class EmsCertificateStamp(models.Model):
     name = fields.Char(string="Step name", required=True)
     action = fields.Selection(string="Action", selection=STEP_ACTIONS, required=True)
     user_id = fields.Many2one(string="Done by", comodel_name='res.users', required=True, ondelete='restrict')
+    role_id = fields.Many2one(string="Post", comodel_name='ems.role', ondelete='set null',
+                              help="The post the step was done under: the certificate names the signer by it.")
     date = fields.Date(string="Date", required=True)
 
 

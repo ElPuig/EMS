@@ -86,7 +86,7 @@ En el menú **Acciones** de la solicitud:
 - **Rechazar** — escribe el motivo; la persona solicitante lo recibe por correo.
 - **Anular la solicitud** — solo antes de expedir el certificado (por ejemplo, si está duplicada). Una solicitud anulada se puede **Reabrir**.
 
-La pestaña **Certificado** contiene el PDF expedido y los sellos (quién hizo cada paso y cuándo).
+La pestaña **Certificado** contiene el PDF expedido y los sellos (quién hizo cada paso, con qué cargo y cuándo). El certificado nombra a quien lo expide y a quien lo aprueba por su cargo en EMS: si lo expide alguien que no es el secretario o la secretaria (por ejemplo, la dirección mientras el secretario está ausente), aparece el cargo de esa persona.
 
 ---
 

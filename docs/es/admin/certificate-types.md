@@ -45,7 +45,7 @@ En una solicitud, el personal rellena estos datos en la pestaña **Datos del cer
 
 ## Texto del certificado
 
-**Texto del certificado** es lo que dice el certificado después de "CERTIFICA:". El encabezado con el nombre del secretario o la secretaria, el cierre, el lugar, la fecha y los sellos son iguales para todos los certificados.
+**Texto del certificado** es lo que dice el certificado después de "CERTIFICA:". El encabezado con el nombre y el cargo de quien lo expide, el cierre, el lugar, la fecha y los sellos son iguales para todos los certificados.
 
 - Escribe la clave de un dato entre llaves donde va su valor: `{horas}`. Bajo el texto están todas las claves que puedes usar. Un dato **Empresa colaboradora** también tiene el NIF: `{empresa_vat}` si la clave es `empresa`.
 - Una parte entre corchetes solo se imprime cuando todos los datos que contiene tienen valor: `[, con NIF {empresa_vat}]`.

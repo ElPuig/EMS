@@ -217,6 +217,7 @@
                                         <field name="name"/>
                                         <field name="action"/>
                                         <field name="user_id"/>
+                                        <field name="role_id"/>
                                         <field name="date"/>
                                     </list>
                                 </field>

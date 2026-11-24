@@ -161,7 +161,7 @@ Constraints (`_check_steps` on the type): at least one step, exactly one `issue`
 | `value_ids` | O2m `ems.certificate.value` | One line per datum of the type, created with the request (`_ems_sync_values`, again when the type changes in draft or a datum is added to a type with open requests). |
 | `document_ids` | O2m `ems.certificate.document` | One line per required document of the type, created with the request (`_ems_sync_documents`, again if the type changes while in draft). Each must have files before the `issue` step. |
 | `other_attachment_ids` | M2m `ir.attachment` | Optional documentation, anyone taking part. Never appended. |
-| `stamp_ids` | O2m `ems.certificate.stamp` | One per finished step: step, action, user, date. The PDF prints those of `issue` and `approve` steps. |
+| `stamp_ids` | O2m `ems.certificate.stamp` | One per finished step: step, action, user, post (`role_id`), date. The PDF prints those of `issue` and `approve` steps. |
 | `certificate_pdf_id` | M2o `ir.attachment` | The final PDF. |
 | `applicant_form_open` | Boolean | The applicant may still edit their form from the link: set when the form is sent or the portal request filed, cleared as soon as someone of the centre writes the request (or one of its documents) or acts on it (step done, return, request documentation, reject, cancel). `_ems_portal_can_edit()`: in draft, or in progress with this flag. While open, the portal shows the form with **Save changes** (`_ems_portal_fill` updates and leaves a note). |
 | `info_request`, `return_reason`, `reject_reason`, `cancel_reason` | Text | Last request for documentation, the last return to the previous step, why it was rejected or cancelled. |
@@ -225,7 +225,7 @@ stateDiagram-v2
     cancelled --> in_progress: Reopen (first step)
 ```
 
-- `action_done_step()`: checks the step's data (`_ems_check_step_data`), records the stamp, assigns
+- `action_done_step()`: checks the step's data (`_ems_check_step_data`), records the stamp (with the post it is done under, `_ems_signer_role`: the user's among the step's posts; else another of theirs in the circuit, e.g. the Director issuing as administrator; else, an administrator holding none, the step's own; each signature box is headed by it), assigns
   the number on `issue`, and moves to the next step (task to the holders of its positions) or finishes.
 - `action_issue_now()`: whoever holds one of the `issue` step's positions (or the administrator,
   `can_issue_now`) issues the certificate while the request is still in draft or on an earlier
@@ -242,7 +242,7 @@ stateDiagram-v2
 - The PDF (`ems.report_certificate`, in the centre language, `CENTRE_LANG_REPORTS`) is one page: a
   header band in the company's colour (as minutes' headings) with the number, the text with wider
   side margins than the letterhead, and the signature boxes anchored at the foot of the page. It prints its
-  paragraphs from `_ems_report_paragraphs()`: the issuer's sentence and "CERTIFIES:" (common), the
+  paragraphs from `_ems_report_paragraphs()`: the issuer's sentence (their name and the post on their stamp, first letter in lowercase unless it starts with an acronym, `_ems_position_in_sentence`; a stamp from before issue #858 has none and says "secretary") and "CERTIFIES:" (common), the
   type's `certificate_text` in the centre language with every `{key}` replaced and escaped
   (`_ems_render_text`), and the closing sentence and the place and date (common). The type's text is
   one translatable value per language, so each language keeps its own word order. The files of the required

@@ -45,7 +45,7 @@ En una sol·licitud, el personal emplena aquestes dades a la pestanya **Dades de
 
 ## Text del certificat
 
-**Text del certificat** és el que diu el certificat després de "CERTIFICA:". L'encapçalament amb el nom del secretari o la secretària, el tancament, el lloc, la data i els segells són iguals per a tots els certificats.
+**Text del certificat** és el que diu el certificat després de "CERTIFICA:". L'encapçalament amb el nom i el càrrec de qui l'expedeix, el tancament, el lloc, la data i els segells són iguals per a tots els certificats.
 
 - Escriu la clau d'una dada entre claus on ha d'anar el seu valor: `{hores}`. Sota el text hi ha totes les claus que pots fer servir. Una dada **Empresa col·laboradora** també té el NIF: `{empresa_vat}` si la clau és `empresa`.
 - Una part entre claudàtors només s'imprimeix quan totes les dades que conté tenen valor: `[, amb NIF {empresa_vat}]`.

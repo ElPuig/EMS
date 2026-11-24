@@ -86,7 +86,7 @@ Al menú **Accions** de la sol·licitud:
 - **Rebutjar** — escriu el motiu; la persona sol·licitant el rep per correu.
 - **Anul·la la sol·licitud** — només abans d'expedir el certificat (per exemple, si és duplicada). Una sol·licitud anul·lada es pot **Reobrir**.
 
-La pestanya **Certificat** conté el PDF expedit i els segells (qui va fer cada pas i quan).
+La pestanya **Certificat** conté el PDF expedit i els segells (qui va fer cada pas, amb quin càrrec i quan). El certificat anomena qui l'expedeix i qui l'aprova pel seu càrrec a EMS: si l'expedeix algú que no és el secretari o la secretària (per exemple, la direcció mentre el secretari és absent), hi surt el càrrec d'aquesta persona.
 
 ---
 

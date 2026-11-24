@@ -54,7 +54,7 @@ export const emsAttachmentsField = {
     ...many2ManyBinaryField,
     component: EmsAttachmentsField,
     relatedFields: [...many2ManyBinaryField.relatedFields, { name: "checksum", type: "char" },
-        { name: "type", type: "selection" }, { name: "url", type: "char" }],
+        { name: "type", type: "char" }, { name: "url", type: "char" }],
 };
 
 registry.category("fields").add("ems_attachments", emsAttachmentsField);

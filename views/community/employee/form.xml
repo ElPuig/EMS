@@ -242,6 +242,11 @@
                     <field name="job_id" placeholder="Job Position" invisible="employee_type == 'asp'"/>
                 </field>
 
+                <!-- The native one, in the work information block (the one above is ours, under the name). -->
+                <xpath expr="(//field[@name='job_id'])[2]" position="attributes">
+                    <attribute name="invisible">employee_type == 'asp'</attribute>
+                </xpath>
+
                 <field name="category_ids" position="replace">
                     <!-- Issue #846: 'groups' here and on Tutorships/Subjects below: a role that can't read them
                          (Settings administrator) would otherwise not be able to open this form at all. -->

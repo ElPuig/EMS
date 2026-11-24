@@ -1,3 +1,4 @@
+import re
 from unittest.mock import patch
 
 from odoo.exceptions import ValidationError
@@ -68,7 +69,10 @@ class TestDepartment(TransactionCase):
 
     def test_pas_employee_form_hides_job_position(self):
         arch = self.env['hr.employee'].get_view(self.env.ref('hr.view_employee_form').id)['arch']
-        self.assertRegex(arch, r'name="job_id"[^>]*invisible="employee_type == \'asp\'"')
+        fields = re.findall(r'<field[^>]*name="job_id"[^>]*>', arch)
+        self.assertTrue(fields)
+        for field in fields:
+            self.assertIn("invisible=\"employee_type == 'asp'\"", field)
 
     def test_seminar_chief_becomes_manager_of_other_members(self):
         department = self.env['hr.department'].create({'name': 'Test Department (Seminar Cascade)'})

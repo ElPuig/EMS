@@ -10,21 +10,6 @@
             <field name="level_ids" eval="[(6, 0, [ref('ems.level_cfgm'), ref('ems.level_cfgs')])]"/>
         </record>
 
-        <!-- The agreement: anyone taking part may attach it (the applicant, if they keep a copy, or
-             the centre), and its pages are appended to the certificate. -->
-        <record id="certificate_document_fct_agreement" model="ems.certificate.type.document">
-            <field name="type_id" ref="certificate_type_fct"/>
-            <field name="sequence">10</field>
-            <field name="name">FCT agreement</field>
-            <field name="append_to_certificate" eval="True"/>
-        </record>
-
-        <!-- Ticked once its document exists: the type refuses requiring documentation with none
-             listed (_check_documents), and a clean install creates the type first. -->
-        <record id="certificate_type_fct" model="ems.certificate.type">
-            <field name="requires_documents" eval="True"/>
-        </record>
-
         <!-- Each step a record of its own, with an XML id, so its name is translated (an inline
              child would have none). -->
         <record id="certificate_step_fct_complete" model="ems.certificate.type.step">
@@ -47,6 +32,18 @@
             <field name="name">Approve the certificate</field>
             <field name="role_ids" eval="[(6, 0, [ref('ems.role_director')])]"/>
             <field name="action">approve</field>
+        </record>
+
+        <!-- The agreement: the applicant may attach it (if they keep a copy), as the centre always
+             may; required before issuing (issue #861: by step, as the details), and its pages are
+             appended to the certificate. After the steps, which it refers to. -->
+        <record id="certificate_document_fct_agreement" model="ems.certificate.type.document">
+            <field name="type_id" ref="certificate_type_fct"/>
+            <field name="sequence">10</field>
+            <field name="name">FCT agreement</field>
+            <field name="applicant_uploads" eval="True"/>
+            <field name="required_step_id" ref="certificate_step_fct_issue"/>
+            <field name="append_to_certificate" eval="True"/>
         </record>
 
         <!-- Issue #851: what the FCT certificate needs besides the student's details, and its text.

@@ -61,7 +61,7 @@ L'estudi ha de ser d'un dels nivells del tipus de certificat (per al de FCT, CFG
 
 1. Obre la sol·licitud des del filtre **Pendents de mi**.
 2. Comprova les dades de les pestanyes **Sol·licitant** i **Dades del certificat**.
-3. A la pestanya **Documentació**, comprova que tots els documents obligatoris (en verd) tenen fitxers.
+3. A la pestanya **Documentació**, comprova que els documents obligatoris tenen fitxers (els que falten surten en vermell).
 4. Obre **Accions → Expedir el certificat** i confirma.
 
 ![Accions d'una sol·licitud a punt d'expedir](../../assets/secretary/certificats-03-expedir.png)
@@ -102,10 +102,10 @@ La pestanya **Certificat** conté el PDF expedit i els segells (qui va fer cada 
 
 La pestanya **Documentació** té:
 
-- **Documentació obligatòria** — els documents que exigeix el tipus de certificat (per al de FCT, el **Conveni de FCT**). La columna **L'adjunta** indica qui els pot adjuntar. Obre la línia per adjuntar-hi fitxers (PDF o fotos de les pàgines).
-- **Altra documentació** — qualsevol altre fitxer, opcional. No s'afegeix al certificat.
+- **Els documents del tipus de certificat** (per al de FCT, el **Conveni de FCT**). La columna **L'adjunta** indica si també el pot adjuntar la persona sol·licitant, i **Obligatòria abans de**, el pas on és obligatori; els que encara hi falten surten en vermell. Obre la línia per adjuntar-hi fitxers (PDF o fotos de les pàgines).
+- **Altra documentació** — qualsevol altre document. Fes clic a **Afegir una línia**, escriu-ne el **Nom del document**, adjunta-hi els fitxers i marca **Afegir al certificat** si les seves pàgines han d'anar al certificat. Els que adjunta la persona sol·licitant des del portal hi apareixen amb el nom del fitxer i sense marcar.
 
-El PDF del certificat inclou al final les pàgines dels documents obligatoris marcats per afegir-los al certificat.
+El PDF del certificat inclou al final les pàgines dels documents marcats amb **Afegir al certificat**: primer els del tipus i després els d'**Altra documentació**.
 
 ---
 

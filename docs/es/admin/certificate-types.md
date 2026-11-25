@@ -4,7 +4,7 @@
 
 # Tipos de certificado y circuitos de aprobación
 
-Configura qué certificados puede pedir el alumnado, qué documentación exigen y quién hace cada paso hasta que se expiden.
+Configura qué certificados puede pedir el alumnado, qué documentos llevan y quién hace cada paso hasta que se expiden.
 
 **Rol necesario:** Administrador.
 
@@ -59,18 +59,16 @@ Por ejemplo, el texto de FCT:
 
 ---
 
-## Documentación adjunta obligatoria
+## Documentos
 
-Marca **Documentación adjunta obligatoria** y añade una línea por cada documento que se debe adjuntar antes de expedir el certificado:
+En **Documentos**, añade una línea por cada documento que se debe adjuntar a las solicitudes de este tipo:
 
 - **Documento** — el nombre del documento (por ejemplo, *Convenio de FCT*).
-- **Solicitante** — la persona solicitante puede adjuntarlo desde el portal o desde el enlace.
-- **Cargos** — quien ocupa estos cargos puede adjuntarlo (solo se pueden elegir cargos del circuito).
+- **Solicitante** — la persona solicitante también puede adjuntarlo, desde el portal o desde el enlace. Quien participa en el circuito siempre puede adjuntarlo.
+- **Obligatorio antes de** — el paso que no se puede hacer hasta que el documento se ha adjuntado (ni ninguno posterior). Vacío: es opcional. En el tipo FCT, el convenio es obligatorio antes de expedir el certificado.
 - **Añadir al certificado** — las páginas del documento se añaden al final del PDF del certificado.
 
-Si no se marca ni **Solicitante** ni ningún cargo, puede adjuntarlo cualquiera que participe. El administrador siempre puede adjuntarlo.
-
-Además de los documentos obligatorios, cualquier solicitud admite **Otra documentación** opcional, que no se añade al certificado.
+Además, cualquier solicitud admite **Otra documentación**: cada documento que se adjunta ahí indica si se añade al certificado.
 
 ---
 

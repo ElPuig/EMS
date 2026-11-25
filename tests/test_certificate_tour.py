@@ -35,6 +35,9 @@ class TestCertificateTour(HttpCase):
         report = self.certificate.document_ids.filtered(lambda line: line.type_document_id == self.report_document)
         self.assertEqual(report.attachment_ids.mapped('name'), ['Report.pdf'])
         self.assertEqual(report.attachment_ids.res_id, report.id, "The file follows the request's access rights.")
+        other = self.certificate.other_document_ids
+        self.assertEqual((other.name, other.append_to_certificate, other.attachment_ids.mapped('name')),
+                         ('Hours sheet', True, ['Sheet.pdf']))
 
     def test_secretary_issues_it_now(self):
         """A request with every detail and document, still waiting for the coordinator: the secretary

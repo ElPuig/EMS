@@ -81,10 +81,9 @@
         <t t-call="ems.portal_certificate_documents"/>
     </template>
 
-    <!-- The files the applicant may attach: one input per required document of the type they may
-         attach (input document_<ems.certificate.type.document id>), and the optional ones. Required
-         documents are only demanded before the certificate is issued: the centre may attach the
-         ones it has. -->
+    <!-- The files the applicant may attach: one input per document of the type they may attach
+         (input document_<ems.certificate.type.document id>), and other ones. A required document is
+         only demanded before its step (issue #861): the centre may attach the ones it has. -->
     <template id="portal_certificate_documents" name="Certificate request documents">
         <h6 class="fw-bold mt-2">Documentation</h6>
         <div class="row">
@@ -220,7 +219,7 @@
                         <p t-else="" class="small text-muted">The centre completes these details.</p>
                     </div>
                 </div>
-                <t t-if="certificate.document_ids or certificate.other_attachment_ids">
+                <t t-if="certificate.document_ids or certificate.other_document_ids">
                     <h6 class="fw-bold">Documentation</h6>
                     <ul class="list-unstyled small mb-0">
                         <li t-foreach="certificate.document_ids" t-as="line" class="o_ems_certificate_summary_document">
@@ -229,10 +228,10 @@
                             <t t-if="line.attachment_ids" t-esc="', '.join(line.attachment_ids.mapped('name'))"/>
                             <span t-else="" class="text-muted">Pending</span>
                         </li>
-                        <li t-if="certificate.other_attachment_ids">
+                        <li t-if="certificate.other_document_ids">
                             <i class="fa fa-paperclip me-1"/>
                             <strong>Other documentation</strong>:
-                            <t t-esc="', '.join(certificate.other_attachment_ids.mapped('name'))"/>
+                            <t t-esc="', '.join(certificate.other_document_ids.mapped('name'))"/>
                         </li>
                     </ul>
                 </t>

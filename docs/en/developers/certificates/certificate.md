@@ -19,7 +19,7 @@ workplace training at a collaborating company. Its circuit:
    number, period, hours, agreement registration number);
 2. the **Secretary** (`ems.role_secretary`) issues it: it gets its number and the "Issued" stamp;
 3. the **Director** (`ems.role_director`) approves it ("Vist i plau"): the final PDF is generated,
-   with the pages of the required documents appended (FCT: the agreement), and sent to the applicant.
+   with the pages of the documents marked to be added appended (FCT: the agreement), and sent to the applicant.
 
 **Attesting instead (issue #861).** The Director cannot issue certificates, but may attest ("fer
 constar"), and a certificate is never issued and approved by the same person. So, until the
@@ -56,12 +56,15 @@ accepts Odoo's own keys (`PropertiesDefinition.ALLOWED_KEYS`): there is nowhere 
 datum in, whether it is mandatory or by which step. So the type keeps its own definition lines
 (`ems.certificate.type.field`) and the request one value line per datum (`ems.certificate.value`).
 
-**Documentation.** A type may require documents (**Required attached documentation**, with one line
-per document: e.g. FCT requires the *FCT agreement*). Each line says who may attach it: the
-applicant, positions of the circuit, or - nobody ticked - anyone taking part; the administrator
-always. Every required document must be attached before the issuing step, and a line with **Add to
-the certificate** has its pages appended to the PDF. Besides, any request takes **Other
-documentation**: optional files anyone taking part attaches, never added to the certificate.
+**Documentation (issue #861).** A type lists its documents (FCT: the *FCT agreement*), and every
+request gets a line for each. Each one says, as the type's details do, the step it is required
+before (empty: optional; FCT's agreement: before issuing); whether the applicant may attach it too
+(whoever takes part in the circuit always may); and whether its pages are appended to the PDF
+(**Add to the certificate**). Besides, any request takes **Other documentation**: documents of its
+own, each with a name, its files and its own **Add to the certificate** (unticked by default),
+appended after the type's. Not a type-level "documentation required" switch any more: that one
+switch also hid the documents to append, so unticking it once (found on 2026-11-25) issued
+certificates without their agreement.
 
 > **Not a qualified electronic signature:** the stamps are EMS's own record of who issued and approved
 > the certificate (`ems.report_validation_stamp`, as in minutes and convalidation resolutions).
@@ -91,7 +94,7 @@ erDiagram
     EMS_CERTIFICATE ||--o{ EMS_CERTIFICATE_VALUE : "value_ids (cascade)"
     EMS_CERTIFICATE_TYPE_FIELD ||--o{ EMS_CERTIFICATE_VALUE : "field_id (cascade)"
     RES_PARTNER |o--o{ EMS_CERTIFICATE_VALUE : "value_company_id (collaborating company)"
-    EMS_ROLE }o--o{ EMS_CERTIFICATE_TYPE_DOCUMENT : "role_ids (who attaches it)"
+    EMS_CERTIFICATE_TYPE_STEP |o--o{ EMS_CERTIFICATE_TYPE_DOCUMENT : "required_step_id (restrict)"
     EMS_CERTIFICATE ||--o{ EMS_CERTIFICATE_DOCUMENT : "document_ids (cascade)"
     EMS_CERTIFICATE_TYPE_DOCUMENT ||--o{ EMS_CERTIFICATE_DOCUMENT : "type_document_id (cascade)"
     EMS_CERTIFICATE_DOCUMENT }o--o{ IR_ATTACHMENT : "attachment_ids (its files)"
@@ -103,7 +106,7 @@ erDiagram
     EMS_STUDY |o--o{ EMS_CERTIFICATE : "study_id"
     EMS_COURSE |o--o{ EMS_CERTIFICATE : "course_id (course it was issued in)"
     EMS_CERTIFICATE ||--o{ EMS_CERTIFICATE_STAMP : "stamp_ids (cascade)"
-    EMS_CERTIFICATE }o--o{ IR_ATTACHMENT : "other_attachment_ids (optional documentation)"
+    EMS_CERTIFICATE ||--o{ EMS_CERTIFICATE_DOCUMENT : "other_document_ids (no type_document_id)"
     EMS_CERTIFICATE |o--o| IR_ATTACHMENT : "certificate_pdf_id"
 ```
 
@@ -116,8 +119,7 @@ erDiagram
 | `certificate_text` | Text, translatable | What the certificate says after "CERTIFIES:". `{key}` prints a datum in bold; text between `[` and `]` prints only when every datum inside has a value; a blank line starts a new paragraph. Mandatory in the form; `_check_certificate_text` refuses an unknown key or an unbalanced bracket, in every installed language. |
 | `placeholder_help` | Html, computed | The keys the text may use, listed under it in the form. |
 | `level_ids` | M2m `ems.level` | Levels whose current students may request it from the portal (FCT: CFGM, CFGS). Empty: never offered on the portal (the secretariat still registers it). |
-| `requires_documents` | Boolean | "Required attached documentation": the `document_ids` lines are required before the issuing step (FCT: yes). Ticked with no line is refused (`_check_documents`). |
-| `document_ids` | O2m `ems.certificate.type.document` | The required documents, by `sequence`. |
+| `document_ids` | O2m `ems.certificate.type.document` | The documents every request gets, by `sequence` (`_ems_documents`). `copy()` points each at the copy's own step. |
 | `step_ids` | O2m `ems.certificate.type.step` | The approval circuit, by `sequence`. |
 | `active` | Boolean | Archived types are no longer offered. |
 
@@ -126,8 +128,8 @@ erDiagram
 | Field | Type | Notes |
 |-------|------|-------|
 | `sequence`, `name` | Integer, Char (translatable) | Order and the document's name ("FCT agreement"). |
-| `applicant_uploads` | Boolean | The applicant may attach it (portal or form link). |
-| `role_ids` | M2m `ems.role` | Positions whose holders may attach it (the type form offers the circuit's). Neither the applicant nor a position ticked: anyone taking part. |
+| `applicant_uploads` | Boolean | The applicant may attach it too (portal or form link). Whoever takes part in the circuit always may. |
+| `required_step_id` | M2o `ems.certificate.type.step` (restrict) | The step that cannot be done until it has files (and so every later step, *Issue it now* and *Attest*). Empty: optional. `_ems_is_required_by(step)` comes from `ems.certificate.type.requirement`, an abstract model shared with the details. |
 | `append_to_certificate` | Boolean | Its pages are appended to the PDF. |
 
 Seeded in `data/main/ems.certificate.type.xml` with `noupdate="1"`: the centre configures the circuit
@@ -169,8 +171,8 @@ Constraints (`_check_steps` on the type): at least one step, exactly one `issue`
 | `applicant_email` | Char | Where a former student's form link, requests for documentation and the certificate go. Choosing the student fills it with their personal `email`, or leaves it empty when that is still a legacy corporate address (`_ems_student_defaults`). Portal requests use `student_id._ems_informed_recipients()`. |
 | `student_name`, `student_document`, `study_id` | Char, Char, M2o | The applicant's details common to every type, mandatory on submission. Prefilled from the contact when known. `study_id` must belong to one of the type's levels (`_check_study_level`; the form and the portal only offer those). |
 | `value_ids` | O2m `ems.certificate.value` | One line per datum of the type, created with the request (`_ems_sync_values`, again when the type changes in draft or a datum is added to a type with open requests). |
-| `document_ids` | O2m `ems.certificate.document` | One line per required document of the type, created with the request (`_ems_sync_documents`, again if the type changes while in draft). Each must have files before the `issue` step. |
-| `other_attachment_ids` | M2m `ir.attachment` | Optional documentation, anyone taking part. Never appended. |
+| `document_ids` | O2m `ems.certificate.document` | One line per document of the type, created with the request (`_ems_sync_documents`, again if the type changes while in draft). Each must have files before the step it is required by. |
+| `other_document_ids` | O2m `ems.certificate.document` | Other documentation (issue #861): lines with no `type_document_id`, each with its name, files and its own *Add to the certificate*. The same model as `document_ids`, split by the two fields' domains. |
 | `stamp_ids` | O2m `ems.certificate.stamp` | One per finished step: step, action, user, post (`role_id`), date; an accrediting document has a single one, action `attest` (`STAMP_ACTIONS` = the steps' actions plus `attest`). The PDF prints those of `issue`, `approve` and `attest`; the form lists them with their `create_date` (date and time). |
 | `certificate_pdf_id` | M2o `ir.attachment` | The final PDF. |
 | `applicant_form_open` | Boolean | The applicant may still edit their form from the link: set when the form is sent or the portal request filed, cleared as soon as someone of the centre writes the request (or one of its documents) or acts on it (step done, return, request documentation, reject, cancel). `_ems_portal_can_edit()`: in draft, or in progress with this flag. While open, the portal shows the form with **Save changes** (`_ems_portal_fill` updates and leaves a note). |
@@ -204,17 +206,31 @@ opens a dialog with only the input of the line's data type (and, for a company, 
 number written by the applicant plus *Create company*). Not an inline editable list: a list column
 holds one field, so every data type would need its own column, mostly empty, or a custom widget.
 
-### `ems.certificate.document` (a required document of a request)
+### `ems.certificate.document` (a document of a request)
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `type_document_id` | M2o `ems.certificate.type.document` | Name, order, who attaches it and whether it is appended come from it. |
+| `type_document_id` | M2o `ems.certificate.type.document` | A document of the type (name, order, who may attach it, when it is required, whether it is appended come from it); empty for other documentation. |
+| `other_name` | Char | The name of another document (`name` is computed from either). |
+| `sequence`, `append_to_certificate` | stored computes | From the type's document; another document goes last (10000) and keeps its own *Add to the certificate* (`readonly=False`). |
 | `attachment_ids` | M2m `ir.attachment` | Its files (PDF or images), tied to the line by `ems.attachment_link_mixin`, so they follow the request's access rights. |
-| `uploaders`, `is_attached`, `can_upload` | computed | Who attaches it ("Anyone", or the applicant and positions); whether it has files; whether the current user may attach them (administrator, anyone-line, or holder of one of its positions, while the request is open). `write()` only accepts `attachment_ids`, and only from who `can_upload`. |
+| `uploaders`, `required_step_id`, `is_required`, `is_attached`, `can_upload` | computed / related | "Applicant or centre" or "Centre"; the step it is required before; whether it has files; whether files can still be attached (the request is open). |
 
-On the portal, the applicant gets one file input per required document they may attach
-(`document_<ems.certificate.type.document id>`) and one for other documentation (`documents`);
-`_ems_portal_attach` ignores a document the applicant may not attach.
+Who may change what (outside `sudo`): any staff member who can read the request (the record rules)
+attaches files to any line while it is open; another document can also be created, renamed,
+ticked or removed; a type's document only takes files (`write()`), and it is neither created nor
+removed by hand (`create()`/`unlink()`, the lines follow the type through `_ems_sync_documents`).
+
+On the portal, the applicant gets one file input per document of the type they may attach
+(`document_<ems.certificate.type.document id>`) and one for other documentation (`documents`):
+`_ems_portal_attach` creates another document per file, named after it and not appended (the
+centre ticks it), and ignores a document the applicant may not attach.
+
+**Migration (`migrations/18.0.0.52.1/post-migrate.py`).** Every document of a type that had the old
+switch ticked, and FCT's agreement whatever it, becomes required before its type's issuing step; a
+document with neither the applicant nor a position ticked (the old "anyone") lets the applicant
+attach it; open requests get the lines of their type's documents; each file of the old other
+documentation becomes a document of its own, not appended.
 
 ## CRUD flow
 
@@ -253,7 +269,7 @@ stateDiagram-v2
 - `action_issue_now()`: whoever holds one of the `issue` step's positions (or the administrator,
   `can_issue_now`) issues the certificate while the request is still in draft or on an earlier
   step, when they already have every detail. It runs the issuing step's checks first
-  (`_ems_check_step_data(action='issue')`: applicant, data required up to the issuing step, required documents), so
+  (`_ems_check_step_data(action='issue')`: applicant, details and documents required up to the issuing step), so
   nothing moves while something mandatory is missing; then it closes the earlier steps' tasks,
   posts a note naming the skipped steps and their skipper, puts the request on the `issue` step and
   calls `action_done_step()`. A skipped `complete` step leaves no stamp (it is never printed
@@ -276,14 +292,14 @@ stateDiagram-v2
   paragraphs from `_ems_report_paragraphs()`: the issuer's sentence (their name and the post on their stamp, first letter in lowercase unless it starts with an acronym, `_ems_position_in_sentence`; a stamp from before issue #858 has none and says "secretary") and "CERTIFIES:" (common), the
   type's `certificate_text` in the centre language with every `{key}` replaced and escaped
   (`_ems_render_text`), and the closing sentence and the place and date (common). The type's text is
-  one translatable value per language, so each language keeps its own word order. The files of the required
-  documents marked *Add to the certificate* are appended by `_ems_generate_pdf()` with
+  one translatable value per language, so each language keeps its own word order. The files of every
+  document marked *Add to the certificate* (the type's, then the other ones) are appended by `_ems_generate_pdf()` with
   `odoo.tools.pdf.merge_pdf`, an image becoming one page (Pillow). An accrediting
   document (issue #861; `_ems_report_paragraphs`/`_ems_report_signatures` take `attestation`, by
   default the request's `document_kind`) is titled *Accrediting document*, numbered *Document number*,
   opens with the attester's sentence and "ATTESTS:", closes with "I sign this accrediting document",
   carries the *Attested in EMS* stamp only and is saved as *Accrediting document DACR-....pdf*; the
-  required documents are appended in the same way.
+  documents are appended in the same way.
 
 ### Emails
 
@@ -298,8 +314,7 @@ certificate, or see the request.
 
 Measured on a synthetic fixture of 300 requests (rolled back), as a holder of the VET coordinator
 position: list *Pending for me* (80 rows) 24 ms / 16 queries cold, 14 ms / 4 warm; list without
-filter 14 ms / 6 cold; form read 18 ms / 23 cold, 1 ms warm; the documentation lines' `can_upload`
-14 ms / 15 cold. A centre issues FCT certificates in the order of tens to a few hundred a year.
+filter 14 ms / 6 cold; form read 18 ms / 23 cold, 1 ms warm. A centre issues FCT certificates in the order of tens to a few hundred a year.
 
 - The list (filter *Pending for me*): one query on `ems_role` (the user's positions) and one search
   of `ems_certificate` by `state` (indexed) and `step_id`; then `step_user_ids` reads the holders
@@ -314,8 +329,8 @@ filter 14 ms / 6 cold; form read 18 ms / 23 cold, 1 ms warm; the documentation l
   / 4 queries (0.2 ms / 0 warm); rendering the certificate text 2.4 ms / 5 queries cold. Adding a
   detail to a type searches its open requests once (by `type_id` and the indexed `state`) to give
   them the new line.
-- The documentation tab: a type requires a handful of documents; `can_upload` reads each position's
-  holders once per request page (memoized per role), not once per line.
+- The documentation tab: a type has a handful of documents and a request a few other ones;
+  `can_upload` only reads the request's state, no query of its own (issue #861).
 
 ### Permission audit (2026-11-17)
 

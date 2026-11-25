@@ -192,9 +192,11 @@
                             </page>
                             <page name="documentation" string="Documentation">
                                 <field name="document_ids" invisible="not document_ids" readonly="state not in ('draft', 'in_progress', 'documentation')">
-                                    <list create="0" delete="0" decoration-danger="not is_attached" decoration-success="is_attached">
+                                    <list create="0" delete="0" decoration-danger="is_required and not is_attached" decoration-success="is_attached">
+                                        <field name="is_required" column_invisible="1"/>
                                         <field name="name"/>
                                         <field name="uploaders"/>
+                                        <field name="required_step_id"/>
                                         <field name="attachment_ids" widget="many2many_tags"/>
                                         <field name="is_attached" widget="boolean_toggle" readonly="1"/>
                                         <field name="append_to_certificate" optional="hide"/>
@@ -204,7 +206,8 @@
                                         <group>
                                             <field name="name"/>
                                             <field name="uploaders"/>
-                                            <field name="append_to_certificate"/>
+                                            <field name="required_step_id" invisible="not required_step_id"/>
+                                            <field name="append_to_certificate" readonly="1"/>
                                         </group>
                                         <field name="attachment_ids" widget="many2many_binary" readonly="not can_upload"/>
                                         <div class="text-muted">
@@ -213,14 +216,30 @@
                                     </form>
                                 </field>
                                 <div class="text-muted mb-3" invisible="not document_ids">
-                                    <i class="fa fa-info-circle me-1"/>Required before the certificate is issued. Open a
-                                    document to attach its files.
+                                    <i class="fa fa-info-circle me-1"/>Highlighted: required by a step and still without
+                                    files. Open a document to attach its files.
                                 </div>
                                 <separator string="Other documentation"/>
-                                <field name="other_attachment_ids" widget="many2many_binary"
-                                       readonly="state not in ('draft', 'in_progress', 'documentation')"/>
+                                <field name="other_document_ids" readonly="state not in ('draft', 'in_progress', 'documentation')">
+                                    <list>
+                                        <field name="name"/>
+                                        <field name="attachment_ids" widget="many2many_tags"/>
+                                        <field name="append_to_certificate"/>
+                                    </list>
+                                    <form>
+                                        <group>
+                                            <field name="other_name" required="1"/>
+                                            <field name="append_to_certificate"/>
+                                        </group>
+                                        <field name="attachment_ids" widget="many2many_binary"/>
+                                        <div class="text-muted">
+                                            <i class="fa fa-info-circle me-1"/>A PDF or photos of its pages (JPG, PNG).
+                                        </div>
+                                    </form>
+                                </field>
                                 <div class="text-muted">
-                                    <i class="fa fa-info-circle me-1"/>Optional. These files are not added to the certificate.
+                                    <i class="fa fa-info-circle me-1"/>Optional. Tick Add to the certificate to add its
+                                    pages to the certificate, after the documents of the type.
                                 </div>
                             </page>
                             <page name="certificate" string="Certificate">

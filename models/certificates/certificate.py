@@ -108,13 +108,17 @@ class EmsCertificate(models.Model):
     # The details of its type.
     value_ids = fields.One2many(string="Certificate details", comodel_name='ems.certificate.value',
                                 inverse_name='certificate_id', copy=False)
-    document_ids = fields.One2many(string="Required documentation", comodel_name='ems.certificate.document',
-                                   inverse_name='certificate_id', copy=False)
-    other_attachment_ids = fields.Many2many(string="Other documentation", comodel_name='ir.attachment',
-                                            relation='ems_certificate_other_attachment_rel',
-                                            column1='certificate_id', column2='attachment_id',
-                                            help="Optional documents anyone taking part may attach. They are not "
-                                                 "added to the certificate.")
+    # Issue #861: one model for both, the type's documents (one line each, kept by
+    # _ems_sync_documents) and any other document someone attaches, each deciding whether it goes
+    # into the certificate.
+    document_ids = fields.One2many(string="Documentation", comodel_name='ems.certificate.document',
+                                   inverse_name='certificate_id', copy=False,
+                                   domain=[('type_document_id', '!=', False)])
+    other_document_ids = fields.One2many(string="Other documentation", comodel_name='ems.certificate.document',
+                                         inverse_name='certificate_id', copy=False,
+                                         domain=[('type_document_id', '=', False)],
+                                         help="Any other document anyone taking part attaches. Each one says whether "
+                                              "it is added to the certificate.")
 
     applicant_form_open = fields.Boolean(
         string="The applicant can still edit their details", readonly=True, copy=False,
@@ -310,7 +314,6 @@ class EmsCertificate(models.Model):
         certificates = super(EmsCertificate, self.with_context(mail_create_nosubscribe=True)).create(vals_list)
         certificates._ems_sync_documents()
         certificates._ems_sync_values()
-        certificates._ems_link_other_attachments()
         return certificates
 
     def write(self, vals):
@@ -324,9 +327,15 @@ class EmsCertificate(models.Model):
         if 'type_id' in vals:
             self._ems_sync_documents()
             self._ems_sync_values()
-        if 'other_attachment_ids' in vals:
-            self._ems_link_other_attachments()
         return res
+
+    def _ems_check_documentation_open(self):
+        """Documents are attached, renamed or removed while the request is open; doing it closes the
+        applicant's form, as any change of the centre does."""
+        for certificate in self:
+            if certificate.state not in ('draft',) + OPEN_STATES:
+                raise UserError(_("A certificate request that is closed cannot be changed."))
+        self._ems_close_applicant_form()
 
     def _ems_close_applicant_form(self):
         """Someone of the centre changes or acts on a request already in its circuit: from then on
@@ -335,14 +344,10 @@ class EmsCertificate(models.Model):
         if opened:
             super(EmsCertificate, opened.sudo()).write({'applicant_form_open': False})
 
-    def _ems_link_other_attachments(self):
-        for certificate in self:
-            certificate.other_attachment_ids._ems_link_to(certificate)
-
     def _ems_sync_documents(self):
-        """One line per document the type requires, to attach it to."""
+        """One line per document of the type, to attach it to."""
         self._ems_sync_lines('document_ids', 'type_document_id',
-                             lambda certificate: certificate.type_id._ems_required_documents())
+                             lambda certificate: certificate.type_id._ems_documents())
 
     def _ems_sync_values(self):
         """One value line per detail of the type."""
@@ -471,12 +476,11 @@ class EmsCertificate(models.Model):
 
     def _ems_check_step_data(self, action=None):
         """What the current step (or the step doing `action`) needs before it is done: the
-        applicant's details always; the details the type requires by that step or an earlier one;
-        every document the type requires before issuing."""
+        applicant's details always; the details and documents the type requires by that step or an
+        earlier one (issue #861: documents by step too, as details)."""
         self._ems_check_applicant_data()
         self._ems_check_details()
         for certificate in self:
-            checked_action = action or certificate.step_id.action
             # Attesting (issue #861) closes the request: whatever any step requires.
             step = certificate._ems_issue_step() if action == 'issue' \
                 else certificate._ems_steps()[-1:] if action == 'attest' else certificate.step_id
@@ -484,9 +488,10 @@ class EmsCertificate(models.Model):
                 lambda line: line.field_id._ems_is_required_by(step) and not line._ems_has_value(linked=True))
             if missing:
                 raise UserError(_("Fill in the certificate details first: %s.", ", ".join(missing.mapped('name'))))
-            missing_documents = certificate.document_ids.filtered(lambda line: not line.attachment_ids)
-            if checked_action in ('issue', 'attest') and missing_documents:
-                raise UserError(_("Attach the required documentation before issuing the certificate: %s.",
+            missing_documents = certificate.document_ids.filtered(
+                lambda line: line.type_document_id._ems_is_required_by(step) and not line.attachment_ids)
+            if missing_documents:
+                raise UserError(_("Attach the required documentation first: %s.",
                                   ", ".join(missing_documents.mapped('name'))))
 
     def _ems_submit(self):
@@ -955,13 +960,15 @@ class EmsCertificate(models.Model):
         return signatures
 
     def _ems_generate_pdf(self):
-        """Render the certificate and append the pages of the required documents the type adds to
-        it, images included; keep it on the request, replacing any earlier one."""
+        """Render the certificate and append the pages of every document marked to be added to it
+        (the type's and, issue #861, any other one), images included; keep it on the request,
+        replacing any earlier one."""
         self.ensure_one()
         centre_env = self.env['res.company']._ems_centre_env()
         pdf, _content_type = self.env['ir.actions.report'].sudo()._render_qweb_pdf(
             'ems.action_report_certificate', self.ids)
-        appended = self.document_ids.sudo().filtered('append_to_certificate').sorted('sequence')
+        documents = self.sudo().document_ids | self.sudo().other_document_ids
+        appended = documents.filtered('append_to_certificate').sorted(lambda line: (line.sequence, line.id))
         pages = [pdf] + [self._ems_annex_pdf(attachment) for attachment in appended.attachment_ids]
         previous = self.certificate_pdf_id
         self.sudo().certificate_pdf_id = self.env['ir.attachment'].sudo().create({
@@ -1020,29 +1027,30 @@ class EmsCertificate(models.Model):
         return values, details, missing
 
     def _ems_portal_documents(self):
-        """The required documents the applicant may attach: theirs, or anyone's."""
+        """The documents of the type the applicant may attach."""
         self.ensure_one()
-        return self.document_ids.filtered(lambda line: line.type_document_id._ems_applicant_may_upload())
+        return self.document_ids.filtered('type_document_id.applicant_uploads')
 
     def _ems_portal_attach(self, files):
-        """Store the files the applicant uploaded. `files` maps a required document of the type
-        (ems.certificate.type.document id) to its files, and None to the optional ones; a document
-        the applicant may not attach is ignored."""
+        """Store the files the applicant uploaded. `files` maps a document of the type
+        (ems.certificate.type.document id) to its files, and None to other documents: each of those
+        becomes a document of its own, named after its file, not added to the certificate unless the
+        centre ticks it (issue #861). A document the applicant may not attach is ignored."""
         self.ensure_one()
         Attachment = self.env['ir.attachment'].sudo()
+        Document = self.env['ems.certificate.document'].sudo()
         lines = {line.type_document_id.id: line for line in self._ems_portal_documents()}
         attached = Attachment
         for document_id, uploads in files.items():
-            line = lines.get(document_id) if document_id else None
-            if document_id and not line:
+            if document_id and document_id not in lines:
                 continue
-            target = line or self
-            attachments = Attachment.create([{
-                'name': upload.filename, 'raw': upload.read(), 'res_model': target._name, 'res_id': target.id,
-            } for upload in uploads])
-            field = 'attachment_ids' if line else 'other_attachment_ids'
-            target.sudo()[field] = [(4, attachment.id) for attachment in attachments]
-            attached |= attachments
+            for upload in uploads:
+                line = lines.get(document_id) or Document.create({
+                    'certificate_id': self.id, 'other_name': upload.filename})
+                attachment = Attachment.create({'name': upload.filename, 'raw': upload.read(),
+                                                'res_model': line._name, 'res_id': line.id})
+                line.attachment_ids = [(4, attachment.id)]
+                attached |= attachment
         return attached
 
     def _ems_portal_can_edit(self):
@@ -1247,70 +1255,97 @@ class EmsCertificateValue(models.Model):
 
 
 class EmsCertificateDocument(models.Model):
-    """A document the request's type requires, with the files attached for it. Only who the type
-    says may attach them: the applicant (from the portal), the holders of its positions, or anyone
-    taking part when it names nobody; the administrator always."""
+    """A document of a certificate request, with its files: one of its type's (the applicant may
+    attach it when the type says so; whoever takes part always may), or any other one someone
+    attaches (issue #861: with its own name, and its own choice of going into the certificate)."""
     _name = 'ems.certificate.document'
     _inherit = ['ems.attachment_link_mixin']
-    _description = "Required document of a certificate request, with its files."
+    _description = "Document of a certificate request, with its files."
     _order = 'certificate_id, sequence, id'
 
     certificate_id = fields.Many2one(string="Certificate request", comodel_name='ems.certificate', required=True,
                                      ondelete='cascade', index=True)
-    type_document_id = fields.Many2one(string="Required document", comodel_name='ems.certificate.type.document',
-                                       required=True, ondelete='cascade', readonly=True)
-    name = fields.Char(related='type_document_id.name')
-    sequence = fields.Integer(related='type_document_id.sequence')
-    append_to_certificate = fields.Boolean(related='type_document_id.append_to_certificate')
+    type_document_id = fields.Many2one(string="Document of the type", comodel_name='ems.certificate.type.document',
+                                       ondelete='cascade', readonly=True, index=True)
+    other_name = fields.Char(string="Name of the document")
+    name = fields.Char(string="Document", compute='_compute_name')
+    sequence = fields.Integer(string="Sequence", compute='_compute_sequence', store=True)
+    append_to_certificate = fields.Boolean(
+        string="Add to the certificate", compute='_compute_append_to_certificate', store=True, readonly=False,
+        help="Its pages are appended to the certificate's PDF (a PDF as it is, each image as a page).")
     attachment_ids = fields.Many2many(string="Files", comodel_name='ir.attachment',
                                       relation='ems_certificate_document_attachment_rel', column1='document_id',
                                       column2='attachment_id')
     uploaders = fields.Char(string="Attached by", compute='_compute_uploaders')
+    required_step_id = fields.Many2one(related='type_document_id.required_step_id', string="Required before")
+    is_required = fields.Boolean(string="Required", compute='_compute_is_required')
     is_attached = fields.Boolean(string="Attached", compute='_compute_is_attached')
     can_upload = fields.Boolean(string="Can attach it", compute='_compute_can_upload')
 
-    @api.depends('type_document_id.applicant_uploads', 'type_document_id.role_ids')
+    @api.depends('type_document_id.name', 'other_name')
+    def _compute_name(self):
+        for line in self:
+            line.name = line.type_document_id.name or line.other_name
+
+    @api.depends('type_document_id.sequence')
+    def _compute_sequence(self):
+        # Another document goes after the type's.
+        for line in self:
+            line.sequence = line.type_document_id.sequence if line.type_document_id else 10000
+
+    @api.depends('type_document_id.append_to_certificate')
+    def _compute_append_to_certificate(self):
+        # Another document keeps its own choice, not added unless someone ticks it.
+        for line in self:
+            line.append_to_certificate = line.type_document_id.append_to_certificate if line.type_document_id \
+                else line.append_to_certificate
+
+    @api.depends('type_document_id.applicant_uploads')
     def _compute_uploaders(self):
         for line in self:
-            document = line.type_document_id
-            if document._ems_anyone():
-                line.uploaders = _("Anyone")
-                continue
-            names = ([_("Applicant")] if document.applicant_uploads else []) + document.role_ids.mapped('name')
-            line.uploaders = ", ".join(names)
+            line.uploaders = _("Applicant or centre") if line.type_document_id.applicant_uploads else _("Centre") \
+                if line.type_document_id else False
+
+    @api.depends('type_document_id.required_step_id')
+    def _compute_is_required(self):
+        for line in self:
+            line.is_required = bool(line.type_document_id.required_step_id)
 
     @api.depends('attachment_ids')
     def _compute_is_attached(self):
         for line in self:
             line.is_attached = bool(line.attachment_ids)
 
-    @api.depends('certificate_id.state', 'type_document_id.role_ids')
-    @api.depends_context('uid')
+    @api.depends('certificate_id.state')
     def _compute_can_upload(self):
-        is_admin = self.certificate_id._ems_is_admin()
-        base = self.env['ems.base']
-        users_by_role = {}
+        # Whoever takes part in the circuit (the staff who can read the request); the applicant
+        # attaches from the portal, under its own checks.
         for line in self:
-            document = line.type_document_id
-            if line.certificate_id.state not in ('draft',) + OPEN_STATES:
-                line.can_upload = False
-            elif is_admin or document._ems_anyone():
-                line.can_upload = True
-            else:
-                for role in document.role_ids - document.role_ids.browse(list(users_by_role)):
-                    users_by_role[role.id] = base.role_users(role)
-                line.can_upload = any(self.env.user in users_by_role[role.id] for role in document.role_ids)
+            line.can_upload = line.certificate_id.state in ('draft',) + OPEN_STATES
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        if not self.env.su:
+            if any(vals.get('type_document_id') for vals in vals_list):
+                raise UserError(_("The documents of the type are added by EMS."))
+            self.env['ems.certificate'].browse([vals.get('certificate_id') for vals in vals_list]) \
+                ._ems_check_documentation_open()
+        return super().create(vals_list)
 
     def write(self, vals):
         if not self.env.su:
-            if set(vals) - {'attachment_ids'}:
-                raise UserError(_("Only the files of a required document can be changed."))
-            self.certificate_id._ems_close_applicant_form()
-            for line in self:
-                if not line.can_upload:
-                    raise AccessError(_("You cannot attach %(document)s: it is attached by %(who)s.",
-                                        document=line.name, who=line.uploaders))
+            other_fields = {'attachment_ids', 'other_name', 'append_to_certificate'}
+            if set(vals) - ({'attachment_ids'} if self.type_document_id else other_fields):
+                raise UserError(_("Only the files of a document of the type can be changed."))
+            self.certificate_id._ems_check_documentation_open()
         return super().write(vals)
+
+    def unlink(self):
+        if not self.env.su:
+            if self.filtered('type_document_id'):
+                raise UserError(_("A document of the type cannot be removed: attach its files instead."))
+            self.certificate_id._ems_check_documentation_open()
+        return super().unlink()
 
 
 class EmsCertificateStamp(models.Model):

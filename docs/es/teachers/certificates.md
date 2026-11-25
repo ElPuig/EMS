@@ -26,7 +26,7 @@ Mientras no hagas ningún cambio, el alumno aún puede completar o corregir sus 
 2. En la pestaña **Datos del certificado**, cada línea es un dato del certificado: su nombre, una **Indicación** de qué escribir y cómo, y su **Valor**. Haz clic en una línea para rellenarla: se abre una ventana con el campo del dato, y **Guardar y cerrar** lo guarda.
    - En **Empresa colaboradora**, elige la empresa. Si no existe y el alumno escribió su nombre, haz clic en **Crear empresa** en la ventana: se crea con el nombre y el NIF que escribió (si ya hay una con el mismo NIF, se vincula esa).
    - Rellena **Fecha de inicio**, **Fecha de finalización**, **Horas** y el **Número de registro del convenio (sBID)**. La fecha de finalización no puede ser anterior a la de inicio.
-3. En la pestaña **Documentación**, comprueba el **Convenio de FCT**. Si no está, abre la línea, adjúntalo (PDF o fotos de las páginas) y guarda.
+3. En la pestaña **Documentación**, comprueba el **Convenio de FCT**. Si no está, abre la línea, adjúntalo (PDF o fotos de las páginas) y guarda. Cualquier otro documento va en **Otra documentación**, donde marcas **Añadir al certificado** si debe ir en el certificado.
 4. Abre **Acciones → Hecho: enviar al paso siguiente**. La solicitud pasa a secretaría.
 
 Antes de pasarla, **Acciones → Ver el borrador** muestra el certificado tal como está, marcado como **BORRADOR**, con los datos aún vacíos en rojo.

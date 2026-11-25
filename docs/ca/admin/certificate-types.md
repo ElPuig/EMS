@@ -4,7 +4,7 @@
 
 # Tipus de certificat i circuits d'aprovació
 
-Configura quins certificats pot demanar l'alumnat, quina documentació exigeixen i qui fa cada pas fins que s'expedeixen.
+Configura quins certificats pot demanar l'alumnat, quins documents porten i qui fa cada pas fins que s'expedeixen.
 
 **Rol necessari:** Administrador.
 
@@ -59,18 +59,16 @@ Per exemple, el text de FCT:
 
 ---
 
-## Documentació adjunta obligatòria
+## Documents
 
-Marca **Documentació adjunta obligatòria** i afegeix una línia per cada document que s'ha d'adjuntar abans d'expedir el certificat:
+A **Documents**, afegeix una línia per cada document que s'ha d'adjuntar a les sol·licituds d'aquest tipus:
 
 - **Document** — el nom del document (per exemple, *Conveni de FCT*).
-- **Sol·licitant** — la persona sol·licitant el pot adjuntar des del portal o des de l'enllaç.
-- **Càrrecs** — qui ocupa aquests càrrecs el pot adjuntar (només es poden triar càrrecs del circuit).
+- **Sol·licitant** — la persona sol·licitant també el pot adjuntar, des del portal o des de l'enllaç. Qui participa en el circuit sempre el pot adjuntar.
+- **Obligatòria abans de** — el pas que no es pot fer fins que el document s'ha adjuntat (ni cap dels posteriors). Buit: és opcional. Al tipus FCT, el conveni és obligatori abans d'expedir el certificat.
 - **Afegir al certificat** — les pàgines del document s'afegeixen al final del PDF del certificat.
 
-Si no es marca ni **Sol·licitant** ni cap càrrec, el pot adjuntar qualsevol que hi participi. L'administrador sempre el pot adjuntar.
-
-A més dels documents obligatoris, qualsevol sol·licitud admet **Altra documentació** opcional, que no s'afegeix al certificat.
+A més, qualsevol sol·licitud admet **Altra documentació**: cada document que s'hi adjunta indica si s'afegeix al certificat.
 
 ---
 

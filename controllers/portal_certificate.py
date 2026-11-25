@@ -42,8 +42,8 @@ class EmsPortalCertificateController(CustomerPortal):
         return files
 
     def _ems_certificate_portal_documents(self, certificate_type):
-        """The required documents of the type the applicant may attach."""
-        return certificate_type._ems_required_documents().filtered(lambda document: document._ems_applicant_may_upload())
+        """The documents of the type the applicant may attach (the centre always may)."""
+        return certificate_type._ems_documents().filtered('applicant_uploads')
 
     def _ems_certificate_studies(self, certificate_type, current_study):
         """The studies to choose from: those of the type's levels (any, for a type without levels),

@@ -61,7 +61,7 @@ The study must belong to one of the certificate type's levels (CFGM or CFGS for 
 
 1. Open the request from the **Pending for me** filter.
 2. Check the details in the **Applicant** and **Certificate details** tabs.
-3. In the **Documentation** tab, check that every required document (in green) has files.
+3. In the **Documentation** tab, check that the required documents have files (those missing show in red).
 4. Open **Actions → Issue the certificate** and confirm.
 
 ![Actions of a request ready to be issued](../../assets/secretary/certificats-03-expedir.png)
@@ -102,10 +102,10 @@ The **Certificate** tab holds the issued PDF and the stamps (who did each step, 
 
 The **Documentation** tab has:
 
-- **Required documentation** — the documents the certificate type requires (the **FCT agreement** for FCT). The **Attached by** column shows who may attach them. Open the line to attach files (a PDF or photos of its pages).
-- **Other documentation** — any other file, optional. It is not added to the certificate.
+- **The certificate type's documents** (the **FCT agreement** for FCT). The **Attached by** column shows whether the applicant may attach it too, and **Required before** the step it is required at; those still missing show in red. Open the line to attach files (a PDF or photos of its pages).
+- **Other documentation** — any other document. Click **Add a line**, write its **Name of the document**, attach its files and tick **Add to the certificate** if its pages go into the certificate. Those the applicant attaches from the portal show up named after their file and unticked.
 
-The certificate's PDF ends with the pages of the required documents marked to be added to the certificate.
+The certificate's PDF ends with the pages of the documents ticked **Add to the certificate**: the type's first, then those of **Other documentation**.
 
 ---
 

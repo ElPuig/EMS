@@ -31,10 +31,10 @@ class TestDocsScreenshotsCertificates(DocsScreenshotMixin, HttpCase):
         cls.certificate_type = cls.env.ref('ems.certificate_type_fct')
         # Only FCT is offered, whatever other types the database has.
         cls.env['ems.certificate.type'].search([('id', '!=', cls.certificate_type.id)]).active = False
-        # As seeded (noupdate, so a database may have changed it): the agreement is required.
-        cls.certificate_type.requires_documents = True
         cls.steps = cls.certificate_type.step_ids.sorted('sequence')
-        cls.agreement_document = cls.certificate_type._ems_required_documents()[:1]
+        cls.agreement_document = cls.certificate_type._ems_documents()[:1]
+        # As seeded (noupdate, so a database may have changed it): the agreement is required before issuing.
+        cls.agreement_document.required_step_id = cls.steps[1]
         cfgs = cls.env.ref('ems.level_cfgs')
         cls.study = cls.env['ems.study'].search([('level_id', '=', cfgs.id)], limit=1)
         group = cls.env['ems.group'].create({'course': 2, 'acronym': 'Z', 'level_id': cfgs.id,

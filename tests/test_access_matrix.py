@@ -57,7 +57,7 @@ ACCESS_MATRIX = {
     # Lines created by the request itself: its details, written by whoever may write the request,
     # and its documents, by whoever may attach a file (can_upload).
     'ems.certificate.value': {'teacher': 'rw', 'vet_coordinator': 'rw', 'secretary': 'rw', 'director': 'rw', 'academic_admin': 'rwcu'},
-    'ems.certificate.document': {'teacher': 'rw', 'vet_coordinator': 'rw', 'secretary': 'rw', 'director': 'rw', 'academic_admin': 'rwcu'},
+    'ems.certificate.document': {'teacher': 'rwcu', 'vet_coordinator': 'rwcu', 'secretary': 'rwcu', 'director': 'rwcu', 'academic_admin': 'rwcu'},
     'ems.certificate.wizard': {'teacher': 'rwc', 'vet_coordinator': 'rwc', 'secretary': 'rwc', 'academic_admin': 'rwcu'},
     'ems.course': {'teacher': 'r', 'secretary': 'r', 'erasmus': 'r'},
     # Issue #726: who decides a proposal dismisses it; whether they may is checked on confirming

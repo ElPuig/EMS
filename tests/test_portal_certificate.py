@@ -86,8 +86,8 @@ class TestPortalCertificate(HttpCase):
         self.assertIn(f'{body} class="collapse show"', response.text)
         self.assertFalse(self._requests())
 
-        # The agreement (anyone attaches it) and an optional file; the training report is only the
-        # first step's position's, so the portal does not offer it and ignores it if sent.
+        # The agreement (the applicant may attach it) and another file; the training report only the
+        # centre attaches, so the portal does not offer it and ignores it if sent.
         self.assertIn(f'document_{self.agreement_document.id}', response.text)
         self.assertNotIn(f'document_{self.report_document.id}', response.text)
         files = [(f'document_{self.agreement_document.id}', ('agreement.pdf', one_page_pdf(), 'application/pdf')),
@@ -100,10 +100,12 @@ class TestPortalCertificate(HttpCase):
                          ('in_progress', 'portal', self.steps[0]))
         self.assertEqual((certificate.requester_id, self._value(certificate, 'company').value_char),
                          (self.student, 'Some Company'))
-        agreement, report = certificate.document_ids.sorted('sequence')
+        agreement, report, _photo = certificate.document_ids.sorted('sequence')
         self.assertEqual(agreement.attachment_ids.mapped('name'), ['agreement.pdf'])
         self.assertFalse(report.attachment_ids)
-        self.assertEqual(certificate.other_attachment_ids.mapped('name'), ['other.pdf'])
+        # Issue #861: another document of its own, named after its file, not added unless the centre ticks it.
+        self.assertEqual(certificate.other_document_ids.mapped('name'), ['other.pdf'])
+        self.assertFalse(certificate.other_document_ids.append_to_certificate)
 
     def test_one_form_per_type(self):
         """Two types offered: a form each, each asking for its own details."""

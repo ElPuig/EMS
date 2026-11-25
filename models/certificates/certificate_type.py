@@ -58,11 +58,9 @@ class EmsCertificateType(models.Model):
     level_ids = fields.Many2many(string="Levels that may request it", comodel_name='ems.level',
                                  help="Current students of these levels may request it from the portal. Leave it "
                                       "empty to register its requests from the backend only.")
-    requires_documents = fields.Boolean(string="Required attached documentation",
-                                        help="The documents listed below must be attached before the certificate is "
-                                             "issued. Any other document can always be attached as optional.")
-    document_ids = fields.One2many(string="Required documents", comodel_name='ems.certificate.type.document',
-                                   inverse_name='type_id', copy=True)
+    # Issue #861: copied by copy(), which points each document at the copy's own step.
+    document_ids = fields.One2many(string="Documents", comodel_name='ems.certificate.type.document',
+                                   inverse_name='type_id', copy=False)
     # Copied by copy(), which points each detail at the copy's own step.
     field_ids = fields.One2many(string="Certificate details", comodel_name='ems.certificate.type.field',
                                 inverse_name='type_id', copy=False)
@@ -75,13 +73,6 @@ class EmsCertificateType(models.Model):
                                    sanitize=False)
     step_ids = fields.One2many(string="Approval circuit", comodel_name='ems.certificate.type.step',
                                inverse_name='type_id', copy=True)
-    circuit_role_ids = fields.Many2many(string="Positions of the circuit", comodel_name='ems.role',
-                                        compute='_compute_circuit_role_ids')
-
-    @api.depends('step_ids.role_ids')
-    def _compute_circuit_role_ids(self):
-        for certificate_type in self:
-            certificate_type.circuit_role_ids = certificate_type.step_ids.role_ids
 
     @api.depends('field_ids.key', 'field_ids.name', 'field_ids.field_type')
     def _compute_placeholder_help(self):
@@ -140,13 +131,6 @@ class EmsCertificateType(models.Model):
         if changed:
             self.update_field_translations('certificate_text', changed)
 
-    @api.constrains('requires_documents', 'document_ids')
-    def _check_documents(self):
-        for certificate_type in self:
-            if certificate_type.requires_documents and not certificate_type.document_ids:
-                raise ValidationError(_("List the documents %s requires, or untick Required attached documentation.",
-                                        certificate_type.name))
-
     def copy(self, default=None):
         copies = super().copy(default)
         for certificate_type, new_type in zip(self, copies):
@@ -156,6 +140,11 @@ class EmsCertificateType(models.Model):
                 new_fields[field] = field.copy({
                     'type_id': new_type.id, 'after_field_id': False,
                     'required_step_id': steps.get(field.required_step_id, field.required_step_id.browse()).id,
+                })
+            for document in certificate_type.document_ids:
+                document.copy({
+                    'type_id': new_type.id,
+                    'required_step_id': steps.get(document.required_step_id, document.required_step_id.browse()).id,
                 })
             # Once every detail exists: a date compared with another one of the copy.
             for field in certificate_type.field_ids.filtered('after_field_id'):
@@ -171,10 +160,11 @@ class EmsCertificateType(models.Model):
         self.ensure_one()
         return self.field_ids.filtered(lambda field: field.applicant_input != 'none').sorted('sequence')
 
-    def _ems_required_documents(self):
-        """The documents a request of this type must have before it is issued."""
+    def _ems_documents(self):
+        """The documents of the type, every request gets a line for each (issue #861: each one says by
+        which step it is required, if it is)."""
         self.ensure_one()
-        return self.document_ids.sorted('sequence') if self.requires_documents else self.document_ids.browse()
+        return self.document_ids.sorted('sequence')
 
     @api.constrains('step_ids')
     def _check_steps(self):
@@ -223,10 +213,23 @@ class EmsCertificateTypeStep(models.Model):
         return ", ".join(self.role_ids.mapped('name'))
 
 
+class EmsCertificateTypeRequirement(models.AbstractModel):
+    """What a request must have by a step of its circuit: a detail, or a document (issue #861), each
+    with its own required_step_id."""
+    _name = 'ems.certificate.type.requirement'
+    _description = "Something a certificate request must have by a step of its circuit."
+
+    def _ems_is_required_by(self, step):
+        """Whether a request must have it before `step` is done (or any later one)."""
+        self.ensure_one()
+        return bool(self.required_step_id) and bool(step) and self.required_step_id.sequence <= step.sequence
+
+
 class EmsCertificateTypeField(models.Model):
     """A detail a certificate type needs besides the common ones (the student's name, identity
     document and study): who fills it in, and by when (issue #851)."""
     _name = 'ems.certificate.type.field'
+    _inherit = ['ems.certificate.type.requirement']
     _description = "Detail a certificate type needs, and who fills it in."
     _order = 'type_id, sequence, id'
     _sql_constraints = [
@@ -299,17 +302,14 @@ class EmsCertificateTypeField(models.Model):
             certificate_type._ems_rename_text_key(old_key, vals['key'], was_company)
         return result
 
-    def _ems_is_required_by(self, step):
-        """Whether a request must have it filled in before `step` is done."""
-        self.ensure_one()
-        return bool(self.required_step_id) and bool(step) and self.required_step_id.sequence <= step.sequence
-
 
 class EmsCertificateTypeDocument(models.Model):
-    """A document a certificate type requires (e.g. the FCT agreement), and who may attach it: the
-    applicant, positions of the circuit, or - nobody ticked - anyone taking part."""
+    """A document of a certificate type (e.g. the FCT agreement): whether the applicant may attach
+    it too (the centre always may), the step that requires it, as the type's details do (issue
+    #861), and whether its pages go into the certificate."""
     _name = 'ems.certificate.type.document'
-    _description = "Document a certificate type requires, and who attaches it."
+    _inherit = ['ems.certificate.type.requirement']
+    _description = "Document of a certificate type: who attaches it and when it is required."
     _order = 'type_id, sequence, id'
 
     type_id = fields.Many2one(string="Certificate type", comodel_name='ems.certificate.type', required=True,
@@ -317,18 +317,13 @@ class EmsCertificateTypeDocument(models.Model):
     sequence = fields.Integer(string="Sequence", default=10)
     name = fields.Char(string="Document", required=True, translate=True)
     applicant_uploads = fields.Boolean(string="Applicant",
-                                       help="The applicant may attach it from the portal or the form link.")
-    role_ids = fields.Many2many(string="Positions", comodel_name='ems.role',
-                                help="Holders of these positions may attach it. With neither the applicant nor any "
-                                     "position ticked, anyone taking part may attach it.")
+                                       help="The applicant may attach it too, from the portal or the form link. "
+                                            "Whoever takes part in the circuit always may.")
+    required_step_id = fields.Many2one(string="Required before", comodel_name='ems.certificate.type.step',
+                                       ondelete='restrict',
+                                       help="The step that cannot be done until it is attached (nor any later one). "
+                                            "Empty: it is optional. Save the circuit's steps first.")
     append_to_certificate = fields.Boolean(string="Add to the certificate", default=True,
                                            help="Its pages are appended to the certificate's PDF (a PDF as it is, "
                                                 "each image as a page).")
 
-    def _ems_anyone(self):
-        self.ensure_one()
-        return not self.applicant_uploads and not self.role_ids
-
-    def _ems_applicant_may_upload(self):
-        self.ensure_one()
-        return self.applicant_uploads or self._ems_anyone()

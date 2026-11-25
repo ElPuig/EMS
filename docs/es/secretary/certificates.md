@@ -61,7 +61,7 @@ El estudio tiene que ser de uno de los niveles del tipo de certificado (para el 
 
 1. Abre la solicitud desde el filtro **Pendientes de mí**.
 2. Comprueba los datos de las pestañas **Solicitante** y **Datos del certificado**.
-3. En la pestaña **Documentación**, comprueba que todos los documentos obligatorios (en verde) tienen ficheros.
+3. En la pestaña **Documentación**, comprueba que los documentos obligatorios tienen ficheros (los que faltan salen en rojo).
 4. Abre **Acciones → Expedir el certificado** y confirma.
 
 ![Acciones de una solicitud lista para expedir](../../assets/secretary/certificats-03-expedir.png)
@@ -102,10 +102,10 @@ La pestaña **Certificado** contiene el PDF expedido y los sellos (quién hizo c
 
 La pestaña **Documentación** tiene:
 
-- **Documentación obligatoria** — los documentos que exige el tipo de certificado (para el de FCT, el **Convenio de FCT**). La columna **Lo adjunta** indica quién puede adjuntarlos. Abre la línea para adjuntar ficheros (PDF o fotos de las páginas).
-- **Otra documentación** — cualquier otro fichero, opcional. No se añade al certificado.
+- **Los documentos del tipo de certificado** (para el de FCT, el **Convenio de FCT**). La columna **Lo adjunta** indica si también lo puede adjuntar la persona solicitante, y **Obligatorio antes de**, el paso en que es obligatorio; los que aún faltan salen en rojo. Abre la línea para adjuntar ficheros (PDF o fotos de las páginas).
+- **Otra documentación** — cualquier otro documento. Haz clic en **Añadir una línea**, escribe su **Nombre del documento**, adjunta los ficheros y marca **Añadir al certificado** si sus páginas deben ir en el certificado. Los que adjunta la persona solicitante desde el portal aparecen con el nombre del fichero y sin marcar.
 
-El PDF del certificado incluye al final las páginas de los documentos obligatorios marcados para añadirlos al certificado.
+El PDF del certificado incluye al final las páginas de los documentos marcados con **Añadir al certificado**: primero los del tipo y después los de **Otra documentación**.
 
 ---
 

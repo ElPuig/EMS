@@ -77,7 +77,7 @@ registry.category("web_tour.tours").add("ems_certificate_complete", {
         {
             // Its name is the fixture's own text, not a translatable label.
             trigger: ".o_field_widget[name='document_ids'] .o_data_row:contains('Training report') td[name='name']",
-            content: "Open the required document only the coordinator's position attaches",
+            content: "Open the required document only the centre attaches",
             run: "click",
         },
         {
@@ -100,6 +100,43 @@ registry.category("web_tour.tours").add("ems_certificate_complete", {
         {
             trigger: ".o_field_widget[name='document_ids'] .o_data_row:contains('Training report') td[name='attachment_ids']:contains('Report.pdf')",
             content: "The document shows its file",
+        },
+        // Issue #861: another document, with its own name and the choice of going into the certificate.
+        {
+            trigger: ".o_field_widget[name='other_document_ids'] .o_field_x2many_list_row_add a",
+            content: "Add another document",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='other_name'] input",
+            content: "Name it",
+            run: "edit Hours sheet",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='append_to_certificate'] input",
+            content: "Add it to the certificate",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='attachment_ids'] .o_attach",
+            content: "Attach its file",
+            async run() {
+                const files = [new File(["%PDF-1.4"], "Sheet.pdf", { type: "application/pdf" })];
+                await inputFiles(".modal .o_field_widget[name='attachment_ids'] .o_input_file", files);
+            },
+        },
+        {
+            trigger: ".modal .o_field_widget[name='attachment_ids'] .o_attachment[title='Sheet.pdf']:not(.o_attachment_uploading)",
+            content: "The file is uploaded",
+        },
+        {
+            trigger: ".modal .o_form_button_save",
+            content: "Keep it",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='other_document_ids'] .o_data_row:contains('Hours sheet') td[name='attachment_ids']:contains('Sheet.pdf')",
+            content: "The other document shows its file",
         },
         ...clickAction("action_done_step", "Done: hand it over to the next step"),
         {

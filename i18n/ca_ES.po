@@ -3969,6 +3969,7 @@ msgstr "Tipus de document"
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_documents
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__document_ids
 msgid "Documentation"
 msgstr "Documentació"
 
@@ -3989,6 +3990,8 @@ msgstr "Documentació"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_staff_form
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__document_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
 msgid "Documents"
 msgstr "Documents"
 
@@ -12426,7 +12429,6 @@ msgstr "openpyxl és necessari per importar fitxers xlsx."
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__partner_id
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_search
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
-#: code:addons/ems/models/certificates/certificate.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__applicant_uploads
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__applicant_input
 msgid "Applicant"
@@ -26878,6 +26880,7 @@ msgstr "Arrossegat de"
 #: code:addons/ems/models/quality/minute.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__centre_name
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__centre_name
+#: code:addons/ems/models/certificates/certificate.py
 msgid "Centre"
 msgstr "Centre"
 
@@ -27141,6 +27144,7 @@ msgstr "Imprimir el DNI"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_document_signature__is_required
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_document_card
 #: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__applicant_input__required
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_document__is_required
 msgid "Required"
 msgstr "Obligatori"
 
@@ -51169,8 +51173,6 @@ msgstr "Documents complets"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__record_total
-#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__document_ids
-#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
 msgid "Required documents"
 msgstr "Documents obligatoris"
 
@@ -53759,36 +53761,6 @@ msgstr ""
 "(JPG, PNG)."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
-msgid ""
-"<i class=\"fa fa-info-circle me-1\"/>Optional. These files are not added to "
-"the certificate."
-msgstr ""
-"<i class=\"fa fa-info-circle me-1\"/>Opcional. Aquests fitxers no "
-"s'afegeixen al certificat."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
-msgid ""
-"<i class=\"fa fa-info-circle me-1\"/>Required before the certificate is issued. Open a\n"
-"                                    document to attach its files."
-msgstr ""
-"<i class=\"fa fa-info-circle me-1\"/>Obligatoris abans d'expedir el "
-"certificat. Obre un document per adjuntar-ne els fitxers."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
-msgid ""
-"<i class=\"fa fa-info-circle me-1\"/>Who attaches each document: the applicant and/or the\n"
-"                                positions ticked; with nobody ticked, anyone taking part. They are required before the\n"
-"                                certificate is issued. Any other document can always be attached as optional."
-msgstr ""
-"<i class=\"fa fa-info-circle me-1\"/>Qui adjunta cada document: la persona "
-"sol·licitant i/o els càrrecs marcats; sense ningú marcat, qualsevol que hi "
-"participi. Són obligatoris abans d'expedir el certificat. Qualsevol altre "
-"document es pot adjuntar sempre com a opcional."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_documents
 msgid ""
 "A PDF or photos of its pages. If you do not have it, the centre attaches it."
@@ -53800,19 +53772,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__append_to_certificate
 msgid "Add to the certificate"
 msgstr "Afegir al certificat"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/certificates/certificate.py:0
-msgid "Anyone"
-msgstr "Qualsevol"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/certificates/certificate.py:0
-msgid "Attach the required documentation before issuing the certificate: %s."
-msgstr ""
-"Adjunta la documentació obligatòria abans d'expedir el certificat: %s."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_document__is_attached
@@ -53830,23 +53789,9 @@ msgid "Can attach it"
 msgstr "El pot adjuntar"
 
 #. module: ems
-#: model:ir.model,name:ems.model_ems_certificate_type_document
-msgid "Document a certificate type requires, and who attaches it."
-msgstr "Document que exigeix un tipus de certificat, i qui l'adjunta."
-
-#. module: ems
 #: model:ems.certificate.type.document,name:ems.certificate_document_fct_agreement
 msgid "FCT agreement"
 msgstr "Conveni de FCT"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_certificate_type_document__role_ids
-msgid ""
-"Holders of these positions may attach it. With neither the applicant nor any"
-" position ticked, anyone taking part may attach it."
-msgstr ""
-"Qui ocupa aquests càrrecs el pot adjuntar. Sense marcar la persona "
-"sol·licitant ni cap càrrec, el pot adjuntar qualsevol que hi participi."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_certificate_document__append_to_certificate
@@ -53859,32 +53804,8 @@ msgstr ""
 " imatge com una pàgina)."
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/certificates/certificate_type.py:0
-msgid ""
-"List the documents %s requires, or untick Required attached documentation."
-msgstr ""
-"Indica els documents que exigeix %s, o desmarca Documentació adjunta "
-"obligatòria."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/certificates/certificate.py:0
-msgid "Only the files of a required document can be changed."
-msgstr "D'un document obligatori només se'n poden canviar els fitxers."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_certificate__other_attachment_ids
-msgid ""
-"Optional documents anyone taking part may attach. They are not added to the "
-"certificate."
-msgstr ""
-"Documents opcionals que pot adjuntar qualsevol que hi participi. No "
-"s'afegeixen al certificat."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__other_attachment_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__other_document_ids
 msgid "Other documentation"
 msgstr "Altra documentació"
 
@@ -53892,59 +53813,6 @@ msgstr "Altra documentació"
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_documents
 msgid "Other documentation (optional)"
 msgstr "Altra documentació (opcional)"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__role_ids
-msgid "Positions"
-msgstr "Càrrecs"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__circuit_role_ids
-msgid "Positions of the circuit"
-msgstr "Càrrecs del circuit"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__requires_documents
-msgid "Required attached documentation"
-msgstr "Documentació adjunta obligatòria"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_certificate_document__type_document_id
-msgid "Required document"
-msgstr "Document obligatori"
-
-#. module: ems
-#: model:ir.model,name:ems.model_ems_certificate_document
-msgid "Required document of a certificate request, with its files."
-msgstr ""
-"Document obligatori d'una sol·licitud de certificat, amb els seus fitxers."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__document_ids
-msgid "Required documentation"
-msgstr "Documentació obligatòria"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_certificate_type_document__applicant_uploads
-msgid "The applicant may attach it from the portal or the form link."
-msgstr ""
-"La persona sol·licitant el pot adjuntar des del portal o l'enllaç del "
-"formulari."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_certificate_type__requires_documents
-msgid ""
-"The documents listed below must be attached before the certificate is "
-"issued. Any other document can always be attached as optional."
-msgstr ""
-"Els documents de la llista s'han d'adjuntar abans d'expedir el certificat. "
-"Qualsevol altre document es pot adjuntar sempre com a opcional."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/certificates/certificate.py:0
-msgid "You cannot attach %(document)s: it is attached by %(who)s."
-msgstr "No pots adjuntar %(document)s: l'adjunta %(who)s."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
@@ -55648,6 +55516,8 @@ msgstr "No es demana"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__required_step_id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_document__required_step_id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__required_step_id
 msgid "Required before"
 msgstr "Obligatòria abans de"
 
@@ -56329,3 +56199,122 @@ msgid ""
 "Your accrediting document {{ object.name }} - {{ object.type_id.name }}"
 msgstr ""
 "El teu document acreditatiu {{ object.name }} - {{ object.type_id.name }}"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>Every request gets each document. Whoever takes part in\n"
+"                            the circuit may attach it, and the applicant too when ticked; the step it is required\n"
+"                            before cannot be done until it is attached. Any other document can always be attached\n"
+"                            too, and each one says whether it is added to the certificate."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>Cada sol·licitud té tots els documents."
+" Els pot adjuntar qualsevol persona que participi en el circuit i, si està "
+"marcat, també la persona sol·licitant; el pas on és obligatori no es pot fer"
+" fins que s'adjunta. Sempre es pot adjuntar qualsevol altre document, i per "
+"a cadascun es tria si s'afegeix al certificat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>Highlighted: required by a step and still without\n"
+"                                    files. Open a document to attach its files."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>Ressaltats: obligatoris en algun pas i "
+"encara sense fitxers. Obre un document per adjuntar-hi els fitxers."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>Optional. Tick Add to the certificate to add its\n"
+"                                    pages to the certificate, after the documents of the type."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>Opcional. Marca Afegir al certificat "
+"per afegir-ne les pàgines al certificat, després dels documents del tipus."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "A document of the type cannot be removed: attach its files instead."
+msgstr "No es pot treure un document del tipus: adjunta-hi els fitxers."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__other_document_ids
+msgid ""
+"Any other document anyone taking part attaches. Each one says whether it is "
+"added to the certificate."
+msgstr ""
+"Qualsevol altre document que adjunti qui participa. Per a cadascun es tria "
+"si s'afegeix al certificat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Applicant or centre"
+msgstr "Sol·licitant o centre"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Attach the required documentation first: %s."
+msgstr "Primer adjunta la documentació obligatòria: %s."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_certificate_document
+msgid "Document of a certificate request, with its files."
+msgstr "Document d'una sol·licitud de certificat, amb els seus fitxers."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_certificate_type_document
+msgid ""
+"Document of a certificate type: who attaches it and when it is required."
+msgstr ""
+"Document d'un tipus de certificat: qui l'adjunta i quan és obligatori."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_document__type_document_id
+msgid "Document of the type"
+msgstr "Document del tipus"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_document__other_name
+msgid "Name of the document"
+msgstr "Nom del document"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Only the files of a document of the type can be changed."
+msgstr "D'un document del tipus només se'n poden canviar els fitxers."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_certificate_type_requirement
+msgid "Something a certificate request must have by a step of its circuit."
+msgstr ""
+"Allò que una sol·licitud de certificat ha de tenir en un pas del seu "
+"circuit."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_type_document__applicant_uploads
+msgid ""
+"The applicant may attach it too, from the portal or the form link. Whoever "
+"takes part in the circuit always may."
+msgstr ""
+"La persona sol·licitant també el pot adjuntar, des del portal o des de "
+"l'enllaç del formulari. Qui participa en el circuit sempre pot."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "The documents of the type are added by EMS."
+msgstr "Els documents del tipus els afegeix EMS."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_document__required_step_id
+#: model:ir.model.fields,help:ems.field_ems_certificate_type_document__required_step_id
+msgid ""
+"The step that cannot be done until it is attached (nor any later one). "
+"Empty: it is optional. Save the circuit's steps first."
+msgstr ""
+"El pas que no es pot fer fins que s'adjunta (ni cap dels posteriors). Buit: "
+"és opcional. Desa primer els passos del circuit."

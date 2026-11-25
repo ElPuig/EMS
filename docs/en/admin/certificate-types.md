@@ -4,7 +4,7 @@
 
 # Certificate types and approval circuits
 
-Configure which certificates students may request, which documentation they require and who does each step until they are issued.
+Configure which certificates students may request, which documents they need and who does each step until they are issued.
 
 **Required role:** Administrator.
 
@@ -59,18 +59,16 @@ FCT's text, for example:
 
 ---
 
-## Required attached documentation
+## Documents
 
-Tick **Required attached documentation** and add a line per document that must be attached before the certificate is issued:
+In **Documents**, add a line per document the requests of this type must have attached:
 
 - **Document** — the document's name (for example, *FCT agreement*).
-- **Applicant** — the applicant may attach it from the portal or from the link.
-- **Positions** — whoever holds these positions may attach it (only positions of the circuit can be chosen).
+- **Applicant** — the applicant may attach it too, from the portal or from the link. Whoever takes part in the circuit always may.
+- **Required before** — the step that cannot be done until the document is attached (nor any later one). Empty: it is optional. In the FCT type, the agreement is required before the certificate is issued.
 - **Add to the certificate** — the document's pages are appended to the certificate's PDF.
 
-With neither **Applicant** nor any position ticked, anyone taking part may attach it. The administrator always can.
-
-Besides the required documents, any request takes optional **Other documentation**, which is not added to the certificate.
+Besides, any request takes **Other documentation**: each document attached there says whether it is added to the certificate.
 
 ---
 

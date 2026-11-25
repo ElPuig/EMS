@@ -180,9 +180,13 @@ class EmsCertificate(models.Model):
             raise NotImplementedError(f"Unsupported search on step_user_ids: {operator}")
         user_ids = value if isinstance(value, (list, tuple)) else [value]
         roles = self.env['ems.role'].sudo().search([('employee_ids.user_id', 'in', user_ids)])
-        # Issue #861: never the approving step of a certificate they issued themselves.
-        return [('step_id.role_ids', 'in', roles.ids),
-                '|', ('step_id.action', '!=', 'approve'),
+        return ['&', ('step_id.role_ids', 'in', roles.ids)] + self._ems_not_own_approval_domain(user_ids)
+
+    @api.model
+    def _ems_not_own_approval_domain(self, user_ids):
+        """Issue #861: never the approving step of a certificate `user_ids` issued themselves (the
+        search side of _ems_excluded_approvers)."""
+        return ['|', ('step_id.action', '!=', 'approve'),
                 ('stamp_ids', 'not any', [('action', '=', 'issue'), ('user_id', 'in', user_ids)])]
 
     def _ems_excluded_approvers(self):
@@ -209,13 +213,9 @@ class EmsCertificate(models.Model):
     def _search_is_pending_for_me(self, operator, value):
         if operator not in ('=', '!=') or not isinstance(value, bool):
             raise NotImplementedError(f"Unsupported search on is_pending_for_me: {operator} {value!r}")
-        if self._ems_is_admin():
-            # Issue #861: not the approval of a certificate they issued.
-            domain = ['&', ('state', '=', 'in_progress'),
-                      '|', ('step_id.action', '!=', 'approve'),
-                      ('stamp_ids', 'not any', [('action', '=', 'issue'), ('user_id', '=', self.env.uid)])]
-        else:
-            domain = ['&', ('state', '=', 'in_progress'), ('step_user_ids', '=', self.env.uid)]
+        mine = self._ems_not_own_approval_domain([self.env.uid]) if self._ems_is_admin() \
+            else [('step_user_ids', '=', self.env.uid)]
+        domain = ['&', ('state', '=', 'in_progress')] + mine
         if (operator == '=') == value:
             return domain
         return ['!'] + domain
@@ -856,8 +856,8 @@ class EmsCertificate(models.Model):
             if attestation:
                 # Whoever previews it is who would attest it, under their post among the approving steps'.
                 role = self._ems_signer_role(self._ems_approve_steps()[-1:])
-                issuer = env.user if env.user in env['ems.base'].role_users(role) \
-                    else env['ems.base'].role_users(role)[:1]
+                holders = env['ems.base'].role_users(role)
+                issuer = env.user if env.user in holders else holders[:1]
             else:
                 role = self._ems_issue_step().role_ids[:1]
                 issuer = env['ems.base'].role_users(role)[:1]
@@ -1303,8 +1303,10 @@ class EmsCertificateDocument(models.Model):
     @api.depends('type_document_id.applicant_uploads')
     def _compute_uploaders(self):
         for line in self:
-            line.uploaders = _("Applicant or centre") if line.type_document_id.applicant_uploads else _("Centre") \
-                if line.type_document_id else False
+            if not line.type_document_id:
+                line.uploaders = False
+            else:
+                line.uploaders = _("Applicant or centre") if line.type_document_id.applicant_uploads else _("Centre")
 
     @api.depends('type_document_id.required_step_id')
     def _compute_is_required(self):

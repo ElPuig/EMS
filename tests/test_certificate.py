@@ -262,7 +262,8 @@ class TestCertificate(TransactionCase):
         technician = create_role_user(self, 'teacher', 'test_tcrt_technician', name='TCRT Technician')
         technician.groups_id = [(3, self.env.ref('ems.group_teacher').id)]
         role = self.env.ref('ems.role_secretary_technician')
-        role.employee_ids = [(4, create_role_employee(self, technician, employee_type='asp').id)]
+        # Only the fixture's technician, whoever holds the post in the database.
+        role.employee_ids = [(6, 0, create_role_employee(self, technician, employee_type='asp').ids)]
         self.assertTrue(technician.has_group('ems.group_secretary'))
         self.steps[0].role_ids = [(4, role.id)]
         with self.assertRaises(ValidationError):
@@ -357,8 +358,40 @@ class TestCertificate(TransactionCase):
         self.assertFalse(other.with_user(admin).can_act)
         with self.assertRaisesRegex(UserError, 'issued'):
             other.with_user(admin).action_done_step()
+        self.assertNotIn(other, self.env['ems.certificate'].with_user(admin).search(
+            [('is_pending_for_me', '=', True)]), "Not in the administrator's Pending for me either.")
+        self.assertIn(other, self.env['ems.certificate'].with_user(admin).search(
+            [('is_pending_for_me', '=', False)]))
         other.with_user(self.director).action_done_step()
         self.assertEqual(other.state, 'issued')
+
+    def test_other_documents(self):
+        """Issue #861: whoever takes part names, ticks and removes other documents while the request
+        is open, and changes only the files of the type's; a closed request refuses all of it. A
+        write on several lines checks each one by its own kind."""
+        certificate = self._submitted()
+        Document = self.env['ems.certificate.document'].with_user(self.coordinator)
+        other = Document.create({'certificate_id': certificate.id, 'other_name': 'Note'})
+        self.assertFalse(other.append_to_certificate, "Not added unless someone ticks it.")
+        other.write({'other_name': 'Signed note', 'append_to_certificate': True})
+        self.assertEqual((other.name, other.append_to_certificate), ('Signed note', True))
+        with self.assertRaisesRegex(UserError, 'files'):
+            certificate.document_ids[:1].with_user(self.coordinator).write({'append_to_certificate': False})
+        files = {'attachment_ids': [(0, 0, {'name': 'b.pdf', 'raw': one_page_pdf('gray'),
+                                             'mimetype': 'application/pdf'})]}
+        (certificate.document_ids[:1] | other).with_user(self.coordinator).write(files)
+        self.assertTrue(certificate.document_ids[:1].attachment_ids and other.attachment_ids)
+        other.unlink()
+        self.assertFalse(certificate.other_document_ids)
+
+        closed = self._submitted()
+        last = Document.create({'certificate_id': closed.id, 'other_name': 'Kept'})
+        closed.sudo().state = 'cancelled'
+        for attempt in (lambda: Document.create({'certificate_id': closed.id, 'other_name': 'Late'}),
+                        lambda: last.with_user(self.coordinator).write({'other_name': 'Changed'}),
+                        lambda: last.with_user(self.coordinator).unlink()):
+            with self.assertRaisesRegex(UserError, 'closed'):
+                attempt()
 
     def test_approver_attests(self):
         """Issue #861: who holds the approving step's post may attest instead of waiting for the

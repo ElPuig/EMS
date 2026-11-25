@@ -315,7 +315,7 @@
                 </div>
                 <p t-if="certificate.state == 'issued'">
                     <a t-attf-href="/my/certificats/#{certificate.id}/pdf?access_token=#{access_token}" class="btn btn-primary">
-                        <i class="fa fa-download me-1"/>Download the certificate
+                        <i class="fa fa-download me-1"/><t t-if="certificate.document_kind == 'attestation'">Download the accrediting document</t><t t-else="">Download the certificate</t>
                     </a>
                 </p>
 

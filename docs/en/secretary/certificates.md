@@ -18,6 +18,10 @@ Each certificate is of a **type** (for example, *FCT (Formació en Centres de Tr
 2. **Issue the certificate** — the secretariat issues it: it gets its number (for example `CERT-2026-27-0001`) and the EMS stamp.
 3. **Approve** — the Director approves it. The PDF is generated and emailed to the applicant.
 
+Whoever issues a certificate cannot approve it: someone else has to.
+
+Until the certificate is issued, the Director may also **attest** the request instead of waiting for it to be issued: then no certificate is generated but an **accrediting document**, with the same text, its own numbering (for example `DACR-2026-27-0001`) and their signature only.
+
 Each step is a task for whoever holds one of its positions, who finds it in their daily summary and under the **Pending for me** filter.
 
 A request arrives in one of two ways:

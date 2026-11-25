@@ -18,6 +18,10 @@ Cada certificat és d'un **tipus** (per exemple, *FCT (Formació en Centres de T
 2. **Expedir el certificat** — secretaria l'expedeix: rep el número (per exemple `CERT-2026-27-0001`) i el segell d'EMS.
 3. **Donar el vistiplau** — el director o directora hi dona el vistiplau. Es genera el PDF i s'envia per correu a la persona sol·licitant.
 
+Qui expedeix un certificat no hi pot donar el vistiplau: ho ha de fer una altra persona.
+
+Mentre el certificat no s'ha expedit, el director o directora també pot **fer constar** la sol·licitud en lloc d'esperar-ne l'expedició: en aquest cas no es genera un certificat, sinó un **document acreditatiu** amb el mateix text, numeració pròpia (per exemple `DACR-2026-27-0001`) i només la seva signatura.
+
 Cada pas és una tasca per a qui ocupa algun dels seus càrrecs, que la troba al seu resum diari i al filtre **Pendents de mi**.
 
 Una sol·licitud pot arribar de dues maneres:

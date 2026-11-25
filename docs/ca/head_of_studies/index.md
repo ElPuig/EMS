@@ -12,7 +12,7 @@ Aquesta secció conté els manuals per a **cap d'estudis, cap d'estudis adjunt/a
 
 - [Històric acadèmic: consultes de cohort](academic-history.md)
 - [Convalidacions: revisar i resoldre les sol·licituds](convalidations.md) — Revisar cada mòdul i fer-ne la proposta (cap d'estudis), resoldre-la oficialment (Direcció) o tramitar-la amb el Ministeri.
-- [Certificats: donar el vistiplau](certificates.md) — Donar el vistiplau als certificats expedits per secretaria (Direcció); EMS genera el PDF i l'envia a la persona sol·licitant.
+- [Certificats: donar el vistiplau](certificates.md) — Donar el vistiplau als certificats expedits per secretaria (Direcció); EMS genera el PDF i l'envia a la persona sol·licitant. També permet fer constar una sol·licitud amb un document acreditatiu.
 - [Erasmus+: validar les activitats del personal](erasmus-staff-validation.md) — La direcció valida l'activitat, l'entitat, la destinació i les dates de cada persona seleccionada del personal.
 - [Erasmus+: respondre un recurs d'alçada contra una resolució](erasmus-appeals.md) — El cap d'estudis de la persona respon els recursos contra la llista definitiva d'una convocatòria Erasmus+.
 - [Assistència a reunions amb la targeta NFC](../secretary/meeting-attendance.md) — Confirmar l'assistència a un claustre o a una reunió amb el lector NFC de l'entrada (manual compartit amb secretaria).

@@ -34,6 +34,28 @@ El PDF está en la pestaña **Certificado** de la solicitud.
 
 ---
 
+Si has expedido tú mismo el certificado (por ejemplo, como administrador), no puedes darle el visto bueno: lo tiene que hacer otra persona.
+
+---
+
+## Hacer constar en lugar de dar el visto bueno
+
+Mientras el certificado aún no se ha expedido, puedes **hacerlo constar** tú: EMS no genera un certificado, sino un **documento acreditativo** con el mismo texto, donde dice que **haces constar** lo que se indica, firmado solo por ti.
+
+1. Abre la solicitud (quita el filtro **Pendientes de mí** si aún no está en tu paso).
+2. **Acciones → Ver el borrador del documento acreditativo** muestra cómo quedará, marcado como **BORRADOR**.
+3. Abre **Acciones → Hacer constar** y confirma.
+
+Tienen que estar todos los datos y toda la documentación obligatorios; si falta alguno, EMS te indica cuál y no lo genera.
+
+EMS:
+
+- le da un número propio (por ejemplo `DACR-2026-27-0001`) y le pone tu sello;
+- genera el PDF, con las páginas del convenio al final;
+- lo envía por correo a la persona solicitante y cierra la solicitud.
+
+---
+
 ## Si algo no es correcto
 
 - **Acciones → Devolver al paso anterior** — devuelve la solicitud a secretaría con el motivo; se deshace su sello.

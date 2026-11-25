@@ -13,6 +13,10 @@ from odoo.tools.pdf import merge_pdf
 
 from .certificate_type import OPTIONAL_PART, PLACEHOLDER, STEP_ACTIONS
 
+# What a stamp records: a step of the circuit, or - issue #861 - the approver attesting instead of
+# the certificate being issued and approved.
+STAMP_ACTIONS = STEP_ACTIONS + [('attest', 'Attest')]
+
 # States in which the request is in somebody's hands: a step, or the applicant's answer.
 OPEN_STATES = ('in_progress', 'documentation')
 
@@ -34,7 +38,7 @@ VALUE_COLUMNS = {
 
 # Written only by the circuit's own methods (with sudo).
 CIRCUIT_FIELDS = {'state', 'step_id', 'name', 'course_id', 'stamp_ids', 'certificate_pdf_id', 'origin',
-                  'applicant_form_open'}
+                  'applicant_form_open', 'document_kind'}
 
 # A school year as 2024-25 or 2024-2025 (issue #858): stored as 2024-25.
 SCHOOL_YEAR = re.compile(r'^(\d{4})\s*[-/]\s*(\d{2}|\d{4})$')
@@ -67,6 +71,14 @@ class EmsCertificate(models.Model):
                              ])
     step_id = fields.Many2one(string="Current step", comodel_name='ems.certificate.type.step', readonly=True,
                               copy=False, ondelete='restrict', tracking=True)
+    # Issue #861: the Director cannot issue certificates, but may attest ("fer constar"). What the
+    # request ends with: a certificate (issued and approved), or an accrediting document (attested by
+    # whoever holds the approving step's post, numbered DACR).
+    document_kind = fields.Selection(string="Document", default='certificate', required=True, readonly=True,
+                                     copy=False, tracking=True, selection=[
+                                         ('certificate', 'Certificate'),
+                                         ('attestation', 'Accrediting document'),
+                                     ])
     step_role_ids = fields.Many2many(string="Pending", related='step_id.role_ids')
     step_action = fields.Selection(related='step_id.action')
     origin = fields.Selection(string="Requested from", readonly=True, default='secretariat', selection=[
@@ -133,6 +145,9 @@ class EmsCertificate(models.Model):
     can_issue_now = fields.Boolean(string="Can issue it right away", compute='_compute_can_issue_now',
                                    help="Whoever issues the certificate, while the request is still before their "
                                         "step: they may skip the earlier ones when they already have every detail.")
+    can_attest = fields.Boolean(string="Can attest it", compute='_compute_can_attest',
+                                help="Whoever holds the approving step's post, until the certificate is issued: "
+                                     "they may attest it instead, as an accrediting document.")
 
     # --- computes ------------------------------------------------------------
 
@@ -149,18 +164,30 @@ class EmsCertificate(models.Model):
                 '<a href="/web/content/{}" target="_blank"><i class="fa fa-file-pdf-o me-1"/>{}</a>'
             ).format(attachment.id, attachment.name) if attachment else False
 
-    @api.depends('step_id')
+    @api.depends('step_id', 'stamp_ids')
     def _compute_step_user_ids(self):
         users_by_step = {step: step._ems_users() for step in self.step_id}
         for certificate in self:
-            certificate.step_user_ids = users_by_step.get(certificate.step_id, self.env['res.users'])
+            users = users_by_step.get(certificate.step_id, self.env['res.users'])
+            certificate.step_user_ids = users - certificate._ems_excluded_approvers()
 
     def _search_step_user_ids(self, operator, value):
         if operator not in ('=', 'in'):
             raise NotImplementedError(f"Unsupported search on step_user_ids: {operator}")
         user_ids = value if isinstance(value, (list, tuple)) else [value]
         roles = self.env['ems.role'].sudo().search([('employee_ids.user_id', 'in', user_ids)])
-        return [('step_id.role_ids', 'in', roles.ids)]
+        # Issue #861: never the approving step of a certificate they issued themselves.
+        return [('step_id.role_ids', 'in', roles.ids),
+                '|', ('step_id.action', '!=', 'approve'),
+                ('stamp_ids', 'not any', [('action', '=', 'issue'), ('user_id', 'in', user_ids)])]
+
+    def _ems_excluded_approvers(self):
+        """Issue #861: a certificate is never issued and approved by the same person. On an approving
+        step, whoever issued it is left out of the step, whatever posts they hold."""
+        self.ensure_one()
+        if self.step_id.action != 'approve':
+            return self.env['res.users']
+        return self.stamp_ids.filtered(lambda stamp: stamp.action == 'issue').user_id
 
     @api.depends('state', 'step_id')
     @api.depends_context('uid')
@@ -169,7 +196,8 @@ class EmsCertificate(models.Model):
         is_secretariat = self._ems_is_secretariat()
         for certificate in self:
             holds_step = self.env.user in certificate.step_user_ids
-            mine = certificate.state == 'in_progress' and (is_admin or holds_step)
+            mine = certificate.state == 'in_progress' and (is_admin or holds_step) \
+                and self.env.user not in certificate._ems_excluded_approvers()
             certificate.is_pending_for_me = mine
             certificate.can_act = mine
             certificate.can_manage = is_secretariat or holds_step
@@ -177,12 +205,16 @@ class EmsCertificate(models.Model):
     def _search_is_pending_for_me(self, operator, value):
         if operator not in ('=', '!=') or not isinstance(value, bool):
             raise NotImplementedError(f"Unsupported search on is_pending_for_me: {operator} {value!r}")
-        domain = [('state', '=', 'in_progress')]
-        if not self._ems_is_admin():
-            domain.append(('step_user_ids', '=', self.env.uid))
+        if self._ems_is_admin():
+            # Issue #861: not the approval of a certificate they issued.
+            domain = ['&', ('state', '=', 'in_progress'),
+                      '|', ('step_id.action', '!=', 'approve'),
+                      ('stamp_ids', 'not any', [('action', '=', 'issue'), ('user_id', '=', self.env.uid)])]
+        else:
+            domain = ['&', ('state', '=', 'in_progress'), ('step_user_ids', '=', self.env.uid)]
         if (operator == '=') == value:
             return domain
-        return ['!', '&'] + domain if len(domain) == 2 else ['!'] + domain
+        return ['!'] + domain
 
     @api.depends('step_id', 'type_id.step_ids')
     def _compute_is_first_step(self):
@@ -203,6 +235,20 @@ class EmsCertificate(models.Model):
             if issue_step not in issuers_by_step:
                 issuers_by_step[issue_step] = issue_step._ems_users()
             certificate.can_issue_now = is_admin or self.env.user in issuers_by_step[issue_step]
+
+    @api.depends('state', 'stamp_ids', 'type_id.step_ids')
+    @api.depends_context('uid')
+    def _compute_can_attest(self):
+        """Issue #861: only whoever really holds the approving step's post (not the administrator by
+        being one), while the request is open and not issued yet."""
+        attesters_by_type = {}
+        for certificate in self:
+            certificate_type = certificate.type_id
+            if certificate_type not in attesters_by_type:
+                attesters_by_type[certificate_type] = certificate._ems_approve_steps()._ems_users()
+            certificate.can_attest = certificate.state in ('draft', 'in_progress') \
+                and not certificate._ems_is_issued_step_done() \
+                and self.env.user in attesters_by_type[certificate_type]
 
     @api.depends('name', 'student_id', 'student_name', 'type_id')
     def _compute_display_name(self):
@@ -399,6 +445,10 @@ class EmsCertificate(models.Model):
         self.ensure_one()
         return self._ems_steps().filtered(lambda step: step.action == 'issue')[:1]
 
+    def _ems_approve_steps(self):
+        self.ensure_one()
+        return self._ems_steps().filtered(lambda step: step.action == 'approve')
+
     def _ems_is_issued_step_done(self):
         """Whether the certificate already has its number and the issuer's stamp."""
         self.ensure_one()
@@ -427,13 +477,15 @@ class EmsCertificate(models.Model):
         self._ems_check_details()
         for certificate in self:
             checked_action = action or certificate.step_id.action
-            step = certificate._ems_issue_step() if action == 'issue' else certificate.step_id
+            # Attesting (issue #861) closes the request: whatever any step requires.
+            step = certificate._ems_issue_step() if action == 'issue' \
+                else certificate._ems_steps()[-1:] if action == 'attest' else certificate.step_id
             missing = certificate.value_ids.filtered(
                 lambda line: line.field_id._ems_is_required_by(step) and not line._ems_has_value(linked=True))
             if missing:
                 raise UserError(_("Fill in the certificate details first: %s.", ", ".join(missing.mapped('name'))))
             missing_documents = certificate.document_ids.filtered(lambda line: not line.attachment_ids)
-            if checked_action == 'issue' and missing_documents:
+            if checked_action in ('issue', 'attest') and missing_documents:
                 raise UserError(_("Attach the required documentation before issuing the certificate: %s.",
                                   ", ".join(missing_documents.mapped('name'))))
 
@@ -456,19 +508,17 @@ class EmsCertificate(models.Model):
         certificate its number) and the request moves on - or, after the last step, the PDF is
         generated and sent to the applicant."""
         self._ems_check_state(('in_progress',))
+        for certificate in self:
+            if self.env.user in certificate._ems_excluded_approvers():
+                raise UserError(_("You issued %s: someone else has to approve it.", certificate.display_name))
         self._ems_check_can_act()
         self._ems_check_step_data()
         self._ems_close_applicant_form()
-        today = fields.Date.context_today(self)
         for certificate in self:
             step = certificate.step_id
-            vals = {}
+            vals = certificate._ems_stamp_vals(step, step.action)
             if step.action == 'issue' and not certificate.name:
-                course = self.env['ems.course'].search([('is_current', '=', True)], limit=1)
-                vals.update(name=certificate._ems_next_number(course), course_id=course.id)
-            vals['stamp_ids'] = [(0, 0, {'step_id': step.id, 'action': step.action, 'name': step.name,
-                                         'user_id': self.env.user.id, 'role_id': certificate._ems_signer_role(step).id,
-                                         'date': today})]
+                vals.update(certificate._ems_number_vals())
             next_step = certificate._ems_next_step()
             vals.update(step_id=next_step.id, return_reason=False)
             certificate._ems_close_tasks()
@@ -478,6 +528,20 @@ class EmsCertificate(models.Model):
                 certificate._ems_schedule_task()
             else:
                 certificate._ems_finish()
+
+    def _ems_stamp_vals(self, step, action):
+        """The stamp the current user puts on doing `step` (or attesting, issue #861), under their post."""
+        self.ensure_one()
+        return {'stamp_ids': [(0, 0, {
+            'step_id': step.id, 'action': action, 'name': step.name, 'user_id': self.env.user.id,
+            'role_id': self._ems_signer_role(step).id, 'date': fields.Date.context_today(self),
+        })]}
+
+    def _ems_number_vals(self, attestation=False):
+        """The registry number, in the course current today: CERT for a certificate, DACR for an
+        accrediting document (issue #861)."""
+        course = self.env['ems.course'].search([('is_current', '=', True)], limit=1)
+        return {'name': self._ems_next_number(course, attestation=attestation), 'course_id': course.id}
 
     def _ems_signer_role(self, step):
         """The position the current user does `step` under (issue #858): theirs among the step's;
@@ -496,6 +560,36 @@ class EmsCertificate(models.Model):
         """The certificate as it stands, before it is issued: for the staff only (issue #858)."""
         self.ensure_one()
         return self.env.ref('ems.action_report_certificate_draft').report_action(self)
+
+    def action_preview_attestation(self):
+        """Issue #861: the accrediting document as it would be attested now, for its attester."""
+        self.ensure_one()
+        return self.env.ref('ems.action_report_certificate_draft').with_context(
+            ems_attestation_draft=True).report_action(self)
+
+    def action_attest(self):
+        """Issue #861: the Director cannot issue certificates, but may attest. Whoever holds the
+        approving step's post, once every mandatory detail and document is in, closes the request
+        with an accrediting document instead of a certificate: its own DACR number, their only stamp,
+        the same text after "attests"."""
+        for certificate in self:
+            if not certificate.can_attest:
+                raise AccessError(_("Only whoever approves %s can attest it, and only before it is issued.",
+                                    certificate.display_name))
+        self._ems_check_step_data(action='attest')
+        self._ems_close_applicant_form()
+        today = fields.Date.context_today(self)
+        for certificate in self:
+            certificate._ems_close_tasks()
+            certificate.sudo().write({
+                **certificate._ems_stamp_vals(certificate._ems_approve_steps()[-1:], 'attest'),
+                **certificate._ems_number_vals(attestation=True),
+                'document_kind': 'attestation', 'step_id': False, 'return_reason': False,
+                'submission_date': certificate.submission_date or today,
+            })
+            certificate._ems_post_note(_("%s attests it: an accrediting document is generated instead of the "
+                                         "certificate.", self.env.user.name))
+            certificate._ems_finish()
 
     def action_issue_now(self):
         """Whoever issues the certificate already has every detail: the steps before theirs are
@@ -524,15 +618,26 @@ class EmsCertificate(models.Model):
         self.action_done_step()
 
     @api.model
-    def _ems_next_number(self, course):
+    def _ems_next_number(self, course, attestation=False):
+        """The certificates' registry (CERT), or - issue #861 - the accrediting documents' own (DACR),
+        so neither series has gaps."""
+        if attestation:
+            return self.env['ems.base'].next_course_number('ems.certificate.attestation', "Accrediting documents",
+                                                           'DACR', course)
         return self.env['ems.base'].next_course_number('ems.certificate', "Certificates", 'CERT', course)
 
+    def _ems_is_attestation(self):
+        self.ensure_one()
+        return self.document_kind == 'attestation'
+
     def _ems_finish(self):
-        """After the last step: the final PDF, the request closed and the applicant told."""
+        """After the last step (or attesting): the final PDF, the request closed and the applicant told."""
         self.ensure_one()
         self._ems_generate_pdf()
         self.sudo().write({'state': 'issued'})
-        self._ems_send('ems.email_template_certificate_issued', attachments=self.certificate_pdf_id)
+        template = 'ems.email_template_certificate_attested' if self._ems_is_attestation() \
+            else 'ems.email_template_certificate_issued'
+        self._ems_send(template, attachments=self.certificate_pdf_id)
 
     def _ems_return(self, reason):
         """Back to the previous step, saying why: its stamp is undone, it has to be done again.
@@ -676,7 +781,8 @@ class EmsCertificate(models.Model):
         base = self.env['ems.base']
         for certificate in self.filtered(lambda certificate: certificate.state == 'in_progress' and certificate.step_id):
             step = certificate.step_id
-            for user in base.task_users(step._ems_users(), step._ems_roles_label()):
+            users = step._ems_users() - certificate._ems_excluded_approvers()
+            for user in base.task_users(users, step._ems_roles_label()):
                 certificate.sudo().with_context(mail_activity_quick_update=True).activity_schedule(
                     act_type_xmlid='ems.mail_activity_certificate_step',
                     summary=_("%(step)s: %(student)s", step=step.name, student=certificate._ems_applicant_name()),
@@ -722,23 +828,34 @@ class EmsCertificate(models.Model):
 
     # --- the PDF -------------------------------------------------------------
 
-    def _ems_report_paragraphs(self, draft=False):
+    def _ems_report_paragraphs(self, draft=False, attestation=None):
         """The certificate's text, one translatable sentence each so every language keeps its own
         word order, in the environment's language (the report renders in the centre's). A `draft`
         (issue #858), before it is issued, names whoever holds the issuing step's post, marks every
-        detail still empty with its label and is dated today."""
+        detail still empty with its label and is dated today. An accrediting document (issue #861,
+        `attestation`, by default the request's own kind) is said by its attester: "attests" instead
+        of "certifies", and its own closing sentence."""
         self.ensure_one()
         env = self.env
+        if attestation is None:
+            attestation = self._ems_is_attestation()
 
         def sentence(template, **values):
             bold = {key: Markup('<strong>{}</strong>').format(value or '') for key, value in values.items()}
             return Markup(escape(template)) % bold
 
-        issue = self._ems_stamps_to_print().filtered(lambda stamp: stamp.action == 'issue')[:1]
+        signer_action = 'attest' if attestation else 'issue'
+        issue = self._ems_stamps_to_print().filtered(lambda stamp: stamp.action == signer_action)[:1]
         issuer, role, date = issue.user_id, issue.role_id, issue.date
         if draft and not issue:
-            role = self._ems_issue_step().role_ids[:1]
-            issuer = env['ems.base'].role_users(role)[:1]
+            if attestation:
+                # Whoever previews it is who would attest it, under their post among the approving steps'.
+                role = self._ems_signer_role(self._ems_approve_steps()[-1:])
+                issuer = env.user if env.user in env['ems.base'].role_users(role) \
+                    else env['ems.base'].role_users(role)[:1]
+            else:
+                role = self._ems_issue_step().role_ids[:1]
+                issuer = env['ems.base'].role_users(role)[:1]
             date = fields.Date.context_today(self)
         position = role.with_env(env).name
         # Issue #858: the issuer's real position; a stamp from before it was recorded says secretary.
@@ -748,12 +865,14 @@ class EmsCertificate(models.Model):
                                       secretary=issuer.name, centre=env.company.name)
         paragraphs = [
             first,
-            Markup('<strong>{}</strong>').format(env._("CERTIFIES:")),
+            Markup('<strong>{}</strong>').format(env._("ATTESTS:") if attestation else env._("CERTIFIES:")),
         ]
         missing = dict(self.type_id.with_env(env)._ems_text_key_labels()) if draft else None
         paragraphs += self._ems_render_text(self.type_id.with_env(env).certificate_text,
                                             self.with_env(env)._ems_placeholder_values(), missing)
         paragraphs.append(Markup(escape(env._(
+            "And for the record, I sign this accrediting document at the request of the person concerned.")
+            if attestation else env._(
             "And for the record, I issue this certificate at the request of the person concerned."))))
         city = env.company.city
         date = format_date(env, date)
@@ -812,17 +931,24 @@ class EmsCertificate(models.Model):
         return [paragraph(block) for block in blocks if block]
 
     def _ems_stamps_to_print(self):
-        """The stamps the certificate carries: who issued it and who approved it."""
+        """The stamps the certificate carries: who issued it and who approved it, or who attested it."""
         self.ensure_one()
-        return self.stamp_ids.filtered(lambda stamp: stamp.action in ('issue', 'approve')).sorted('id')
+        return self.stamp_ids.filtered(lambda stamp: stamp.action in ('issue', 'approve', 'attest')).sorted('id')
 
-    def _ems_report_signatures(self, draft=False):
+    def _ems_report_signatures(self, draft=False, attestation=None):
         """The certificate's signature boxes: each stamp to print, and - a `draft` (issue #858) - one
-        per issuing or approving step still to be done, headed by its post and left empty."""
+        per issuing or approving step still to be done, headed by its post and left empty. An
+        accrediting document's draft (issue #861) has one box: its attester's."""
         self.ensure_one()
+        if attestation is None:
+            attestation = self._ems_is_attestation()
         stamps = self._ems_stamps_to_print()
         signatures = [{'stamp': stamp, 'role': stamp.role_id, 'action': stamp.action} for stamp in stamps]
-        if draft:
+        if draft and attestation:
+            if not stamps:
+                role = self._ems_signer_role(self._ems_approve_steps()[-1:])
+                signatures = [{'stamp': False, 'role': role, 'action': 'attest'}]
+        elif draft:
             signatures += [{'stamp': False, 'role': step.role_ids[:1], 'action': step.action}
                            for step in self._ems_steps()
                            if step.action in ('issue', 'approve') and step not in stamps.step_id]
@@ -839,7 +965,8 @@ class EmsCertificate(models.Model):
         pages = [pdf] + [self._ems_annex_pdf(attachment) for attachment in appended.attachment_ids]
         previous = self.certificate_pdf_id
         self.sudo().certificate_pdf_id = self.env['ir.attachment'].sudo().create({
-            'name': centre_env._("Certificate %s.pdf", self.name),
+            'name': centre_env._("Accrediting document %s.pdf", self.name) if self._ems_is_attestation()
+            else centre_env._("Certificate %s.pdf", self.name),
             'raw': merge_pdf([page for page in pages if page]),
             'mimetype': 'application/pdf',
             'res_model': self._name,
@@ -1197,7 +1324,7 @@ class EmsCertificateStamp(models.Model):
                                      ondelete='cascade', index=True)
     step_id = fields.Many2one(string="Step", comodel_name='ems.certificate.type.step', ondelete='set null')
     name = fields.Char(string="Step name", required=True)
-    action = fields.Selection(string="Action", selection=STEP_ACTIONS, required=True)
+    action = fields.Selection(string="Action", selection=STAMP_ACTIONS, required=True)
     user_id = fields.Many2one(string="Done by", comodel_name='res.users', required=True, ondelete='restrict')
     role_id = fields.Many2one(string="Post", comodel_name='ems.role', ondelete='set null',
                               help="The post the step was done under: the certificate names the signer by it.")
@@ -1244,4 +1371,6 @@ class ReportEmsCertificateDraft(models.AbstractModel):
             raise AccessError(_("Only the centre's staff can see a draft certificate."))
         docs = self.env['ems.certificate'].browse(docids)
         docs.check_access('read')
-        return {'doc_ids': docids, 'doc_model': 'ems.certificate', 'docs': docs}
+        # Issue #861: the accrediting document's draft, for whoever would attest it.
+        return {'doc_ids': docids, 'doc_model': 'ems.certificate', 'docs': docs,
+                'attestation': bool(self.env.context.get('ems_attestation_draft'))}

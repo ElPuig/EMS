@@ -90,3 +90,7 @@ To give a step to the secretariat's staff, add the **Secretary technician** posi
 The circuit must have exactly one **Issue the certificate** step, and the **Approve** steps go after it. The last step generates the PDF and sends it to the applicant.
 
 The administrator may do any step of any request.
+
+Whoever issued a certificate cannot do its **Approve** step, even holding that step's position or being the administrator.
+
+Whoever holds the position of an **Approve** step may also **Attest** the request until the certificate is issued: an accrediting document (numbered `DACR`) signed by them only is generated, and the request closes. It is available in every type with an **Approve** step. The administrator may only do it holding that position.

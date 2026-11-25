@@ -34,6 +34,28 @@ The PDF is in the request's **Certificate** tab.
 
 ---
 
+If you issued the certificate yourself (for example, as administrator), you cannot approve it: someone else has to.
+
+---
+
+## Attesting instead of approving
+
+Until the certificate is issued, you may **attest** it yourself: EMS generates not a certificate but an **accrediting document** with the same text, saying that you **attest** what it states, signed by you only.
+
+1. Open the request (remove the **Pending for me** filter if it is not on your step yet).
+2. **Actions → See the accrediting document draft** shows it as it will be, marked **DRAFT**.
+3. Open **Actions → Attest** and confirm.
+
+Every mandatory detail and document must be in; if one is missing, EMS tells you which and does not generate it.
+
+EMS:
+
+- gives it its own number (for example `DACR-2026-27-0001`) and adds your stamp;
+- generates the PDF, with the agreement's pages at the end;
+- emails it to the applicant and closes the request.
+
+---
+
 ## If something is wrong
 
 - **Actions → Return to the previous step** — sends the request back to the secretariat with the reason; its stamp is undone.

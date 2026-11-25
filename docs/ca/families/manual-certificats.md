@@ -45,7 +45,7 @@ Mentre no s'hagi expedit, pots anul·lar la sol·licitud amb **Anul·la la sol·
 
 ## Rebre el certificat
 
-Quan el certificat està expedit, el reps per correu en PDF i també el pots descarregar amb **Descarregar el certificat** des de la sol·licitud.
+Quan el certificat està expedit, el reps per correu en PDF i també el pots descarregar amb **Descarregar el certificat** des de la sol·licitud. En alguns casos el centre no t'envia un certificat sinó un **document acreditatiu**, que fa constar el mateix; el descarregues amb **Descarregar el document acreditatiu**.
 
 ---
 

@@ -18,6 +18,10 @@ Cada certificado es de un **tipo** (por ejemplo, *FCT (Formació en Centres de T
 2. **Expedir el certificado** — secretaría lo expide: recibe el número (por ejemplo `CERT-2026-27-0001`) y el sello de EMS.
 3. **Dar el visto bueno** — el director o directora da el visto bueno. Se genera el PDF y se envía por correo a la persona solicitante.
 
+Quien expide un certificado no puede darle el visto bueno: lo tiene que hacer otra persona.
+
+Mientras el certificado no se ha expedido, el director o directora también puede **hacer constar** la solicitud en lugar de esperar a su expedición: en ese caso no se genera un certificado, sino un **documento acreditativo** con el mismo texto, numeración propia (por ejemplo `DACR-2026-27-0001`) y solo su firma.
+
 Cada paso es una tarea para quien ocupa alguno de sus cargos, que la encuentra en su resumen diario y en el filtro **Pendientes de mí**.
 
 Una solicitud puede llegar de dos maneras:

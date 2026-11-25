@@ -3902,6 +3902,7 @@ msgstr "Nombre del archivo"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_staff_document_wizard__line_id
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_document__name
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__name
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__document_kind
 msgid "Document"
 msgstr "Documento"
 
@@ -53154,6 +53155,7 @@ msgstr "Puede rechazarla o cancelarla"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__certificate_id
 #: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate__document_kind__certificate
 msgid "Certificate"
 msgstr "Certificado"
 
@@ -54116,6 +54118,7 @@ msgstr "Responder al centro"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.mail_layout_certificate
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
 msgid "Download the certificate"
 msgstr "Descargar el certificado"
 
@@ -56200,3 +56203,166 @@ msgstr "Ver el borrador"
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "The certificate as it stands now, marked DRAFT: the details still empty are shown by their name. Only for the centre's staff."
 msgstr "El certificado tal como está ahora, marcado como BORRADOR: los datos aún vacíos se muestran por su nombre. Solo para el personal del centro."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid ""
+"%s attests it: an accrediting document is generated instead of the "
+"certificate."
+msgstr ""
+"%s lo hace constar: se genera un documento acreditativo en lugar del "
+"certificado."
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_certificate_attested
+msgid ""
+"<div>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">DOCUMENT READY</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your accrediting document is ready</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello, regarding your request <strong t-out=\"object.type_id.name\"/>, the centre has issued an accrediting document that attests what you asked to be certified. You will find it attached to this email, and you can also download it from your request.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:18px 21px;background-color:#fafbfc;border-radius:9px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Document number</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.name\"/></p></td></tr></table>\n"
+"</div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">DOCUMENTO LISTO</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Tu documento acreditativo está listo</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, en relación con tu solicitud <strong t-out=\"object.type_id.name\"/>, el centro ha emitido un documento acreditativo que hace constar lo que pedías certificar. Lo encontrarás adjunto a este correo y también lo puedes descargar desde tu solicitud.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:18px 21px;background-color:#fafbfc;border-radius:9px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Número de documento</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.name\"/></p></td></tr></table>\n"
+"</div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "ATTESTS:"
+msgstr "HACE CONSTAR:"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate__document_kind__attestation
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "Accrediting document"
+msgstr "Documento acreditativo"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Accrediting document %s.pdf"
+msgstr "Documento acreditativo %s.pdf"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid ""
+"And for the record, I sign this accrediting document at the request of the "
+"person concerned."
+msgstr ""
+"Y, para que así conste, firmo este documento acreditativo a petición de la "
+"persona interesada."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_stamp__action__attest
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "Attest"
+msgstr "Hacer constar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
+msgid "Attested by:"
+msgstr "Hecho constar por:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
+msgid "Attested in EMS"
+msgstr "Hecho constar en EMS"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__can_attest
+msgid "Can attest it"
+msgstr "Puede hacerlo constar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
+msgid "Document number:"
+msgstr "Número de documento:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
+msgid "Download the accrediting document"
+msgstr "Descargar el documento acreditativo"
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_certificate_attested
+msgid "EMS: Certificate, accrediting document"
+msgstr "EMS: Certificado, documento acreditativo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"Instead of a certificate, an accrediting document is generated with its own "
+"number (DACR) and your stamp only, and sent to the applicant: the request "
+"closes. Every mandatory detail and document is checked first. Continue?"
+msgstr ""
+"En lugar de un certificado, se genera un documento acreditativo con "
+"numeración propia (DACR) y solo con tu sello, y se envía a quien lo ha "
+"solicitado: la solicitud se cierra. Antes se comprueba que estén todos los "
+"datos y la documentación obligatorios. ¿Quieres continuar?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Only whoever approves %s can attest it, and only before it is issued."
+msgstr ""
+"Solo quien da el visto bueno a %s puede hacerlo constar, y solo antes de que"
+" se expida."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "See the accrediting document draft"
+msgstr "Ver el borrador del documento acreditativo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"The accrediting document as it would be if you attested it now, marked "
+"DRAFT."
+msgstr ""
+"El documento acreditativo tal como quedaría si lo hicieras constar ahora, "
+"marcado como BORRADOR."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__can_attest
+msgid ""
+"Whoever holds the approving step's post, until the certificate is issued: "
+"they may attest it instead, as an accrediting document."
+msgstr ""
+"Quien tiene el cargo del paso de visto bueno, hasta que el certificado se "
+"expide: en lugar de eso, puede hacerlo constar con un documento "
+"acreditativo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"You approve certificates but you may also attest: the request ends with an "
+"accrediting document signed by you only, not with a certificate."
+msgstr ""
+"Das el visto bueno a los certificados, pero también puedes hacer constar: la"
+" solicitud termina con un documento acreditativo firmado solo por ti, no con"
+" un certificado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "You issued %s: someone else has to approve it."
+msgstr "Has expedido %s: le tiene que dar el visto bueno otra persona."
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_certificate_attested
+msgid ""
+"Your accrediting document {{ object.name }} - {{ object.type_id.name }}"
+msgstr ""
+"Tu documento acreditativo {{ object.name }} - {{ object.type_id.name }}"

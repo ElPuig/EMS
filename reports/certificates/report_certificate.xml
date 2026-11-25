@@ -45,8 +45,12 @@
                          the centre's documentation (not a translatable term); a new revision of the
                          model means editing it here. -->
                     <t t-set="ems_footer_note" t-value="&quot;PC3.02.01 Model de certificat (EMS) – Revisió: 17/11/2026&quot;"/>
+                    <!-- Issue #861: an accrediting document (attested by the approver instead of a
+                         certificate issued and approved), or its draft (`attestation`, from
+                         report.ems.report_certificate_draft). -->
+                    <t t-set="is_attestation" t-value="attestation if attestation is not None else doc.document_kind == 'attestation'"/>
                     <t t-call="web.external_layout">
-                        <t t-set="signatures" t-value="doc._ems_report_signatures(draft)"/>
+                        <t t-set="signatures" t-value="doc._ems_report_signatures(draft, is_attestation)"/>
                         <!-- The brand colour is the company's own, the one minutes use for their
                              headings. -->
                         <t t-set="brand" t-value="doc.env.company.primary_color or '#a51d2d'"/>
@@ -81,12 +85,18 @@
 
                             <table class="o_ems_certificate_header o_ignore_layout_styling">
                                 <tr>
-                                    <td class="o_ems_certificate_title">Certificate</td>
-                                    <td class="o_ems_certificate_number">Certificate number: <strong t-if="doc.name" t-esc="doc.name"/><strong t-else="">Pending issue</strong></td>
+                                    <t t-if="is_attestation">
+                                        <td class="o_ems_certificate_title">Accrediting document</td>
+                                        <td class="o_ems_certificate_number">Document number: <strong t-if="doc.name" t-esc="doc.name"/><strong t-else="">Pending</strong></td>
+                                    </t>
+                                    <t t-else="">
+                                        <td class="o_ems_certificate_title">Certificate</td>
+                                        <td class="o_ems_certificate_number">Certificate number: <strong t-if="doc.name" t-esc="doc.name"/><strong t-else="">Pending issue</strong></td>
+                                    </t>
                                 </tr>
                             </table>
 
-                            <t t-set="paragraphs" t-value="doc._ems_report_paragraphs(draft)"/>
+                            <t t-set="paragraphs" t-value="doc._ems_report_paragraphs(draft, is_attestation)"/>
                             <p t-foreach="paragraphs[:-1]" t-as="paragraph" t-out="paragraph"/>
                             <p class="o_ems_certificate_place" t-out="paragraphs[-1]"/>
 
@@ -113,6 +123,13 @@
                                                 <t t-elif="stamp.action == 'issue'" t-call="ems.report_validation_stamp">
                                                     <t t-set="stamp_title">Issued in EMS</t>
                                                     <t t-set="stamp_by_label">Issued by:</t>
+                                                    <t t-set="stamp_by" t-value="stamp.user_id.name"/>
+                                                    <t t-set="stamp_date" t-value="stamp.date"/>
+                                                    <t t-set="stamp_reference" t-value="doc.name"/>
+                                                </t>
+                                                <t t-elif="stamp.action == 'attest'" t-call="ems.report_validation_stamp">
+                                                    <t t-set="stamp_title">Attested in EMS</t>
+                                                    <t t-set="stamp_by_label">Attested by:</t>
                                                     <t t-set="stamp_by" t-value="stamp.user_id.name"/>
                                                     <t t-set="stamp_date" t-value="stamp.date"/>
                                                     <t t-set="stamp_reference" t-value="doc.name"/>

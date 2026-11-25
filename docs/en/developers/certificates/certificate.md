@@ -21,6 +21,15 @@ workplace training at a collaborating company. Its circuit:
 3. the **Director** (`ems.role_director`) approves it ("Vist i plau"): the final PDF is generated,
    with the pages of the required documents appended (FCT: the agreement), and sent to the applicant.
 
+**Attesting instead (issue #861).** The Director cannot issue certificates, but may attest ("fer
+constar"), and a certificate is never issued and approved by the same person. So, until the
+certificate is issued, whoever holds an `approve` step's position may **Attest** the request
+(`action_attest`): it ends with an **accrediting document** ("Document acreditatiu") instead of a
+certificate: the same text after "ATTESTS:" (*FA CONSTAR:*) instead of "CERTIFIES:", its own
+number series `DACR-<course>-<counter>` (so the CERT registry has no gaps) and a single signature,
+the attester's. Available in every type with an `approve` step; the administrator only when holding
+that position (attesting is the post's own legal capacity, not something above it).
+
 How a request starts:
 
 - **Current students** (or their family, under the same rule as convalidations,
@@ -150,7 +159,8 @@ Constraints (`_check_steps` on the type): at least one step, exactly one `issue`
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `name` | Char | `CERT-<start>-<end, two digits>-<4-digit counter>` (e.g. `CERT-2026-27-0001`), assigned by the `issue` step (`ems.base.next_course_number`, code `ems.certificate.course.<id>`), in the course current on that day (`course_id`). Empty before: a cancelled or rejected request uses no number. |
+| `name` | Char | `CERT-<start>-<end, two digits>-<4-digit counter>` (e.g. `CERT-2026-27-0001`), assigned by the `issue` step (`ems.base.next_course_number`, code `ems.certificate.course.<id>`), in the course current on that day (`course_id`). An accrediting document gets `DACR-...` from its own sequence (`ems.certificate.attestation.course.<id>`) when attested. Empty before: a cancelled or rejected request uses no number. |
+| `document_kind` | Selection | `certificate` (issued and approved) or `attestation` (accrediting document, issue #861). Written by `action_attest` only. |
 | `type_id` | M2o | Only changes in draft: the request's value and document lines follow it. |
 | `state` | Selection | `draft` (waiting for the applicant's form, former students only), `in_progress`, `documentation` (waiting for the applicant), `issued`, `rejected`, `cancelled`. Written by the actions only (`write()` refuses it outside `sudo`). |
 | `step_id` | M2o `ems.certificate.type.step` | The current step while `in_progress`/`documentation`. |
@@ -161,11 +171,11 @@ Constraints (`_check_steps` on the type): at least one step, exactly one `issue`
 | `value_ids` | O2m `ems.certificate.value` | One line per datum of the type, created with the request (`_ems_sync_values`, again when the type changes in draft or a datum is added to a type with open requests). |
 | `document_ids` | O2m `ems.certificate.document` | One line per required document of the type, created with the request (`_ems_sync_documents`, again if the type changes while in draft). Each must have files before the `issue` step. |
 | `other_attachment_ids` | M2m `ir.attachment` | Optional documentation, anyone taking part. Never appended. |
-| `stamp_ids` | O2m `ems.certificate.stamp` | One per finished step: step, action, user, post (`role_id`), date. The PDF prints those of `issue` and `approve` steps; the form lists them with their `create_date` (date and time). |
+| `stamp_ids` | O2m `ems.certificate.stamp` | One per finished step: step, action, user, post (`role_id`), date; an accrediting document has a single one, action `attest` (`STAMP_ACTIONS` = the steps' actions plus `attest`). The PDF prints those of `issue`, `approve` and `attest`; the form lists them with their `create_date` (date and time). |
 | `certificate_pdf_id` | M2o `ir.attachment` | The final PDF. |
 | `applicant_form_open` | Boolean | The applicant may still edit their form from the link: set when the form is sent or the portal request filed, cleared as soon as someone of the centre writes the request (or one of its documents) or acts on it (step done, return, request documentation, reject, cancel). `_ems_portal_can_edit()`: in draft, or in progress with this flag. While open, the portal shows the form with **Save changes** (`_ems_portal_fill` updates and leaves a note). |
 | `info_request`, `return_reason`, `reject_reason`, `cancel_reason` | Text | Last request for documentation, the last return to the previous step, why it was rejected or cancelled. |
-| `step_user_ids` | M2m `res.users`, computed, searchable | Holders of any of the current step's positions. `is_pending_for_me` (searchable) = the current user is one of them, or is the administrator and the request is in progress. `can_act` = may press the step's button. `can_manage` = may reject, cancel or mark the documentation received: the secretariat (and the administrator) or a holder of the current step. `can_issue_now` = may issue it right away (`action_issue_now`): a holder of one of the `issue` step's positions, or the administrator, while the request is in draft or before that step. The form only offers each button to whoever can use it. |
+| `step_user_ids` | M2m `res.users`, computed, searchable | Holders of any of the current step's positions, minus whoever issued the certificate when the step approves it (`_ems_excluded_approvers`, issue #861). `is_pending_for_me` (searchable) = the current user is one of them, or is the administrator and the request is in progress. `can_act` = may press the step's button. `can_manage` = may reject, cancel or mark the documentation received: the secretariat (and the administrator) or a holder of the current step. `can_issue_now` = may issue it right away (`action_issue_now`): a holder of one of the `issue` step's positions, or the administrator, while the request is in draft or before that step. `can_attest` = may attest it (`action_attest`): a holder of an `approve` step's position (never the administrator by being one), while the request is in draft or in progress and not issued yet. The form only offers each button to whoever can use it. |
 
 ### `ems.certificate.value` (a datum of a request)
 
@@ -220,11 +230,24 @@ stateDiagram-v2
     in_progress --> rejected: Reject
     draft --> in_progress: Issue it now (issue step done)
     in_progress --> in_progress: Issue it now (earlier steps skipped)
+    draft --> issued: Attest (accrediting document)
+    in_progress --> issued: Attest, before the issue step is done
     draft --> cancelled: Cancel
     in_progress --> cancelled: Cancel (before the issue step)
     cancelled --> in_progress: Reopen (first step)
 ```
 
+- **Issuer never approves (issue #861):** on an `approve` step, the user who stamped `issue` is left out
+  of `step_user_ids` (no task, not *Pending for me*, `can_act` false, the administrator included), and
+  `action_done_step()` refuses them.
+- `action_attest()` (issue #861): `can_attest` first; then the checks of the last step
+  (`_ems_check_step_data(action='attest')`: applicant, every detail any step requires, every required
+  document), so nothing moves while something is missing. It closes the open tasks, sets
+  `document_kind='attestation'`, the DACR number and course, one `attest` stamp (step: the last
+  `approve` one; post: `_ems_signer_role`), posts a note and calls `_ems_finish()`, which sends the
+  *accrediting document* email instead of the *issued* one. `action_preview_attestation()` renders the
+  draft report with the context key `ems_attestation_draft`, which the draft report passes to the
+  template as `attestation`.
 - `action_done_step()`: checks the step's data (`_ems_check_step_data`), records the stamp (with the post it is done under, `_ems_signer_role`: the user's among the step's posts; else another of theirs in the circuit, e.g. the Director issuing as administrator; else, an administrator holding none, the step's own; each signature box is headed by it), assigns
   the number on `issue`, and moves to the next step (task to the holders of its positions) or finishes.
 - `action_issue_now()`: whoever holds one of the `issue` step's positions (or the administrator,
@@ -254,13 +277,18 @@ stateDiagram-v2
   type's `certificate_text` in the centre language with every `{key}` replaced and escaped
   (`_ems_render_text`), and the closing sentence and the place and date (common). The type's text is
   one translatable value per language, so each language keeps its own word order. The files of the required
-  documents marked *Add to the certificate* are appended by `_ems_generate_pdf()` with `odoo.tools.pdf.merge_pdf`, an image becoming one page
-  (Pillow).
+  documents marked *Add to the certificate* are appended by `_ems_generate_pdf()` with
+  `odoo.tools.pdf.merge_pdf`, an image becoming one page (Pillow). An accrediting
+  document (issue #861; `_ems_report_paragraphs`/`_ems_report_signatures` take `attestation`, by
+  default the request's `document_kind`) is titled *Accrediting document*, numbered *Document number*,
+  opens with the attester's sentence and "ATTESTS:", closes with "I sign this accrediting document",
+  carries the *Attested in EMS* stamp only and is saved as *Accrediting document DACR-....pdf*; the
+  required documents are appended in the same way.
 
 ### Emails
 
-The four emails (`mails/certificates/certificate.xml`: the form for a former student, a request for
-documentation, the certificate issued, the request rejected) use the card layout of EMS emails, as
+The five emails (`mails/certificates/certificate.xml`: the form for a former student, a request for
+documentation, the certificate issued, the accrediting document attested (issue #861), the request rejected) use the card layout of EMS emails, as
 the Google account ones (`ems.mail_layout_certificate`, built on `ems.mail_layout_card` in
 `views/shared/mail_layout/card.xml`). Its button opens the request with its access token and says
 what to do there by the request's state: fill in the form, answer the centre, download the
@@ -306,7 +334,7 @@ position reads no request: the group comes from the position, and the record rul
 |------|-------------------|-----------------|-------|
 | Administrator (`group_academic_admin`) | rwcu | rwcu | May act on any step. |
 | Secretariat (`group_secretary`) | rwc, every request | r | Registers former students' requests, sends the form, follows every request up. Acts on the steps of the roles it holds, and, holding the `issue` step's, may issue a request right away, skipping the steps before it (`action_issue_now`). |
-| Director (`group_director`) | rw, every request | r | Acts on the `approve` step (role holder). |
+| Director (`group_director`) | rw, every request | r | Acts on the `approve` step (role holder), unless they issued it; may attest instead (`action_attest`) until it is issued. |
 | VET coordinator (`group_vet_coordinator`, given by `role_vetcoord`) | rw, requests of types with a step of a role they hold | r | Acts on the `complete` step. |
 | Any teacher (`group_teacher`) | rw, same rule | r | A role holder of a step without the menu (any role an administrator puts in a circuit) reaches it from the task. |
 | Portal | none (controller with `sudo`) | none | Only the student's own requests (`get_portal_student`), or the one the token opens. |

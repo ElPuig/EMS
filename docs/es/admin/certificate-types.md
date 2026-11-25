@@ -90,3 +90,7 @@ Para dar un paso al personal de secretaría, añádale el cargo **Técnico/a de 
 El circuito debe tener exactamente un paso **Expedir el certificado**, y los pasos **Aprobar** van después de este. El último paso genera el PDF y lo envía a la persona solicitante.
 
 El administrador puede hacer cualquier paso de cualquier solicitud.
+
+Quien ha expedido un certificado no puede hacer su paso **Aprobar**, aunque ocupe el cargo de ese paso o sea administrador.
+
+Quien ocupa el cargo de un paso **Aprobar** también puede **Hacer constar** la solicitud mientras el certificado no se ha expedido: se genera un documento acreditativo (numeración `DACR`) firmado solo por esa persona, y la solicitud se cierra. Está disponible en todos los tipos que tienen un paso **Aprobar**. El administrador solo puede hacerlo si ocupa ese cargo.

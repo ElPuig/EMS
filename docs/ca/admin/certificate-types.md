@@ -90,3 +90,7 @@ Per donar un pas al personal de secretaria, afegiu-hi el càrrec **Tècnic/a de 
 El circuit ha de tenir exactament un pas **Expedir el certificat**, i els passos **Aprovar** van després d'aquest. L'últim pas genera el PDF i l'envia a la persona sol·licitant.
 
 L'administrador pot fer qualsevol pas de qualsevol sol·licitud.
+
+Qui ha expedit un certificat no pot fer-ne el pas **Aprovar**, encara que ocupi el càrrec d'aquest pas o sigui administrador.
+
+Qui ocupa el càrrec d'un pas **Aprovar** també pot **Fer constar** la sol·licitud mentre el certificat no s'ha expedit: es genera un document acreditatiu (numeració `DACR`) signat només per aquesta persona, i la sol·licitud es tanca. Està disponible a tots els tipus que tenen un pas **Aprovar**. L'administrador només ho pot fer si ocupa aquest càrrec.

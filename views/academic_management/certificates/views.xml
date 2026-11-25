@@ -16,6 +16,7 @@
                     <field name="submission_date"/>
                     <field name="origin" optional="hide"/>
                     <field name="step_role_ids" widget="many2many_tags" optional="show"/>
+                    <field name="document_kind" optional="show"/>
                     <field name="state" widget="badge"
                            decoration-info="state == 'in_progress'"
                            decoration-warning="state in ('draft', 'documentation')"
@@ -35,6 +36,8 @@
                     <field name="step_action" invisible="1"/>
                     <field name="is_first_step" invisible="1"/>
                     <field name="can_issue_now" invisible="1"/>
+                    <field name="can_attest" invisible="1"/>
+                    <field name="document_kind" invisible="1"/>
                     <header>
                         <div name="ems_actions" string="Actions">
                             <button name="action_send_form" type="object" string="Send form" class="btn-primary"
@@ -57,6 +60,13 @@
                                     invisible="not can_issue_now"
                                     confirm="Confirm you have every mandatory detail and document of the request. The steps before issuing are skipped (their pending tasks are closed) and the certificate gets its number and your stamp. If anything mandatory is missing, it is not issued and you are told what. Continue?"
                                     help="Skip the steps before issuing (e.g. completing the certificate details) when you already have every detail and document."/>
+                            <button name="action_attest" type="object" string="Attest"
+                                    invisible="not can_attest"
+                                    confirm="Instead of a certificate, an accrediting document is generated with its own number (DACR) and your stamp only, and sent to the applicant: the request closes. Every mandatory detail and document is checked first. Continue?"
+                                    help="You approve certificates but you may also attest: the request ends with an accrediting document signed by you only, not with a certificate."/>
+                            <button name="action_preview_attestation" type="object" string="See the accrediting document draft" icon="fa-file-pdf-o"
+                                    invisible="not can_attest"
+                                    help="The accrediting document as it would be if you attested it now, marked DRAFT."/>
                             <button name="action_preview_draft" type="object" string="See the draft" icon="fa-file-pdf-o"
                                     invisible="state not in ('draft', 'in_progress', 'documentation')"
                                     help="The certificate as it stands now, marked DRAFT: the details still empty are shown by their name. Only for the centre's staff."/>
@@ -82,6 +92,9 @@
                     <sheet>
                         <widget name="web_ribbon" title="Cancelled" bg_color="text-bg-secondary" invisible="state != 'cancelled'"/>
                         <widget name="web_ribbon" title="Rejected" bg_color="text-bg-danger" invisible="state != 'rejected'"/>
+                        <!-- Issue #861: attested by the approver instead of issued and approved. -->
+                        <widget name="web_ribbon" title="Accrediting document" bg_color="text-bg-info"
+                                invisible="document_kind != 'attestation'"/>
                         <div class="alert alert-info" role="alert" invisible="state != 'in_progress'">
                             <i class="fa fa-arrow-right me-1"/>Current step: <field name="step_id" class="d-inline fw-bold" options="{'no_open': True}"/>
                             (<field name="step_role_ids" class="d-inline" widget="many2many_tags" options="{'no_open': True}"/>)

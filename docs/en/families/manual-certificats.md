@@ -45,7 +45,7 @@ Until it is issued, you can cancel the request with **Cancel request**.
 
 ## Getting the certificate
 
-Once the certificate is issued, you get it by email as a PDF and can also download it with **Download the certificate** from the request.
+Once the certificate is issued, you get it by email as a PDF and can also download it with **Download the certificate** from the request. In some cases the centre sends you not a certificate but an **accrediting document**, which attests the same; you download it with **Download the accrediting document**.
 
 ---
 

@@ -45,7 +45,7 @@ Mientras no se haya expedido, puedes anular la solicitud con **Anular la solicit
 
 ## Recibir el certificado
 
-Cuando el certificado está expedido, lo recibes por correo en PDF y también puedes descargarlo con **Descargar el certificado** desde la solicitud.
+Cuando el certificado está expedido, lo recibes por correo en PDF y también puedes descargarlo con **Descargar el certificado** desde la solicitud. En algunos casos el centro no te envía un certificado sino un **documento acreditativo**, que hace constar lo mismo; lo descargas con **Descargar el documento acreditativo**.
 
 ---
 

@@ -196,8 +196,10 @@ class TestPortalCertificate(HttpCase):
             line.attachment_ids = [(0, 0, {'name': 'a.pdf', 'raw': one_page_pdf(), 'mimetype': 'application/pdf'})]
         with patch('odoo.addons.base.models.ir_actions_report.IrActionsReport._render_qweb_pdf',
                    return_value=(one_page_pdf(), 'pdf')):
-            for _step in range(3):
+            for _step in range(2):
                 certificate.action_done_step()
+            # Issue #861: never approved by whoever issued it.
+            certificate.with_user(self.director).action_done_step()
         self.assertEqual(certificate.state, 'issued')
         response = self.url_open(pdf_url)
         self.assertEqual(response.headers['Content-Type'], 'application/pdf')

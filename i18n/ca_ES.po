@@ -3902,6 +3902,7 @@ msgstr "Nom del fitxer"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_staff_document_wizard__line_id
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_document__name
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__name
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__document_kind
 msgid "Document"
 msgstr "Document"
 
@@ -53119,6 +53120,7 @@ msgstr "Pot rebutjar-la o cancel·lar-la"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__certificate_id
 #: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate__document_kind__certificate
 msgid "Certificate"
 msgstr "Certificat"
 
@@ -54081,6 +54083,7 @@ msgstr "Respondre al centre"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.mail_layout_certificate
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
 msgid "Download the certificate"
 msgstr "Descarregar el certificat"
 
@@ -56165,3 +56168,164 @@ msgstr "Veure l'esborrany"
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "The certificate as it stands now, marked DRAFT: the details still empty are shown by their name. Only for the centre's staff."
 msgstr "El certificat tal com és ara, marcat com a ESBORRANY: les dades encara buides es mostren pel seu nom. Només per al personal del centre."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid ""
+"%s attests it: an accrediting document is generated instead of the "
+"certificate."
+msgstr ""
+"%s ho fa constar: es genera un document acreditatiu en lloc del certificat."
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_certificate_attested
+msgid ""
+"<div>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">DOCUMENT READY</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your accrediting document is ready</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello, regarding your request <strong t-out=\"object.type_id.name\"/>, the centre has issued an accrediting document that attests what you asked to be certified. You will find it attached to this email, and you can also download it from your request.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:18px 21px;background-color:#fafbfc;border-radius:9px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Document number</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.name\"/></p></td></tr></table>\n"
+"</div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">DOCUMENT A PUNT</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">El teu document acreditatiu és a punt</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, pel que fa a la teva sol·licitud <strong t-out=\"object.type_id.name\"/>, el centre ha emès un document acreditatiu que fa constar el que demanaves certificar. El trobaràs adjunt a aquest correu i també el pots descarregar des de la teva sol·licitud.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:18px 21px;background-color:#fafbfc;border-radius:9px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Número de document</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.name\"/></p></td></tr></table>\n"
+"</div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "ATTESTS:"
+msgstr "FA CONSTAR:"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate__document_kind__attestation
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "Accrediting document"
+msgstr "Document acreditatiu"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Accrediting document %s.pdf"
+msgstr "Document acreditatiu %s.pdf"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid ""
+"And for the record, I sign this accrediting document at the request of the "
+"person concerned."
+msgstr ""
+"I, perquè així consti, signo aquest document acreditatiu a petició de la "
+"persona interessada."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_stamp__action__attest
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "Attest"
+msgstr "Fer constar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
+msgid "Attested by:"
+msgstr "Fet constar per:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
+msgid "Attested in EMS"
+msgstr "Fet constar a EMS"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__can_attest
+msgid "Can attest it"
+msgstr "Pot fer-ho constar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
+msgid "Document number:"
+msgstr "Número de document:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
+msgid "Download the accrediting document"
+msgstr "Descarregar el document acreditatiu"
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_certificate_attested
+msgid "EMS: Certificate, accrediting document"
+msgstr "EMS: Certificat, document acreditatiu"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"Instead of a certificate, an accrediting document is generated with its own "
+"number (DACR) and your stamp only, and sent to the applicant: the request "
+"closes. Every mandatory detail and document is checked first. Continue?"
+msgstr ""
+"En lloc d'un certificat, es genera un document acreditatiu amb numeració "
+"pròpia (DACR) i només amb el teu segell, i s'envia a qui l'ha sol·licitat: "
+"la sol·licitud es tanca. Abans es comprova que hi hagi totes les dades i la "
+"documentació obligatòries. Vols continuar?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Only whoever approves %s can attest it, and only before it is issued."
+msgstr ""
+"Només qui dona el vistiplau a %s ho pot fer constar, i només abans que "
+"s'expedeixi."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "See the accrediting document draft"
+msgstr "Veure l'esborrany del document acreditatiu"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"The accrediting document as it would be if you attested it now, marked "
+"DRAFT."
+msgstr ""
+"El document acreditatiu tal com quedaria si ho fessis constar ara, marcat "
+"com a ESBORRANY."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__can_attest
+msgid ""
+"Whoever holds the approving step's post, until the certificate is issued: "
+"they may attest it instead, as an accrediting document."
+msgstr ""
+"Qui té el càrrec del pas de vistiplau, fins que el certificat s'expedeix: en"
+" lloc d'això, ho pot fer constar amb un document acreditatiu."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"You approve certificates but you may also attest: the request ends with an "
+"accrediting document signed by you only, not with a certificate."
+msgstr ""
+"Dones el vistiplau als certificats, però també pots fer constar: la "
+"sol·licitud acaba amb un document acreditatiu signat només per tu, no amb un"
+" certificat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "You issued %s: someone else has to approve it."
+msgstr "Has expedit %s: li ha de donar el vistiplau una altra persona."
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_certificate_attested
+msgid ""
+"Your accrediting document {{ object.name }} - {{ object.type_id.name }}"
+msgstr ""
+"El teu document acreditatiu {{ object.name }} - {{ object.type_id.name }}"

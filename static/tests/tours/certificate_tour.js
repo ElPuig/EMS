@@ -185,3 +185,35 @@ registry.category("web_tour.tours").add("ems_certificate_former_student", {
         },
     ],
 });
+
+// Issue #861 - the Director cannot issue certificates, but may attest: a request with every detail
+// and document, still before issuing, ends with an accrediting document (DACR) signed by them only.
+registry.category("web_tour.tours").add("ems_certificate_attest", {
+    url: "/odoo/action-ems.action_certificate",
+    steps: () => [
+        {
+            trigger: ".o_searchview .o_facet_remove",
+            content: "The request is not pending for the Director yet: drop the Pending for me filter",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row td[name='student_name']:contains('TCTR Attested Student')",
+            content: "Open the request that is still waiting to be issued",
+            run: "click",
+        },
+        ...clickAction("action_attest", "Attest"),
+        {
+            trigger: ".modal .modal-footer .btn-primary",
+            content: "Confirm: an accrediting document instead of a certificate",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='name']:contains('DACR-')",
+            content: "The request closes with an accrediting document and its own number",
+        },
+        {
+            trigger: ".o_form_view .ribbon",
+            content: "Marked as an accrediting document",
+        },
+    ],
+});

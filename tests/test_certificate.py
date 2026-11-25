@@ -133,6 +133,12 @@ class TestCertificate(TransactionCase):
         certificate._ems_submit()
         return certificate
 
+    def _attestation_label(self):
+        """'Accrediting document' as the PDF prints it, in the centre language."""
+        centre_env = self.env['res.company']._ems_centre_env()
+        field = centre_env['ems.certificate']._fields['document_kind']
+        return dict(field._description_selection(centre_env))['attestation']
+
     def _value(self, certificate, key):
         return certificate.value_ids.filtered(lambda line: line.field_id.key == key)
 
@@ -311,6 +317,122 @@ class TestCertificate(TransactionCase):
         self.assertEqual(certificate.stamp_ids.role_id, self.roles['issue'])
         self.assertTrue(certificate.submission_date)
         self.assertNotIn(self.coordinator, certificate.activity_ids.user_id)
+
+    def test_issuer_never_approves(self):
+        """Issue #861: the same person never issues and approves a certificate, whatever posts they
+        hold, the administrator included: no task, no button, and the server refuses it."""
+        self.steps[1].role_ids = [(4, self.roles['approve'].id)]
+        certificate = self._submitted()
+        self._complete_training(certificate)
+        certificate.with_user(self.coordinator).action_done_step()
+        self._attach_required(certificate)
+        certificate.with_user(self.director).action_done_step()
+        self.assertEqual(certificate.step_id, self.steps[2])
+        self.assertNotIn(self.director, certificate.activity_ids.user_id)
+        self.assertNotIn(self.director, certificate.step_user_ids)
+        mine = certificate.with_user(self.director)
+        self.assertFalse(mine.can_act)
+        self.assertFalse(mine.is_pending_for_me)
+        self.assertNotIn(certificate, self.env['ems.certificate'].with_user(self.director).search(
+            [('is_pending_for_me', '=', True)]))
+        with self.assertRaisesRegex(UserError, 'issued'):
+            mine.action_done_step()
+
+        # The administrator, too.
+        admin = create_role_user(self, 'academic_admin', 'test_tcrt_admin_both')
+        other = self._submitted()
+        self._complete_training(other)
+        self._attach_required(other)
+        other.with_user(admin).action_issue_now()
+        self.assertFalse(other.with_user(admin).can_act)
+        with self.assertRaisesRegex(UserError, 'issued'):
+            other.with_user(admin).action_done_step()
+        other.with_user(self.director).action_done_step()
+        self.assertEqual(other.state, 'issued')
+
+    def test_approver_attests(self):
+        """Issue #861: who holds the approving step's post may attest instead of waiting for the
+        certificate to be issued, once every mandatory detail and document is in: an accrediting
+        document (DACR, its own counter) with their only stamp, closing the request."""
+        sent = capture_template_emails(self)
+        certificate = self._submitted()
+        admin = create_role_user(self, 'academic_admin', 'test_tcrt_admin_attest')
+        for user in (self.coordinator, self.secretary, admin):
+            with self.subTest(user=user.name):
+                self.assertFalse(certificate.with_user(user).can_attest)
+                with self.assertRaises(AccessError):
+                    certificate.with_user(user).action_attest()
+        mine = certificate.with_user(self.director)
+        self.assertTrue(mine.can_attest, "Even before the issuing step.")
+        # Every detail any step requires and every required document, before anything moves.
+        with self.assertRaisesRegex(UserError, 'certificate details'):
+            mine.action_attest()
+        self._complete_training(certificate)
+        with self.assertRaisesRegex(UserError, 'required documentation'):
+            mine.action_attest()
+        self.assertEqual((certificate.state, certificate.step_id), ('in_progress', self.steps[0]))
+        self._attach_required(certificate)
+
+        mine.action_attest()
+        course = self.env['ems.course'].search([('is_current', '=', True)], limit=1)
+        self.assertEqual(certificate.state, 'issued')
+        self.assertEqual(certificate.document_kind, 'attestation')
+        self.assertTrue(certificate.name.startswith(f'DACR-{course.start}-'))
+        self.assertEqual(certificate.course_id, course)
+        self.assertFalse(certificate.activity_ids, "The pending tasks close.")
+        self.assertEqual([(stamp.action, stamp.user_id, stamp.role_id) for stamp in certificate.stamp_ids],
+                         [('attest', self.director, self.roles['approve'])])
+        self.assertTrue(certificate.message_ids.filtered(lambda message: 'accrediting document' in (message.body or '')))
+        paragraphs = [str(paragraph) for paragraph in certificate._ems_report_paragraphs()]
+        self.assertEqual(paragraphs[0], f"<strong>{self.director.name}</strong>, <strong>TCRT approve position</strong> "
+                                        f"of <strong>{self.env.company.name}</strong>,")
+        self.assertEqual(paragraphs[1], '<strong>ATTESTS:</strong>')
+        self.assertIn('I sign this accrediting document', paragraphs[-2])
+        self.assertEqual([(signature['stamp'].action, signature['role']) for signature in
+                          certificate._ems_report_signatures()], [('attest', self.roles['approve'])])
+        centre_env = self.env['res.company']._ems_centre_env()
+        self.assertEqual(certificate.certificate_pdf_id.name,
+                         centre_env._("Accrediting document %s.pdf", certificate.name))
+        self.assertIn(('ems.email_template_certificate_attested', certificate.id, None), sent())
+        self.assertNotIn(('ems.email_template_certificate_issued', certificate.id, None), sent())
+        self.assertFalse(mine.can_attest, "Once closed, never again.")
+
+        # The certificates' own series is untouched: the next one still gets the first free CERT number.
+        before = self.env['ems.certificate']._ems_next_number(course)
+        self.assertTrue(before.startswith('CERT-'))
+
+        html = self.env['ir.actions.report'].with_context(lang='en_US')._render_qweb_html(
+            'ems.action_report_certificate', certificate.ids)[0].decode()
+        # The PDF is in the centre language: its title is the document kind's label in that language.
+        for text in (self._attestation_label(), certificate.name, self.director.name):
+            self.assertIn(text, html)
+        self.assertEqual(html.count('<div class="o_ems_stamp">'), 1, "One signature: the attester's.")
+
+    def test_no_attestation_once_issued(self):
+        """Issue #861: a certificate already issued (it has its CERT number) is approved, not attested."""
+        certificate = self._submitted()
+        self._complete_training(certificate)
+        self._attach_required(certificate)
+        certificate.with_user(self.secretary).action_issue_now()
+        self.assertFalse(certificate.with_user(self.director).can_attest)
+        with self.assertRaises(AccessError):
+            certificate.with_user(self.director).action_attest()
+
+    def test_draft_attestation(self):
+        """Issue #861: the approver previews the accrediting document as it stands before attesting."""
+        certificate = self._submitted()
+        paragraphs = [str(paragraph) for paragraph in certificate._ems_report_paragraphs(draft=True, attestation=True)]
+        self.assertIn(f"<strong>{self.director.name}</strong>, <strong>TCRT approve position</strong>", paragraphs[0])
+        self.assertEqual(paragraphs[1], '<strong>ATTESTS:</strong>')
+        signatures = certificate._ems_report_signatures(draft=True, attestation=True)
+        self.assertEqual([(signature['stamp'], signature['role'], signature['action']) for signature in signatures],
+                         [(False, self.roles['approve'], 'attest')])
+        action = certificate.with_user(self.director).action_preview_attestation()
+        self.assertEqual(action['report_name'], 'ems.report_certificate_draft')
+        html = self.env['ir.actions.report'].with_user(self.director).with_context(
+            ems_attestation_draft=True)._render_qweb_html('ems.action_report_certificate_draft', certificate.ids)[0].decode()
+        self.assertIn(self._attestation_label(), html)
+        self.assertIn('o_ems_certificate_watermark', html)
 
     def test_return_undoes_the_previous_stamp(self):
         certificate = self._submitted()

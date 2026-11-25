@@ -69,6 +69,28 @@
             </field>
         </record>
 
+        <!-- Issue #861: the request ended with an accrediting document (attested by the approver
+             instead of a certificate issued and approved), sent with its PDF (ems.certificate._ems_finish). -->
+        <record id="email_template_certificate_attested" model="mail.template">
+            <field name="name">EMS: Certificate, accrediting document</field>
+            <field name="model_id" ref="ems.model_ems_certificate"/>
+            <field name="subject">Your accrediting document {{ object.name }} - {{ object.type_id.name }}</field>
+            <field name="email_from">{{ user.company_id.name }} &lt;{{ user.company_id.email }}&gt;</field>
+            <field name="reply_to">{{ user.partner_id._ems_reply_to() }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="email_layout_xmlid">ems.mail_layout_certificate</field>
+            <field name="body_html">
+                <![CDATA[
+<div>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr><td style="background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;">DOCUMENT READY</td></tr></table>
+    <h1 style="margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;">Your accrediting document is ready</h1>
+    <p style="margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;">Hello, regarding your request <strong t-out="object.type_id.name"/>, the centre has issued an accrediting document that attests what you asked to be certified. You will find it attached to this email, and you can also download it from your request.</p>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;"><tr><td style="padding:18px 21px;background-color:#fafbfc;border-radius:9px;"><p style="margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;">Document number</p><p style="margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;"><t t-out="object.name"/></p></td></tr></table>
+</div>
+                ]]>
+            </field>
+        </record>
+
         <record id="email_template_certificate_rejected" model="mail.template">
             <field name="name">EMS: Certificate, rejected</field>
             <field name="model_id" ref="ems.model_ems_certificate"/>

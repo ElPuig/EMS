@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from odoo.tests import HttpCase, tagged
 
 from .common import mock_outgoing_email
@@ -64,3 +66,23 @@ class TestCertificateTour(HttpCase):
         certificate = self.env['ems.certificate'].search([('student_id', '=', alumna.id)])
         self.assertEqual((len(certificate), certificate.student_name, certificate.applicant_email),
                          (1, 'TCTR Alumna Archived', 'tctr.alumna@example.com'))
+
+    def test_director_attests(self):
+        """Issue #861: the Director, who approves certificates, attests a request instead of waiting
+        for it to be issued."""
+        certificate = self.env['ems.certificate'].create({
+            'type_id': self.certificate_type.id, 'origin': 'secretariat', 'student_name': 'TCTR Attested Student',
+            'applicant_email': 'tctr.attested@example.com', 'student_document': '11223344B', 'study_id': self.study.id,
+        })
+        certificate._ems_set_values({'school_year': '2025-2026', 'company': self.company.id, 'start': '2026-03-01',
+                                     'end': '2026-06-15', 'hours': 400})
+        certificate._ems_submit()
+        for line in certificate.document_ids:
+            line.attachment_ids = [(0, 0, {'name': 'doc.pdf', 'raw': one_page_pdf(), 'mimetype': 'application/pdf',
+                                           'res_model': 'ems.certificate.document', 'res_id': line.id})]
+        # Odoo renders reports as HTML under test: a real PDF, so the annexes can be merged.
+        with patch('odoo.addons.base.models.ir_actions_report.IrActionsReport._render_qweb_pdf',
+                   return_value=(one_page_pdf(), 'pdf')):
+            self.start_tour("/odoo", 'ems_certificate_attest', login=self.director.login)
+        self.assertEqual((certificate.state, certificate.document_kind), ('issued', 'attestation'))
+        self.assertEqual(certificate.stamp_ids.mapped('action'), ['attest'])

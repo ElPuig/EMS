@@ -34,6 +34,28 @@ El PDF és a la pestanya **Certificat** de la sol·licitud.
 
 ---
 
+Si has expedit tu mateix el certificat (per exemple, com a administrador), no hi pots donar el vistiplau: ho ha de fer una altra persona.
+
+---
+
+## Fer constar en lloc de donar el vistiplau
+
+Mentre el certificat encara no s'ha expedit, el pots **fer constar** tu: EMS no genera un certificat, sinó un **document acreditatiu** amb el mateix text, on diu que **fas constar** el que s'hi indica, signat només per tu.
+
+1. Obre la sol·licitud (treu el filtre **Pendents de mi** si encara no és al teu pas).
+2. **Accions → Veure l'esborrany del document acreditatiu** mostra com quedarà, marcat com a **ESBORRANY**.
+3. Obre **Accions → Fer constar** i confirma.
+
+Cal que hi hagi totes les dades i tota la documentació obligatòries; si en falta alguna, EMS t'indica quina i no el genera.
+
+EMS:
+
+- li dona un número propi (per exemple `DACR-2026-27-0001`) i hi posa el teu segell;
+- genera el PDF, amb les pàgines del conveni al final;
+- l'envia per correu a la persona sol·licitant i tanca la sol·licitud.
+
+---
+
 ## Si alguna cosa no és correcta
 
 - **Accions → Retornar al pas anterior** — torna la sol·licitud a secretaria amb el motiu; se'n desfà el segell.

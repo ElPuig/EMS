@@ -393,6 +393,10 @@ class TestCertificate(TransactionCase):
         centre_env = self.env['res.company']._ems_centre_env()
         self.assertEqual(certificate.certificate_pdf_id.name,
                          centre_env._("Accrediting document %s.pdf", certificate.name))
+        # The documents marked "Add to the certificate" are appended, as to a certificate: the
+        # agreement's page after the accrediting document's own (the training report is not).
+        reader = PdfFileReader(io.BytesIO(certificate.certificate_pdf_id.raw))
+        self.assertEqual(len(reader.pages), 2)
         self.assertIn(('ems.email_template_certificate_attested', certificate.id, None), sent())
         self.assertNotIn(('ems.email_template_certificate_issued', certificate.id, None), sent())
         self.assertFalse(mine.can_attest, "Once closed, never again.")

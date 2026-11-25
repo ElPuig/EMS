@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Regenerates the screenshots of the certificate request manuals (issue #835): secretariat,
-VET coordinator, Director, families and administrator.
+VET coordinator, Director (approving and attesting, issue #861), families and administrator.
 
 Tagged '-standard' on purpose - see the NOTE in test_docs_screenshots.py. Run it by hand:
 
@@ -12,7 +12,7 @@ transaction; the backend list opens an action limited to these fixtures, so no r
 the database shows."""
 from odoo.tests.common import HttpCase, tagged
 
-from .common import DocsScreenshotMixin, create_role_user, mock_outgoing_email, next_student_id
+from .common import DocsScreenshotMixin, create_role_employee, create_role_user, mock_outgoing_email, next_student_id
 
 ACTIONS_TOGGLE = '.o_form_view .o_form_statusbar .o_ems_actions_toggle'
 
@@ -32,6 +32,16 @@ class TestDocsScreenshotsCertificates(DocsScreenshotMixin, HttpCase):
         # Only FCT is offered, whatever other types the database has.
         cls.env['ems.certificate.type'].search([('id', '!=', cls.certificate_type.id)]).active = False
         cls.steps = cls.certificate_type.step_ids.sorted('sequence')
+        # The Director attests (issue #861): only whoever really holds the approving step's post may.
+        cls.director = create_role_user(cls, 'director', 'doc_shot_cert_director', lang='ca_ES',
+                                        name='Direcció Exemple')
+        # The real Direction post is managed from the company form: the step gets a post of the
+        # fixture's own instead, under the same name and colour so the shots read as usual.
+        real_post = cls.steps[2].role_ids[:1]
+        cls.steps[2].role_ids = [(6, 0, cls.env['ems.role'].create({
+            'name': real_post.with_context(lang='ca_ES').name, 'color': real_post.color, 'employee_type': 'teacher',
+            'employee_ids': [(6, 0, create_role_employee(cls, cls.director).ids)],
+        }).ids)]
         cls.agreement_document = cls.certificate_type._ems_documents()[:1]
         # As seeded (noupdate, so a database may have changed it): the agreement is required before issuing.
         cls.agreement_document.required_step_id = cls.steps[1]
@@ -120,6 +130,11 @@ class TestDocsScreenshotsCertificates(DocsScreenshotMixin, HttpCase):
         self._capture(self._form(self.to_approve), '.o_content', 'certificats-06-aprovar.png', login=admin,
                       wait_for=ACTIONS_TOGGLE, click=ACTIONS_TOGGLE,
                       wait_after=".o_ems_actions_menu button[name='action_done_step']", max_height=420,
+                      beyond_viewport=False)
+        # Director: attesting a request not issued yet, instead of approving it.
+        self._capture(self._form(self.to_issue), '.o_content', 'certificats-11-fer-constar.png',
+                      login='doc_shot_cert_director', wait_for=ACTIONS_TOGGLE, click=ACTIONS_TOGGLE,
+                      wait_after=".o_ems_actions_menu button[name='action_attest']", max_height=420,
                       beyond_viewport=False)
         # Administrator: the certificate type.
         self._capture(f'/odoo/action-ems.action_certificate_type/{self.certificate_type.id}', '.o_form_sheet',

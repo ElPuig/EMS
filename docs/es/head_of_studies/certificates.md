@@ -46,6 +46,8 @@ Mientras el certificado aún no se ha expedido, puedes **hacerlo constar** tú: 
 2. **Acciones → Ver el borrador del documento acreditativo** muestra cómo quedará, marcado como **BORRADOR**.
 3. Abre **Acciones → Hacer constar** y confirma.
 
+![Acciones de una solicitud que aún no se ha expedido, con la opción Hacer constar](../../assets/head_of_studies/certificats-11-fer-constar.png)
+
 Tienen que estar todos los datos y toda la documentación obligatorios; si falta alguno, EMS te indica cuál y no lo genera.
 
 EMS:

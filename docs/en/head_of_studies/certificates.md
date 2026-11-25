@@ -46,6 +46,8 @@ Until the certificate is issued, you may **attest** it yourself: EMS generates n
 2. **Actions → See the accrediting document draft** shows it as it will be, marked **DRAFT**.
 3. Open **Actions → Attest** and confirm.
 
+![Actions of a request not issued yet, with the Attest option](../../assets/head_of_studies/certificats-11-fer-constar.png)
+
 Every mandatory detail and document must be in; if one is missing, EMS tells you which and does not generate it.
 
 EMS:

@@ -46,6 +46,8 @@ Mentre el certificat encara no s'ha expedit, el pots **fer constar** tu: EMS no 
 2. **Accions → Veure l'esborrany del document acreditatiu** mostra com quedarà, marcat com a **ESBORRANY**.
 3. Obre **Accions → Fer constar** i confirma.
 
+![Accions d'una sol·licitud que encara no s'ha expedit, amb l'opció Fer constar](../../assets/head_of_studies/certificats-11-fer-constar.png)
+
 Cal que hi hagi totes les dades i tota la documentació obligatòries; si en falta alguna, EMS t'indica quina i no el genera.
 
 EMS:

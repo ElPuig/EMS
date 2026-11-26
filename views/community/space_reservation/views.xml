@@ -26,9 +26,6 @@
                         <field name="end_time" widget="float_time"/>
                     </group>
                 </group>
-                <group invisible="mode != 'date'">
-                    <field name="reason"/>
-                </group>
                 <!-- The free spaces follow what is typed: recomputed at every change, no search button. -->
                 <div class="alert alert-warning" role="alert" invisible="mode != 'date' or duration &gt; 0">
                     The end must be after the start.
@@ -49,6 +46,10 @@
                     </list>
                 </field>
 
+                <group invisible="mode != 'date'">
+                    <field name="reason"/>
+                </group>
+
                 <!-- By space -->
                 <group invisible="mode != 'space'">
                     <field name="space_id" required="mode == 'space'" options="{'no_create': True, 'no_open': True}"/>
@@ -56,7 +57,7 @@
                 <field name="show_grid" widget="ems_space_week_grid" nolabel="1" invisible="mode != 'space' or not show_grid"/>
                 <group invisible="mode != 'space' or not show_grid">
                     <group>
-                        <field name="space_day" string="Day"/>
+                        <field name="space_day" string="Day" options="{'min_date': 'today'}"/>
                     </group>
                 </group>
                 <group invisible="mode != 'space' or not show_grid">

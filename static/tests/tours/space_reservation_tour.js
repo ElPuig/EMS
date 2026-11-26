@@ -286,5 +286,24 @@ registry.category("web_tour.tours").add("ems_space_reservation_now_line", {
             trigger: ".modal .o_ems_week_grid_chosen",
             content: "A time after the current one can be chosen",
         },
+        {
+            trigger: ".modal .o_field_widget[name='space_start'] input",
+            content: "Type by hand a start that has gone by (09:00, it is 12:00)",
+            run: "edit 09:00 && press Tab",
+        },
+        {
+            trigger: ".modal:not(:has(.o_form_view)) .modal-footer .btn-primary",
+            content: "The wizard says a reservation cannot start in the past (a dialog): close it",
+            run: "click",
+        },
+        {
+            trigger: ".modal-footer button.disabled[name='action_reserve']",
+            content: "The day is cleared: nothing is chosen and Reserve is disabled",
+            run() {
+                if (document.querySelector(".modal .o_ems_week_grid_chosen")) {
+                    throw new Error("A time typed in the past must not stay chosen");
+                }
+            },
+        },
     ],
 });

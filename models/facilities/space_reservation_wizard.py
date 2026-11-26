@@ -73,6 +73,24 @@ class EmsSpaceReservationWizard(models.TransientModel):
         for wizard in self:
             wizard.show_grid = bool(wizard.space_id)
 
+    @api.onchange('space_day', 'space_start')
+    def _onchange_space_slot_not_past(self):
+        """By space: a day and a start typed by hand that have already begun are refused on the spot
+        (the grid already refuses them when dragging): the day is cleared, so nothing is drawn and
+        Reserve stays disabled."""
+        if self.mode != 'space' or not self.space_day:
+            return None
+        midnight = datetime.combine(self.space_day, time.min, tzinfo=self.current_tz())
+        start = self.local_datetime_to_utc(midnight + timedelta(hours=self.space_start)).replace(tzinfo=None)
+        if start >= fields.Datetime.now():
+            return None
+        self.space_day = False
+        return {'warning': {'title': _("Reserve a space"), 'message': self._past_message()}}
+
+    @api.model
+    def _past_message(self):
+        return _("A reservation cannot start in the past.")
+
     def _slot(self, day, start_time, end_time):
         """(start, end) of the slot on `day`, as naive UTC datetimes."""
         if not day or end_time <= start_time or end_time > 24:
@@ -111,7 +129,7 @@ class EmsSpaceReservationWizard(models.TransientModel):
                 self.space_id, self.space_day, self.space_start, self.space_end, self.space_reason)
         start, end = self._slot(day, start_time, end_time)
         if start < fields.Datetime.now():
-            raise UserError(_("A reservation cannot start in the past."))
+            raise UserError(self._past_message())
         reservation = self.env['ems.space_reservation'].create({
             'space_id': space.id, 'start_datetime': start, 'duration': (end - start).total_seconds() / 3600.0,
             'reason': reason})

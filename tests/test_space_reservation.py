@@ -288,6 +288,17 @@ class TestSpaceReservation(TransactionCase):
         with self.assertRaises(UserError):
             wizard.action_reserve()                      # no space
 
+    def test_a_slot_typed_in_the_past_is_refused_on_the_spot(self):
+        wizard = self.env['ems.space_reservation_wizard'].new({
+            'mode': 'space', 'space_id': self.space.id, 'space_day': self.env['ems.datetime_utils'].get_local_today() - timedelta(days=7),
+            'space_start': 10.0, 'space_end': 11.0})
+        result = wizard._onchange_space_slot_not_past()
+        self.assertIn('past', result['warning']['message'])
+        self.assertFalse(wizard.space_day)
+        wizard.space_day = self.monday + timedelta(days=7)
+        self.assertIsNone(wizard._onchange_space_slot_not_past())   # ahead: kept
+        self.assertTrue(wizard.space_day)
+
     def test_the_wizard_reserves_a_free_space_and_refuses_the_past(self):
         wizard = self._wizard(16.0, reason='Line')
         with self.assertRaises(UserError):

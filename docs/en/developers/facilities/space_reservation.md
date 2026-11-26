@@ -45,7 +45,7 @@ flowchart LR
 The list's **New** button (`display="always"` header button, the list has `create="false"`) opens the
 wizard instead of the form. The first field is `mode`:
 
-- **By date** (`date`): day and type (same row), start and end time (the wizard asks for an end time; `duration` is computed from it), reason (full width). The free spaces are `free_space_ids`, a non-stored computed
+- **By date** (`date`): day and type (same row), start and end time (the wizard asks for an end time; `duration` is computed from it), then the list of free spaces and, below it, the reason (full width). The free spaces are `free_space_ids`, a non-stored computed
   many2many of `ems.space` over `mode`/`date`/`start_time`/`end_time`/`space_type_id`, so the form's
   onchange recomputes them at every change (no search button): the reservable spaces (of that type)
   that `_get_space_conflicts` leaves free, none while the end is not after the start (the form then
@@ -59,7 +59,10 @@ wizard instead of the form. The first field is `mode`:
   day of the default schedule framework, widened to take in anything held outside it). It only draws:
   the server decides what is held. Dragging over a free time (or a click, for an hour) writes the
   slot into `space_day`/`space_start`/`space_end`, which can also be typed; a held time or a day
-  gone by cannot be chosen. The weekend is hidden unless ticked. A dotted red line marks the current time in today's column (the company's `serverNow()`, moved every minute); what is above it is shaded and cannot be chosen. Each mode has its own slot fields
+  gone by cannot be chosen. Typed by hand, a day and start that have already begun are refused on the spot
+  (`_onchange_space_slot_not_past`: a warning dialog, and the day is cleared so nothing stays chosen);
+  the day's date picker greys out the past days (`min_date: 'today'`, a display aid only: the server
+  decides, and `action_reserve` refuses the past again). The weekend is hidden unless ticked. A dotted red line marks the current time in today's column (the company's `serverNow()`, moved every minute); what is above it is shaded and cannot be chosen. Each mode has its own slot fields
   (`date`/`start_time`/`end_time`/`reason` by date, `space_*` by space) so each lays out its own form.
   Reserving creates the reservation (never in the past) and opens it.
 

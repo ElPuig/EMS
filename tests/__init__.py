@@ -393,3 +393,4 @@ from . import test_erasmus_polish_actions_tour
 from . import test_erasmus_polish_quality_dashboard
 from . import test_portal_shared_email, test_student_family_email, test_portal_email_change
 from . import test_file_compression
+from . import test_in_use_guard

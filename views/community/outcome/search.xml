@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_outcome_search" model="ir.ui.view">
+            <field name="name">ems.outcome.search</field>
+            <field name="model">ems.outcome</field>
+            <field name="arch" type="xml">
+                <search string="Learning outcomes">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="acronym"/>
+                    <field name="subject_id"/>
+                    <separator/>
+                    <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

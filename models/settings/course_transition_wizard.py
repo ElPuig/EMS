@@ -853,7 +853,8 @@ class ems_course_transition_wizard(models.TransientModel):
         ])
         existing_keys = {
             (planning.study_id.id, planning.subject_id.id)
-            for planning in self.env['ems.planning'].search([
+            # Archived ones included: unique_study_subject_course counts them too.
+            for planning in self.env['ems.planning'].with_context(active_test=False).search([
                 ('study_id', 'in', self.study_ids.ids),
                 ('course_id', '=', self.target_course_id.id),
             ])

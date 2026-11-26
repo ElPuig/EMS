@@ -46,6 +46,7 @@ DEFAULT_CARD_COLOR = 'grey'
 
 class EmsLevel(models.Model):
 	_name = "ems.level"
+	_inherit = ["ems.in_use_guard.mixin"]
 	_description = "Study level (Secondary Education, VET, Baccalaureate, etc.)"
 	_order = "acronym asc"
 
@@ -53,6 +54,7 @@ class EmsLevel(models.Model):
 		('acronym_unique', 'UNIQUE(acronym)', 'The acronym must be unique.'),
 	]
 
+	active = fields.Boolean(default=True)
 	acronym = fields.Char(string="Acronym", required=True)
 	name = fields.Char(string="Name", required=True)
 	study_ids = fields.One2many(string="Studies", comodel_name="ems.study", inverse_name="level_id")

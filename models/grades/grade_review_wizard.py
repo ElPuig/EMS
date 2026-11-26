@@ -241,7 +241,7 @@ class EmsGradeReviewWizard(models.TransientModel):
             # Scoped to the record's own course (issue #503): a correction on an old course must
             # use the ponderations that were actually in force then, not today's, once
             # ems.planning is course-scoped.
-            planning = self.env['ems.planning'].search([
+            planning = self.env['ems.planning'].with_context(active_test=False).search([
                 ('study_id', '=', self.record_id.study_id.id),
                 ('subject_id', '=', self.subject_id.id),
                 ('course_id', '=', self.record_id.course_id.id)], limit=1)

@@ -139,6 +139,7 @@
             'views/community/employee/departure_reason.xml',
 
             'views/community/workgroup/list.xml',
+            'views/community/workgroup/search.xml',
             'views/community/workgroup/form.xml',  
             'views/community/workgroup/menu.xml',  
             
@@ -180,6 +181,7 @@
             'views/community/job/menu.xml',    
 
             'views/community/role/list.xml',
+            'views/community/role/search.xml',
             'views/community/role/form.xml',
             'views/community/role/menu.xml',
                 
@@ -218,6 +220,7 @@
             'views/community/study/menu.xml',        
         
             'views/community/level/list.xml',
+            'views/community/level/search.xml',
             'views/community/level/form.xml',
             'views/community/level/menu.xml',   
 
@@ -229,12 +232,22 @@
             'views/community/space_reservation/views.xml',
 
             'views/community/space_type/list.xml',
+            'views/community/space_type/search.xml',
             'views/community/space_type/form.xml',
             'views/community/space_type/menu.xml',    
 
             'views/community/content/form.xml', 
+            'views/community/content/list.xml',
+            'views/community/content/search.xml',
+            'views/community/content/menu.xml',
             'views/community/criteria/form.xml',
+            'views/community/criteria/list.xml',
+            'views/community/criteria/search.xml',
+            'views/community/criteria/menu.xml',
             'views/community/outcome/form.xml',
+            'views/community/outcome/list.xml',
+            'views/community/outcome/search.xml',
+            'views/community/outcome/menu.xml',
 
             'views/planning_grading/menu.xml',
             'views/planning_grading/planning/list.xml',

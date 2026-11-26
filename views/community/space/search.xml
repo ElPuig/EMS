@@ -15,6 +15,8 @@
                         <field name="work_location_id" icon="fa-building" enable_counters="1"/>
                         <field name="space_type_id" icon="fa-users" enable_counters="1"/>
                     </searchpanel>
+                    <separator/>
+                    <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
                 </search>           
             </field>		      
         </record>   

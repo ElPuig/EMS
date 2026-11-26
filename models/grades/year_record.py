@@ -603,7 +603,7 @@ class EmsStudentYearRecordSubject(models.Model):
         """An archived subject passed through a convalidation line: no learning outcomes of its
         own, the grade the convalidation was resolved with, and the weights of the study's
         teaching plan so the record reads like any other."""
-        planning = self.env['ems.planning'].sudo().search([
+        planning = self.env['ems.planning'].sudo().with_context(active_test=False).search([
             ('study_id', '=', study.id), ('subject_id', '=', line.subject_id.id)], limit=1)
         return {
             'subject_id': line.subject_id.id,

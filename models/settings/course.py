@@ -6,6 +6,7 @@ from datetime import date
 
 class EmsCourse(models.Model):
 	_name = "ems.course"
+	_inherit = ["ems.in_use_guard.mixin"]
 	_description = "Course: defines a range of time when a course is running (for example: 2024-2025)."
 	_order = "start desc"
 	_sql_constraints = [

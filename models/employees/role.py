@@ -18,9 +18,10 @@ HIERARCHY_MANAGED_ROLE_XMLIDS = (
 class EmsRole(models.Model):
 	_name = "ems.role"
 	_description = "Roles: The coordination position held by the employees."
-	_inherit = ['ems.hex_color_mixin']
+	_inherit = ['ems.hex_color_mixin', 'ems.in_use_guard.mixin']
 	_order = "name asc"
 
+	active = fields.Boolean(default=True)
 	name = fields.Char(string="Name", translate=True, required=True)
 	color = fields.Char(string="Color", default="#3A8DDE")
 	notes = fields.Text(string="Notes")

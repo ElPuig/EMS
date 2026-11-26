@@ -4,7 +4,7 @@ from odoo import models, fields, api, _
 
 class EmsStudy(models.Model):
     _name = "ems.study"
-    _inherit = ['ems.attachment_mixin']
+    _inherit = ['ems.attachment_mixin', 'ems.in_use_guard.mixin']
     _description = "Study: The concrete type of study (kind of bachelor, concrete university grade, etc.)"
     _order = "code asc"
 
@@ -12,6 +12,7 @@ class EmsStudy(models.Model):
         ('unique_code', 'unique (code)', 'The code must be unique.'),
     ]
 
+    active = fields.Boolean(default=True)
     code = fields.Char(string="Code", required=True)
     acronym = fields.Char(string="Acronym", required=True)
     name = fields.Char(string="Name", required=True)

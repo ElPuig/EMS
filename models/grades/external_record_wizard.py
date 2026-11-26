@@ -75,7 +75,8 @@ class EmsExternalRecordWizard(models.TransientModel):
     def _compute_available_study_ids(self):
         for wizard in self:
             courses = wizard.line_ids.course_id or wizard.course_id
-            plannings = self.env['ems.planning'].sudo().search([
+            # Archived plannings included: a past course's plan may have been archived since.
+            plannings = self.env['ems.planning'].sudo().with_context(active_test=False).search([
                 ('course_id', 'in', courses.ids), ('planning_outcome_ids', '!=', False)])
             wizard.available_study_ids = plannings.study_id
 
@@ -220,13 +221,13 @@ class EmsExternalRecordWizard(models.TransientModel):
             return self.env['ems.subject']
         code = module_code[:-len(study_code) - 1] if study_code and module_code.endswith(f"_{study_code}") \
             else module_code
-        return self.env['ems.subject'].search([('code', '=', code),
+        return self.env['ems.subject'].with_context(active_test=False).search([('code', '=', code),
                                                ('study_ids', '=', self.study_id.id)], limit=1)
 
     def _planning(self, subject, course):
         if not (subject and course and self.study_id):
             return self.env['ems.planning']
-        return self.env['ems.planning'].sudo().search([
+        return self.env['ems.planning'].sudo().with_context(active_test=False).search([
             ('study_id', '=', self.study_id.id), ('subject_id', '=', subject.id),
             ('course_id', '=', course.id)], limit=1)
 

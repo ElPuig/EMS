@@ -4,9 +4,11 @@ from odoo import models, fields
 
 class EmsSpaceType(models.Model):
 	_name = "ems.space_type"
+	_inherit = ["ems.in_use_guard.mixin"]
 	_description = "Space type: classroom, laboratory, etc."
 	_order = "name"
 
+	active = fields.Boolean(default=True)
 	name = fields.Char(string="Name", translate=True, required=True)
 	reservable = fields.Boolean(
 		string="Reservable", default=True,

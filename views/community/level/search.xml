@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_level_search" model="ir.ui.view">
+            <field name="name">ems.level.search</field>
+            <field name="model">ems.level</field>
+            <field name="arch" type="xml">
+                <search string="Levels">
+                    <field name="name"/>
+                    <field name="acronym"/>
+                    <separator/>
+                    <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

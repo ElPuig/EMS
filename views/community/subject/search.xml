@@ -14,6 +14,8 @@
                     <!-- <searchpanel>
                         <field name="study_ids" group_expand="True" groupby="study_ids"/>
                     </searchpanel> -->
+                    <separator/>
+                    <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
                 </search>           
             </field>		      
         </record>   

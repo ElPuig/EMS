@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_role_search" model="ir.ui.view">
+            <field name="name">ems.role.search</field>
+            <field name="model">ems.role</field>
+            <field name="arch" type="xml">
+                <search string="Roles">
+                    <field name="name"/>
+                    <separator/>
+                    <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

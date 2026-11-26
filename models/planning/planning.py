@@ -5,7 +5,7 @@ from odoo.exceptions import ValidationError
 
 class EmsPlanning(models.Model):
     _name = "ems.planning"
-    _inherit = ["mail.thread", "mail.activity.mixin"]
+    _inherit = ["mail.thread", "mail.activity.mixin", "ems.in_use_guard.mixin"]
     _description = "Teaching planning"
     _sql_constraints = [
         ('unique_study_subject_course', 'unique (study_id, subject_id, course_id)', 'A planning already exists for this study, subject and course!')
@@ -15,6 +15,7 @@ class EmsPlanning(models.Model):
     # TODO: Multiple teachers as planning redactors.
     #       Needed a review and approval system (like minutes will do).
     # teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", required=True, domain="[('employee_type', '=', 'teacher')]")
+    active = fields.Boolean(default=True)
     name = fields.Char(string="Name", compute="_compute_name", store=True)
     study_id = fields.Many2one(string="Study", comodel_name="ems.study", required=True, tracking=True)
     subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", required=True, tracking=True)

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
 
+# Before course, which inherits it.
+from . import in_use_guard_mixin
 from ..settings import course
 from . import (base, datetime_utils, attachment, file_compression, multithreading, google_workspace_mixin, mail_activity_type, mail_activity, schedule_report_mixin, hex_color_mixin, mine_first_mixin, attendance_mixin, student_scope_mixin, google_signin, ir_http, mail_thread, daily_summary, info_notice, guard_board_notifier, ir_actions_report, reason_catalog)

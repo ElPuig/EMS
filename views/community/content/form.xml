@@ -6,6 +6,8 @@
             <field name="arch" type="xml">				
                 <form string="content" duplicate="0">
                     <sheet>      
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <field name="active" invisible="1"/>
                         <group string="Parent content" col="6" invisible="content_id == False">   
                             <field nolabel="1" name="content_id" readonly="True"/>
                         </group>                                                

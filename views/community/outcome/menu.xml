@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Learning outcomes, contents and criteria are edited inside their subject (or outcome); this
+             list is where the archived ones are found again (issue #868). -->
+        <record id="action_outcome" model="ir.actions.act_window">
+            <field name="name">Learning outcomes</field>
+            <field name="res_model">ems.outcome</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'list', 'view_id': ref('view_outcome_list')}), (0, 0, {'view_mode': 'form', 'view_id': ref('view_outcome_form')})]"/>
+            <field name="search_view_id" ref="view_outcome_search"/>
+        </record>
+
+        <menuitem id="menu_outcome" name="Learning outcomes" sequence="4" parent="menu_community_config_curriculum" action="action_outcome"/>
+    </data>
+</odoo>

@@ -5,13 +5,14 @@ from odoo import models, fields, api
 class EmsSpace(models.Model):
 	_name = "ems.space"
 	_description = "Space: where each student group are assigned to."
-	_inherit = ['mail.thread', 'mail.activity.mixin']
+	_inherit = ['mail.thread', 'mail.activity.mixin', 'ems.in_use_guard.mixin']
 	_order = "name"
 	_rec_names_search = ['name', 'code']
 	_sql_constraints = [
 		('unique_code', 'unique (work_location_id, code)', 'duplicated code!')
     ]
 
+	active = fields.Boolean(default=True)
 	code = fields.Char(string="Code", required=True)
 	name = fields.Char(string="Name", required=True)
 	space_type_id = fields.Many2one(

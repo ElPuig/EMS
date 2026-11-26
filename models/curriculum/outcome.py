@@ -5,12 +5,14 @@ from odoo.exceptions import ValidationError
 
 class EmsOutcome(models.Model):
 	_name = 'ems.outcome'
+	_inherit = ['ems.in_use_guard.mixin']
 	_description = 'Learning outcome: what the student should learn.'
 	_order = 'code asc'
 	_sql_constraints = [
 		('unique_code', 'unique (subject_id, code)', 'duplicated code!')
     ]
 
+	active = fields.Boolean(default=True)
 	code = fields.Char(string='Code', required=True)
 	acronym = fields.Char(string='Acronym', required=True)
 	name = fields.Char(string='Name', required=True)

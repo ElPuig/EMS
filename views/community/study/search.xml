@@ -8,6 +8,8 @@
                     <searchpanel>                        
                         <field name="level_id" icon="fa-graduation-cap" enable_counters="1"/>
                     </searchpanel>
+                    <separator/>
+                    <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
                 </search>           
             </field>		      
         </record>   

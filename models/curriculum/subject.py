@@ -5,10 +5,12 @@ from odoo.exceptions import ValidationError
 
 class EmsSubject(models.Model):
     _name = "ems.subject"
+    _inherit = ["ems.in_use_guard.mixin"]
     _description = "Subject: The main item for a student's subject."
     _rec_names_search = ['name', 'acronym']
     _order = "code asc"
 
+    active = fields.Boolean(default=True)
     code = fields.Char(string="Code", required=True)
     acronym = fields.Char(string="Acronym", required=True)
     name = fields.Char(string="Name", required=True)

@@ -5,9 +5,10 @@ from odoo import api, fields, models
 class EmsWorkgroup(models.Model):
 	_name = "ems.workgroup"
 	_description = "Workgroup: Employees (teachers, providers, and ASP) can define workgroups."
-	_inherit = "ems.mine_first_mixin"
+	_inherit = ["ems.mine_first_mixin", "ems.in_use_guard.mixin"]
 	_order = "name asc"
 
+	active = fields.Boolean(default=True)
 	name = fields.Char(string="Name", required=True)
 	notes = fields.Text("Notes")
 

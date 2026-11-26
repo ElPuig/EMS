@@ -37,7 +37,7 @@
              action: the cog-menu scripts (import_student_cog_menu.js, update_student_cog_menu.js)
              read it from that menu. -->
         <menuitem name="Students"            sequence="1"  id="menu_students_root"     parent="menu_community"/>
-        <menuitem name="Students"            sequence="1"  id="menu_students"          parent="menu_students_root" action="action_student_kanban"/>
+        <menuitem name="Student list"        sequence="1"  id="menu_students"          parent="menu_students_root" action="action_student_kanban"/>
         <menuitem name="Families"            sequence="3"  id="menu_families"          parent="menu_community" action="action_family_list"/>
         <menuitem name="Providers"           sequence="5"  id="menu_providers"         parent="menu_community" action="action_provider_kanban"/>
 

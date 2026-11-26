@@ -4,7 +4,7 @@
 
 # Reservar un espacio
 
-Con **Comunidad educativa → Reservas de espacios** puedes retener un aula, un laboratorio o cualquier otro espacio del centro durante un tiempo, por ejemplo para una charla, una clase de recuperación o una reunión con familias.
+Con **Comunidad educativa → Espacios → Reservas de espacios** puedes retener un aula, un laboratorio o cualquier otro espacio del centro durante un tiempo, por ejemplo para una charla, una clase de recuperación o una reunión con familias.
 
 ## Qué significa que un espacio esté ocupado
 
@@ -12,7 +12,7 @@ Un espacio está ocupado cuando está en el horario semanal de alguien en ese mo
 
 ## Reservar un espacio
 
-1. Abre **Comunidad educativa → Reservas de espacios**. Se abre en el calendario; también puedes pasar a la lista.
+1. Abre **Comunidad educativa → Espacios → Reservas de espacios**. Se abre en el calendario; también puedes pasar a la lista.
 2. Pulsa **Nuevo**.
 3. Rellena el **inicio** y la **duración**. El campo **Espacio** solo te ofrece los espacios libres en ese momento, así que no hay que comprobar nada a mano.
 4. Escribe el **motivo** y guarda.

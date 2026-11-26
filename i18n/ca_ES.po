@@ -9640,7 +9640,7 @@ msgid "Student:"
 msgstr "Alumne/a:"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_student_form model:ir.actions.act_window,name:ems.action_student_kanban model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__attendance_issue_student_ids model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__student_ids model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__student_ids model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__student_line_ids model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__student_ids model:ir.model.fields,field_description:ems.field_ems_group__main_student_ids model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__student_ids model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__target__students model:ir.model.fields.selection,name:ems.selection__ems_notice__recipient_type__students model:ir.ui.menu,name:ems.menu_community_config_students model:ir.ui.menu,name:ems.menu_students model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_tutor_form model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_student_search model:ir.model.fields,field_description:ems.field_ems_graduation_wizard__line_ids model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__line_ids
+#: model:ir.actions.act_window,name:ems.action_student_form model:ir.actions.act_window,name:ems.action_student_kanban model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__attendance_issue_student_ids model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__student_ids model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__student_ids model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__student_line_ids model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__student_ids model:ir.model.fields,field_description:ems.field_ems_group__main_student_ids model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__student_ids model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__target__students model:ir.model.fields.selection,name:ems.selection__ems_notice__recipient_type__students model:ir.ui.menu,name:ems.menu_community_config_students model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_tutor_form model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_student_search model:ir.model.fields,field_description:ems.field_ems_graduation_wizard__line_ids model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__line_ids
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__student_ids model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__student_ids model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
 #: model:ir.ui.menu,name:ems.menu_students_root
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__line_ids
@@ -56593,3 +56593,13 @@ msgstr "reservat per %(user)s el %(day)s de %(start)s a %(end)s"
 #: code:addons/ems/models/facilities/space_availability.py:0
 msgid "in the weekly schedule of %(who)s on %(day)s from %(start)s to %(end)s"
 msgstr "a l'horari setmanal de %(who)s el %(day)s de %(start)s a %(end)s"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_students
+msgid "Student list"
+msgstr "Llistat d'estudiants"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_space_list
+msgid "Space list"
+msgstr "Llistat d'espais"

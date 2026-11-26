@@ -4,7 +4,7 @@
 
 # Reserving a space
 
-Use **Educational Community → Space reservations** to hold a classroom, lab or any other space of the centre for a time, for example a talk, a make-up class or a meeting with families.
+Use **Educational Community → Spaces → Space reservations** to hold a classroom, lab or any other space of the centre for a time, for example a talk, a make-up class or a meeting with families.
 
 ## What counts as taken
 
@@ -12,7 +12,7 @@ A space is taken when it is in someone's weekly timetable at that time (a class 
 
 ## Reserve a space
 
-1. Open **Educational Community → Space reservations**. It opens on the calendar; you can also switch to the list.
+1. Open **Educational Community → Spaces → Space reservations**. It opens on the calendar; you can also switch to the list.
 2. Press **New**.
 3. Fill in **Start** and **Duration**. The **Space** field then only offers the spaces that are free for that time, so there is nothing to check by hand.
 4. Write the **Reason** and save.

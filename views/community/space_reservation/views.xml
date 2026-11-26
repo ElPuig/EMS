@@ -79,5 +79,5 @@
         <field name="context">{'search_default_upcoming': 1}</field>
     </record>
 
-    <menuitem id="menu_space_reservation" name="Space reservations" sequence="8" parent="menu_community" action="action_space_reservation"/>
+    <menuitem id="menu_space_reservation" name="Space reservations" sequence="2" parent="menu_spaces" action="action_space_reservation"/>
 </odoo>

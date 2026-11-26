@@ -4,7 +4,7 @@
 
 # Reservar un espai
 
-Amb **Comunitat Educativa → Reserves d'espais** pots retenir una aula, un laboratori o qualsevol altre espai del centre durant un temps, per exemple per a una xerrada, una classe de recuperació o una reunió amb famílies.
+Amb **Comunitat Educativa → Espais → Reserves d'espais** pots retenir una aula, un laboratori o qualsevol altre espai del centre durant un temps, per exemple per a una xerrada, una classe de recuperació o una reunió amb famílies.
 
 ## Què vol dir que un espai està ocupat
 
@@ -12,7 +12,7 @@ Un espai està ocupat quan és a l'horari setmanal d'algú en aquell moment (una
 
 ## Reservar un espai
 
-1. Obre **Comunitat Educativa → Reserves d'espais**. S'obre al calendari; també pots passar a la llista.
+1. Obre **Comunitat Educativa → Espais → Reserves d'espais**. S'obre al calendari; també pots passar a la llista.
 2. Prem **Nou**.
 3. Omple l'**inici** i la **durada**. El camp **Espai** només t'ofereix els espais lliures en aquell moment, de manera que no cal comprovar res a mà.
 4. Escriu el **motiu** i desa.

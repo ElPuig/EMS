@@ -62,6 +62,7 @@
    'data': [
         'security/groups.xml',
         'security/rules/attendance.xml',
+        'security/rules/facilities.xml',
         'security/rules/quality.xml',
         'security/rules/coexistence.xml',
         'security/rules/erasmus.xml',
@@ -225,6 +226,7 @@
             'views/community/space/list.xml',
             'views/community/space/search.xml',
             'views/community/space/form.xml',            
+            'views/community/space_reservation/views.xml',
 
             'views/community/space_type/list.xml',
             'views/community/space_type/form.xml',
@@ -688,6 +690,7 @@
             # no longer loads: its console error would fail every EMS tour.
             ('remove', 'sign_oca/static/src/tests/sign_tour.esm.js'),
             'ems/static/tests/tours/quality_tour.js',
+            'ems/static/tests/tours/space_reservation_tour.js',
             'ems/static/tests/tours/minute_tour.js',
             'ems/static/tests/tours/minute_thread_tour.js',
             'ems/static/tests/tours/**/*',

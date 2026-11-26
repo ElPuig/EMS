@@ -80,6 +80,8 @@ from . import test_group_change_log
 from . import test_space
 from . import test_space_schedule
 from . import test_space_schedule_tour
+from . import test_space_reservation
+from . import test_space_reservation_tour
 from . import test_group_tour
 from . import test_attendance_template
 from . import test_attendance_schedule

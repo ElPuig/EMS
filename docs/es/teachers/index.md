@@ -37,6 +37,7 @@ Esta sección contiene los manuales para los **profesores**.
 | [Valorar planes de movilidad Erasmus+](erasmus-plan-ratings.md) | Cómo valora la comisión de la convocatoria del personal los planes de movilidad con la rúbrica de la convocatoria |
 | [Acompañar una movilidad de grupo Erasmus+](erasmus-group-mobility.md) | Qué hace el docente responsable (la selección, los documentos, el seguimiento, la EU Survey) y el docente acompañante |
 | [Actas de reunión](minutes.md) | Redactar actas de departamento, claustro, equipo docente o equipo de mejora, con los asistentes y los acuerdos arrastrados automáticamente |
+| [Reservar un espacio](space-reservation.md) | Reservar un aula u otro espacio libre durante un tiempo; el aula de una reunión cuenta como una reserva |
 
 > ¿Eres jefe de departamento o de seminario? Tus manuales (organizar las ausencias, comunicados a los grupos de tu departamento) están en [Jefes de departamento y de seminario](../department_chiefs/index.md).
 

@@ -84,6 +84,10 @@ class EmsMinute(models.Model):
     space_id = fields.Many2one(string="Room", comodel_name="ems.space")
     place_text = fields.Char(string="Place", help="For a meeting held somewhere that is not a room of the centre: a video call, a mailing list.")
     place_name = fields.Char(string="Where", compute="_compute_place_name")
+    # The room is held through a reservation of its own (issue #475), so a meeting and a teacher
+    # asking for the same room go through the same check. See '_ems_sync_space_reservation'.
+    space_reservation_ids = fields.One2many(
+        string="Room reservation", comodel_name="ems.space_reservation", inverse_name="minute_id", copy=False)
 
     # Scope. Exactly one of these is meaningful, decided by the type's own scope_kind.
     department_id = fields.Many2one(string="Department", comodel_name="hr.department", tracking=True)
@@ -500,6 +504,7 @@ class EmsMinute(models.Model):
             if not minute.code:
                 minute.code = minute._ems_next_code()
         minutes._ems_sync_presence()
+        minutes._ems_sync_space_reservation()
         return minutes
 
     def write(self, vals):
@@ -519,11 +524,34 @@ class EmsMinute(models.Model):
             self._ems_sync_leaves()
         if {'attendance_mode', 'start_datetime', 'duration', 'space_id'} & set(vals):
             self._ems_sync_presence()
+        if {'start_datetime', 'duration', 'space_id', 'modality'} & set(vals):
+            self._ems_sync_space_reservation()
         if {'state', 'approver_employee_id', 'approver_role_id'} & set(vals):
             self._ems_sync_approval_task()
         if vals.get('state') == 'approved':
             self._ems_announce_agreements()
         return result
+
+    def _ems_sync_space_reservation(self):
+        """Keeps the room's reservation in line with the meeting: one while it is held in a room
+        (in person or hybrid, with a start and a duration), none otherwise. Written under sudo()
+        for the person who created the minute: whoever edits it later (a secretary, an approver)
+        did not ask for the room. A room that is taken makes the save fail, with the reservation's
+        own message."""
+        Reservation = self.env['ems.space_reservation'].sudo()
+        for minute in self:
+            wanted = minute.space_id and minute.modality in ('in-person', 'hybrid') \
+                and minute.start_datetime and minute.duration > 0
+            reservation = minute.space_reservation_ids
+            if not wanted:
+                reservation.sudo().unlink()
+                continue
+            vals = {'space_id': minute.space_id.id, 'start_datetime': minute.start_datetime,
+                    'duration': minute.duration, 'reason': minute.display_name}
+            if reservation:
+                reservation.sudo().write(vals)
+            else:
+                Reservation.create({**vals, 'minute_id': minute.id, 'user_id': minute.create_uid.id})
 
     def _ems_link_annex_files(self):
         """A file uploaded while the minute was still unsaved belongs to no record, so only whoever

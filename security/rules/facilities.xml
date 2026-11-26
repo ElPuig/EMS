@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- ems.space_reservation: everybody reads every reservation (it is how a space is seen as taken);
+         a teacher changes only their own, never the one a meeting made (it follows its minute); the
+         secretariat and the administrator change any. -->
+    <record id="rule_space_reservation_read" model="ir.rule">
+        <field name="name">Space reservation: read all</field>
+        <field name="model_id" ref="ems.model_ems_space_reservation"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher')), (4, ref('ems.group_secretary')), (4, ref('ems.group_academic_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_space_reservation_teacher" model="ir.rule">
+        <field name="name">Space reservation: a teacher changes their own</field>
+        <field name="model_id" ref="ems.model_ems_space_reservation"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('user_id', '=', user.id), ('minute_id', '=', False)]</field>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_space_reservation_manager" model="ir.rule">
+        <field name="name">Space reservation: the secretariat and the administrator change any</field>
+        <field name="model_id" ref="ems.model_ems_space_reservation"/>
+        <field name="groups" eval="[(4, ref('ems.group_secretary')), (4, ref('ems.group_academic_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+</odoo>

@@ -37,6 +37,7 @@ This section contains the manuals for **teachers**.
 | [Rating Erasmus+ mobility plans](erasmus-plan-ratings.md) | How the panel of the staff call rates the mobility plans with the rubric of the call |
 | [Accompanying an Erasmus+ group mobility](erasmus-group-mobility.md) | What the leader teacher does (the selection, the documents, the follow-up, the EU Survey) and what the accompanying teacher does |
 | [Meeting minutes](minutes.md) | Writing department, staff meeting, teaching team or improvement team minutes, with attendees and agreements carried over automatically |
+| [Reserving a space](space-reservation.md) | Reserve a free classroom or other space for a time; a meeting's room counts as a reservation |
 
 > Are you a Department or Seminar Chief? Your own manuals (organising absences, notices to your department's groups) are in [Department and Seminar Chiefs](../department_chiefs/index.md).
 

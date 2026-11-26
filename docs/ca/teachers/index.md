@@ -37,6 +37,7 @@ Aquesta secció conté els manuals per als **professors**.
 | [Valorar plans de mobilitat Erasmus+](erasmus-plan-ratings.md) | Com valora la comissió de la convocatòria del personal els plans de mobilitat amb la rúbrica de la convocatòria |
 | [Acompanyar una mobilitat de grup Erasmus+](erasmus-group-mobility.md) | Què fa el docent responsable (la selecció, els documents, el seguiment, l'EU Survey) i el docent acompanyant |
 | [Actes de reunió](minutes.md) | Redactar actes de departament, claustre, equip docent o equip de millora, amb els assistents i els acords arrossegats automàticament |
+| [Reservar un espai](space-reservation.md) | Reservar una aula o un altre espai lliure durant un temps; l'aula d'una reunió compta com una reserva |
 
 > Ets cap de departament o de seminari? Els teus manuals (organitzar les absències, comunicats als grups del teu departament) són a [Caps de departament i de seminari](../department_chiefs/index.md).
 

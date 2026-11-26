@@ -100,6 +100,17 @@
             <field name="visible">True</field>
         </record>
 
+        <!-- Issue #865: the management team (Director, Heads of Studies, Secretary...) as a body,
+             assigned by hand on top of each member's own role, which never says on its own who
+             sits on it. Granted the staff walkout report; the Director always belongs to it. -->
+        <record model="ir.module.category" id="category_management_team">
+            <field name="name">Management team</field>
+            <field name="description">Educational Management System - Management team</field>
+            <field name="parent_id" ref="ems.category_main"/>
+            <field name="sequence">8</field>
+            <field name="visible">True</field>
+        </record>
+
         <record model="ir.module.category" id="category_orientation">
             <field name="name">Guidance</field>
             <field name="description">Educational Management System - Guidance (Orientació)</field>
@@ -193,6 +204,13 @@
             ]"/>
         </record>
 
+        <record model="res.groups" id="group_management_team">
+            <field name="name">Member</field>
+            <field name="comment">Member of the management team: the staff walkout report and its control sheet.</field>
+            <field name="category_id" ref="ems.category_management_team"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
         <!-- Head of Studies plus every employee's attendance centre-wide (issue #543): the
              Director is above every branch, so they keep hr_attendance's Administrator group,
              which the Head of Studies no longer has. -->
@@ -203,6 +221,7 @@
             <field name="implied_ids" eval="[
                 (4, ref('ems.group_head_of_studies')),
                 (4, ref('hr_attendance.group_hr_attendance_manager')),
+                (4, ref('ems.group_management_team')),
             ]"/>
         </record>
 

@@ -645,6 +645,7 @@ ROLE_GROUP_XMLIDS = {
     'erasmus': 'ems.group_erasmus',
     'erasmus_coordinator': 'ems.group_erasmus_coordinator',
     'vet_coordinator': 'ems.group_vet_coordinator',
+    'management_team': 'ems.group_management_team',
 }
 
 

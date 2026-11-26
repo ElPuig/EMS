@@ -58,9 +58,7 @@ class EmsStaffWalkoutReport(models.TransientModel):
         local_now = utils.get_local_datetime()
         if self.date > local_now.date():
             raise UserError(_("Choose today or a day already over."))
-        holiday = self.env['resource.calendar.leaves']._ems_public_holiday_on(self.date)
-        if holiday:
-            raise UserError(_("%s is a public holiday.", holiday.name))
+        self._check_not_public_holiday()
         now = utils.time_to_float(local_now) if self.date == local_now.date() else 24.0
         staff = self.env['hr.employee'].sudo().search([
             ('employee_type', 'in', ('teacher', 'asp')), ('schedule_import_code', '=', False)])
@@ -79,6 +77,11 @@ class EmsStaffWalkoutReport(models.TransientModel):
             'on_walkout': int(employee.id in on_walkout and on_walkout[employee.id] <= hour_from + HOUR_EPSILON),
         } for hour_from, hour_to in zip(bounds, bounds[1:]) if hour_from <= now + HOUR_EPSILON
             for employee in staff if employee.id in expected and expected[employee.id] <= hour_from + HOUR_EPSILON]
+
+    def _check_not_public_holiday(self):
+        holiday = self.env['resource.calendar.leaves']._ems_public_holiday_on(self.date)
+        if holiday:
+            raise UserError(_("%s is a public holiday.", holiday.name))
 
     def _get_start_hours(self, staff, periods, now):
         """Two `{employee.id: hour}`: from when each of `staff` was expected to work (the start of

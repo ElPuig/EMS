@@ -11,6 +11,7 @@
                 <form string="Staff walkouts">
                     <group>
                         <field name="date"/>
+                        <field name="area_id" placeholder="All teaching areas" options="{'no_create': True, 'no_open': True}"/>
                     </group>
                     <p class="text-muted">
                         Staff on walkout so far that day: whoever has not checked in at all, counted
@@ -18,8 +19,15 @@
                         absence request covering it (approved or waiting for approval) are not
                         counted, and every figure adds up the earlier ones.
                     </p>
+                    <p class="text-muted">
+                        Control sheet: an .xlsx to print and note down who comes, with every teacher of
+                        the area once, in the first period of their schedule that day, and what they have
+                        then. Any day can be chosen, also before it starts.
+                    </p>
                     <footer>
                         <button name="action_open_report" type="object" string="Show" class="btn-primary"/>
+                        <button name="action_download_control_sheet" type="object" string="Control sheet (xlsx)"
+                                class="btn-secondary" icon="fa-download"/>
                         <button string="Cancel" special="cancel" class="btn-secondary"/>
                     </footer>
                 </form>
@@ -80,9 +88,22 @@
             <field name="target">new</field>
         </record>
 
+        <!-- Issue #865: the management team reaches this report through Absences > Reporting,
+             which Odoo keeps for Time Off officers: a member who is not one (the Secretary, say)
+             gets that header too, and the other reports under it keep the officers only. -->
+        <record model="ir.ui.menu" id="hr_holidays.menu_hr_holidays_report">
+            <field name="groups_id" eval="[(4, ref('ems.group_management_team'))]"/>
+        </record>
+        <record model="ir.ui.menu" id="hr_holidays.menu_hr_available_holidays_report_tree">
+            <field name="groups_id" eval="[(4, ref('hr_holidays.group_hr_holidays_user'))]"/>
+        </record>
+        <record model="ir.ui.menu" id="hr_holidays.menu_hr_holidays_summary_all">
+            <field name="groups_id" eval="[(4, ref('hr_holidays.group_hr_holidays_user'))]"/>
+        </record>
+
         <menuitem id="menu_staff_walkout_report" name="Staff walkouts" sequence="2"
                   parent="hr_holidays.menu_hr_holidays_report"
-                  action="action_staff_walkout_report" groups="ems.group_director"/>
+                  action="action_staff_walkout_report" groups="ems.group_management_team"/>
 
     </data>
 </odoo>

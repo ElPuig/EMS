@@ -2,7 +2,7 @@
 
 import { registry } from "@web/core/registry";
 
-// Issue #813: the Director chooses a day in the dialog and the figures open as a pivot (one row
+// Issue #813: a member of the management team (issue #865) chooses a day in the dialog and the figures open as a pivot (one row
 // per period, one column per staff type and contract type), whose figures open the names.
 registry.category("web_tour.tours").add("ems_staff_walkout_report", {
     test: true,
@@ -11,6 +11,14 @@ registry.category("web_tour.tours").add("ems_staff_walkout_report", {
         {
             trigger: ".modal .o_field_widget[name='date'] input",
             content: "The dialog opens on a day",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='area_id'] input",
+            content: "The control sheet's area can be chosen (issue #865)",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_download_control_sheet']",
+            content: "The control sheet can be downloaded",
         },
         {
             trigger: ".modal .modal-footer .btn-primary",

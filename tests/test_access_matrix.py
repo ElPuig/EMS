@@ -19,12 +19,15 @@ ACCESS_MATRIX = {
     # administrators delete one; everybody else discards it (Discard, for its reviewers).
     'ems.absence_pending': {
         'teacher': 'r', 'department_chief': 'rwc', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
-    # Issue #813: the walkout report is the Director's (and the administrator's, above them), who
-    # reports the figures to the Departament; nobody else sees who is on walkout.
+    # Issue #813: the walkout report, whose figures the Director reports to the Departament. Issue
+    # #865: for the whole management team (the Director always on it), assigned by hand; a Head of
+    # Studies or the Secretary who is not on it does not see who is on walkout.
     'ems.staff_walkout_report': {
-        'teacher': '', 'head_of_studies': '', 'secretary': '', 'director': 'rwc', 'academic_admin': 'rwc'},
+        'teacher': '', 'head_of_studies': '', 'secretary': '', 'management_team': 'rwc', 'director': 'rwc',
+        'academic_admin': 'rwc'},
     'ems.staff_walkout_report.line': {
-        'teacher': '', 'head_of_studies': '', 'secretary': '', 'director': 'rc', 'academic_admin': 'rc'},
+        'teacher': '', 'head_of_studies': '', 'secretary': '', 'management_team': 'rc', 'director': 'rc',
+        'academic_admin': 'rc'},
     # Issue #818: Discard asks why, for whoever reviews detected absences; the Heads of Studies
     # and the administrator maintain the reasons, which only the administrator deletes.
     'ems.absence_pending.discard_wizard': {

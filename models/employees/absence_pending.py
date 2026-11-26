@@ -732,18 +732,23 @@ class EmsAbsencePending(models.Model):
     # --- Missing check-ins (issue #696) -----------------------------------------------------------
 
     @api.model
-    def _ems_scheduled_periods(self, day, employees):
-        """`{employee.id: [(hour_from, hour_to)]}`: each of `employees`' own schedule periods on
-        `day`, in the company's hours, read as the guard duty board reads them (no lunch, the
-        right week of a two-week schedule). sudo: only hours leave this method."""
+    def _ems_scheduled_slots(self, day, employees):
+        """`employees`' own schedule slots (resource.calendar.attendance) on `day`, read as the
+        guard duty board reads them (no lunch, the right week of a two-week schedule). sudo: the
+        callers only let hours, or what a walkout control sheet shows (issue #865), out of it."""
         week_type = str(self.env['resource.calendar.attendance'].get_week_type(day))
         slots = self.env['ems.course'].sudo()._get_guard_duty_board_attendance_ids([
             ('dayofweek', '=', str(day.weekday())), ('calendar_id.employee_id', 'in', employees.ids),
             ('display_type', '=', False), ('day_period', '!=', 'lunch')])
+        return slots.filtered(lambda slot: not (slot.two_weeks_calendar and slot.week_type != week_type))
+
+    @api.model
+    def _ems_scheduled_periods(self, day, employees):
+        """`{employee.id: [(hour_from, hour_to)]}`: each of `employees`' own schedule periods on
+        `day`, in the company's hours (see _ems_scheduled_slots)."""
         periods = defaultdict(list)
-        for slot in slots:
-            if not (slot.two_weeks_calendar and slot.week_type != week_type):
-                periods[slot.calendar_id.employee_id.id].append((slot.hour_from, slot.hour_to))
+        for slot in self._ems_scheduled_slots(day, employees):
+            periods[slot.calendar_id.employee_id.id].append((slot.hour_from, slot.hour_to))
         return periods
 
     def _ems_missed_spans(self, covered=()):

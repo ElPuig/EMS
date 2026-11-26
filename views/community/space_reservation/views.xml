@@ -6,36 +6,40 @@
         <field name="arch" type="xml">
             <form string="Reserve a space">
                 <group>
+                    <field name="mode" widget="radio"/>
+                </group>
+                <group>
                     <group>
-                        <field name="date"/>
-                        <field name="start_time" widget="float_time"/>
-                        <field name="duration" widget="float_time"/>
+                        <field name="date" required="mode == 'date'" invisible="mode != 'date'"/>
+                        <field name="space_id" required="mode == 'space'" invisible="mode != 'space'"
+                               options="{'no_create': True, 'no_open': True}"/>
+                        <field name="date_from" required="mode == 'space'" invisible="mode != 'space'"/>
+                        <field name="date_to" required="mode == 'space'" invisible="mode != 'space'"/>
+                        <field name="space_type_id" invisible="mode != 'date'" options="{'no_create': True, 'no_open': True}"/>
                     </group>
                     <group>
-                        <field name="space_type_id" options="{'no_create': True, 'no_open': True}" invisible="space_id"/>
-                        <field name="space_id" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="start_time" widget="float_time"/>
+                        <field name="duration" widget="float_time"/>
                         <field name="reason"/>
                     </group>
                 </group>
-                <field name="space_is_free" invisible="1"/>
-                <field name="start_datetime" invisible="1"/>
-                <field name="line_ids" invisible="space_id or not line_ids" nolabel="1">
-                    <list create="false" delete="false" edit="false" no_open="1">
-                        <field name="space_id"/>
-                        <field name="space_type_id"/>
-                        <button name="action_reserve" type="object" string="Reserve" icon="fa-calendar-plus-o" class="btn-link"/>
+                <field name="line_ids" invisible="not line_ids" nolabel="1">
+                    <list create="false" delete="false" edit="false" no_open="1" decoration-muted="not is_free and not space_id">
+                        <field name="space_id" column_invisible="parent.mode != 'date'"/>
+                        <field name="space_type_id" column_invisible="parent.mode != 'date'"/>
+                        <field name="date" column_invisible="parent.mode != 'space'"/>
+                        <field name="weekday" column_invisible="parent.mode != 'space'"/>
+                        <field name="is_free" column_invisible="parent.mode != 'space'" widget="boolean"/>
+                        <field name="detail" column_invisible="parent.mode != 'space'"/>
+                        <button name="action_reserve" type="object" string="Reserve" icon="fa-calendar-plus-o" class="btn-link"
+                                invisible="parent.mode == 'space' and not is_free"/>
                     </list>
                 </field>
-                <div invisible="not space_id">
-                    <div class="alert alert-success" role="status" invisible="not space_is_free">The space is free for this time.</div>
-                    <div class="alert alert-warning" role="alert" invisible="space_is_free">The space is taken for this time.</div>
-                    <field name="occupation_html" nolabel="1"/>
-                </div>
                 <footer>
-                    <button name="action_search" type="object" string="Search free spaces" class="btn-primary"
-                            invisible="space_id"/>
-                    <button name="action_reserve" type="object" string="Reserve" class="btn-primary"
-                            invisible="not space_id or not space_is_free"/>
+                    <button name="action_search" type="object" class="btn-primary"
+                            string="Search free spaces" invisible="mode != 'date'"/>
+                    <button name="action_search" type="object" class="btn-primary"
+                            string="Search free days" invisible="mode != 'space'"/>
                     <button special="cancel" string="Close"/>
                 </footer>
             </form>

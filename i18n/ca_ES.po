@@ -1026,7 +1026,6 @@ msgstr "Falta justificada per: "
 msgid "The completion date must be later than the start date."
 msgstr "La data de finalització ha de ser posterior a la data d'inici."
 
-
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__abstent_ids
 msgid "Abstents"
@@ -17954,7 +17953,6 @@ msgstr "Això assigna una contrasenya nova al compte de Google de l'alumne: l'ac
 msgid "Users acting as tutor"
 msgstr "Usuaris que actuen com a tutor"
 
-
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/enrollment/enrollment.py:0
@@ -21916,6 +21914,7 @@ msgstr "sessió(ns) de l'horari personalitzat d'aquest alumne ja no consten a l'
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__date
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__day
 #: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__date
+#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard_line__date
 msgid "Day"
 msgstr "Dia"
 
@@ -33044,6 +33043,7 @@ msgstr "Resolta el"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
 #: code:addons/ems/models/erasmus/quality.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_staff_form
+#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__line_ids
 msgid "Results"
 msgstr "Resultats"
 
@@ -48471,6 +48471,7 @@ msgstr "Subvenció"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_support_rate_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
+#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__date_from
 msgid "From"
 msgstr "Des de"
 
@@ -48632,6 +48633,7 @@ msgstr "Equip i participant"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
+#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__date_to
 msgid "To"
 msgstr "Fins a"
 
@@ -54172,7 +54174,6 @@ msgstr "La persona sol·licitant ha actualitzat les seves dades."
 msgid "Complete the data"
 msgstr "Completar les dades"
 
-
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/certificates/certificate.py:0
@@ -55242,7 +55243,6 @@ msgstr "El document adjunt no justifica la proposta"
 msgid "Student walkout on {{ format_date(object.walkout_date) }}: {{ object.group_id.name }}"
 msgstr "Inassistència col·lectiva del {{ format_date(object.walkout_date) }}: {{ object.group_id.name }}"
 
-
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__not_expected_reason__walkout
 msgid "Student walkout"
@@ -56152,7 +56152,6 @@ msgstr "Pot traspassar la tutoria"
 msgid "Conflict"
 msgstr "Conflicte"
 
-
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_portal_access_result_line__contact_id
 msgid "Contact without access"
@@ -56617,6 +56616,7 @@ msgstr "Llistat d'espais"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_space__reservable
+#: model:ir.model.fields,field_description:ems.field_ems_space_type__reservable
 msgid "Reservable"
 msgstr "Reservable"
 
@@ -56624,31 +56624,6 @@ msgstr "Reservable"
 #: model:ir.model.fields,help:ems.field_ems_space__reservable
 msgid "Whether a teacher can reserve it. Untick it for the spaces that are not to be reserved (services...)."
 msgstr "Indica si el professorat el pot reservar. Desmarqueu-la als espais que no s'han de reservar (serveis...)."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__line_ids
-msgid "Free spaces"
-msgstr "Espais lliures"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__occupation_html
-msgid "That day"
-msgstr "Aquell dia"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__start_datetime
-msgid "Starts at"
-msgstr "Comença a les"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__space_is_free
-msgid "Space is free"
-msgstr "L'espai és lliure"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_space_reservation_wizard__space_id
-msgid "Leave it empty to see the spaces that are free; choose one to see what holds it that day."
-msgstr "Deixeu-lo buit per veure els espais lliures; trieu-ne un per veure què l'ocupa aquell dia."
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_space_reservation_wizard
@@ -56660,26 +56635,6 @@ msgstr "Reservar un espai"
 #: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_wizard_form
 msgid "Search free spaces"
 msgstr "Cerca espais lliures"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_wizard_form
-msgid "The space is free for this time."
-msgstr "L'espai és lliure en aquest horari."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_wizard_form
-msgid "The space is taken for this time."
-msgstr "L'espai està ocupat en aquest horari."
-
-#. module: ems
-#: model:ir.model,name:ems.model_ems_space_reservation_wizard
-msgid "Reserve a space: by date (the free spaces) or by space (what holds it)."
-msgstr "Reservar un espai: per data (els espais lliures) o per espai (què l'ocupa)."
-
-#. module: ems
-#: model:ir.model,name:ems.model_ems_space_reservation_wizard_line
-msgid "A space that is free for the span chosen in the reservation wizard."
-msgstr "Un espai lliure per a l'interval triat a l'assistent de reserva."
 
 #. module: ems
 #. odoo-python
@@ -56712,7 +56667,84 @@ msgid "Weekly schedule: %(who)s"
 msgstr "Horari setmanal: %(who)s"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard_line__detail
+msgid "What holds it"
+msgstr "Què l'ocupa"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard_line__is_free
+msgid "Is free"
+msgstr "És lliure"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard_line__weekday
+msgid "Day of the week"
+msgstr "Dia de la setmana"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__mode
+msgid "Search by"
+msgstr "Cerca per"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_space_reservation_wizard__mode__date
+msgid "Date: which spaces are free"
+msgstr "Data: quins espais són lliures"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_space_reservation_wizard__mode__space
+msgid "Space: which days it is free"
+msgstr "Espai: quins dies és lliure"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_wizard_form
+msgid "Search free days"
+msgstr "Cerca dies lliures"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_space_reservation_wizard__space_type_id
+msgid "Narrows the spaces looked at to those of this type."
+msgstr "Redueix la cerca als espais d'aquest tipus."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_space_type__reservable
+msgid "Whether the spaces of this type can be reserved. Untick it for the types that are never reserved (WC...): they are not offered when searching for a space either."
+msgstr "Indica si es poden reservar els espais d'aquest tipus. Desmarqueu-la als tipus que mai no es reserven (WC...): tampoc no s'ofereixen en cercar un espai."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_space_reservation_wizard
+msgid "Reserve a space: by date (the free spaces) or by space (the days it is free)."
+msgstr "Reservar un espai: per data (els espais lliures) o per espai (els dies que és lliure)."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_space_reservation_wizard_line
+msgid "A result of the reservation wizard: a free space, or a day a space is free or not."
+msgstr "Un resultat de l'assistent de reserva: un espai lliure, o un dia que un espai és lliure o no."
+
+#. module: ems
 #. odoo-python
 #: code:addons/ems/models/facilities/space_reservation_wizard.py:0
-msgid "Nothing holds this space that day."
-msgstr "Cap activitat ocupa aquest espai aquell dia."
+msgid "Choose a space."
+msgstr "Tria un espai."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/facilities/space_reservation_wizard.py:0
+msgid "Choose a range of days: the last one cannot be before the first one."
+msgstr "Tria un interval de dies: l'últim no pot ser anterior al primer."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/facilities/space_reservation_wizard.py:0
+msgid "Choose at most %(days)s days at a time."
+msgstr "Tria com a màxim %(days)s dies cada vegada."
+
+#. module: ems
+#: model:ems.space_type,name:ems.space_type_warehouse
+msgid "Warehouse"
+msgstr "Magatzem"
+
+#. module: ems
+#: model:ems.space_type,name:ems.space_type_wc
+msgid "WC"
+msgstr "WC"

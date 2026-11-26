@@ -22,3 +22,4 @@ class TestSpaceReservationTour(HttpCase):
             'start_datetime': self.env['ems.datetime_utils'].local_datetime_to_utc(now + timedelta(hours=1.5)).replace(tzinfo=None),
         })
         self.start_tour("/odoo", "ems_space_reservation", login="test_teacher_space_reservation_tour")
+        self.start_tour("/odoo", "ems_space_reservation_by_space", login="test_teacher_space_reservation_tour")

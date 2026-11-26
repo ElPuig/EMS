@@ -6,6 +6,7 @@
             <field name="arch" type="xml">
                 <list expand="True" default_order="name asc">                           
                     <field name="name"/>
+                    <field name="reservable"/>
                 </list>
             </field>
         </record>        

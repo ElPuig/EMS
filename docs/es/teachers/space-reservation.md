@@ -12,12 +12,12 @@ Un espacio está ocupado cuando está en el horario semanal de alguien en ese mo
 
 ## Reservar un espacio
 
-Pulsa **Nuevo** en la lista de reservas. Se abre una ventana: indica el **día**, el **inicio** y la **duración**, y elige cómo quieres encontrar el espacio.
+Pulsa **Nuevo** en la lista de reservas. Se abre una ventana y lo primero que debes elegir es **Buscar por**:
 
-- **Necesito un espacio libre:** deja **Espacio** vacío (puedes acotarlo con el **tipo**) y pulsa **Buscar espacios libres**. La ventana lista los espacios libres en ese momento. Escribe el **motivo** y pulsa **Reservar** en el que quieras.
-- **Necesito este espacio:** elígelo en **Espacio**. La ventana te indica si está libre en ese momento y lista todo lo que lo ocupa ese día, clases del alumnado incluidas, con las horas. Si está libre, escribe el **motivo** y pulsa **Reservar**.
+- **Fecha: qué espacios están libres** - cuando sabes el día y la hora pero no el espacio. Indica el **día**, el **inicio** y la **duración** (puedes acotarlo con el **tipo**) y pulsa **Buscar espacios libres**. La ventana lista los espacios libres en ese momento. Escribe el **motivo** y pulsa **Reservar** en el que quieras.
+- **Espacio: qué días está libre** - cuando necesitas un espacio concreto (el salón de actos, por ejemplo) y te va bien cualquier día. Elige el **espacio**, el intervalo de días (**Desde** y **Hasta**, hasta dos meses), el **inicio** y la **duración**, y pulsa **Buscar días libres**. La ventana lista cada día del intervalo, con el día de la semana: en los días libres puedes pulsar **Reservar**; en los demás te indica qué lo ocupa y cuándo (una clase, otra reserva).
 
-No se puede reservar una hora que ya ha empezado. Si después de buscar cambias el día, la hora o la duración, vuelve a buscar.
+No se puede reservar una hora que ya ha empezado. Si cambias cualquier cosa después de buscar, vuelve a buscar.
 
 ## Tus reservas
 

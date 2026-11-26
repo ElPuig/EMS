@@ -12,12 +12,12 @@ A space is taken when it is in someone's weekly timetable at that time (a class 
 
 ## Reserve a space
 
-Press **New** on the list of reservations. A window opens: enter the **day**, the **start** and the **duration**, then choose how to find the space.
+Press **New** on the list of reservations. A window opens and the first thing to choose is **Search by**:
 
-- **I need a free space:** leave **Space** empty (you can narrow it by **Type**) and press **Search free spaces**. The window lists the spaces that are free at that time. Write a **reason** and press **Reserve** on the one you want.
-- **I need this space:** choose it in **Space**. The window tells you whether it is free at that time and lists everything that holds it that day, classes of the students included, with the hours. If it is free, write a **reason** and press **Reserve**.
+- **Date: which spaces are free** - for when you know the day and the time but not the space. Enter the **day**, the **start** and the **duration** (you can narrow it by **Type**) and press **Search free spaces**. The window lists the spaces that are free at that time. Write a **reason** and press **Reserve** on the one you want.
+- **Space: which days it is free** - for when you need one space (the assembly hall, say) and any day will do. Choose the **space**, the range of days (**From** and **To**, up to two months), the **start** and the **duration**, and press **Search free days**. The window lists every day of the range, with the weekday: for the days it is free you can press **Reserve**; for the others it says what holds it and when (a class, another reservation).
 
-You cannot reserve a time that has already started. If you change the day, the time or the duration after searching, search again.
+You cannot reserve a time that has already started. If you change anything after searching, search again.
 
 ## Your reservations
 

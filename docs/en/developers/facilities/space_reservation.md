@@ -43,20 +43,31 @@ flowchart LR
 ## The reservation wizard (`ems.space_reservation_wizard`)
 
 The list's **New** button (`display="always"` header button, the list has `create="false"`) opens the
-wizard instead of the form. Day, start and duration are always asked; then either:
+wizard instead of the form. The first field is `mode`:
 
-- **By date** (no space chosen): *Search free spaces* (`action_search`) writes one
-  `ems.space_reservation_wizard.line` per reservable space that is free (optionally of one type) and
-  reopens the wizard. The lines are real records, not a computed list: a row's *Reserve* button
-  needs a record to call (a computed one2many holds virtual rows and the button did nothing).
-  Changing day, start, duration, type or space drops the lines (`write`).
-- **By space**: the chosen space's `space_is_free` and `occupation_html` (everything that holds it
-  that day, from `_get_space_busy`, classes included) are computed live.
+- **By date** (`date`): day, start, duration and optionally a type. *Search free spaces* writes one
+  `ems.space_reservation_wizard.line` per reservable space (of that type) that is free.
+- **By space** (`space`): a space, `date_from`..`date_to` (at most 62 days), start and duration.
+  *Search free days* writes one line per day (never before today, nor a slot already started) with
+  the weekday, whether it is free and, if not, what holds the slot (`detail`: reservation or
+  weekly schedule, with hours). The whole range is asked once from `_get_space_busy` and the days
+  are checked in memory.
 
-`Reserve` creates the reservation (never in the past) and opens it. A space with `reservable` off
-(services...) is never offered and is refused by the reservation, except when a meeting holds it.
-Calendar view: not offered. A calendar of 7 simultaneous reservations is unreadable, and the
-questions asked are answered by the two modes above.
+The lines are real records, not a computed list: a row's *Reserve* button needs a record to call (a
+computed one2many holds virtual rows and the button did nothing). Changing anything the search
+depends on drops the lines (`write`), so a stale answer is never shown. *Reserve* (on a row)
+creates the reservation (never in the past) and opens it.
+
+Not reservable: `ems.space_type.reservable` (WC...) decides it for the spaces of the type through
+`ems.space.reservable`, a stored compute that can still be set on one space. A non-reservable space
+is never offered, its type is not offered in the type filter, and a reservation on it is refused
+(except a meeting's, which may hold any room). The catalogue (`data/main/ems.space_type.csv`)
+carries `Warehouse` and `WC` (not reservable) so they translate; `migrations/18.0.0.53.0/pre-migrate.py`
+gives their xmlids to the ones an installation made by hand, before the data loads, so the
+catalogue does not add a second one.
+
+Calendar view: not offered. Seven simultaneous reservations are unreadable side by side, and the two
+modes answer what is asked.
 
 ## What holds a space (`ems.space._get_space_busy` / `_get_space_conflicts`)
 
@@ -75,7 +86,8 @@ is a fact about the whole centre, not about what the acting user may read.
 Cost: two searches for any number of spaces, plus one block search per calendar day the span
 touches (almost always one). Measured on this box's data (85 spaces, 1,679 blocks with a space,
 `odoo shell`): cold 18 ms / 12 queries for a one-hour span, 21 ms / 6 queries for a whole day;
-warm 3-8 ms / 2 queries. `available_space_ids` cold: 12 ms.
+warm 3-8 ms / 2 queries. The wizard: free spaces for a slot, 21 ms cold / 10 queries (36 spaces
+free); the days of the busiest space over 62 days, 55 ms cold / 16 queries, 44 ms warm.
 
 Weekly blocks are the single schedule source on purpose: they are what the space's own
 *Schedule* tab shows. `ems.attendance_schedule` is derived from them (bottom-up sync) and is not

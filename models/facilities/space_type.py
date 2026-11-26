@@ -8,3 +8,6 @@ class EmsSpaceType(models.Model):
 	_order = "name"
 
 	name = fields.Char(string="Name", translate=True, required=True)
+	reservable = fields.Boolean(
+		string="Reservable", default=True,
+		help="Whether the spaces of this type can be reserved. Untick it for the types that are never reserved (WC...): they are not offered when searching for a space either.")

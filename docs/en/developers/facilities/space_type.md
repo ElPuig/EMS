@@ -17,6 +17,7 @@ The model had a stale `# TODO: config page in facilities to manage this model` c
 | Field | Type | Required | Stored | Description |
 |-------|------|----------|--------|-------------|
 | `name` | `Char` | Yes | Yes | Display name (e.g. "Classroom", "Laboratory") |
+| `reservable` | `Boolean` | No | Yes | Whether its spaces can be reserved (default yes; `WC` is not). `ems.space.reservable` follows it, see [space reservation](space_reservation.md) |
 
 `_order = "name"` (added in this DTON pass).
 

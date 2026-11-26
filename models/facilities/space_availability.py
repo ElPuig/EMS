@@ -18,13 +18,51 @@ class EmsSpaceAvailability(models.Model):
         list of dicts, one per holder: 'space_id', 'start' and 'end' (the company's local datetimes),
         'who' (the person, or the calendar when it has none) and 'is_reservation'.
 
-        Two searches for any number of spaces (plus one per calendar day the span touches, almost
-        always one), under sudo(): whether a room is taken is a fact about the whole centre, not
-        about what the acting user may read. Everything that asks whether a space is free goes
-        through here."""
+        Two searches for any number of spaces and any length of span, under sudo(): whether a room
+        is taken is a fact about the whole centre, not about what the acting user may read.
+        Everything that asks whether a space is free goes through here."""
         busy = []
         if not self or not start or not end or start >= end:
             return busy
+        utils = self.env['ems.datetime_utils']
+        tz = utils.current_tz()
+        local = lambda moment: utils.utc_datetime_to_local(UTC.localize(moment))
+        start_local, end_local = local(start), local(end)
+
+        reservations = self.env['ems.space_reservation'].sudo().search([
+            ('space_id', 'in', self.ids),
+            ('start_datetime', '<', end),
+            ('end_datetime', '>', start),
+            ('id', 'not in', (exclude_reservations or self.env['ems.space_reservation']).ids),
+        ])
+        for reservation in reservations:
+            busy.append({
+                'space_id': reservation.space_id.id, 'is_reservation': True, 'who': reservation.user_id.name,
+                'start': local(reservation.start_datetime), 'end': local(reservation.end_datetime)})
+
+        # One search for the whole span, then the days are walked in memory: a span of weeks (the
+        # days a space is free) costs the same two queries as an hour.
+        days = [start_local.date() + timedelta(days=offset) for offset in range((end_local.date() - start_local.date()).days + 1)]
+        blocks = self.env['resource.calendar.attendance'].sudo().with_context(active_test=True).search([
+            ('space_id', 'in', self.ids),
+            ('calendar_id.active', '=', True),
+            ('dayofweek', 'in', sorted({str(day.weekday()) for day in days})),
+            ('non_teaching_is_break', '=', False),
+            '|', ('date_from', '=', False), ('date_from', '<=', days[-1]),
+            '|', ('date_to', '=', False), ('date_to', '>=', days[0]),
+        ])
+        for block in blocks:
+            for day in days:
+                if str(day.weekday()) != block.dayofweek or (block.date_from and block.date_from > day) \
+                        or (block.date_to and block.date_to < day):
+                    continue
+                midnight = datetime.combine(day, time.min, tzinfo=tz)
+                block_start, block_end = midnight + timedelta(hours=block.hour_from), midnight + timedelta(hours=block.hour_to)
+                if block_start < end_local and block_end > start_local:
+                    busy.append({
+                        'space_id': block.space_id.id, 'is_reservation': False,
+                        'who': block.employee_id.name or block.calendar_id.name, 'start': block_start, 'end': block_end})
+        return busy
         utils = self.env['ems.datetime_utils']
         tz = utils.current_tz()
         local = lambda moment: utils.utc_datetime_to_local(UTC.localize(moment))

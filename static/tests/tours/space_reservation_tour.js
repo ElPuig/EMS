@@ -58,3 +58,49 @@ registry.category("web_tour.tours").add("ems_space_reservation", {
         },
     ],
 });
+
+// By space: the days a space is free in a range, and what holds it the days it is not.
+registry.category("web_tour.tours").add("ems_space_reservation_by_space", {
+    test: true,
+    url: "/odoo/action-ems.action_space_reservation",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_list_button_add, .o_list_view button:contains('New')",
+            content: "New opens the reservation wizard",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='mode'] .o_radio_item:contains('which days it is free') input",
+            content: "Search by space",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='space_id'] input",
+            content: "Choose the space",
+            run: "edit Tour Busy",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Tour Busy Space')",
+            content: "Pick it",
+            run: "click",
+        },
+        {
+            trigger: ".modal button[name='action_search']:contains('Search free days')",
+            content: "Search the free days",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row:contains('Reserved by')",
+            content: "The day the space is reserved says who holds it",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row:not(:contains('Reserved by')) button[name='action_reserve']",
+            content: "Reserve a free day",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_form_saved",
+            content: "The reservation is saved and opened",
+        },
+    ],
+});

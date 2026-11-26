@@ -12,12 +12,12 @@ Un espai està ocupat quan és a l'horari setmanal d'algú en aquell moment (una
 
 ## Reservar un espai
 
-Prem **Nou** a la llista de reserves. S'obre una finestra: indica el **dia**, l'**inici** i la **durada**, i tria com vols trobar l'espai.
+Prem **Nou** a la llista de reserves. S'obre una finestra i el primer que has de triar és **Cerca per**:
 
-- **Necessito un espai lliure:** deixa **Espai** buit (pots acotar-lo amb el **tipus**) i prem **Cerca espais lliures**. La finestra llista els espais lliures en aquell moment. Escriu el **motiu** i prem **Reserva** a l'espai que vulguis.
-- **Necessito aquest espai:** tria'l a **Espai**. La finestra t'indica si és lliure en aquell moment i llista tot el que l'ocupa aquell dia, classes de l'alumnat incloses, amb les hores. Si és lliure, escriu el **motiu** i prem **Reserva**.
+- **Data: quins espais són lliures** - quan saps el dia i l'hora però no l'espai. Indica el **dia**, l'**inici** i la **durada** (pots acotar-ho amb el **tipus**) i prem **Cerca espais lliures**. La finestra llista els espais lliures en aquell moment. Escriu el **motiu** i prem **Reserva** a l'espai que vulguis.
+- **Espai: quins dies és lliure** - quan necessites un espai concret (el saló d'actes, per exemple) i et va bé qualsevol dia. Tria l'**espai**, l'interval de dies (**Des de** i **Fins a**, fins a dos mesos), l'**inici** i la **durada**, i prem **Cerca dies lliures**. La finestra llista cada dia de l'interval, amb el dia de la setmana: als dies lliures pots prémer **Reserva**; als altres t'indica què l'ocupa i quan (una classe, una altra reserva).
 
-No es pot reservar una hora que ja ha començat. Si després de cercar canvies el dia, l'hora o la durada, torna a cercar.
+No es pot reservar una hora que ja ha començat. Si canvies qualsevol cosa després de cercar, torna a cercar.
 
 ## Les teves reserves
 

@@ -9,6 +9,9 @@
                         <group string="Main data" col="4">
                             <group>
                                 <field name="name"/>
+                            </group>
+                            <group>
+                                <field name="reservable"/>
                             </group>                                                           
                         </group>                    
                     </sheet>	

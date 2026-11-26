@@ -21,9 +21,15 @@ class EmsSpace(models.Model):
 		string="Location", comodel_name="hr.work.location", required=True,
 		default=lambda self: self.env.ref("ems.work_location_main", raise_if_not_found=False))
 
+	# Follows the type (a WC is never reservable) and can still be changed on the space itself.
 	reservable = fields.Boolean(
-		string="Reservable", default=True,
-		help="Whether a teacher can reserve it. Untick it for the spaces that are not to be reserved (services...).")
+		string="Reservable", compute="_compute_reservable", store=True, readonly=False,
+		help="Whether a teacher can reserve it. It follows its type; untick it for a space that is not to be reserved (a service...).")
+
+	@api.depends('space_type_id.reservable')
+	def _compute_reservable(self):
+		for space in self:
+			space.reservable = space.space_type_id.reservable
 
 	@api.depends('name', 'code')
 	def _compute_display_name(self):

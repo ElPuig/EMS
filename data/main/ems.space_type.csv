@@ -1,6 +1,8 @@
-id,name
-"ems.space_type_classroom","Classroom"
-"ems.space_type_equipment","Equipment"
-"ems.space_type_laboratory","Laboratory"
-"ems.space_type_office","Office"
-"ems.space_type_workshop","Workshop"
+id,name,reservable
+"ems.space_type_classroom","Classroom",1
+"ems.space_type_equipment","Equipment",1
+"ems.space_type_laboratory","Laboratory",1
+"ems.space_type_office","Office",1
+"ems.space_type_workshop","Workshop",1
+"ems.space_type_warehouse","Warehouse",1
+"ems.space_type_wc","WC",0

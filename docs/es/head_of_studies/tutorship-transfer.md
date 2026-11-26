@@ -12,7 +12,7 @@ A veces, un alumno matriculado en 2.º con asignaturas pendientes de 1.º se da 
 
 ## Cómo se traspasa la tutoría
 
-1. Abre la ficha del alumno (**Comunidad educativa → Alumnado**).
+1. Abre la ficha del alumno (**Comunidad educativa → Estudiantes → Listado de estudiantes**).
 2. Ve a la pestaña **Estudios**.
 3. En **Tutoría traspasada a**, elige el grupo al que asiste ahora el alumno (por ejemplo, el grupo de 1.º). Solo se ofrecen grupos del mismo estudio del alumno: de SMX2A a SMX1C, nunca a DAW2A. Deja el **Grupo principal** como está: es el grupo de Esfer@.
 4. Guarda. Ahora **Tutor/a** muestra el tutor del grupo nuevo y **Tutor/a oficial (Esfer@)**, el del grupo principal.

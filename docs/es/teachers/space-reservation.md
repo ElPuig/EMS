@@ -19,7 +19,7 @@ Pulsa **Nuevo** en la lista de reservas. Se abre una ventana y lo primero que de
 
 Los resultados se muestran de diez en diez: usa las flechas de encima de la lista para ver los demás; tu elección se mantiene al cambiar de página.
 
-No se puede reservar una hora que ya ha empezado. Si cambias la hora después de elegir un espacio, la elección se mantiene mientras el espacio siga libre; si ya no lo está, elige otro.
+No se puede reservar una hora que ya ha empezado: la ventana se abre en la próxima hora en punto, y si escribes un día y una hora de inicio que ya han empezado te avisa y borra el día. Si cambias la hora después de elegir un espacio, la elección se mantiene mientras el espacio siga libre; si ya no lo está, elige otro.
 
 ## Tus reservas
 

@@ -18,7 +18,7 @@ La quota es paga una vegada per família: si un germà és soci (comparteix un f
 
 ## Veure-ho a la llista d'estudiants
 
-1. Obre **Comunitat Educativa → Estudiants** i passa a la vista de llista.
+1. Obre **Comunitat Educativa → Estudiants → Llistat d'estudiants** i passa a la vista de llista.
 2. La columna **AMPA** **(1)** diu **Sí** o **No** per a cada alumne.
 
 ![Llista d'estudiants amb la columna AMPA](../../assets/tutors/tutor-ampa-list.png)

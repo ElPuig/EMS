@@ -19,7 +19,7 @@ Press **New** on the list of reservations. A window opens and the first thing to
 
 The results are shown ten at a time: use the arrows above the list to see the others; your choice is kept when you change page.
 
-You cannot reserve a time that has already started. If you change the time after choosing a space, the choice is kept while that space is still free; if it is no longer free, choose another one.
+You cannot reserve a time that has already started: the window opens on the next full hour, and if you type a day and a start that have already begun it warns you and clears the day. If you change the time after choosing a space, the choice is kept while that space is still free; if it is no longer free, choose another one.
 
 ## Your reservations
 

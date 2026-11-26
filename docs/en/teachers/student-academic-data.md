@@ -12,7 +12,7 @@
 
 The academic history is the frozen, per-course record of a student's progress: course, study programme, group, tutor, academic result, title obtained and attendance rate. Any teacher can consult any student's history.
 
-**From the student's file:** Educational Community → Students → *[open the student]* → **Studies** tab, **Academic history** section (at the end).
+**From the student's file:** Educational Community → Students → Student list → *[open the student]* → **Studies** tab, **Academic history** section (at the end).
 
 **From its own menu:** Planning and Grading → Grades → **Academic history**. The list opens grouped by course: click a course to expand it, or type the student's name in the search box.
 
@@ -36,7 +36,7 @@ Holding the **Guidance coordinator** or **Coexistence coordinator** role, you co
 - **Attendance issues** — Student's Attendances → Issues.
 - **Attendance reports** — Student's Attendances → Reports, or the **Attendance** button on a student's file: the absence rate of every student in every subject.
 - **Strikes** — Coexistence.
-- **Student file** — Educational Community → Students, including the **Secretary** tab (bonifications, exemptions and enrolment authorizations).
+- **Student file** — Educational Community → Students → Student list, including the **Secretary** tab (bonifications, exemptions and enrolment authorizations).
 
 All of it is read-only, except the special educational needs for Guidance (see the next section), and it does not include invoices or payments.
 
@@ -46,7 +46,7 @@ All of it is read-only, except the special educational needs for Guidance (see t
 
 Holding the **Guidance coordinator** role, you set the special educational needs (NEE) typology of any student or applicant in the centre:
 
-1. Educational Community → Students → *[open the student]*.
+1. Educational Community → Students → Student list → *[open the student]*.
 2. At the top of the form, in the **Personal data** column, in the **Special educational needs** field, pick **NEE-A** or **NEE-B**, or leave it empty if the student has none.
 3. Click **Save**.
 

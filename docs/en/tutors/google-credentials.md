@@ -55,7 +55,7 @@ The button is only shown if the student has an active Google account. If you can
 
 ## Downloading the credentials of several students at once
 
-1. Go to **Educational Community → Students** and switch to the list view.
+1. Go to **Educational Community → Students → Student list** and switch to the list view.
 2. Tick the students you want (the header checkbox ticks them all).
 3. Open the **Actions** menu and click **Download Google credentials**.
 

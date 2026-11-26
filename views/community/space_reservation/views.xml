@@ -12,7 +12,7 @@
                 <!-- By date -->
                 <group invisible="mode != 'date'">
                     <group>
-                        <field name="date" required="mode == 'date'"/>
+                        <field name="date" required="mode == 'date'" options="{'min_date': 'today'}"/>
                     </group>
                     <group>
                         <field name="space_type_id" options="{'no_create': True, 'no_open': True}"/>
@@ -30,7 +30,7 @@
                 <div class="alert alert-warning" role="alert" invisible="mode != 'date' or duration &gt; 0">
                     The end must be after the start.
                 </div>
-                <div class="alert alert-info" role="alert" invisible="mode != 'date' or duration &lt;= 0 or free_space_ids">
+                <div class="alert alert-info" role="alert" invisible="mode != 'date' or not date or duration &lt;= 0 or free_space_ids">
                     No space is free at that time.
                 </div>
                 <field name="duration" invisible="1"/>

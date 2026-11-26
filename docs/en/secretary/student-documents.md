@@ -67,7 +67,7 @@ The student is notified by email when their document is approved or rejected. Re
 
 ## Downloading Google credentials
 
-To download the Google credentials PDF of several students at once: in **Educational Community → Students**, list view, tick the students, open **Actions** and click **Download Google credentials**. A ZIP with one PDF per student is downloaded.
+To download the Google credentials PDF of several students at once: in **Educational Community → Students → Student list**, list view, tick the students, open **Actions** and click **Download Google credentials**. A ZIP with one PDF per student is downloaded.
 
 ---
 

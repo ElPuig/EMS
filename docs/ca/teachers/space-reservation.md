@@ -19,7 +19,7 @@ Prem **Nou** a la llista de reserves. S'obre una finestra i el primer que has de
 
 Els resultats es mostren de deu en deu: usa les fletxes de sobre de la llista per veure els altres; l'elecció es manté quan canvies de pàgina.
 
-No es pot reservar una hora que ja ha començat. Si canvies l'hora després de triar un espai, l'elecció es manté mentre l'espai continuï lliure; si ja no ho és, tria'n un altre.
+No es pot reservar una hora que ja ha començat: la finestra s'obre a la següent hora en punt, i si escrius un dia i una hora d'inici que ja han començat t'avisa i esborra el dia. Si canvies l'hora després de triar un espai, l'elecció es manté mentre l'espai continuï lliure; si ja no ho és, tria'n un altre.
 
 ## Les teves reserves
 

@@ -69,7 +69,7 @@ Archiving a student from the generic Archive action (list or form) opens this sa
 
 If a student was withdrawn by mistake (for example, mixed up with a sibling with almost the same name), Secretary, Head of Studies, Deputy Head of Studies, Director and admin can undo it:
 
-1. Open the student's form (in **Educational Community → Students**, with the **Former students** filter).
+1. Open the student's form (in **Educational Community → Students → Student list**, with the **Former students** filter).
 2. Click **Actions → Undo withdrawal** and confirm.
 
 The option only shows when all three conditions hold:
@@ -109,7 +109,7 @@ On the student's record, at the top:
 
 Bringing the student back (unarchiving the record) does the same automatically: it calls off whichever step was scheduled, or reactivates the account if it was already suspended. If the account had already been deleted, a new one is created with fresh credentials.
 
-To see every student with something pending, go to **Educational Community → Students** and use the **Google suspension pending** or **Google deletion pending** filters. Both dates are available as optional columns in the list view (the toggle at the right end of the header row), so you can sort by them; **Group By → Google suspension date** groups them by month.
+To see every student with something pending, go to **Educational Community → Students → Student list** and use the **Google suspension pending** or **Google deletion pending** filters. Both dates are available as optional columns in the list view (the toggle at the right end of the header row), so you can sort by them; **Group By → Google suspension date** groups them by month.
 
 If the portal access can't be revoked for some reason, the student is **not** archived — you'll see that flagged in the confirmation message, and can retry once the underlying issue is resolved.
 

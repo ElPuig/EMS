@@ -24,7 +24,7 @@ The portal is the space where students and families review and confirm the stude
 
 ## Access
 
-**Educational Community → Students**
+**Educational Community → Students → Student list**
 
 ---
 

@@ -24,7 +24,7 @@ El portal és l'espai on alumnes i famílies consulten i confirmen la informaci�
 
 ## Accés
 
-**Comunitat Educativa → Estudiants**
+**Comunitat Educativa → Estudiants → Llistat d'estudiants**
 
 ---
 

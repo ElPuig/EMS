@@ -67,7 +67,7 @@ L'alumne rep un correu quan el seu document s'aprova o es rebutja. Els revisors 
 
 ## Descarregar les credencials de Google
 
-Per descarregar de cop el PDF de credencials de Google de diversos alumnes: a **Comunitat Educativa → Estudiants**, en vista de llista, marca els alumnes, obre **Accions** i clica **Descarregar credencials de Google**. Es descarrega un ZIP amb un PDF per alumne.
+Per descarregar de cop el PDF de credencials de Google de diversos alumnes: a **Comunitat Educativa → Estudiants → Llistat d'estudiants**, en vista de llista, marca els alumnes, obre **Accions** i clica **Descarregar credencials de Google**. Es descarrega un ZIP amb un PDF per alumne.
 
 ---
 

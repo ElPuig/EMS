@@ -10,7 +10,7 @@
 
 ## Where they are
 
-Educational Community → Students → *[open the student]*. The student's file has two notes tabs:
+Educational Community → Students → Student list → *[open the student]*. The student's file has two notes tabs:
 
 | Tab | Who sees it | What it is for |
 |-----|-------------|----------------|

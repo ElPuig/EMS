@@ -12,8 +12,8 @@ Els espais són les aules físiques del centre (aules, laboratoris, tallers...),
 
 ## Accés
 
-- **Tipus d'espai**: **Comunitat Educativa → Configuració → Tipus d'espai**
-- **Espais**: **Comunitat Educativa → Configuració → Espais**
+- **Tipus d'espai**: **Comunitat Educativa → Configuració → Espais → Tipus**
+- **Espais**: **Comunitat Educativa → Espais → Llistat d'espais**
 
 ---
 

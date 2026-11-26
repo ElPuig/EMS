@@ -25,9 +25,11 @@ class EmsSpaceReservationWizard(models.TransientModel):
         required=True, default='date')
 
     # By date.
-    date = fields.Date(string="Day", default=lambda self: self.get_local_today())
-    start_time = fields.Float(string="Start", required=True, default=10.0)
-    end_time = fields.Float(string="End", required=True, default=11.0)
+    # By default the next full hour, for an hour (tomorrow at 10:00 once the day is over), so the
+    # wizard never opens on a time gone by.
+    date = fields.Date(string="Day", default=lambda self: self._default_slot()[0])
+    start_time = fields.Float(string="Start", required=True, default=lambda self: self._default_slot()[1])
+    end_time = fields.Float(string="End", required=True, default=lambda self: self._default_slot()[1] + 1.0)
     duration = fields.Float(string="Duration", compute="_compute_duration", help="In hours.")
     space_type_id = fields.Many2one(
         string="Type", comodel_name="ems.space_type", domain="[('reservable', '=', True)]",
@@ -73,18 +75,28 @@ class EmsSpaceReservationWizard(models.TransientModel):
         for wizard in self:
             wizard.show_grid = bool(wizard.space_id)
 
-    @api.onchange('space_day', 'space_start')
-    def _onchange_space_slot_not_past(self):
-        """By space: a day and a start typed by hand that have already begun are refused on the spot
-        (the grid already refuses them when dragging): the day is cleared, so nothing is drawn and
-        Reserve stays disabled."""
-        if self.mode != 'space' or not self.space_day:
+    @api.model
+    def _default_slot(self):
+        """(day, start hour) the wizard opens on: the next full hour of today, or tomorrow at 10:00."""
+        now = self.get_local_datetime()
+        if now.hour + 1 <= 22:
+            return now.date(), float(now.hour + 1)
+        return now.date() + timedelta(days=1), 10.0
+
+    @api.onchange('mode', 'date', 'start_time', 'space_day', 'space_start')
+    def _onchange_slot_not_past(self):
+        """A day and a start typed by hand that have already begun are refused on the spot, in either
+        mode (the grid already refuses them when dragging): the day is cleared, so nothing is offered
+        or drawn and Reserve stays disabled."""
+        day_field, start_time = ('date', self.start_time) if self.mode == 'date' else ('space_day', self.space_start)
+        day = self[day_field]
+        if not day:
             return None
-        midnight = datetime.combine(self.space_day, time.min, tzinfo=self.current_tz())
-        start = self.local_datetime_to_utc(midnight + timedelta(hours=self.space_start)).replace(tzinfo=None)
+        midnight = datetime.combine(day, time.min, tzinfo=self.current_tz())
+        start = self.local_datetime_to_utc(midnight + timedelta(hours=start_time)).replace(tzinfo=None)
         if start >= fields.Datetime.now():
             return None
-        self.space_day = False
+        self[day_field] = False
         return {'warning': {'title': _("Reserve a space"), 'message': self._past_message()}}
 
     @api.model

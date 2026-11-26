@@ -12,7 +12,7 @@ Sometimes a student needs to move from one group to another (e.g. from group A t
 
 ## How to change a student's group
 
-1. Open the student's form (**Educational Community → Students**, your own tutored students).
+1. Open the student's form (**Educational Community → Students → Student list**, your own tutored students).
 2. Go to the **Studies** tab.
 3. Change the **Main Group** field to the destination group. Only groups equivalent to the current one are offered: same study, course and shift (for example, from SMX1A to SMX1B, but not to SMX1C, an afternoon group, nor to DAM2B). Any other change has to be made by the secretary's office.
 4. A yellow warning appears at the top of the enrollment data, reminding you that saving will move the student's subjects to the new group. Save when ready.

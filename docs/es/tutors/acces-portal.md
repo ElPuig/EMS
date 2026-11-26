@@ -24,7 +24,7 @@ El portal es el espacio donde alumnos y familias consultan y confirman la inform
 
 ## Acceso
 
-**Comunidad Educativa → Estudiantes**
+**Comunidad Educativa → Estudiantes → Listado de estudiantes**
 
 ---
 

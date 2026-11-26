@@ -12,7 +12,7 @@ A veces un alumno debe cambiar de grupo (por ejemplo, del grupo A al grupo B) de
 
 ## Cómo cambiar el grupo de un alumno
 
-1. Abre la ficha del alumno (**Comunidad Educativa → Alumnado**, tus alumnos tutorizados).
+1. Abre la ficha del alumno (**Comunidad Educativa → Estudiantes → Listado de estudiantes**, tus alumnos tutorizados).
 2. Ve a la pestaña **Estudios**.
 3. Cambia el campo **Grupo principal** por el grupo de destino. Solo se ofrecen los grupos equivalentes al actual: mismo estudio, mismo curso y mismo turno (por ejemplo, de SMX1A a SMX1B, pero no a SMX1C, que es de tarde, ni a DAM2B). Cualquier otro cambio lo tiene que hacer Secretaría.
 4. Aparece un aviso amarillo en la parte superior de los datos de matrícula recordándote que, al guardar, se moverán las asignaturas del alumno al grupo nuevo. Guarda cuando estés listo.

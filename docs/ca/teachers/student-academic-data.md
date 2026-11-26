@@ -12,7 +12,7 @@
 
 L'historial acadèmic és el registre congelat, curs a curs, de la trajectòria d'un alumne: curs, estudis, grup, tutor, resultat acadèmic, títol obtingut i percentatge d'assistència. Qualsevol professor pot consultar l'historial de qualsevol alumne.
 
-**Des de la fitxa de l'alumne:** Comunitat Educativa → Alumnes → *[obre l'alumne]* → pestanya **Estudis**, secció **Històric acadèmic** (al final).
+**Des de la fitxa de l'alumne:** Comunitat Educativa → Estudiants → Llistat d'estudiants → *[obre l'alumne]* → pestanya **Estudis**, secció **Històric acadèmic** (al final).
 
 **Des del seu propi menú:** Planificació i Qualificació → Notes → **Historial acadèmic**. La llista s'obre agrupada per curs: clica un curs per desplegar-lo, o escriu el nom de l'alumne al cercador.
 
@@ -36,7 +36,7 @@ Amb el rol de **Coordinador/a d'orientació** o de **Coordinador/a de convivènc
 - **Incidències d'assistència** — Assistència de l'alumnat → Incidències.
 - **Informes d'assistència** — Assistència de l'alumnat → Informes, o el botó **Assistència** de la fitxa d'un alumne: el percentatge de faltes de tot l'alumnat en totes les assignatures.
 - **Faltes de convivència** — Convivència.
-- **Fitxa de l'alumne** — Comunitat Educativa → Alumnes, inclosa la pestanya **Secretaria** (bonificacions, exempcions i autoritzacions de matrícula).
+- **Fitxa de l'alumne** — Comunitat Educativa → Estudiants → Llistat d'estudiants, inclosa la pestanya **Secretaria** (bonificacions, exempcions i autoritzacions de matrícula).
 
 Tot és només de lectura, llevat de les necessitats educatives especials per a Orientació (vegeu l'apartat següent), i no inclou factures ni pagaments.
 
@@ -46,7 +46,7 @@ Tot és només de lectura, llevat de les necessitats educatives especials per a 
 
 Amb el rol de **Coordinador/a d'orientació**, indiques la tipologia de necessitats educatives especials (NEE) de qualsevol alumne o sol·licitant del centre:
 
-1. Comunitat Educativa → Alumnes → *[obre l'alumne]*.
+1. Comunitat Educativa → Estudiants → Llistat d'estudiants → *[obre l'alumne]*.
 2. A la part superior de la fitxa, a la columna **Dades personals**, al camp **Necessitats educatives especials**, tria **NEE-A** o **NEE-B**, o deixa'l buit si l'alumne no en té.
 3. Clica **Desar**.
 

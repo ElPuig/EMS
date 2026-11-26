@@ -12,7 +12,7 @@ A student enrolled in 2nd year with 1st-year subjects pending sometimes drops ev
 
 ## How to transfer the tutorship
 
-1. Open the student's form (**Educational Community → Students**).
+1. Open the student's form (**Educational Community → Students → Student list**).
 2. Go to the **Studies** tab.
 3. In **Tutorship transferred to**, choose the group the student now attends (for example, the 1st-year group). Only groups of the student's own study are offered: from SMX2A to SMX1C, never to DAW2A. Leave **Main Group** as it is: it is the group in Esfer@.
 4. Save. **Tutor** now shows the new group's tutor, and **Official tutor (Esfer@)** shows the main group's tutor.

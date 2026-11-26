@@ -55,7 +55,7 @@ El botó només surt si l'alumne té un compte de Google actiu. Si no el veus, l
 
 ## Descarregar les credencials de diversos alumnes alhora
 
-1. Ves a **Comunitat Educativa → Estudiants** i passa a la vista de llista.
+1. Ves a **Comunitat Educativa → Estudiants → Llistat d'estudiants** i passa a la vista de llista.
 2. Marca la casella dels alumnes que vulguis (la casella de la capçalera els marca tots).
 3. Obre el menú **Accions** i clica **Descarregar credencials de Google**.
 

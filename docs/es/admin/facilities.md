@@ -12,8 +12,8 @@ Los espacios son las aulas físicas del centro (aulas, laboratorios, talleres...
 
 ## Acceso
 
-- **Tipos de espacio**: **Comunidad Educativa → Configuración → Tipos de espacio**
-- **Espacios**: **Comunidad Educativa → Configuración → Espacios**
+- **Tipos de espacio**: **Comunidad Educativa → Configuración → Espacios → Tipos**
+- **Espacios**: **Comunidad Educativa → Espacios → Listado de espacios**
 
 ---
 

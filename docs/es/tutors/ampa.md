@@ -18,7 +18,7 @@ La cuota se paga una vez por familia: si un hermano es socio (comparte un famili
 
 ## Verlo en la lista de estudiantes
 
-1. Abre **Comunidad educativa → Estudiantes** y cambia a la vista de lista.
+1. Abre **Comunidad educativa → Estudiantes → Listado de estudiantes** y cambia a la vista de lista.
 2. La columna **AMPA** **(1)** dice **Sí** o **No** para cada alumno.
 
 ![Lista de estudiantes con la columna AMPA](../../assets/tutors/tutor-ampa-list.png)

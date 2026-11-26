@@ -20,7 +20,7 @@ This guide explains how the student list is filtered when you open it, and how t
 
 ## What you see when you open Students
 
-Open **Educational Community → Students**. Two filters are already applied in the search bar:
+Open **Educational Community → Students → Student list**. Two filters are already applied in the search bar:
 
 - **Students** — hides former students (alumni, withdrawals and expulsions).
 - **My students** — shows only the students of your own groups.

@@ -15,7 +15,7 @@ everyone who can open a space can see its occupation schedule.
 
 ## Access
 
-Navigate to: **Educational Community → Configuration → Spaces → [a space] → Schedule** tab
+Navigate to: **Educational Community → Spaces → Space list → [a space] → Schedule** tab
 
 ![A classroom's form, with its weekly occupation in the Schedule tab](../../assets/admin/admin-space-schedule.png)
 

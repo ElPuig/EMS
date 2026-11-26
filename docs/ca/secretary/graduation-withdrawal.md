@@ -69,7 +69,7 @@ Arxivar un alumne des de l'acció genèrica d'Arxivar (llista o fitxa) obre auto
 
 Si s'ha donat de baixa un alumne per error (per exemple, confós amb un germà de nom gairebé igual), secretaria, cap d'estudis, cap d'estudis adjunt, direcció i admin la poden desfer:
 
-1. Obriu la fitxa de l'alumne (a **Comunitat educativa → Alumnes**, amb el filtre **Antic alumnat**).
+1. Obriu la fitxa de l'alumne (a **Comunitat educativa → Estudiants → Llistat d'estudiants**, amb el filtre **Antic alumnat**).
 2. Feu clic a **Accions → Desfés la baixa** i confirmeu.
 
 L'opció només apareix si es compleixen les tres condicions:
@@ -109,7 +109,7 @@ A la part superior de la fitxa de l'alumne:
 
 Si l'alumne torna (desarxivar la fitxa), això es fa automàticament: s'anul·la el pas que estigués programat, o es reactiva el compte si ja estava suspès. Si el compte ja s'havia eliminat, se'n crea un de nou amb credencials noves.
 
-Per veure tot l'alumnat amb alguna cosa pendent, aneu a **Comunitat educativa → Alumnes** i feu servir els filtres **Suspensió de Google pendent** o **Eliminació de Google pendent**. Les dues dates estan disponibles com a columnes opcionals a la vista de llista (el selector a l'extrem dret de la capçalera), de manera que hi podeu ordenar; **Agrupa per → Data de suspensió de Google** les agrupa per mes.
+Per veure tot l'alumnat amb alguna cosa pendent, aneu a **Comunitat educativa → Estudiants → Llistat d'estudiants** i feu servir els filtres **Suspensió de Google pendent** o **Eliminació de Google pendent**. Les dues dates estan disponibles com a columnes opcionals a la vista de llista (el selector a l'extrem dret de la capçalera), de manera que hi podeu ordenar; **Agrupa per → Data de suspensió de Google** les agrupa per mes.
 
 Si l'accés al portal no es pot revocar per algun motiu, l'alumne **no** s'arxiva — ho veureu indicat al missatge de confirmació, i podeu tornar-ho a intentar un cop resolt el problema.
 

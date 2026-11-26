@@ -15,7 +15,7 @@ Profesorado) — todo el que pueda abrir un espacio puede ver su horario de ocup
 
 ## Acceso
 
-Navega a: **Comunidad Educativa → Configuración → Espacios → [un aula] → pestaña Horario**
+Navega a: **Comunidad Educativa → Espacios → Listado de espacios → [un aula] → pestaña Horario**
 
 ![Ficha de un aula, con su ocupación semanal en la pestaña Horario](../../assets/admin/admin-space-schedule.png)
 

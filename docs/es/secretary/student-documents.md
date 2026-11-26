@@ -67,7 +67,7 @@ El alumno recibe un correo cuando su documento se aprueba o rechaza. Los revisor
 
 ## Descargar las credenciales de Google
 
-Para descargar de golpe el PDF de credenciales de Google de varios alumnos: en **Comunidad educativa → Estudiantes**, en vista de lista, marca los alumnos, abre **Acciones** y pulsa **Descargar credenciales de Google**. Se descarga un ZIP con un PDF por alumno.
+Para descargar de golpe el PDF de credenciales de Google de varios alumnos: en **Comunidad educativa → Estudiantes → Listado de estudiantes**, en vista de lista, marca los alumnos, abre **Acciones** y pulsa **Descargar credenciales de Google**. Se descarga un ZIP con un PDF por alumno.
 
 ---
 

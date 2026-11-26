@@ -55,7 +55,7 @@ El botón solo aparece si el alumno tiene una cuenta de Google activa. Si no lo 
 
 ## Descargar las credenciales de varios alumnos a la vez
 
-1. Ve a **Comunidad educativa → Estudiantes** y cambia a la vista de lista.
+1. Ve a **Comunidad educativa → Estudiantes → Listado de estudiantes** y cambia a la vista de lista.
 2. Marca la casilla de los alumnos que quieras (la casilla de la cabecera los marca todos).
 3. Abre el menú **Acciones** y pulsa **Descargar credenciales de Google**.
 

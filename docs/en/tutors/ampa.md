@@ -18,7 +18,7 @@ The fee is paid once per family: if a sibling is a member (shares a family conta
 
 ## Seeing it in the Students list
 
-1. Open **Educational Community → Students** and switch to the list view.
+1. Open **Educational Community → Students → Student list** and switch to the list view.
 2. The **AMPA** column **(1)** reads **Yes** or **No** for each student.
 
 ![Students list with the AMPA column](../../assets/tutors/tutor-ampa-list.png)

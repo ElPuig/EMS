@@ -2,7 +2,7 @@
 
 ## Space reservation:
 
-Teachers can reserve a free space for a time span from Educational Community > Spaces > Space reservations. New opens a window that first asks how to search: by date (a day, a start and an end give the free spaces, a list that follows every change without a search button, one of which is chosen) or by space (choosing the space draws its week as a grid with what holds it and a dotted red line at the current time, and a free time is chosen by dragging over it; a day and time typed by hand that have already begun are refused on the spot). Space types can be marked as not reservable (WC is not), and so can a single space. Saving a reservation over a taken space is refused with who holds it and when.
+Teachers can reserve a free space for a time span from Educational Community > Spaces > Space reservations. New opens a window that first asks how to search: by date (a day, a start and an end give the free spaces, a list that follows every change without a search button, one of which is chosen) or by space (choosing the space draws its week as a grid with what holds it and a dotted red line at the current time, and a free time is chosen by dragging over it). In both modes the window opens on the next full hour, and a day and time typed by hand that have already begun are refused on the spot. Space types can be marked as not reservable (WC is not), and so can a single space. Saving a reservation over a taken space is refused with who holds it and when.
 A space counts as taken when it is in a teacher's weekly timetable (classes and duties), when it has another reservation, or when a meeting is held in it. A meeting minute's room now makes (and keeps up to date) its own reservation, so a meeting and a teacher asking for the same room go through the same check, and a minute whose room is taken cannot be saved.
 A teacher changes only their own reservations; the secretariat and the administrators change any.
 
@@ -13,6 +13,10 @@ A migration (18.0.0.53.0) gives their reservation to the upcoming in-person and 
 ## Warehouse and WC space types:
 
 Both join the catalogue so they translate (Warehouse was shown untranslated); an installation that already had them keeps its own, which are matched by name.
+
+## Menu paths in the manuals:
+
+The manuals now give the student list and the space list by their full menu path (Students > Student list, Spaces > Space list), and the admin manuals point at the right menus for spaces and space types.
 
 # Internal changes
 

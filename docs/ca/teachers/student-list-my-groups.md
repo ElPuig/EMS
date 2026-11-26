@@ -20,7 +20,7 @@ Aquesta guia explica com surt filtrada la llista d'alumnat quan l'obres, i com a
 
 ## Què veus en obrir Alumnat
 
-Obre **Comunitat Educativa → Alumnat**. A la barra de cerca ja hi ha dos filtres aplicats:
+Obre **Comunitat Educativa → Estudiants → Llistat d'estudiants**. A la barra de cerca ja hi ha dos filtres aplicats:
 
 - **Estudiants** — amaga l'alumnat antic (exalumnat, baixes i expulsions).
 - **El meu alumnat** — mostra només l'alumnat dels teus grups.

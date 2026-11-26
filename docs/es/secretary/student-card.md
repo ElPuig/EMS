@@ -41,7 +41,7 @@ El PDF contiene el carné de todos los alumnos que tienen este grupo como grupo 
 
 ## Imprimir los carnés de unos cuantos alumnos
 
-1. Ve a **Comunidad educativa → Estudiantes** y pasa a la vista de lista.
+1. Ve a **Comunidad educativa → Estudiantes → Listado de estudiantes** y pasa a la vista de lista.
 2. Marca los alumnos.
 3. Abre el menú **Acciones** (el engranaje) y pulsa **Imprimir carné de estudiante**.
 

@@ -12,7 +12,7 @@ De vegades, un alumne matriculat a 2n amb assignatures de 1r pendents es dona de
 
 ## Com es traspassa la tutoria
 
-1. Obriu la fitxa de l'alumne (**Comunitat Educativa → Alumnat**).
+1. Obriu la fitxa de l'alumne (**Comunitat Educativa → Estudiants → Llistat d'estudiants**).
 2. Aneu a la pestanya **Estudis**.
 3. A **Tutoria traspassada a**, trieu el grup al qual assisteix ara l'alumne (per exemple, el grup de 1r). Només s'ofereixen grups del mateix estudi de l'alumne: d'SMX2A a SMX1C, mai a DAW2A. Deixeu el **Grup principal** tal com està: és el grup d'Esfer@.
 4. Deseu. Ara **Tutor/a** mostra el tutor del grup nou i **Tutor/a oficial (Esfer@)**, el del grup principal.

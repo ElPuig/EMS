@@ -10,7 +10,7 @@
 
 ## Dónde están
 
-Comunidad Educativa → Alumnos → *[abre el alumno]*. La ficha tiene dos pestañas de notas:
+Comunidad Educativa → Estudiantes → Listado de estudiantes → *[abre el alumno]*. La ficha tiene dos pestañas de notas:
 
 | Pestaña | Quién la ve | Para qué sirve |
 |---------|-------------|----------------|

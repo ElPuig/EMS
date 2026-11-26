@@ -20,7 +20,7 @@ Esta guía explica cómo sale filtrada la lista de alumnado al abrirla, y cómo 
 
 ## Qué ves al abrir Alumnado
 
-Abre **Comunidad Educativa → Alumnado**. En la barra de búsqueda ya hay dos filtros aplicados:
+Abre **Comunidad Educativa → Estudiantes → Listado de estudiantes**. En la barra de búsqueda ya hay dos filtros aplicados:
 
 - **Estudiantes** — oculta al alumnado antiguo (exalumnado, bajas y expulsiones).
 - **Mi alumnado** — muestra solo el alumnado de tus grupos.

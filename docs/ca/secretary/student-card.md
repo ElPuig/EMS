@@ -41,7 +41,7 @@ El PDF conté el carnet de tots els alumnes que tenen aquest grup com a grup pri
 
 ## Imprimir els carnets d'uns quants alumnes
 
-1. Ves a **Comunitat Educativa → Estudiants** i passa a la vista de llista.
+1. Ves a **Comunitat Educativa → Estudiants → Llistat d'estudiants** i passa a la vista de llista.
 2. Marca els alumnes.
 3. Obre el menú **Accions** (l'engranatge) i clica **Imprimir carnet d'estudiant**.
 

@@ -12,7 +12,7 @@
 
 El historial académico es el registro congelado, curso a curso, de la trayectoria de un alumno: curso, estudios, grupo, tutor, resultado académico, título obtenido y porcentaje de asistencia. Cualquier profesor puede consultar el historial de cualquier alumno.
 
-**Desde la ficha del alumno:** Comunidad Educativa → Alumnos → *[abre el alumno]* → pestaña **Estudios**, sección **Histórico académico** (al final).
+**Desde la ficha del alumno:** Comunidad Educativa → Estudiantes → Listado de estudiantes → *[abre el alumno]* → pestaña **Estudios**, sección **Histórico académico** (al final).
 
 **Desde su propio menú:** Planificación y Calificación → Notas → **Historial académico**. La lista se abre agrupada por curso: haz clic en un curso para desplegarlo, o escribe el nombre del alumno en el buscador.
 
@@ -36,7 +36,7 @@ Con el rol de **Coordinador/a de orientación** o de **Coordinador/a de conviven
 - **Incidencias de asistencia** — Asistencia del alumnado → Incidencias.
 - **Informes de asistencia** — Asistencia del alumnado → Informes, o el botón **Asistencia** de la ficha de un alumno: el porcentaje de faltas de todo el alumnado en todas las asignaturas.
 - **Faltas de convivencia** — Convivencia.
-- **Ficha del alumno** — Comunidad Educativa → Alumnos, incluida la pestaña **Secretaría** (bonificaciones, exenciones y autorizaciones de matrícula).
+- **Ficha del alumno** — Comunidad Educativa → Estudiantes → Listado de estudiantes, incluida la pestaña **Secretaría** (bonificaciones, exenciones y autorizaciones de matrícula).
 
 Todo es solo de lectura, salvo las necesidades educativas especiales para Orientación (ver el apartado siguiente), y no incluye facturas ni pagos.
 
@@ -46,7 +46,7 @@ Todo es solo de lectura, salvo las necesidades educativas especiales para Orient
 
 Con el rol de **Coordinador/a de orientación**, indicas la tipología de necesidades educativas especiales (NEE) de cualquier alumno o solicitante del centro:
 
-1. Comunidad Educativa → Alumnos → *[abre el alumno]*.
+1. Comunidad Educativa → Estudiantes → Listado de estudiantes → *[abre el alumno]*.
 2. En la parte superior de la ficha, en la columna **Datos personales**, en el campo **Necesidades educativas especiales**, elige **NEE-A** o **NEE-B**, o déjalo vacío si el alumno no tiene.
 3. Pulsa **Guardar**.
 

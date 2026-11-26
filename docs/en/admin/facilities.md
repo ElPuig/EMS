@@ -12,8 +12,8 @@ Spaces are the centre's physical rooms (classrooms, labs, workshops...), each as
 
 ## Access
 
-- **Space Types**: **Educational Community → Configuration → Space Types**
-- **Spaces**: **Educational Community → Configuration → Spaces**
+- **Space Types**: **Educational Community → Configuration → Spaces → Types**
+- **Spaces**: **Educational Community → Spaces → Space list**
 
 ---
 

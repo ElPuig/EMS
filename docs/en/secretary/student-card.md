@@ -41,7 +41,7 @@ The PDF has the card of every student whose main group is this one, sorted by la
 
 ## Printing the cards of a few students
 
-1. Go to **Educational Community → Students** and switch to the list view.
+1. Go to **Educational Community → Students → Student list** and switch to the list view.
 2. Select the students.
 3. Open the **Actions** menu (the cog) and click **Print student card**.
 

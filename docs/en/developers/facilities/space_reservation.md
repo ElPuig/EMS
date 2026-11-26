@@ -60,11 +60,17 @@ wizard instead of the form. The first field is `mode`:
   the server decides what is held. Dragging over a free time (or a click, for an hour) writes the
   slot into `space_day`/`space_start`/`space_end`, which can also be typed; a held time or a day
   gone by cannot be chosen. Typed by hand, a day and start that have already begun are refused on the spot
-  (`_onchange_space_slot_not_past`: a warning dialog, and the day is cleared so nothing stays chosen);
-  the day's date picker greys out the past days (`min_date: 'today'`, a display aid only: the server
-  decides, and `action_reserve` refuses the past again). The weekend is hidden unless ticked. A dotted red line marks the current time in today's column (the company's `serverNow()`, moved every minute); what is above it is shaded and cannot be chosen. Each mode has its own slot fields
+  (see below). The weekend is hidden unless ticked. A dotted red line marks the current time in today's column (the company's `serverNow()`, moved every minute); what is above it is shaded and cannot be chosen. Each mode has its own slot fields
   (`date`/`start_time`/`end_time`/`reason` by date, `space_*` by space) so each lays out its own form.
   Reserving creates the reservation (never in the past) and opens it.
+
+The past, in both modes: the wizard opens on the next full hour of the company's day, for an hour
+(`_default_slot`; tomorrow at 10:00 once it is past 22:00), so its first onchange never lands on a
+time gone by. `_onchange_slot_not_past` (on `mode`, `date`/`start_time`, `space_day`/`space_start`)
+refuses a day and start that have already begun: a warning dialog, and the mode's day is cleared, so
+nothing is offered or drawn and *Reserve* stays disabled. Both date fields grey out the past days in
+their picker (`min_date: 'today'`, a display aid only, read from the browser's clock: the server
+decides, and `action_reserve` refuses the past again).
 
 The free spaces are chosen with a radio button per row (`ems_radio_row`, `static/src/js/backend/radio_row_field.js`,
 hosted by the space's `reservable` column, which only gives it a place), or by clicking anywhere on the row

@@ -10,7 +10,7 @@
 
 ## On són
 
-Comunitat Educativa → Alumnes → *[obre l'alumne]*. La fitxa té dues pestanyes de notes:
+Comunitat Educativa → Estudiants → Llistat d'estudiants → *[obre l'alumne]*. La fitxa té dues pestanyes de notes:
 
 | Pestanya | Qui la veu | Per a què serveix |
 |----------|------------|-------------------|

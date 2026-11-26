@@ -29,7 +29,8 @@ class EmsSpaceReservationWizard(models.TransientModel):
     date_from = fields.Date(string="From", default=lambda self: self.get_local_today())
     date_to = fields.Date(string="To", default=lambda self: self.get_local_today() + timedelta(days=13))
     start_time = fields.Float(string="Start", required=True, default=10.0)
-    duration = fields.Float(string="Duration", required=True, default=1.0, help="In hours.")
+    end_time = fields.Float(string="End", required=True, default=11.0)
+    duration = fields.Float(string="Duration", compute="_compute_duration", help="In hours.")
     space_type_id = fields.Many2one(
         string="Type", comodel_name="ems.space_type", domain="[('reservable', '=', True)]",
         help="Narrows the spaces looked at to those of this type.")
@@ -39,17 +40,22 @@ class EmsSpaceReservationWizard(models.TransientModel):
     line_ids = fields.One2many(
         string="Results", comodel_name="ems.space_reservation_wizard.line", inverse_name="wizard_id")
 
+    @api.depends('start_time', 'end_time')
+    def _compute_duration(self):
+        for wizard in self:
+            wizard.duration = wizard.end_time - wizard.start_time
+
     def write(self, vals):
         # What was found no longer answers what is typed now.
-        if vals.keys() & {'mode', 'date', 'date_from', 'date_to', 'start_time', 'duration', 'space_type_id', 'space_id'}:
+        if vals.keys() & {'mode', 'date', 'date_from', 'date_to', 'start_time', 'end_time', 'space_type_id', 'space_id'}:
             self.line_ids.unlink()
         return super().write(vals)
 
     def _slot(self, day):
         """(start, end) of the slot on `day`, as naive UTC datetimes; None while no duration is typed."""
         self.ensure_one()
-        if not day or self.duration <= 0:
-            raise UserError(_("Choose a day, a start and a duration greater than zero."))
+        if not day or self.end_time <= self.start_time or self.end_time > 24:
+            raise UserError(_("Choose a day and a start and an end, the end after the start."))
         local = datetime.combine(day, time.min, tzinfo=self.current_tz()) + timedelta(hours=self.start_time)
         start = self.local_datetime_to_utc(local).replace(tzinfo=None)
         return start, start + timedelta(hours=self.duration)

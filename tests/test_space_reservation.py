@@ -198,7 +198,7 @@ class TestSpaceReservation(TransactionCase):
     def _wizard(self, hour, **vals):
         wizard = self.env['ems.space_reservation_wizard'].create({
             'mode': 'space' if vals.get('space_id') else 'date', 'date': self.monday, 'start_time': hour,
-            'duration': 1.0, **vals})
+            'end_time': hour + 1.0, **vals})
         wizard.action_search()
         return wizard
 
@@ -232,7 +232,7 @@ class TestSpaceReservation(TransactionCase):
         self._reserve(12.0, 1.0, user_id=self.env.user.id)
         tuesday = self.monday + timedelta(days=1)
         wizard = self.env['ems.space_reservation_wizard'].create({
-            'mode': 'space', 'space_id': self.space.id, 'start_time': 12.0, 'duration': 1.0,
+            'mode': 'space', 'space_id': self.space.id, 'start_time': 12.0, 'end_time': 13.0,
             'date_from': self.monday, 'date_to': tuesday})
         wizard.action_search()
         days = {line.date: line for line in wizard.line_ids}
@@ -241,12 +241,22 @@ class TestSpaceReservation(TransactionCase):
         self.assertTrue(days[tuesday].is_free)
         self.assertFalse(days[tuesday].detail)
         # The schedule block (Mondays 9-11) holds the morning slot; Tuesday's is free.
-        wizard.write({'start_time': 10.0})
+        wizard.write({'start_time': 10.0, 'end_time': 11.0})
         self.assertFalse(wizard.line_ids)       # a changed search drops the old answer
         wizard.action_search()
         days = {line.date: line for line in wizard.line_ids}
         self.assertIn('Weekly schedule', days[self.monday].detail)
         self.assertTrue(days[tuesday].is_free)
+
+    def test_the_wizard_needs_an_end_after_the_start(self):
+        wizard = self.env['ems.space_reservation_wizard'].create({'date': self.monday, 'start_time': 12.0, 'end_time': 11.0})
+        self.assertEqual(wizard.duration, -1.0)
+        with self.assertRaises(UserError):
+            wizard.action_search()
+        wizard.end_time = 13.5
+        self.assertEqual(wizard.duration, 1.5)
+        wizard.action_search()
+        self.assertTrue(wizard.line_ids)
 
     def test_the_wizard_limits_the_days_and_skips_the_past(self):
         wizard = self.env['ems.space_reservation_wizard'].create({
@@ -259,7 +269,7 @@ class TestSpaceReservation(TransactionCase):
 
     def test_the_wizard_reserves_a_free_day_of_a_space(self):
         wizard = self.env['ems.space_reservation_wizard'].create({
-            'mode': 'space', 'space_id': self.space.id, 'start_time': 15.0, 'duration': 1.0, 'reason': 'Talk',
+            'mode': 'space', 'space_id': self.space.id, 'start_time': 15.0, 'end_time': 16.0, 'reason': 'Talk',
             'date_from': self.monday, 'date_to': self.monday})
         wizard.action_search()
         action = wizard.line_ids.action_reserve()
@@ -272,7 +282,7 @@ class TestSpaceReservation(TransactionCase):
         line = wizard.line_ids.filtered(lambda line: line.space_id == self.space)
         self.assertTrue(self.env['ems.space_reservation'].browse(line.action_reserve()['res_id']).exists())
         past = self.env['ems.space_reservation_wizard'].create({
-            'date': self.monday - timedelta(days=100), 'start_time': 10.0, 'duration': 1.0})
+            'date': self.monday - timedelta(days=100), 'start_time': 10.0, 'end_time': 11.0})
         past.action_search()
         with self.assertRaises(UserError):
             past._reserve(self.space, past.date)

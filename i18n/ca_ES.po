@@ -4247,6 +4247,7 @@ msgstr "Activa els comportaments especials del bloc."
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_history__date_end
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__date_end
 #: model:ir.model.fields,field_description:ems.field_ems_space_reservation__end_datetime
+#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__end_time
 msgid "End"
 msgstr "Final"
 
@@ -56645,8 +56646,8 @@ msgstr "%(space)s no es pot reservar."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/facilities/space_reservation_wizard.py:0
-msgid "Choose a day, a start and a duration greater than zero."
-msgstr "Tria un dia, una hora d'inici i una durada major que zero."
+msgid "Choose a day and a start and an end, the end after the start."
+msgstr "Tria un dia i una hora d'inici i una de final, el final després de l'inici."
 
 #. module: ems
 #. odoo-python

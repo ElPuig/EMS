@@ -45,9 +45,9 @@ flowchart LR
 The list's **New** button (`display="always"` header button, the list has `create="false"`) opens the
 wizard instead of the form. The first field is `mode`:
 
-- **By date** (`date`): day, start, duration and optionally a type. *Search free spaces* writes one
+- **By date** (`date`): day and type (same row), start and end time (the wizard asks for an end time; `duration` is computed from it), reason (full width). *Search free spaces* writes one
   `ems.space_reservation_wizard.line` per reservable space (of that type) that is free.
-- **By space** (`space`): a space, `date_from`..`date_to` (at most 62 days), start and duration.
+- **By space** (`space`): a space, `date_from`..`date_to` (at most 62 days), start and end time.
   *Search free days* writes one line per day (never before today, nor a slot already started) with
   the weekday, whether it is free and, if not, what holds the slot (`detail`: reservation or
   weekly schedule, with hours). The whole range is asked once from `_get_space_busy` and the days

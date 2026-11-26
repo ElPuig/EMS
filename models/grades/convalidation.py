@@ -33,9 +33,9 @@ OFFICIAL_STATES = ('completed', 'rejected')
 
 # Issue #864: who reads what was decided before it is official. A tutor reads the requests of their
 # tutees but, like the applicant, only the original request and the step it has reached (see
-# student_view_html); the decisions - subjects, grades, remarks, resolution documents - stay with
-# these groups, which the tutor's own group is implied by, so it is the decision fields that name
-# the groups allowed (a tutor cannot be excluded by group).
+# student_view_html); the decisions - subjects, grades, remarks, resolution documents - are only
+# for these groups. The Heads of Studies imply the tutor's group, so a field cannot exclude "the
+# tutor": each decision field names the groups allowed instead.
 DECISION_GROUPS = 'ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin'
 
 # What the applicant filed, fixed once the request exists.
@@ -112,7 +112,7 @@ class EmsConvalidation(models.Model):
                                       column1='convalidation_id', column2='attachment_id')
     line_ids = fields.One2many(string="Subjects", comodel_name='ems.convalidation.line',
                                inverse_name='convalidation_id', copy=True,
-        groups=DECISION_GROUPS)
+                               groups=DECISION_GROUPS)
     # Issue #644: the applicant read and accepted the attendance notice (Settings) when filing it
     # from the portal: attendance stays compulsory until the resolution, and absences count if a
     # subject is refused.
@@ -139,7 +139,7 @@ class EmsConvalidation(models.Model):
                              ])
     resolution_notes = fields.Text(string="Resolution comments",
                                    help="Shown to the student in the portal and in the resolution email.",
-        groups=DECISION_GROUPS)
+                                   groups=DECISION_GROUPS)
     resolved_by_ministry = fields.Boolean(string="Resolved by the Ministry", readonly=True, copy=False,
                                           help="The request was filed with the Ministry, whose resolution "
                                                "goes straight to the secretariat, without the Director.")
@@ -148,9 +148,9 @@ class EmsConvalidation(models.Model):
                                        search='_search_is_pending_for_me')
     ministry_resolution = fields.Binary(string="Ministry resolution", attachment=True, copy=False,
                                         help="The Ministry's own resolution (PDF), when it has arrived.",
-        groups=DECISION_GROUPS)
+                                        groups=DECISION_GROUPS)
     ministry_resolution_filename = fields.Char(string="Ministry resolution file name", copy=False,
-        groups=DECISION_GROUPS)
+                                               groups=DECISION_GROUPS)
     info_request_reason_id = fields.Many2one(string="Reason for the request", comodel_name='ems.convalidation.info_reason',
                                              readonly=True, copy=False, ondelete='set null',
                                              help="Why the applicant was last asked for more documentation.")
@@ -163,34 +163,34 @@ class EmsConvalidation(models.Model):
                                      "Empty when the applicant cancelled it from the portal.")
     return_reason = fields.Text(string="Returned by the Director", readonly=True, copy=False,
                                 help="Why the Director sent the last proposal back for review.",
-        groups=DECISION_GROUPS)
+                                groups=DECISION_GROUPS)
     validation_date = fields.Date(string="Proposal date", readonly=True, copy=False,
-        groups=DECISION_GROUPS)
+                                  groups=DECISION_GROUPS)
     validated_by_id = fields.Many2one(string="Proposed by", comodel_name='res.users', readonly=True, copy=False,
-        groups=DECISION_GROUPS)
+                                      groups=DECISION_GROUPS)
     signature_date = fields.Date(string="Resolution date", readonly=True, copy=False,
-        groups=DECISION_GROUPS)
+                                 groups=DECISION_GROUPS)
     signed_by_id = fields.Many2one(string="Resolved by", comodel_name='res.users', readonly=True, copy=False,
                                    help="Who issued the centre's official resolution: the Director, or "
                                         "whoever signs on their behalf when signing by delegation.",
-        groups=DECISION_GROUPS)
+                                   groups=DECISION_GROUPS)
     # The official resolution the student gets: the centre's PDF, or the Ministry's own when the
     # Head of Studies attached it (it is optional).
     resolution_pdf_id = fields.Many2one(string="Resolution PDF", comodel_name='ir.attachment', readonly=True,
                                         copy=False, ondelete='set null',
-        groups=DECISION_GROUPS)
+                                        groups=DECISION_GROUPS)
     # The resolution's file name as a link that opens the PDF in a new tab, rather than the
     # attachment's own form a many2one would open.
     resolution_pdf_link = fields.Html(string="Resolution", compute='_compute_resolution_pdf_link', sanitize=False,
-        groups=DECISION_GROUPS)
+                                      groups=DECISION_GROUPS)
     resolution_date = fields.Date(string="Registration date", readonly=True, copy=False,
-        groups=DECISION_GROUPS)
+                                  groups=DECISION_GROUPS)
     resolved_by_id = fields.Many2one(string="Registered by", comodel_name='res.users', readonly=True, copy=False,
-        groups=DECISION_GROUPS)
+                                     groups=DECISION_GROUPS)
     granted_count = fields.Integer(string="Convalidated", compute='_compute_line_counts',
-        groups=DECISION_GROUPS)
+                                   groups=DECISION_GROUPS)
     pending_count = fields.Integer(string="To resolve", compute='_compute_line_counts',
-        groups=DECISION_GROUPS)
+                                   groups=DECISION_GROUPS)
     # Issue #864: what the applicant sees (see DECISION_GROUPS), for whoever may read the request
     # without its decisions: the portal's own card, rendered here.
     can_see_decisions = fields.Boolean(string="Can see the decisions", compute='_compute_can_see_decisions')

@@ -23,6 +23,6 @@ You cannot reserve a time that has already started: the window opens on the next
 
 ## Your reservations
 
-The list shows all the reservations; the **My reservations** filter shows only yours. Open one to change or delete it: you can change your own, not other people's. If you change the time and the space is no longer free, EMS refuses to save and tells you who has it and when. The secretariat and the administrators can change any of them.
+The list shows all the reservations; the **My reservations** filter shows only yours. Open one to change or delete it: you can change your own; other people's open read only. A reservation made by a meeting follows the meeting: to free the room, change or remove it in the meeting. If you change the time and the space is no longer free, EMS refuses to save and tells you who has it and when. The secretariat and the administrators can change any of them (except a meeting's, which is changed in the meeting).
 
 A reservation made by a meeting's minute is read-only here: change the room, the date or the duration in the minute itself and the reservation follows. If you take the room out, or the meeting becomes online, the reservation disappears.

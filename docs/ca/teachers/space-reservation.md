@@ -23,6 +23,6 @@ No es pot reservar una hora que ja ha començat: la finestra s'obre a la següen
 
 ## Les teves reserves
 
-La llista mostra totes les reserves; el filtre **Les meves reserves** mostra només les teves. Obre'n una per canviar-la o esborrar-la: pots canviar les teves, no les d'altres persones. Si canvies l'hora i l'espai ja no és lliure, l'EMS no et deixa desar i t'indica qui el té i quan. La secretaria i els administradors poden canviar-les totes.
+La llista mostra totes les reserves; el filtre **Les meves reserves** mostra només les teves. Obre'n una per canviar-la o esborrar-la: pots canviar les teves; les d'altres persones s'obren només per consultar. Una reserva feta per una reunió segueix la reunió: per alliberar la sala, canvia-la o treu-la a la reunió. Si canvies l'hora i l'espai ja no és lliure, l'EMS no et deixa desar i t'indica qui el té i quan. La secretaria i els administradors poden canviar-les totes (excepte les d'una reunió, que es canvien a la reunió).
 
 Una reserva feta per l'acta d'una reunió es veu aquí només de lectura: canvia l'aula, la data o la durada a la mateixa acta i la reserva la segueix. Si treus l'aula, o la reunió passa a ser en línia, la reserva desapareix.

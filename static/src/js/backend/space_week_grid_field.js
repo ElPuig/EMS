@@ -20,6 +20,9 @@ const NOW_REFRESH_MS = 60 * 1000;
 // chosen. A dotted red line marks the current time in today's column: what lies above it is the
 // past, shaded, and cannot be chosen either. The server decides what holds the space (ems.space_reservation_wizard.get_occupation_week):
 // the grid only draws it. It is hosted by a boolean field, whose value tells whether to show it.
+// Not Odoo's calendar view: it shows the records of one model in a view of its own, while this week
+// mixes recurring schedule blocks (not dated records) with reservations and lives inside the wizard,
+// filling its slot fields.
 export class EmsSpaceWeekGridField extends Component {
     static template = "ems.SpaceWeekGridField";
     static props = { ...standardFieldProps };

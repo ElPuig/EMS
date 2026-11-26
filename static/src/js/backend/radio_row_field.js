@@ -10,6 +10,7 @@ import { standardFieldProps } from "@web/views/fields/standard_field_props";
 // buttons can read it (a "Reserve" button enabled only once a row is chosen, in the space
 // reservation wizard, issue #475). The field that hosts the widget only gives it a column; a row
 // where the field is invisible has no widget and cannot be chosen.
+// Not built in: an Odoo list only offers checkboxes to select several rows, never one row as a choice.
 export class EmsRadioRowField extends Component {
     static template = "ems.RadioRowField";
     static props = { ...standardFieldProps, chosenField: { type: String } };

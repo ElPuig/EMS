@@ -2,7 +2,6 @@
 
 from datetime import datetime, time, timedelta
 
-from pytz import UTC
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
@@ -90,11 +89,7 @@ class EmsSpaceReservationWizard(models.TransientModel):
         or drawn and Reserve stays disabled."""
         day_field, start_time = ('date', self.start_time) if self.mode == 'date' else ('space_day', self.space_start)
         day = self[day_field]
-        if not day:
-            return None
-        midnight = datetime.combine(day, time.min, tzinfo=self.current_tz())
-        start = self.local_datetime_to_utc(midnight + timedelta(hours=start_time)).replace(tzinfo=None)
-        if start >= fields.Datetime.now():
+        if not day or self._utc_at(day, start_time) >= fields.Datetime.now():
             return None
         self[day_field] = False
         return {'warning': {'title': _("Reserve a space"), 'message': self._past_message()}}
@@ -107,10 +102,13 @@ class EmsSpaceReservationWizard(models.TransientModel):
         """(start, end) of the slot on `day`, as naive UTC datetimes."""
         if not day or end_time <= start_time or end_time > 24:
             raise UserError(_("Choose a day and a start and an end, the end after the start."))
+        return self._utc_at(day, start_time), self._utc_at(day, end_time)
+
+    @api.model
+    def _utc_at(self, day, hour):
+        """The company's local `hour` (a float) of `day`, as a naive UTC datetime (how Odoo stores them)."""
         midnight = datetime.combine(day, time.min, tzinfo=self.current_tz())
-        return tuple(
-            self.local_datetime_to_utc(midnight + timedelta(hours=hour)).replace(tzinfo=None)
-            for hour in (start_time, end_time))
+        return self.local_datetime_to_utc(midnight + timedelta(hours=hour)).replace(tzinfo=None)
 
     def _free_spaces(self):
         """By date: the reservable spaces (of the type chosen) free for the slot typed; none while the
@@ -120,10 +118,8 @@ class EmsSpaceReservationWizard(models.TransientModel):
         if self.mode != 'date' or not self.date or not 0 <= self.start_time < self.end_time <= 24:
             return spaces
         start, end = self._slot(self.date, self.start_time, self.end_time)
-        spaces = spaces.search([('reservable', '=', True)] + (
-            [('space_type_id', '=', self.space_type_id.id)] if self.space_type_id else []))
-        busy = spaces._get_space_conflicts(start, end)
-        return spaces.filtered(lambda space: space.id not in busy)
+        return spaces.search([('reservable', '=', True)] + (
+            [('space_type_id', '=', self.space_type_id.id)] if self.space_type_id else []))._filter_free(start, end)
 
     def action_reserve(self):
         """Reserves what the wizard has: the result chosen in the list (by date) or the slot of the
@@ -156,32 +152,34 @@ class EmsSpaceReservationWizard(models.TransientModel):
         ISO date; the week of today when none), what holds the space in each (hours as floats, in
         the company's timezone) and the hours the grid covers (the school day of the default
         schedule framework, widened to take in anything held outside it)."""
-        utils = self.env['ems.datetime_utils']
-        today = utils.get_local_today()
-        first = fields.Date.to_date(monday) if monday else today - timedelta(days=today.weekday())
+        today = self.get_local_today()
+        first = fields.Date.to_date(monday) if monday else today
         first -= timedelta(days=first.weekday())
-        tz = utils.current_tz()
-        start = utils.local_datetime_to_utc(datetime.combine(first, time.min, tzinfo=tz)).replace(tzinfo=None)
-        end = utils.local_datetime_to_utc(datetime.combine(first + timedelta(days=7), time.min, tzinfo=tz)).replace(tzinfo=None)
+        tz = self.current_tz()
         space = self.env['ems.space'].browse(space_id).exists()
-        holders = space._get_space_busy(start, end) if space else []
+        holders = space._get_space_busy(self._utc_at(first, 0.0), self._utc_at(first + timedelta(days=7), 0.0)) if space else []
         blocks = []
         for holder in holders:
-            day_index = (holder['start'].date() - first).days
-            if not 0 <= day_index <= 6:
-                continue    # held from the week before: its hours of this week are not drawn
-            midnight = datetime.combine(holder['start'].date(), time.min, tzinfo=tz)
-            blocks.append({
-                'day': day_index,
-                'start': (holder['start'] - midnight).total_seconds() / 3600.0,
-                'end': min((holder['end'] - midnight).total_seconds() / 3600.0, 24.0),
-                'kind': 'reservation' if holder['is_reservation'] else 'schedule',
-                'label': (_("Reserved by %(who)s") if holder['is_reservation'] else _("Weekly schedule: %(who)s"))
-                % {'who': holder['who']},
-            })
-        hours = self.env.company.default_schedule_framework_id.attendance_ids
-        hour_from = int(min(hours.mapped('hour_from'), default=8.0))
-        hour_to = -int(-max(hours.mapped('hour_to'), default=21.0) // 1)
+            label = (_("Reserved by %(who)s") if holder['is_reservation'] else _("Weekly schedule: %(who)s")) \
+                % {'who': holder['who']}
+            # One block per day of this week it takes: a reservation may span several days, or
+            # start in the week before.
+            for day_index in range(max((holder['start'].date() - first).days, 0), 7):
+                midnight = datetime.combine(first + timedelta(days=day_index), time.min, tzinfo=tz)
+                start = max((holder['start'] - midnight).total_seconds() / 3600.0, 0.0)
+                end = min((holder['end'] - midnight).total_seconds() / 3600.0, 24.0)
+                if end <= start:
+                    break
+                blocks.append({
+                    'day': day_index, 'start': start, 'end': end, 'label': label,
+                    'kind': 'reservation' if holder['is_reservation'] else 'schedule',
+                })
+        # One aggregate query: reading the hours of every slot of the framework went one query per slot.
+        [(earliest, latest)] = self.env['resource.calendar.attendance']._read_group(
+            [('calendar_id', '=', self.env.company.default_schedule_framework_id.id)],
+            aggregates=['hour_from:min', 'hour_to:max'])
+        hour_from = int(earliest if earliest is not None else 8.0)
+        hour_to = -int(-(latest if latest is not None else 21.0) // 1)
         for block in blocks:
             hour_from = min(hour_from, int(block['start']))
             hour_to = max(hour_to, -int(-block['end'] // 1))

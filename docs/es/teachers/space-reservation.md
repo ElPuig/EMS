@@ -23,6 +23,6 @@ No se puede reservar una hora que ya ha empezado: la ventana se abre en la próx
 
 ## Tus reservas
 
-La lista muestra todas las reservas; el filtro **Mis reservas** muestra solo las tuyas. Abre una para cambiarla o borrarla: puedes cambiar las tuyas, no las de otras personas. Si cambias la hora y el espacio ya no está libre, EMS no te deja guardar y te indica quién lo tiene y cuándo. La secretaría y los administradores pueden cambiarlas todas.
+La lista muestra todas las reservas; el filtro **Mis reservas** muestra solo las tuyas. Abre una para cambiarla o borrarla: puedes cambiar las tuyas; las de otras personas se abren solo para consultar. Una reserva hecha por una reunión sigue a la reunión: para liberar la sala, cámbiala o quítala en la reunión. Si cambias la hora y el espacio ya no está libre, EMS no te deja guardar y te indica quién lo tiene y cuándo. La secretaría y los administradores pueden cambiarlas todas (excepto las de una reunión, que se cambian en la reunión).
 
 Una reserva hecha por el acta de una reunión se ve aquí solo de lectura: cambia el aula, la fecha o la duración en la propia acta y la reserva la sigue. Si quitas el aula, o la reunión pasa a ser en línea, la reserva desaparece.

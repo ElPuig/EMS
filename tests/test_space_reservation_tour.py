@@ -26,6 +26,14 @@ class TestSpaceReservationTour(HttpCase):
         self.start_tour("/odoo", "ems_space_reservation", login="test_teacher_space_reservation_tour")
         self.start_tour("/odoo", "ems_space_reservation_by_space", login="test_teacher_space_reservation_tour")
         self.start_tour("/odoo", "ems_space_reservation_search_again", login="test_teacher_space_reservation_tour")
+        # Someone else's reservation opens read only (the teacher may not change it).
+        colleague = create_role_user(self, 'teacher', 'test_colleague_space_reservation_tour', name='Tour Colleague')
+        others = self.env['ems.space'].create({'code': 'TSRT-D', 'name': '000 Tour Others Space'})
+        self.env['ems.space_reservation'].create({
+            'space_id': others.id, 'user_id': colleague.id, 'reason': 'Tour colleague reason', 'duration': 1.0,
+            'start_datetime': self.env['ems.datetime_utils'].local_datetime_to_utc(now + timedelta(hours=8)).replace(tzinfo=None),
+        })
+        self.start_tour("/odoo", "ems_space_reservation_others_read_only", login="test_teacher_space_reservation_tour")
 
     def test_space_reservation_now_line_tour(self):
         teacher = create_role_user(self, 'teacher', 'test_teacher_space_reservation_now')

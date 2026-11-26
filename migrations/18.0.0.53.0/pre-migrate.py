@@ -10,6 +10,18 @@ CATALOGUE_TYPES = {'space_type_warehouse': 'Warehouse', 'space_type_wc': 'WC'}
 
 def migrate(cr, version):
     _name_catalogue_space_types(cr)
+    _clear_spaces_menu_action(cr)
+
+
+def _clear_spaces_menu_action(cr):
+    """Issue #475: 'Spaces' became a section (Space list, Space reservations) and its <menuitem>
+    lost its action, but loading a menuitem without an action never clears the one an existing
+    installation already stored, so the section would keep opening the old list. Raw SQL on an
+    existing column, hence pre-migrate."""
+    cr.execute("""
+        UPDATE ir_ui_menu SET action = NULL
+         WHERE id = (SELECT res_id FROM ir_model_data WHERE module = 'ems' AND name = 'menu_spaces')
+    """)
 
 
 def _name_catalogue_space_types(cr):

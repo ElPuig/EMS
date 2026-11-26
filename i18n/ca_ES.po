@@ -2413,6 +2413,7 @@ msgstr "Pot cancel·lar-se"
 #: model:ir.model.fields,field_description:ems.field_ems_quality_can_edit__can_edit
 #: model:ir.model.fields,field_description:ems.field_ems_quality_document__can_edit model:ir.model.fields,field_description:ems.field_ems_quality_edit_mode__can_edit model:ir.model.fields,field_description:ems.field_ems_quality_procedure__can_edit model:ir.model.fields,field_description:ems.field_ems_quality_process__can_edit
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__can_edit
+#: model:ir.model.fields,field_description:ems.field_ems_space_reservation__can_edit
 msgid "Can edit"
 msgstr "Pot editar"
 
@@ -56812,3 +56813,15 @@ msgstr "El final ha de ser després de l'inici."
 #: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_wizard_form
 msgid "No space is free at that time."
 msgstr "Cap espai no és lliure a aquella hora."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/facilities/space_reservation.py:0
+msgid "A meeting's room reservation follows its meeting: change or remove the room in the meeting."
+msgstr "La reserva de la sala d'una reunió segueix la reunió: canvia o treu la sala a la reunió."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/facilities/space_reservation.py:0
+msgid "You can only change your own reservations."
+msgstr "Només pots canviar les teves reserves."

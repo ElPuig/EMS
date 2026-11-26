@@ -225,6 +225,37 @@ registry.category("web_tour.tours").add("ems_space_reservation_search_again", {
     ],
 });
 
+// Someone else's reservation opens read only: a teacher changes only their own.
+registry.category("web_tour.tours").add("ems_space_reservation_others_read_only", {
+    test: true,
+    url: "/odoo/action-ems.action_space_reservation",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row td:contains('Tour colleague reason')",
+            content: "Open a colleague's reservation",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='reason'].o_readonly_modifier:contains('Tour colleague reason')",
+            content: "It is read only",
+            run() {
+                if (document.querySelector(".o_form_view .o_field_widget[name='duration'] input")) {
+                    throw new Error("A colleague's reservation must not be editable");
+                }
+            },
+        },
+        {
+            trigger: ".o_back_button",
+            content: "Back to the list",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view",
+            content: "Back on the list",
+        },
+    ],
+});
+
 // The current time is a dotted red line in today's column; what is above it is the past and cannot be chosen.
 registry.category("web_tour.tours").add("ems_space_reservation_now_line", {
     test: true,

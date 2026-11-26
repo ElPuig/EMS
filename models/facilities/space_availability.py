@@ -63,45 +63,12 @@ class EmsSpaceAvailability(models.Model):
                         'space_id': block.space_id.id, 'is_reservation': False,
                         'who': block.employee_id.name or block.calendar_id.name, 'start': block_start, 'end': block_end})
         return busy
-        utils = self.env['ems.datetime_utils']
-        tz = utils.current_tz()
-        local = lambda moment: utils.utc_datetime_to_local(UTC.localize(moment))
-        start_local, end_local = local(start), local(end)
 
-        reservations = self.env['ems.space_reservation'].sudo().search([
-            ('space_id', 'in', self.ids),
-            ('start_datetime', '<', end),
-            ('end_datetime', '>', start),
-            ('id', 'not in', (exclude_reservations or self.env['ems.space_reservation']).ids),
-        ])
-        for reservation in reservations:
-            busy.append({
-                'space_id': reservation.space_id.id, 'is_reservation': True, 'who': reservation.user_id.name,
-                'start': local(reservation.start_datetime), 'end': local(reservation.end_datetime)})
-
-        Block = self.env['resource.calendar.attendance'].sudo().with_context(active_test=True)
-        day = start_local.date()
-        while day <= end_local.date():
-            hour_from = start_local.hour + start_local.minute / 60.0 if day == start_local.date() else 0.0
-            hour_to = end_local.hour + end_local.minute / 60.0 if day == end_local.date() else 24.0
-            blocks = Block.search([
-                ('space_id', 'in', self.ids),
-                ('calendar_id.active', '=', True),
-                ('dayofweek', '=', str(day.weekday())),
-                ('hour_from', '<', hour_to),
-                ('hour_to', '>', hour_from),
-                ('non_teaching_is_break', '=', False),
-                '|', ('date_from', '=', False), ('date_from', '<=', day),
-                '|', ('date_to', '=', False), ('date_to', '>=', day),
-            ])
-            midnight = datetime.combine(day, time.min, tzinfo=tz)
-            for block in blocks:
-                busy.append({
-                    'space_id': block.space_id.id, 'is_reservation': False,
-                    'who': block.employee_id.name or block.calendar_id.name,
-                    'start': midnight + timedelta(hours=block.hour_from), 'end': midnight + timedelta(hours=block.hour_to)})
-            day += timedelta(days=1)
-        return busy
+    def _filter_free(self, start, end, exclude_reservations=None):
+        """The spaces of these that nothing holds between `start` and `end` (what the reservation
+        form and the reservation wizard offer)."""
+        busy = {holder['space_id'] for holder in self._get_space_busy(start, end, exclude_reservations)}
+        return self.filtered(lambda space: space.id not in busy)
 
     def _get_space_conflicts(self, start, end, exclude_reservations=None):
         """The same, as {space id: [one text per holder]} for the busy spaces only: a space missing

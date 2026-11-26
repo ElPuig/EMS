@@ -48,9 +48,8 @@ wizard instead of the form. The first field is `mode`:
 - **By date** (`date`): day and type (same row), start and end time (the wizard asks for an end time; `duration` is computed from it), then the list of free spaces and, below it, the reason (full width). The free spaces are `free_space_ids`, a non-stored computed
   many2many of `ems.space` over `mode`/`date`/`start_time`/`end_time`/`space_type_id`, so the form's
   onchange recomputes them at every change (no search button): the reservable spaces (of that type)
-  that `_get_space_conflicts` leaves free, none while the end is not after the start (the form then
-  says so). Cost per change: two searches plus one per calendar day of the slot, as any availability
-  check.
+  that `_filter_free` leaves free, none while the end is not after the start (the form then
+  says so). Cost per change: the two searches of any availability check (see below).
 - **By space** (`space`): choosing a space shows its week as a grid, `ems_space_week_grid`
   (`static/src/js/backend/space_week_grid_field.js`, hosted by the computed boolean `show_grid`, true
   once there is a space; there is no search button, the grid loads itself). The widget asks `get_occupation_week(space_id, monday)` for the
@@ -97,25 +96,28 @@ catalogue does not add a second one.
 Calendar view: not offered. Seven simultaneous reservations are unreadable side by side, and the two
 modes answer what is asked.
 
-## What holds a space (`ems.space._get_space_busy` / `_get_space_conflicts`)
+## What holds a space (`ems.space._get_space_busy` / `_filter_free` / `_get_space_conflicts`)
 
 `spaces._get_space_busy(start, end, exclude_reservations=None)` returns one dict per holder (space,
-local start and end, who, whether it is a reservation); `_get_space_conflicts` is the same as
-`{space id: [texts]}` for the busy ones only (a missing key means free). It runs under `sudo()`: whether a room is taken
+local start and end, who, whether it is a reservation). Two readings of it: `_filter_free` keeps the
+spaces nothing holds (what the reservation form and the wizard offer), and `_get_space_conflicts`
+gives `{space id: [texts]}` for the busy ones only, for the messages of a clash. It runs under `sudo()`: whether a room is taken
 is a fact about the whole centre, not about what the acting user may read.
 
 1. **Reservations** overlapping `[start, end)` (adjacent spans do not clash).
 2. **Weekly blocks**: `resource.calendar.attendance` rows of an active calendar with that
    `space_id`, the local weekday, an overlapping hour range and `date_from`/`date_to` covering
    the day. Breaks (`non_teaching_is_break`) never hold a space. Hours are read in the company's
-   timezone (see `docs/en/developers/shared/timezones.md`); a span crossing midnight is checked
-   day by day.
+   timezone (see `docs/en/developers/shared/timezones.md`); a span crossing midnight takes the
+   blocks of every day it touches (one search for the weekdays of the whole span, the days walked
+   in memory).
 
-Cost: two searches for any number of spaces, plus one block search per calendar day the span
-touches (almost always one). Measured on this box's data (85 spaces, 1,679 blocks with a space,
-`odoo shell`): cold 18 ms / 12 queries for a one-hour span, 21 ms / 6 queries for a whole day;
-warm 3-8 ms / 2 queries. The wizard: free spaces for a slot, 21 ms cold / 10 queries (36 spaces
-free); the days of the busiest space over 62 days, 55 ms cold / 16 queries, 44 ms warm.
+Cost: two searches for any number of spaces and any length of span. Measured on this box's data (85
+spaces, 1,679 blocks with a space, `odoo shell`, 2026-11-26): the wizard's free spaces for a slot
+(recomputed at every change) 21 ms / 14 queries cold, 5 ms / 3 queries warm (36 spaces free); the
+reservation form's available spaces 15 ms / 9 queries cold, 5 ms / 3 warm; the week of the busiest
+space for the grid 27 ms / 12 queries cold, 6 ms / 4 warm (69 blocks); a meeting with a room costs
+2-3 ms and 3-4 queries more to save than one without.
 
 Weekly blocks are the single schedule source on purpose: they are what the space's own
 *Schedule* tab shows. `ems.attendance_schedule` is derived from them (bottom-up sync) and is not
@@ -143,11 +145,19 @@ install has no meetings, so it needs nothing in `post_init_hook`.
 | Role | Read | Create | Write / delete |
 |------|------|--------|----------------|
 | Teacher (and every role implying it) | all | own | own, never one made by a meeting |
-| Secretary | all | yes | any |
-| Administrator (`group_academic_admin`) | all | yes | any |
+| Secretary | all | yes | any, but a meeting's is deleted only through its meeting |
+| Administrator (`group_academic_admin`) | all | yes | any, but a meeting's is deleted only through its meeting |
 
 `security/ir.model.access.csv` gives the CRUD rows; `security/rules/facilities.xml` narrows the
 teacher's write rights to `user_id = user.id` and `minute_id = False`.
+
+The form never offers what the rules will refuse: `can_edit` (non-stored, `depends_context('uid')`)
+asks the record rules themselves (`_filtered_access('write')`, once for the whole batch) and is false
+for a meeting's reservation, and the form's fields are `readonly="not can_edit"`, so someone else's
+reservation opens read only. `unlink` answers with a clear message instead of the rules' generic
+access error: a meeting's reservation follows its meeting (change or remove the room there; the
+minute removes it under `sudo()`), and anyone else's is refused (*You can only change your own
+reservations*).
 
 ## Out of scope
 
@@ -156,6 +166,8 @@ absences as occupation.
 
 ## Tests
 
-`tests/test_space_reservation.py` (overlaps, schedule blocks, timezone, archived calendars,
-breaks, meetings, rules) and `tests/test_space_reservation_tour.py` (a teacher reserves a free
-space through calendar, list and form).
+`tests/test_space_reservation.py` (overlaps, schedule blocks, spans over several days, timezone,
+archived calendars, breaks, meetings, rules, the wizard in both modes, the migrations) and
+`tests/test_space_reservation_tour.py`, logged in as a teacher: reserving by date (the list follows
+what is typed, the choice kept or dropped), by space (the grid, dragging, the current-time line, a
+time typed in the past) and a colleague's reservation opened read only.

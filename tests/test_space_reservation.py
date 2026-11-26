@@ -3,6 +3,7 @@
 import importlib.util
 import os
 from datetime import datetime, time, timedelta
+from unittest.mock import patch
 
 from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
@@ -78,6 +79,16 @@ class TestSpaceReservation(TransactionCase):
         self.block.date_to = self.monday - timedelta(days=1)
         self._reserve(10.0)           # the block ended before this Monday
 
+    def test_a_reservation_over_several_days_is_held_by_a_block_of_any_of_them(self):
+        sunday = self.monday - timedelta(days=1)
+        with self.assertRaises(ValidationError):
+            self._reserve(20.0, 15.0, day=sunday)          # Sunday 20:00 to Monday 11:00: the 9-11 block
+        self._reserve(20.0, 12.0, day=sunday)              # until Monday 08:00: free
+        self._reserve(12.0, 36.0)                          # Monday 12:00 to Wednesday 00:00: free
+        self.assertFalse(self.space._get_space_busy(self._utc(13.0), self._utc(8.0, self.monday + timedelta(days=1)),
+                                                    exclude_reservations=self.env['ems.space_reservation'].search(
+                                                        [('space_id', '=', self.space.id)])))
+
     def test_an_archived_calendar_no_longer_holds_the_space(self):
         self.calendar.active = False
         self._reserve(10.0)
@@ -142,6 +153,16 @@ class TestSpaceReservation(TransactionCase):
         minute.unlink()
         self._reserve(12.0)
 
+    def test_a_meetings_reservation_is_only_removed_through_its_meeting(self):
+        minute = self._minute(12.0)
+        reservation = minute.space_reservation_ids
+        secretary = create_role_user(type(self), 'secretary', 'tsr.secretary.meeting@example.com', name='Reservation Secretary')
+        self.assertFalse(reservation.with_user(secretary).can_edit)
+        with self.assertRaisesRegex(UserError, 'follows its meeting'):
+            reservation.with_user(secretary).unlink()
+        minute.space_id = False                              # the meeting gives the room up
+        self.assertFalse(reservation.exists())
+
     def test_a_meeting_cannot_take_a_busy_room(self):
         self._reserve(12.0)
         with self.assertRaises(ValidationError):
@@ -167,9 +188,11 @@ class TestSpaceReservation(TransactionCase):
         self.assertEqual(reservation.user_id, owner)
         as_other = reservation.with_user(other)
         self.assertEqual(as_other.reason, 'Mine')
+        self.assertFalse(as_other.can_edit)                  # the form shows it read only
+        self.assertTrue(reservation.with_user(owner).can_edit)
         with self.assertRaises(AccessError):
             as_other.write({'reason': 'Taken'})
-        with self.assertRaises(AccessError):
+        with self.assertRaisesRegex(UserError, 'only change your own'):
             as_other.unlink()
         reservation.with_user(owner).write({'reason': 'Still mine'})
 
@@ -245,6 +268,13 @@ class TestSpaceReservation(TransactionCase):
         self.assertLessEqual(week['hour_from'], 8)
         self.assertGreaterEqual(week['hour_to'], 21)
 
+    def test_the_week_draws_a_reservation_over_several_days_on_each_of_them(self):
+        # From the Sunday before to Tuesday 10:00: it holds the whole Monday and Tuesday until 10:00.
+        self._reserve(20.0, 38.0, space=self.other_space, day=self.monday - timedelta(days=1))
+        week = self.env['ems.space_reservation_wizard'].get_occupation_week(self.other_space.id, self.monday.isoformat())
+        self.assertEqual(sorted((block['day'], block['start'], block['end']) for block in week['blocks']),
+                         [(0, 0.0, 24.0), (1, 0.0, 10.0)])
+
     def test_the_choice_follows_the_free_spaces_when_the_slot_changes(self):
         wizard = self._wizard(14.0)
         wizard.chosen_space_id = self.space
@@ -288,24 +318,25 @@ class TestSpaceReservation(TransactionCase):
         with self.assertRaises(UserError):
             wizard.action_reserve()                      # no space
 
-    def test_a_slot_typed_in_the_past_is_refused_on_the_spot(self):
-        wizard = self.env['ems.space_reservation_wizard'].new({
-            'mode': 'space', 'space_id': self.space.id, 'space_day': self.env['ems.datetime_utils'].get_local_today() - timedelta(days=7),
-            'space_start': 10.0, 'space_end': 11.0})
-        result = wizard._onchange_slot_not_past()
-        self.assertIn('past', result['warning']['message'])
-        self.assertFalse(wizard.space_day)
-        wizard.space_day = self.monday + timedelta(days=7)
-        self.assertIsNone(wizard._onchange_slot_not_past())   # ahead: kept
-        self.assertTrue(wizard.space_day)
-
-    def test_by_date_a_slot_typed_in_the_past_is_refused_on_the_spot(self):
+    def test_a_slot_typed_in_the_past_is_refused_on_the_spot_in_either_mode(self):
         today = self.env['ems.datetime_utils'].get_local_today()
-        wizard = self.env['ems.space_reservation_wizard'].new({
-            'mode': 'date', 'date': today - timedelta(days=1), 'start_time': 10.0, 'end_time': 11.0})
-        self.assertIn('past', wizard._onchange_slot_not_past()['warning']['message'])
-        self.assertFalse(wizard.date)
-        self.assertFalse(wizard.free_space_ids)                  # nothing offered without a day
+        for mode, day_field, start_field in (('date', 'date', 'start_time'), ('space', 'space_day', 'space_start')):
+            wizard = self.env['ems.space_reservation_wizard'].new({
+                'mode': mode, 'space_id': self.space.id, day_field: today - timedelta(days=1), start_field: 10.0})
+            self.assertIn('past', wizard._onchange_slot_not_past()['warning']['message'])
+            self.assertFalse(wizard[day_field])                  # cleared: nothing offered or drawn
+            self.assertFalse(wizard.free_space_ids)
+            wizard[day_field] = self.monday
+            self.assertIsNone(wizard._onchange_slot_not_past())  # ahead: kept
+            self.assertEqual(wizard[day_field], self.monday)
+
+    def test_late_in_the_day_the_wizard_opens_tomorrow_at_ten(self):
+        Wizard = self.env['ems.space_reservation_wizard']
+        today = self.env['ems.datetime_utils'].get_local_today()
+        for hour, expected in ((21, (today, 22.0)), (22, (today + timedelta(days=1), 10.0))):
+            late = datetime.combine(today, time(hour, 30)).replace(tzinfo=self.tz)
+            with patch.object(type(Wizard), 'get_local_datetime', return_value=late):
+                self.assertEqual(Wizard._default_slot(), expected)
 
     def test_the_wizard_opens_on_the_next_full_hour(self):
         wizard = self.env['ems.space_reservation_wizard'].new({})
@@ -348,3 +379,30 @@ class TestSpaceReservation(TransactionCase):
         self.assertEqual(first.space_reservation_ids.space_id, self.other_space)
         self.assertFalse(clashing.space_reservation_ids)     # the earlier meeting keeps the room
         self.assertFalse(past.space_reservation_ids)         # past meetings need none
+
+    def test_migration_gives_the_catalogue_xmlid_to_a_hand_made_type_without_duplicating_it(self):
+        path = os.path.join(os.path.dirname(__file__), '..', 'migrations', '18.0.0.53.0', 'pre-migrate.py')
+        spec = importlib.util.spec_from_file_location('pre_migration_53_0', path)
+        migration = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(migration)
+        cr = self.env.cr
+        wc = self.env.ref('ems.space_type_wc')
+        # As an installation that made its WC by hand: the type exists, the catalogue's xmlid does not.
+        cr.execute("DELETE FROM ir_model_data WHERE module = 'ems' AND name = 'space_type_wc'")
+        migration._name_catalogue_space_types(cr)
+        migration._name_catalogue_space_types(cr)          # run twice: still one
+        cr.execute("SELECT res_id FROM ir_model_data WHERE module = 'ems' AND name = 'space_type_wc'")
+        self.assertEqual(cr.fetchall(), [(wc.id,)])
+
+    def test_migration_leaves_the_spaces_section_without_the_action_it_had(self):
+        path = os.path.join(os.path.dirname(__file__), '..', 'migrations', '18.0.0.53.0', 'pre-migrate.py')
+        spec = importlib.util.spec_from_file_location('pre_migration_53_0', path)
+        migration = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(migration)
+        menu = self.env.ref('ems.menu_spaces')
+        menu.action = self.env.ref('ems.action_space_tree')      # as an installation from before
+        menu.flush_recordset()
+        migration._clear_spaces_menu_action(self.env.cr)
+        menu.invalidate_recordset()
+        self.assertFalse(menu.action)
+        self.assertEqual(self.env.ref('ems.menu_space_list').action, self.env.ref('ems.action_space_tree'))

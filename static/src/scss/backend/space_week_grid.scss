@@ -1,0 +1,43 @@
+// The week of a space (space reservation wizard, ems_space_week_grid widget).
+$ems-grid-hour: 40px;
+$ems-grid-head: 28px;
+
+.o_field_ems_space_week_grid { display: block; width: 100%; }
+
+.o_ems_week_grid {
+    width: 100%;
+    .o_ems_week_grid_body { border: 1px solid #dee2e6; border-radius: 4px; overflow: hidden; user-select: none; }
+    .o_ems_week_grid_head {
+        height: $ems-grid-head; line-height: $ems-grid-head; text-align: center; font-weight: 600;
+        background: #f8f9fa; border-bottom: 1px solid #dee2e6; font-size: 0.85rem;
+    }
+    .o_ems_week_grid_hours { width: 48px; flex: none; }
+    .o_ems_week_grid_hour { height: $ems-grid-hour; font-size: 0.75rem; color: #6c757d; text-align: right; padding: 0 6px; }
+    .o_ems_week_grid_day { min-width: 0; border-left: 1px solid #dee2e6; }
+    .o_ems_week_grid_column {
+        position: relative; cursor: crosshair;
+        background-image: repeating-linear-gradient(to bottom, transparent 0, transparent ($ems-grid-hour - 1px), #e9ecef ($ems-grid-hour - 1px), #e9ecef $ems-grid-hour);
+        &.o_ems_week_grid_past { cursor: not-allowed; background-color: #f1f3f5; }
+    }
+    .o_ems_week_grid_block {
+        position: absolute; left: 2px; right: 2px; border-radius: 3px; padding: 1px 4px; overflow: hidden;
+        font-size: 0.72rem; line-height: 1.2; cursor: not-allowed;
+        &.o_ems_week_grid_schedule { background: #ced4da; border: 1px solid #adb5bd; color: #343a40; }
+        &.o_ems_week_grid_reservation { background: #fdeedc; border: 1px solid #ef902a; color: #8a4a05; }
+    }
+    .o_ems_week_grid_chosen {
+        position: absolute; left: 2px; right: 2px; border-radius: 3px; pointer-events: none;
+        background: rgba(151, 10, 44, 0.25); border: 2px solid #970a2c;
+    }
+    .o_ems_week_grid_drag {
+        position: absolute; left: 2px; right: 2px; border-radius: 3px; pointer-events: none;
+        background: rgba(151, 10, 44, 0.15); border: 2px dashed #970a2c;
+        &.o_ems_week_grid_drag_held { background: rgba(220, 53, 69, 0.25); border-color: #dc3545; }
+    }
+    .o_ems_week_grid_swatch {
+        display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: middle;
+        &.o_ems_week_grid_schedule { background: #ced4da; border: 1px solid #adb5bd; }
+        &.o_ems_week_grid_reservation { background: #fdeedc; border: 1px solid #ef902a; }
+        &.o_ems_week_grid_choice { background: rgba(151, 10, 44, 0.25); border: 2px solid #970a2c; }
+    }
+}

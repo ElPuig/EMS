@@ -8,6 +8,8 @@
                 <group>
                     <field name="mode" widget="radio"/>
                 </group>
+
+                <!-- By date -->
                 <group invisible="mode != 'date'">
                     <group>
                         <field name="date" required="mode == 'date'"/>
@@ -16,16 +18,7 @@
                         <field name="space_type_id" options="{'no_create': True, 'no_open': True}"/>
                     </group>
                 </group>
-                <group invisible="mode != 'space'">
-                    <group>
-                        <field name="space_id" required="mode == 'space'" options="{'no_create': True, 'no_open': True}"/>
-                    </group>
-                    <group>
-                        <field name="date_from" required="mode == 'space'"/>
-                        <field name="date_to" required="mode == 'space'"/>
-                    </group>
-                </group>
-                <group>
+                <group invisible="mode != 'date'">
                     <group>
                         <field name="start_time" widget="float_time"/>
                     </group>
@@ -33,34 +26,53 @@
                         <field name="end_time" widget="float_time"/>
                     </group>
                 </group>
-                <group>
+                <group invisible="mode != 'date'">
                     <field name="reason"/>
                 </group>
-                <div class="mb-3">
-                    <button name="action_search" type="object" class="btn btn-primary"
-                            string="Search free spaces" invisible="mode != 'date'"/>
-                    <button name="action_search" type="object" class="btn btn-primary"
-                            string="Search free days" invisible="mode != 'space'"/>
+                <div class="mb-3" invisible="mode != 'date'">
+                    <button name="action_search" type="object" class="btn btn-primary" string="Search free spaces"/>
                 </div>
                 <field name="selected_line_id" invisible="1"/>
-                <field name="line_ids" invisible="not line_ids" nolabel="1">
-                    <list create="false" delete="false" edit="false" no_open="1" limit="10" decoration-muted="not is_free and not space_id">
+                <field name="line_ids" invisible="mode != 'date' or not line_ids" nolabel="1">
+                    <list create="false" delete="false" edit="false" no_open="1" limit="10">
                         <field name="selected" widget="ems_radio_row" options="{'chosen_field': 'selected_line_id'}" nolabel="1"
-                               width="40px" invisible="parent.mode == 'space' and not is_free"/>
-                        <field name="space_id" column_invisible="parent.mode != 'date'"/>
-                        <field name="space_type_id" column_invisible="parent.mode != 'date'" width="200px"/>
-                        <field name="date" column_invisible="parent.mode != 'space'"/>
-                        <field name="weekday" column_invisible="parent.mode != 'space'"/>
-                        <field name="is_free" column_invisible="parent.mode != 'space'" widget="boolean"/>
-                        <field name="detail" column_invisible="parent.mode != 'space'"/>
+                               width="40px"/>
+                        <field name="space_id"/>
+                        <field name="space_type_id" width="200px"/>
                     </list>
                 </field>
+
+                <!-- By space -->
+                <group invisible="mode != 'space'">
+                    <field name="space_id" required="mode == 'space'" options="{'no_create': True, 'no_open': True}"/>
+                </group>
+                <div class="mb-3" invisible="mode != 'space'">
+                    <button name="action_search" type="object" class="btn btn-primary" string="Show the occupation"/>
+                </div>
+                <field name="show_grid" widget="ems_space_week_grid" nolabel="1" invisible="mode != 'space' or not show_grid"/>
+                <group invisible="mode != 'space' or not show_grid">
+                    <group>
+                        <field name="space_day" string="Day"/>
+                    </group>
+                </group>
+                <group invisible="mode != 'space' or not show_grid">
+                    <group>
+                        <field name="space_start" widget="float_time" string="Start"/>
+                    </group>
+                    <group>
+                        <field name="space_end" widget="float_time" string="End"/>
+                    </group>
+                </group>
+                <group invisible="mode != 'space' or not show_grid">
+                    <field name="space_reason" string="Reason"/>
+                </group>
+
                 <footer>
                     <button name="action_reserve" type="object" string="Reserve" class="btn-primary"
-                            invisible="not selected_line_id"/>
-                    <!-- Looks disabled until a result is chosen (a button has no disabled attribute in a view). -->
+                            invisible="(mode == 'date' and not selected_line_id) or (mode == 'space' and (not show_grid or not space_day))"/>
+                    <!-- Looks disabled until there is something to reserve (a view button has no disabled attribute). -->
                     <button name="action_reserve" type="object" string="Reserve" class="btn-primary disabled"
-                            invisible="selected_line_id"/>
+                            invisible="(mode == 'date' and selected_line_id) or (mode == 'space' and show_grid and space_day)"/>
                     <button special="cancel" string="Close"/>
                 </footer>
             </form>
@@ -72,6 +84,7 @@
         <field name="res_model">ems.space_reservation_wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
+        <field name="context">{'dialog_size': 'large'}</field>
     </record>
 
     <record id="view_space_reservation_list" model="ir.ui.view">

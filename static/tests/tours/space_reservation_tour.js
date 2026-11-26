@@ -68,7 +68,7 @@ registry.category("web_tour.tours").add("ems_space_reservation", {
     ],
 });
 
-// By space: the days a space is free in a range, and what holds it the days it is not.
+// By space: the week of a space as a grid, with what holds it; a click on a free time chooses it.
 registry.category("web_tour.tours").add("ems_space_reservation_by_space", {
     test: true,
     url: "/odoo/action-ems.action_space_reservation",
@@ -79,7 +79,7 @@ registry.category("web_tour.tours").add("ems_space_reservation_by_space", {
             run: "click",
         },
         {
-            trigger: ".modal .o_field_widget[name='mode'] .o_radio_item:contains('which days it is free') input",
+            trigger: ".modal .o_field_widget[name='mode'] .o_radio_item:contains('when it is free') input",
             content: "Search by space",
             run: "click",
         },
@@ -94,22 +94,51 @@ registry.category("web_tour.tours").add("ems_space_reservation_by_space", {
             run: "click",
         },
         {
-            trigger: ".modal button[name='action_search']:contains('Search free days')",
-            content: "Search the free days",
+            trigger: ".modal button[name='action_search']:contains('Show the occupation')",
+            content: "Show its occupation",
             run: "click",
         },
         {
-            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row:contains('Reserved by')",
-            content: "The day the space is reserved says who holds it",
+            trigger: ".modal .o_ems_week_grid .o_ems_week_grid_reservation",
+            content: "The reservation that holds the space is drawn on the grid",
         },
         {
-            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row:not(:contains('Reserved by')) input.o_ems_radio_row",
-            content: "Choose a free day",
+            trigger: ".modal-footer button.disabled[name='action_reserve']",
+            content: "Reserve is not available until a time is chosen",
+        },
+        {
+            trigger: ".modal .o_ems_week_next",
+            content: "Next week (every day of it is free)",
             run: "click",
+        },
+        {
+            trigger: ".modal .o_ems_week_grid_column:not(.o_ems_week_grid_past)[data-date]",
+            content: "Click a free time",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_ems_week_grid_chosen",
+            content: "The chosen time is drawn on the grid",
+        },
+        {
+            trigger: ".modal .o_ems_week_grid_column:not(.o_ems_week_grid_past)[data-date]",
+            content: "Drag over a free time of two hours",
+            run() {
+                const column = document.querySelector(".modal .o_ems_week_grid_column:not(.o_ems_week_grid_past)[data-date]");
+                const rect = column.getBoundingClientRect();
+                const at = (y) => ({ bubbles: true, button: 0, clientX: rect.left + 10, clientY: rect.top + y });
+                column.dispatchEvent(new MouseEvent("mousedown", at(40 * 6)));
+                document.dispatchEvent(new MouseEvent("mousemove", at(40 * 8)));
+                document.dispatchEvent(new MouseEvent("mouseup", at(40 * 8)));
+            },
+        },
+        {
+            trigger: ".modal .o_ems_week_grid_chosen[style*='height: 80px']",
+            content: "The dragged two hours are chosen",
         },
         {
             trigger: ".modal-footer button[name='action_reserve']:not(.disabled)",
-            content: "Reserve it",
+            content: "Reserve the chosen time",
             run: "click",
         },
         {

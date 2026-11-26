@@ -47,19 +47,25 @@ wizard instead of the form. The first field is `mode`:
 
 - **By date** (`date`): day and type (same row), start and end time (the wizard asks for an end time; `duration` is computed from it), reason (full width). *Search free spaces* writes one
   `ems.space_reservation_wizard.line` per reservable space (of that type) that is free.
-- **By space** (`space`): a space, `date_from`..`date_to` (at most 62 days), start and end time.
-  *Search free days* writes one line per day (never before today, nor a slot already started) with
-  the weekday, whether it is free and, if not, what holds the slot (`detail`: reservation or
-  weekly schedule, with hours). The whole range is asked once from `_get_space_busy` and the days
-  are checked in memory.
+- **By space** (`space`): a space and *Show the occupation* (`action_search` sets `show_grid`), which shows
+  the week of the space as a grid, `ems_space_week_grid` (`static/src/js/backend/space_week_grid_field.js`,
+  hosted by the boolean `show_grid`). The widget asks `get_occupation_week(space_id, monday)` for the
+  seven days, what holds the space in each (from `_get_space_busy`: weekly schedule blocks and
+  reservations, hours as floats in the company's timezone) and the hours the grid covers (the school
+  day of the default schedule framework, widened to take in anything held outside it). It only draws:
+  the server decides what is held. Dragging over a free time (or a click, for an hour) writes the
+  slot into `space_day`/`space_start`/`space_end`, which can also be typed; a held time or a day
+  gone by cannot be chosen. The weekend is hidden unless ticked. Each mode has its own slot fields
+  (`date`/`start_time`/`end_time`/`reason` by date, `space_*` by space) so each lays out its own form.
+  Reserving creates the reservation (never in the past) and opens it.
 
 The results are chosen with a radio button per row (`ems_radio_row`, `static/src/js/backend/radio_row_field.js`),
 or by clicking anywhere on the row (the widget listens on its row, which is highlighted, so a row
 where the field is invisible, a busy day, cannot be chosen). Either way it writes the row into `selected_line_id` of the wizard, so the footer's *Reserve* (`action_reserve`)
 is enabled only once a row is chosen (until then a lookalike button with the `disabled` class is shown,
 since a view button has no disabled attribute). A busy day offers no radio button. The list is paginated ten rows at a time (`limit="10"` on the list, the standard x2many pager),
-so the dialog does not grow with the results; the choice lives on the wizard, not on a page, and
-survives a change of page. The *Search*
+so the dialog does not grow with the results (by-date mode); the choice lives on the wizard, not on a
+page, and survives a change of page. The *Search*
 button sits between the fields and the list. The lines are real records, not a computed list (the
 choice points to a record). Changing anything the search
 depends on drops the lines (`write`), so a stale answer is never shown. *Reserve* (on a row)

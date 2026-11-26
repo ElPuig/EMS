@@ -4249,6 +4249,7 @@ msgstr "Activa los comportamientos especiales del bloque."
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__date_end
 #: model:ir.model.fields,field_description:ems.field_ems_space_reservation__end_datetime
 #: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__end_time
+#: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_wizard_form
 msgid "End"
 msgstr "Fin"
 
@@ -4816,7 +4817,6 @@ msgstr "Viernes"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__from_date model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__date_from
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__hour_from
-#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__date_from
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment__date_from
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_staff_proposal_wizard__proposal_date_start
 msgid "From"
@@ -9322,6 +9322,7 @@ msgstr "Comportamiento especial"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__date_start
 #: model:ir.model.fields,field_description:ems.field_ems_space_reservation__start_datetime
 #: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__start_time
+#: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_wizard_form
 msgid "Start"
 msgstr "Comenzar"
 
@@ -10370,6 +10371,7 @@ msgstr "Título"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+#: code:addons/ems/static/src/xml/backend/space_week_grid_field.xml:0
 msgid "Today"
 msgstr "Hoy"
 
@@ -10377,7 +10379,6 @@ msgstr "Hoy"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__to_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__date_to
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__hour_to
-#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__date_to
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment__date_to
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_staff_proposal_wizard__proposal_date_end
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__recipient_ids
@@ -11935,6 +11936,7 @@ msgstr "Salida original"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__reason
 #: model:ir.model.fields,field_description:ems.field_ems_space_reservation__reason
 #: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__reason
+#: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_wizard_form
 msgid "Reason"
 msgstr "Motivo"
 
@@ -16853,6 +16855,7 @@ msgstr "Tabla de ausencias"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+#: code:addons/ems/static/src/xml/backend/space_week_grid_field.xml:0
 msgid "Loading..."
 msgstr "Cargando..."
 
@@ -21918,7 +21921,7 @@ msgstr "sesión(es) del horario personalizado de este alumno ya no están en el 
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__date
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__day
 #: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__date
-#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard_line__date
+#: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_wizard_form
 msgid "Day"
 msgstr "Día"
 
@@ -48496,7 +48499,6 @@ msgstr "Subvención"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_support_rate_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
-#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__date_from
 msgid "From"
 msgstr "Desde"
 
@@ -48658,7 +48660,6 @@ msgstr "Equipo y participante"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
-#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__date_to
 msgid "To"
 msgstr "Hasta"
 
@@ -56706,21 +56707,6 @@ msgid "Weekly schedule: %(who)s"
 msgstr "Horario semanal: %(who)s"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard_line__detail
-msgid "What holds it"
-msgstr "Qué lo ocupa"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard_line__is_free
-msgid "Is free"
-msgstr "Está libre"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard_line__weekday
-msgid "Day of the week"
-msgstr "Día de la semana"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__mode
 msgid "Search by"
 msgstr "Buscar por"
@@ -56729,16 +56715,6 @@ msgstr "Buscar por"
 #: model:ir.model.fields.selection,name:ems.selection__ems_space_reservation_wizard__mode__date
 msgid "Date: which spaces are free"
 msgstr "Fecha: qué espacios están libres"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_space_reservation_wizard__mode__space
-msgid "Space: which days it is free"
-msgstr "Espacio: qué días está libre"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_wizard_form
-msgid "Search free days"
-msgstr "Buscar días libres"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_space_reservation_wizard__space_type_id
@@ -56751,32 +56727,10 @@ msgid "Whether the spaces of this type can be reserved. Untick it for the types 
 msgstr "Indica si se pueden reservar los espacios de este tipo. Desmárcala en los tipos que nunca se reservan (WC...): tampoco se ofrecen al buscar un espacio."
 
 #. module: ems
-#: model:ir.model,name:ems.model_ems_space_reservation_wizard
-msgid "Reserve a space: by date (the free spaces) or by space (the days it is free)."
-msgstr "Reservar un espacio: por fecha (los espacios libres) o por espacio (los días que está libre)."
-
-#. module: ems
-#: model:ir.model,name:ems.model_ems_space_reservation_wizard_line
-msgid "A result of the reservation wizard: a free space, or a day a space is free or not."
-msgstr "Un resultado del asistente de reserva: un espacio libre, o un día que un espacio está libre o no."
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/facilities/space_reservation_wizard.py:0
 msgid "Choose a space."
 msgstr "Elige un espacio."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/facilities/space_reservation_wizard.py:0
-msgid "Choose a range of days: the last one cannot be before the first one."
-msgstr "Elige un intervalo de días: el último no puede ser anterior al primero."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/facilities/space_reservation_wizard.py:0
-msgid "Choose at most %(days)s days at a time."
-msgstr "Elige como máximo %(days)s días cada vez."
 
 #. module: ems
 #: model:ems.space_type,name:ems.space_type_warehouse
@@ -56803,3 +56757,92 @@ msgstr "Resultado elegido"
 #: code:addons/ems/models/facilities/space_reservation_wizard.py:0
 msgid "Choose one of the results."
 msgstr "Elige uno de los resultados."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_space_reservation_wizard__mode__space
+msgid "Space: when it is free"
+msgstr "Espacio: cuándo está libre"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__show_grid
+#: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_wizard_form
+msgid "Show the occupation"
+msgstr "Mostrar la ocupación"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_space_reservation_wizard
+msgid "Reserve a space: by date (the free spaces) or by space (when it is free)."
+msgstr "Reservar un espacio: por fecha (los espacios libres) o por espacio (cuándo está libre)."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_space_reservation_wizard_line
+msgid "A result of the reservation wizard: a space that is free for the time asked."
+msgstr "Un resultado del asistente de reserva: un espacio libre para la hora pedida."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/facilities/space_reservation_wizard.py:0
+msgid "Choose a space and a free time of its week."
+msgstr "Elige un espacio y una hora libre de su semana."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/space_week_grid_field.xml:0
+msgid "Previous week"
+msgstr "Semana anterior"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/space_week_grid_field.xml:0
+msgid "Next week"
+msgstr "Semana siguiente"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/space_week_grid_field.xml:0
+msgid "Show the weekend"
+msgstr "Mostrar el fin de semana"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/space_week_grid_field.xml:0
+msgid "Weekly schedule"
+msgstr "Horario semanal"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/space_week_grid_field.xml:0
+msgid "Reservation"
+msgstr "Reserva"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/space_week_grid_field.xml:0
+msgid "Your choice"
+msgstr "Tu elección"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/space_week_grid_field.xml:0
+msgid "Drag over a free time to choose it."
+msgstr "Arrastra sobre una hora libre para elegirla."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__space_day
+msgid "Day to reserve"
+msgstr "Día a reservar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__space_start
+msgid "Start of the slot"
+msgstr "Inicio de la franja"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__space_end
+msgid "End of the slot"
+msgstr "Final de la franja"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__space_reason
+msgid "Reason of the reservation"
+msgstr "Motivo de la reserva"

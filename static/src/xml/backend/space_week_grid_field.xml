@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="ems.SpaceWeekGridField">
+        <div class="o_ems_week_grid mb-3">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <button type="button" class="btn btn-sm btn-secondary o_ems_week_prev" title="Previous week"
+                        t-on-click="() => this.moveWeek(-1)"><i class="fa fa-chevron-left"/></button>
+                <button type="button" class="btn btn-sm btn-secondary o_ems_week_today" t-on-click="goToday">Today</button>
+                <button type="button" class="btn btn-sm btn-secondary o_ems_week_next" title="Next week"
+                        t-on-click="() => this.moveWeek(1)"><i class="fa fa-chevron-right"/></button>
+                <strong t-if="state.data" class="ms-2" t-esc="weekLabel"/>
+                <label class="ms-auto form-check-label d-flex align-items-center gap-1">
+                    <input type="checkbox" class="form-check-input mt-0" t-att-checked="state.weekend" t-on-change="toggleWeekend"/>
+                    Show the weekend
+                </label>
+            </div>
+            <div t-if="state.data" class="o_ems_week_grid_body d-flex">
+                <div class="o_ems_week_grid_hours">
+                    <div class="o_ems_week_grid_head"/>
+                    <div class="o_ems_week_grid_hours_body" t-attf-style="height: #{bodyHeight}px;">
+                        <div t-foreach="hours" t-as="hour" t-key="hour" class="o_ems_week_grid_hour" t-esc="hour + ':00'"/>
+                    </div>
+                </div>
+                <div t-foreach="days" t-as="day" t-key="day.date" class="o_ems_week_grid_day flex-grow-1">
+                    <div class="o_ems_week_grid_head" t-esc="day.label"/>
+                    <div t-attf-class="o_ems_week_grid_column #{day.past ? 'o_ems_week_grid_past' : ''}"
+                         t-att-data-date="day.date" t-attf-style="height: #{bodyHeight}px;"
+                         t-on-mousedown="(ev) => this.dragStart(ev, day)">
+                        <div t-foreach="blocks(day)" t-as="block" t-key="block_index"
+                             t-attf-class="o_ems_week_grid_block o_ems_week_grid_#{block.kind}"
+                             t-att-style="box(block.start, block.end)" t-att-title="block.label">
+                            <span t-esc="block.label"/>
+                        </div>
+                        <t t-set="slot" t-value="chosen(day)"/>
+                        <div t-if="slot" class="o_ems_week_grid_chosen" t-att-style="box(slot.start, slot.end)"/>
+                        <div t-if="state.drag and state.drag.day.date === day.date"
+                             t-attf-class="o_ems_week_grid_drag #{dragHeld ? 'o_ems_week_grid_drag_held' : ''}"
+                             t-att-style="box(state.drag.start, state.drag.end)"/>
+                    </div>
+                </div>
+            </div>
+            <div t-if="!state.data" class="text-muted">Loading...</div>
+            <div class="o_ems_week_grid_legend d-flex gap-3 mt-2 small text-muted">
+                <span><span class="o_ems_week_grid_swatch o_ems_week_grid_schedule"/> Weekly schedule</span>
+                <span><span class="o_ems_week_grid_swatch o_ems_week_grid_reservation"/> Reservation</span>
+                <span><span class="o_ems_week_grid_swatch o_ems_week_grid_choice"/> Your choice</span>
+                <span>Drag over a free time to choose it.</span>
+            </div>
+        </div>
+    </t>
+
+</templates>

@@ -53,8 +53,12 @@ wizard instead of the form. The first field is `mode`:
   weekly schedule, with hours). The whole range is asked once from `_get_space_busy` and the days
   are checked in memory.
 
-The *Reserve* action is an icon button in the last column (a text button is clipped by the list renderer, which sizes a button column to an icon); a hint line above the list says so. The lines are real records, not a computed list: a row's *Reserve* button needs a record to call (a
-computed one2many holds virtual rows and the button did nothing). Changing anything the search
+The results are chosen with a radio button per row (`ems_radio_row`, `static/src/js/backend/radio_row_field.js`):
+it writes the row into `selected_line_id` of the wizard, so the footer's *Reserve* (`action_reserve`)
+is enabled only once a row is chosen (until then a lookalike button with the `disabled` class is shown,
+since a view button has no disabled attribute). A busy day offers no radio button. The *Search*
+button sits between the fields and the list. The lines are real records, not a computed list (the
+choice points to a record). Changing anything the search
 depends on drops the lines (`write`), so a stale answer is never shown. *Reserve* (on a row)
 creates the reservation (never in the past) and opens it.
 

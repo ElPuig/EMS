@@ -272,15 +272,18 @@ class TestSpaceReservation(TransactionCase):
             'mode': 'space', 'space_id': self.space.id, 'start_time': 15.0, 'end_time': 16.0, 'reason': 'Talk',
             'date_from': self.monday, 'date_to': self.monday})
         wizard.action_search()
-        action = wizard.line_ids.action_reserve()
+        wizard.selected_line_id = wizard.line_ids
+        action = wizard.action_reserve()
         reservation = self.env['ems.space_reservation'].browse(action['res_id'])
         self.assertEqual((reservation.space_id, reservation.reason, reservation.start_datetime),
                          (self.space, 'Talk', self._utc(15.0)))
 
     def test_the_wizard_reserves_a_free_space_and_refuses_the_past(self):
         wizard = self._wizard(16.0, reason='Line')
-        line = wizard.line_ids.filtered(lambda line: line.space_id == self.space)
-        self.assertTrue(self.env['ems.space_reservation'].browse(line.action_reserve()['res_id']).exists())
+        with self.assertRaises(UserError):
+            wizard.action_reserve()                      # nothing chosen yet
+        wizard.selected_line_id = wizard.line_ids.filtered(lambda line: line.space_id == self.space)
+        self.assertTrue(self.env['ems.space_reservation'].browse(wizard.action_reserve()['res_id']).exists())
         past = self.env['ems.space_reservation_wizard'].create({
             'date': self.monday - timedelta(days=100), 'start_time': 10.0, 'end_time': 11.0})
         past.action_search()

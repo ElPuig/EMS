@@ -36,9 +36,11 @@ class EmsSpaceReservationWizard(models.TransientModel):
         help="Narrows the spaces looked at to those of this type.")
     space_id = fields.Many2one(string="Space", comodel_name="ems.space", domain="[('reservable', '=', True)]")
     reason = fields.Char(string="Reason")
-    # Real records (not a computed list): a row's Reserve button needs the row to exist.
+    # Real records (not a computed list): the radio button of a row needs the row to exist.
     line_ids = fields.One2many(
         string="Results", comodel_name="ems.space_reservation_wizard.line", inverse_name="wizard_id")
+    selected_line_id = fields.Many2one(
+        string="Chosen result", comodel_name="ems.space_reservation_wizard.line", ondelete='set null')
 
     @api.depends('start_time', 'end_time')
     def _compute_duration(self):
@@ -112,6 +114,14 @@ class EmsSpaceReservationWizard(models.TransientModel):
             }))
         return lines
 
+    def action_reserve(self):
+        """Reserves the result chosen in the list (a free space, or a free day of the space)."""
+        self.ensure_one()
+        line = self.selected_line_id
+        if not line:
+            raise UserError(_("Choose one of the results."))
+        return self._reserve(line.space_id or self.space_id, line.date or self.date)
+
     def _reserve(self, space, day):
         self.ensure_one()
         start, _end = self._slot(day)
@@ -139,8 +149,5 @@ class EmsSpaceReservationWizardLine(models.TransientModel):
     weekday = fields.Char(string="Day of the week")
     is_free = fields.Boolean(string="Is free")
     detail = fields.Char(string="What holds it")
-
-    def action_reserve(self):
-        self.ensure_one()
-        wizard = self.wizard_id
-        return wizard._reserve(self.space_id or wizard.space_id, self.date or wizard.date)
+    # Only hosts the radio button column (widget ems_radio_row): the choice is wizard.selected_line_id.
+    selected = fields.Boolean(string="Choose")

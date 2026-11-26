@@ -1668,6 +1668,7 @@ msgstr "Carrega"
 #: code:addons/ems/models/employees/absence_pending.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_list
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_list
+#: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_list
 msgid "New"
 msgstr "Nou"
 
@@ -56753,6 +56754,17 @@ msgid "WC"
 msgstr "WC"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_wizard_form
-msgid "Press the calendar button of a row to reserve it."
-msgstr "Prem el botó del calendari d'una fila per reservar-la."
+#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard_line__selected
+msgid "Choose"
+msgstr "Tria"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__selected_line_id
+msgid "Chosen result"
+msgstr "Resultat triat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/facilities/space_reservation_wizard.py:0
+msgid "Choose one of the results."
+msgstr "Tria un dels resultats."

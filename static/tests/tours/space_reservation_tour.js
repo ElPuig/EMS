@@ -39,8 +39,17 @@ registry.category("web_tour.tours").add("ems_space_reservation", {
             run: "edit Tour reason",
         },
         {
-            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row:contains('Tour Free Space') button[name='action_reserve']",
-            content: "Reserve the free space",
+            trigger: ".modal-footer button.disabled[name='action_reserve']",
+            content: "Reserve is not available until a space is chosen",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row:contains('Tour Free Space') input.o_ems_radio_row",
+            content: "Choose the free space",
+            run: "click",
+        },
+        {
+            trigger: ".modal-footer button[name='action_reserve']:not(.disabled)",
+            content: "Reserve the chosen space",
             run: "click",
         },
         {
@@ -94,8 +103,13 @@ registry.category("web_tour.tours").add("ems_space_reservation_by_space", {
             content: "The day the space is reserved says who holds it",
         },
         {
-            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row:not(:contains('Reserved by')) button[name='action_reserve']",
-            content: "Reserve a free day",
+            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row:not(:contains('Reserved by')) input.o_ems_radio_row",
+            content: "Choose a free day",
+            run: "click",
+        },
+        {
+            trigger: ".modal-footer button[name='action_reserve']:not(.disabled)",
+            content: "Reserve it",
             run: "click",
         },
         {

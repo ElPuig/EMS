@@ -36,24 +36,31 @@
                 <group>
                     <field name="reason"/>
                 </group>
-                <div class="text-muted" invisible="not line_ids">Press the calendar button of a row to reserve it.</div>
+                <div class="mb-3">
+                    <button name="action_search" type="object" class="btn btn-primary"
+                            string="Search free spaces" invisible="mode != 'date'"/>
+                    <button name="action_search" type="object" class="btn btn-primary"
+                            string="Search free days" invisible="mode != 'space'"/>
+                </div>
+                <field name="selected_line_id" invisible="1"/>
                 <field name="line_ids" invisible="not line_ids" nolabel="1">
                     <list create="false" delete="false" edit="false" no_open="1" decoration-muted="not is_free and not space_id">
+                        <field name="selected" widget="ems_radio_row" options="{'chosen_field': 'selected_line_id'}" nolabel="1"
+                               width="40px" invisible="parent.mode == 'space' and not is_free"/>
                         <field name="space_id" column_invisible="parent.mode != 'date'"/>
                         <field name="space_type_id" column_invisible="parent.mode != 'date'" width="200px"/>
                         <field name="date" column_invisible="parent.mode != 'space'"/>
                         <field name="weekday" column_invisible="parent.mode != 'space'"/>
                         <field name="is_free" column_invisible="parent.mode != 'space'" widget="boolean"/>
                         <field name="detail" column_invisible="parent.mode != 'space'"/>
-                        <button name="action_reserve" type="object" icon="fa-calendar-plus-o" title="Reserve"
-                                class="btn btn-link px-1" invisible="parent.mode == 'space' and not is_free"/>
                     </list>
                 </field>
                 <footer>
-                    <button name="action_search" type="object" class="btn-primary"
-                            string="Search free spaces" invisible="mode != 'date'"/>
-                    <button name="action_search" type="object" class="btn-primary"
-                            string="Search free days" invisible="mode != 'space'"/>
+                    <button name="action_reserve" type="object" string="Reserve" class="btn-primary"
+                            invisible="not selected_line_id"/>
+                    <!-- Looks disabled until a result is chosen (a button has no disabled attribute in a view). -->
+                    <button name="action_reserve" type="object" string="Reserve" class="btn-primary disabled"
+                            invisible="selected_line_id"/>
                     <button special="cancel" string="Close"/>
                 </footer>
             </form>
@@ -80,7 +87,7 @@
                 <field name="end_datetime"/>
                 <field name="space_id"/>
                 <field name="reason"/>
-                <field name="user_id" widget="many2one_avatar_user"/>
+                <field name="user_id"/>
                 <field name="minute_id" optional="hide"/>
             </list>
         </field>
@@ -104,7 +111,7 @@
                             <field name="space_id" options="{'no_create': True, 'no_open': True}"
                                    domain="[('id', 'in', available_space_ids)]" readonly="minute_id"/>
                             <field name="reason" readonly="minute_id"/>
-                            <field name="user_id" widget="many2one_avatar_user" readonly="1"/>
+                            <field name="user_id" readonly="1"/>
                         </group>
                     </group>
                 </sheet>

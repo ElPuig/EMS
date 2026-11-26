@@ -21,6 +21,10 @@ class EmsSpace(models.Model):
 		string="Location", comodel_name="hr.work.location", required=True,
 		default=lambda self: self.env.ref("ems.work_location_main", raise_if_not_found=False))
 
+	reservable = fields.Boolean(
+		string="Reservable", default=True,
+		help="Whether a teacher can reserve it. Untick it for the spaces that are not to be reserved (services...).")
+
 	@api.depends('name', 'code')
 	def _compute_display_name(self):
 		for space in self:

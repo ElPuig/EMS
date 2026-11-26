@@ -19,6 +19,9 @@
                             <group>
                                 <field name="work_location_id"/>
                             </group>
+                            <group>
+                                <field name="reservable"/>
+                            </group>
                         </group>
                         <notebook>
                             <page string="Schedule" name="schedule">

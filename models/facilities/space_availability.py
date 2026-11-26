@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
-from datetime import timedelta
+from datetime import datetime, time, timedelta
 
 from pytz import UTC
 
@@ -11,21 +11,24 @@ from odoo import _, models
 class EmsSpaceAvailability(models.Model):
     _inherit = 'ems.space'
 
-    def _get_space_conflicts(self, start, end, exclude_reservations=None):
-        """What holds each of these spaces between `start` and `end` (naive UTC datetimes, how Odoo
-        stores them): a weekly schedule block (classes and duties, read in the company's timezone)
-        or a reservation (a meeting's included, it makes its own). Returns {space id: [one text per
-        holder]}, only for the spaces that are busy; a space missing from it is free.
+    def _get_space_busy(self, start, end, exclude_reservations=None):
+        """What holds these spaces between `start` and `end` (naive UTC datetimes, how Odoo stores
+        them): a reservation (a meeting's included, it makes its own) or a weekly schedule block
+        (classes and duties, read in the company's timezone; breaks never hold a space). Returns a
+        list of dicts, one per holder: 'space_id', 'start' and 'end' (the company's local datetimes),
+        'who' (the person, or the calendar when it has none) and 'is_reservation'.
 
         Two searches for any number of spaces (plus one per calendar day the span touches, almost
         always one), under sudo(): whether a room is taken is a fact about the whole centre, not
-        about what the acting user may read."""
-        conflicts = defaultdict(list)
+        about what the acting user may read. Everything that asks whether a space is free goes
+        through here."""
+        busy = []
         if not self or not start or not end or start >= end:
-            return conflicts
+            return busy
         utils = self.env['ems.datetime_utils']
-        start_local = utils.utc_datetime_to_local(UTC.localize(start))
-        end_local = utils.utc_datetime_to_local(UTC.localize(end))
+        tz = utils.current_tz()
+        local = lambda moment: utils.utc_datetime_to_local(UTC.localize(moment))
+        start_local, end_local = local(start), local(end)
 
         reservations = self.env['ems.space_reservation'].sudo().search([
             ('space_id', 'in', self.ids),
@@ -34,12 +37,9 @@ class EmsSpaceAvailability(models.Model):
             ('id', 'not in', (exclude_reservations or self.env['ems.space_reservation']).ids),
         ])
         for reservation in reservations:
-            conflicts[reservation.space_id.id].append(_(
-                "reserved by %(user)s on %(day)s from %(start)s to %(end)s",
-                user=reservation.user_id.name,
-                day=utils.utc_datetime_to_local(UTC.localize(reservation.start_datetime)).strftime('%d/%m/%Y'),
-                start=utils.utc_datetime_to_local(UTC.localize(reservation.start_datetime)).strftime('%H:%M'),
-                end=utils.utc_datetime_to_local(UTC.localize(reservation.end_datetime)).strftime('%H:%M')))
+            busy.append({
+                'space_id': reservation.space_id.id, 'is_reservation': True, 'who': reservation.user_id.name,
+                'start': local(reservation.start_datetime), 'end': local(reservation.end_datetime)})
 
         Block = self.env['resource.calendar.attendance'].sudo().with_context(active_test=True)
         day = start_local.date()
@@ -56,18 +56,23 @@ class EmsSpaceAvailability(models.Model):
                 '|', ('date_from', '=', False), ('date_from', '<=', day),
                 '|', ('date_to', '=', False), ('date_to', '>=', day),
             ])
+            midnight = datetime.combine(day, time.min, tzinfo=tz)
             for block in blocks:
-                conflicts[block.space_id.id].append(_(
-                    "in the weekly schedule of %(who)s on %(day)s from %(start)s to %(end)s",
-                    who=block.employee_id.name or block.calendar_id.name,
-                    day=day.strftime('%d/%m/%Y'),
-                    start=self._hour_label(block.hour_from),
-                    end=self._hour_label(block.hour_to)))
+                busy.append({
+                    'space_id': block.space_id.id, 'is_reservation': False,
+                    'who': block.employee_id.name or block.calendar_id.name,
+                    'start': midnight + timedelta(hours=block.hour_from), 'end': midnight + timedelta(hours=block.hour_to)})
             day += timedelta(days=1)
-        return conflicts
+        return busy
 
-    @staticmethod
-    def _hour_label(hour):
-        """A float hour as HH:MM."""
-        minutes = int(round(hour * 60))
-        return f"{minutes // 60:02d}:{minutes % 60:02d}"
+    def _get_space_conflicts(self, start, end, exclude_reservations=None):
+        """The same, as {space id: [one text per holder]} for the busy spaces only: a space missing
+        from it is free. For messages (a reservation that clashes)."""
+        conflicts = defaultdict(list)
+        for holder in self._get_space_busy(start, end, exclude_reservations):
+            args = {'who': holder['who'], 'day': holder['start'].strftime('%d/%m/%Y'),
+                    'start': holder['start'].strftime('%H:%M'), 'end': holder['end'].strftime('%H:%M')}
+            conflicts[holder['space_id']].append(
+                _("reserved by %(who)s on %(day)s from %(start)s to %(end)s", **args) if holder['is_reservation']
+                else _("in the weekly schedule of %(who)s on %(day)s from %(start)s to %(end)s", **args))
+        return conflicts

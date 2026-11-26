@@ -42,13 +42,15 @@ class EmsSpaceReservation(models.Model):
     def _compute_available_space_ids(self):
         Space = self.env['ems.space']
         for reservation in self:
+            # A meeting's room is not a request to reserve a space: any room, reservable or not.
+            spaces = Space.search([] if reservation.minute_id else [('reservable', '=', True)])
             if not reservation.start_datetime or reservation.duration <= 0:
-                reservation.available_space_ids = Space.search([])
+                reservation.available_space_ids = spaces
                 continue
             end = reservation.start_datetime + timedelta(hours=reservation.duration)
-            busy = Space.search([])._get_space_conflicts(
+            busy = spaces._get_space_conflicts(
                 reservation.start_datetime, end, exclude_reservations=reservation._origin)
-            reservation.available_space_ids = Space.search([('id', 'not in', list(busy))])
+            reservation.available_space_ids = spaces.browse([space_id for space_id in spaces.ids if space_id not in busy])
 
     @api.depends('space_id', 'reason', 'start_datetime')
     def _compute_display_name(self):
@@ -60,6 +62,12 @@ class EmsSpaceReservation(models.Model):
         for reservation in self:
             if reservation.duration <= 0:
                 raise ValidationError(_("The duration of a reservation must be greater than zero."))
+
+    @api.constrains('space_id', 'minute_id')
+    def _check_space_is_reservable(self):
+        for reservation in self:
+            if not reservation.minute_id and not reservation.space_id.reservable:
+                raise ValidationError(_("%(space)s cannot be reserved.", space=reservation.space_id.display_name))
 
     @api.constrains('space_id', 'start_datetime', 'duration')
     def _check_space_is_free(self):

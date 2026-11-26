@@ -8,7 +8,8 @@
                     <field name="work_location_id" width="100px"  />
                     <field name="code"/>                    
                     <field name="space_type_id" width="100px"/>
-                    <field name="name"/>                       
+                    <field name="name"/>
+                    <field name="reservable" optional="show"/>
                 </list>
             </field>
         </record>        

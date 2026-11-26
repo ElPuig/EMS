@@ -14,6 +14,7 @@ flowchart LR
     MIN["ems.minute (room, start, duration)"] -->|_ems_sync_space_reservation| RES
     ENG --> CON["constraint on the reservation: ValidationError naming who holds the space"]
     ENG --> AVL["available_space_ids: what the form's Space field offers"]
+    ENG --> WIZ["ems.space_reservation_wizard: free spaces (by date) or what holds a space (by space)"]
 ```
 
 ## Why a model of its own (Odoo way)
@@ -30,7 +31,7 @@ flowchart LR
 
 | Field | Notes |
 |-------|-------|
-| `space_id` | Required, indexed. |
+| `space_id` | Required, indexed; the space must be `reservable` unless a meeting made the reservation. |
 | `start_datetime` | Required, indexed, defaults to now. |
 | `duration` | Hours, greater than zero. |
 | `end_datetime` | Computed and stored, so the overlap search runs in SQL. |
@@ -39,10 +40,29 @@ flowchart LR
 | `minute_id` | Set when a meeting made it (`ondelete='cascade'`); the reservation follows the minute. |
 | `available_space_ids` | Computed, not stored: the spaces free for the span typed so far. The form's `space_id` has `domain="[('id', 'in', available_space_ids)]"`. |
 
-## What holds a space (`ems.space._get_space_conflicts`)
+## The reservation wizard (`ems.space_reservation_wizard`)
 
-`spaces._get_space_conflicts(start, end, exclude_reservations=None)` returns `{space id: [texts]}`
-for the busy ones only (a missing key means free). It runs under `sudo()`: whether a room is taken
+The list's **New** button (`display="always"` header button, the list has `create="false"`) opens the
+wizard instead of the form. Day, start and duration are always asked; then either:
+
+- **By date** (no space chosen): *Search free spaces* (`action_search`) writes one
+  `ems.space_reservation_wizard.line` per reservable space that is free (optionally of one type) and
+  reopens the wizard. The lines are real records, not a computed list: a row's *Reserve* button
+  needs a record to call (a computed one2many holds virtual rows and the button did nothing).
+  Changing day, start, duration, type or space drops the lines (`write`).
+- **By space**: the chosen space's `space_is_free` and `occupation_html` (everything that holds it
+  that day, from `_get_space_busy`, classes included) are computed live.
+
+`Reserve` creates the reservation (never in the past) and opens it. A space with `reservable` off
+(services...) is never offered and is refused by the reservation, except when a meeting holds it.
+Calendar view: not offered. A calendar of 7 simultaneous reservations is unreadable, and the
+questions asked are answered by the two modes above.
+
+## What holds a space (`ems.space._get_space_busy` / `_get_space_conflicts`)
+
+`spaces._get_space_busy(start, end, exclude_reservations=None)` returns one dict per holder (space,
+local start and end, who, whether it is a reservation); `_get_space_conflicts` is the same as
+`{space id: [texts]}` for the busy ones only (a missing key means free). It runs under `sudo()`: whether a room is taken
 is a fact about the whole centre, not about what the acting user may read.
 
 1. **Reservations** overlapping `[start, end)` (adjacent spans do not clash).

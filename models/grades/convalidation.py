@@ -31,6 +31,13 @@ CLOSED_STATES = ('completed', 'rejected', 'cancelled')
 # still change, so the portal only shows how far the request has got.
 OFFICIAL_STATES = ('completed', 'rejected')
 
+# Issue #864: who reads what was decided before it is official. A tutor reads the requests of their
+# tutees but, like the applicant, only the original request and the step it has reached (see
+# student_view_html); the decisions - subjects, grades, remarks, resolution documents - stay with
+# these groups, which the tutor's own group is implied by, so it is the decision fields that name
+# the groups allowed (a tutor cannot be excluded by group).
+DECISION_GROUPS = 'ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin'
+
 # What the applicant filed, fixed once the request exists.
 FILED_FIELDS = {'student_id', 'course_id', 'study_id', 'basis', 'prior_studies_origin', 'student_notes'}
 
@@ -104,7 +111,8 @@ class EmsConvalidation(models.Model):
                                       relation='ems_convalidation_attachment_rel',
                                       column1='convalidation_id', column2='attachment_id')
     line_ids = fields.One2many(string="Subjects", comodel_name='ems.convalidation.line',
-                               inverse_name='convalidation_id', copy=True)
+                               inverse_name='convalidation_id', copy=True,
+        groups=DECISION_GROUPS)
     # Issue #644: the applicant read and accepted the attendance notice (Settings) when filing it
     # from the portal: attendance stays compulsory until the resolution, and absences count if a
     # subject is refused.
@@ -130,7 +138,8 @@ class EmsConvalidation(models.Model):
                                  ('cancelled', 'Cancelled'),
                              ])
     resolution_notes = fields.Text(string="Resolution comments",
-                                   help="Shown to the student in the portal and in the resolution email.")
+                                   help="Shown to the student in the portal and in the resolution email.",
+        groups=DECISION_GROUPS)
     resolved_by_ministry = fields.Boolean(string="Resolved by the Ministry", readonly=True, copy=False,
                                           help="The request was filed with the Ministry, whose resolution "
                                                "goes straight to the secretariat, without the Director.")
@@ -138,8 +147,10 @@ class EmsConvalidation(models.Model):
     is_pending_for_me = fields.Boolean(string="Pending for me", compute='_compute_is_pending_for_me',
                                        search='_search_is_pending_for_me')
     ministry_resolution = fields.Binary(string="Ministry resolution", attachment=True, copy=False,
-                                        help="The Ministry's own resolution (PDF), when it has arrived.")
-    ministry_resolution_filename = fields.Char(string="Ministry resolution file name", copy=False)
+                                        help="The Ministry's own resolution (PDF), when it has arrived.",
+        groups=DECISION_GROUPS)
+    ministry_resolution_filename = fields.Char(string="Ministry resolution file name", copy=False,
+        groups=DECISION_GROUPS)
     info_request_reason_id = fields.Many2one(string="Reason for the request", comodel_name='ems.convalidation.info_reason',
                                              readonly=True, copy=False, ondelete='set null',
                                              help="Why the applicant was last asked for more documentation.")
@@ -151,24 +162,40 @@ class EmsConvalidation(models.Model):
                                 help="Why the centre cancelled the request, shown to the student too. "
                                      "Empty when the applicant cancelled it from the portal.")
     return_reason = fields.Text(string="Returned by the Director", readonly=True, copy=False,
-                                help="Why the Director sent the last proposal back for review.")
-    validation_date = fields.Date(string="Proposal date", readonly=True, copy=False)
-    validated_by_id = fields.Many2one(string="Proposed by", comodel_name='res.users', readonly=True, copy=False)
-    signature_date = fields.Date(string="Resolution date", readonly=True, copy=False)
+                                help="Why the Director sent the last proposal back for review.",
+        groups=DECISION_GROUPS)
+    validation_date = fields.Date(string="Proposal date", readonly=True, copy=False,
+        groups=DECISION_GROUPS)
+    validated_by_id = fields.Many2one(string="Proposed by", comodel_name='res.users', readonly=True, copy=False,
+        groups=DECISION_GROUPS)
+    signature_date = fields.Date(string="Resolution date", readonly=True, copy=False,
+        groups=DECISION_GROUPS)
     signed_by_id = fields.Many2one(string="Resolved by", comodel_name='res.users', readonly=True, copy=False,
                                    help="Who issued the centre's official resolution: the Director, or "
-                                        "whoever signs on their behalf when signing by delegation.")
+                                        "whoever signs on their behalf when signing by delegation.",
+        groups=DECISION_GROUPS)
     # The official resolution the student gets: the centre's PDF, or the Ministry's own when the
     # Head of Studies attached it (it is optional).
     resolution_pdf_id = fields.Many2one(string="Resolution PDF", comodel_name='ir.attachment', readonly=True,
-                                        copy=False, ondelete='set null')
+                                        copy=False, ondelete='set null',
+        groups=DECISION_GROUPS)
     # The resolution's file name as a link that opens the PDF in a new tab, rather than the
     # attachment's own form a many2one would open.
-    resolution_pdf_link = fields.Html(string="Resolution", compute='_compute_resolution_pdf_link', sanitize=False)
-    resolution_date = fields.Date(string="Registration date", readonly=True, copy=False)
-    resolved_by_id = fields.Many2one(string="Registered by", comodel_name='res.users', readonly=True, copy=False)
-    granted_count = fields.Integer(string="Convalidated", compute='_compute_line_counts')
-    pending_count = fields.Integer(string="To resolve", compute='_compute_line_counts')
+    resolution_pdf_link = fields.Html(string="Resolution", compute='_compute_resolution_pdf_link', sanitize=False,
+        groups=DECISION_GROUPS)
+    resolution_date = fields.Date(string="Registration date", readonly=True, copy=False,
+        groups=DECISION_GROUPS)
+    resolved_by_id = fields.Many2one(string="Registered by", comodel_name='res.users', readonly=True, copy=False,
+        groups=DECISION_GROUPS)
+    granted_count = fields.Integer(string="Convalidated", compute='_compute_line_counts',
+        groups=DECISION_GROUPS)
+    pending_count = fields.Integer(string="To resolve", compute='_compute_line_counts',
+        groups=DECISION_GROUPS)
+    # Issue #864: what the applicant sees (see DECISION_GROUPS), for whoever may read the request
+    # without its decisions: the portal's own card, rendered here.
+    can_see_decisions = fields.Boolean(string="Can see the decisions", compute='_compute_can_see_decisions')
+    student_view_html = fields.Html(string="As the student sees it", compute='_compute_student_view_html',
+                                    sanitize=False)
     has_centre_title = fields.Boolean(string="Holds a title from this centre", compute='_compute_has_centre_title',
                                       help="The student's academic history records a title obtained here, so "
                                            "their previous grades can be looked up. Its absence proves nothing: "
@@ -222,6 +249,37 @@ class EmsConvalidation(models.Model):
             convalidation.resolution_pdf_link = Markup(
                 '<a href="/web/content/{}" target="_blank"><i class="fa fa-file-pdf-o me-1"/>{}</a>'
             ).format(attachment.id, attachment.name) if attachment else False
+
+    @api.model
+    def _ems_user_sees_decisions(self):
+        """Whether the current user reads the decisions before they are official (DECISION_GROUPS)."""
+        return self.env.su or any(self.env.user.has_group(group) for group in DECISION_GROUPS.split(','))
+
+    @api.depends_context('uid')
+    def _compute_can_see_decisions(self):
+        can_see = self._ems_user_sees_decisions()
+        for convalidation in self:
+            convalidation.can_see_decisions = can_see
+
+    @api.depends('state', 'line_ids')
+    @api.depends_context('uid', 'lang')
+    def _compute_student_view_html(self):
+        """The request as the portal shows it to the student (same template, so the two never
+        drift apart). sudo: a tutor cannot read the subjects, and the template only draws them
+        once the resolution is official."""
+        QWeb = self.env['ir.qweb']
+        values = {
+            'state_labels': dict(self._fields['state']._description_selection(self.env)),
+            'line_state_labels': dict(self.env['ems.convalidation.line']._fields['state']._description_selection(self.env)),
+        }
+        for convalidation in self:
+            convalidation.student_view_html = QWeb._render(
+                'ems.convalidation_request_summary', {**values, 'convalidation': convalidation.sudo()})
+
+    def _get_mail_message_access(self, res_ids, operation, model_name=None):
+        """Issue #864: the chatter holds notes and tracking that reveal decisions before they are
+        official, so reading it takes the right to write the request, which a tutor lacks."""
+        return super()._get_mail_message_access(res_ids, 'write' if operation == 'read' else operation, model_name)
 
     @api.depends('student_id')
     def _compute_has_centre_title(self):
@@ -1186,6 +1244,27 @@ class EmsConvalidationLine(models.Model):
                               "in your roll-calls again, and the sessions they were not required to attend count as "
                               "absences.", student=student.name),
                 self.env['ems.base'].build_html_list(lines.subject_id.with_env(student.env).mapped('display_name'))))
+
+
+class EmsConvalidationAttachment(models.Model):
+    _inherit = 'ir.attachment'
+
+    @api.model
+    def _search(self, domain, offset=0, limit=None, order=None):
+        """Issue #864: the resolution document exists from the proposal on, before it is official,
+        and hangs from a request the tutor of the student may read. Odoo reads an attachment by
+        searching for it, so whoever cannot see the decisions never gets it back until the request
+        is completed or rejected."""
+        query = super()._search(domain, offset, limit, order)
+        Convalidation = self.env['ems.convalidation']
+        if self.env.su or Convalidation._ems_user_sees_decisions():
+            return query
+        hidden = set(Convalidation.sudo().search_fetch(
+            [('state', 'not in', OFFICIAL_STATES), ('resolution_pdf_id', '!=', False)],
+            ['resolution_pdf_id']).resolution_pdf_id.ids)
+        if not hidden:
+            return query
+        return self.browse([attachment_id for attachment_id in query if attachment_id not in hidden])._as_query(order)
 
 
 class EmsConvalidationAttendancePartner(models.Model):

@@ -23,6 +23,12 @@ Como tutor/a de grupo, recibes una notificación por correo electrónico cada ve
 
 No hace falta que hagas nada más: el correo de notificación que recibes en cada strike ya te indica quién lo ha puesto, cuándo, por qué y si el alumno fue expulsado de clase o no.
 
+## Eliminar un strike
+
+Puedes eliminar cualquier strike de uno de tus alumnos, lo ponga quien lo ponga, y los que has puesto tú mismo/a: en la lista de **Strikes**, selecciónalo, abre el menú **⚙ Acciones** y elige **Eliminar**. Un profesor que no es tutor no puede eliminar strikes.
+
+Eliminar un strike no deshace lo que ya ha pasado: los correos al alumno, a la familia y al tutor, y el aviso al coordinador de convivencia cuando el recuento ha alcanzado el umbral, ya se han enviado.
+
 ---
 
 [← Volver a los manuales de Tutores](index.md)

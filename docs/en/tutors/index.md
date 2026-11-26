@@ -23,6 +23,7 @@ This section contains the manuals for **group tutors**.
 | [Contact data requests: asking families to update their details](contact-data-requests.md) | Ask students and families to review their contact details from the portal, follow up the answers and approve the changes |
 | [How to manage portal access](acces-portal.md) | Grant, revoke or resend portal access invitations for students and families |
 | [Strikes: Consulting Your Group's Records](strike.md) | Consult the strikes issued to your tutees and the ones you issued yourself |
+| [Convalidations: following your students' requests](convalidations.md) | Read your students' convalidation requests as they see them: the step they have reached and, once official, the outcome |
 | [Managing Your Students' Family Contacts](family-contacts.md) | Add and remove the family members (father, mother, legal guardian…) of the students you tutor |
 | [Your Students' Google Credentials](google-credentials.md) | Download the PDF with the Google account username and password of the students you tutor, one by one or for several students at once in a ZIP, create the account if they have none yet, and reset their password |
 | [AMPA members among your students](ampa.md) | See which of the students you tutor are AMPA members and list the members and the non-members |

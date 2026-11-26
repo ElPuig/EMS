@@ -169,6 +169,25 @@ class TestStrike(TransactionCase):
         with self.assertRaises(AccessError):
             strike.with_user(self.teacher_a_user).unlink()
 
+    def test_tutor_can_unlink_any_strike_of_their_tutees(self):
+        # Issue #864: whoever issued it (here another teacher), the tutor deletes it.
+        strike = self._create_strike(self.teacher_a_user)
+        strike.with_user(self.tutor_user).unlink()
+        self.assertFalse(strike.exists())
+
+    def test_tutor_unlinks_only_what_their_list_shows(self):
+        # Another group's strike by someone else is neither readable nor deletable; one they issued
+        # themselves is both (the list never offers a Delete that fails).
+        other_student = self.minor_student.copy({
+            'name': 'Test Other Student (Strike)', 'student_id': next_student_id(), 'main_group_id': False,
+            'student_email': 'test_other_student_strike@example.com'})
+        theirs = self._create_strike(self.teacher_a_user, student_id=other_student.id)
+        with self.assertRaises(AccessError):
+            theirs.with_user(self.tutor_user).unlink()
+        own = self._create_strike(self.tutor_user, student_id=other_student.id)
+        own.with_user(self.tutor_user).unlink()
+        self.assertFalse(own.exists())
+
     def test_the_tutor_copy_goes_to_their_substitute(self):
         """Issue #748: the tutor's copy of a strike notice reaches whoever is replacing them."""
         substitute_user = create_role_user(self, 'teacher', 'test_substitute_tutor_strike',

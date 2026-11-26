@@ -146,6 +146,14 @@ class TestConvalidation(TransactionCase):
         request.with_user(self.secretary).action_complete()
         return request
 
+    def _tutor_of(self, student=None):
+        """A tutor whose tutorship is the student's group (issue #864)."""
+        student = student or self.student
+        tutor = create_role_user(self, 'tutor', f'test_convalidation_tutor_{student.id}', name='Convalidation Tutor')
+        employee = create_role_employee(self, tutor)
+        student.main_group_id.sudo().tutor_id = employee
+        return tutor
+
     def _enroll_and_grade(self, subject=None, student=None, state='open'):
         subject = subject or self.subject
         student = student or self.student
@@ -555,9 +563,11 @@ class TestConvalidation(TransactionCase):
             request.with_user(self.teacher).read(['state'])
 
     def test_student_form_count_is_readable_by_a_teacher(self):
+        # Issue #864: the count follows the user's own rights, so a teacher with no access to
+        # convalidations opens the student's form (and gets 0) instead of a counted number.
         self._request()
         student = self.student.with_user(self.teacher)
-        self.assertEqual(student.convalidation_count, 1)
+        self.assertEqual(student.convalidation_count, 0)
 
     # --- the grade -----------------------------------------------------------
 
@@ -1374,3 +1384,88 @@ class TestConvalidation(TransactionCase):
         action = self.env.ref('ems.action_convalidation')
         self.assertIn("'search_default_pending_for_me': 1", action.context)
 
+    # --- issue #864: a tutor reads their tutees' requests, but not what is decided ---------------
+
+    def test_tutor_reads_the_requests_of_their_tutees_only(self):
+        tutor = self._tutor_of()
+        mine = self._request()
+        other_student = self.student.copy({'name': 'Other Convalidation Student', 'student_id': next_student_id(),
+                                           'email': 'other.convalidation.student@example.com',
+                                           'main_group_id': False})
+        theirs = self._request(student=other_student)
+
+        found = self.env['ems.convalidation'].with_user(tutor).search([('id', 'in', (mine | theirs).ids)])
+
+        self.assertEqual(found, mine)
+        with self.assertRaises(AccessError):
+            mine.with_user(tutor).write({'info_request': 'x'})
+        with self.assertRaises(AccessError):
+            mine.with_user(tutor).unlink()
+        with self.assertRaises(AccessError):
+            self.env['ems.convalidation'].with_user(tutor).create({
+                'student_id': self.student.id, 'study_id': self.study.id, 'course_id': self.course.id,
+                'line_ids': [(0, 0, {'subject_id': self.subject.id})]})
+
+    def test_tutor_cannot_read_the_decisions_by_rpc(self):
+        tutor = self._tutor_of()
+        request = self._proposed()
+        for field_name in ('line_ids', 'resolution_notes', 'granted_count', 'resolution_pdf_id', 'validated_by_id'):
+            with self.assertRaises(AccessError, msg=field_name):
+                request.with_user(tutor).read([field_name])
+        with self.assertRaises(AccessError):
+            self._line(request).with_user(tutor).read(['state'])
+        messages = request.sudo().message_ids.with_user(tutor)
+        self.assertTrue(messages)
+        with self.assertRaises(AccessError):
+            messages.read(['body'])
+        self.assertFalse(self.env['mail.message'].with_user(tutor).search([('id', 'in', messages.ids)]))
+
+    def test_tutor_summary_hides_the_decision_until_it_is_official(self):
+        tutor = self._tutor_of()
+        request = self._request()
+        self._line(request).with_user(self.head_of_studies).action_grant()
+        self._line(request).sudo().resolution_notes = 'Granted on the first remark'
+        for state in ('pending', 'direction', 'in_progress'):
+            request.sudo().state = state
+            html = request.with_user(tutor).student_view_html
+            self.assertIn('Test Subject One', html)
+            self.assertNotIn('Granted', html, state)
+            self.assertNotIn('first remark', html, state)
+        request.sudo().state = 'completed'
+        html = request.with_user(tutor).student_view_html
+        self.assertIn('first remark', html)
+
+    def test_tutor_cannot_open_the_resolution_before_it_is_official(self):
+        tutor = self._tutor_of()
+        request = self._resolved()
+        pdf = request.sudo().resolution_pdf_id
+        self.assertTrue(pdf)
+        Attachment = self.env['ir.attachment']
+        self.assertFalse(Attachment.with_user(tutor).search([('id', '=', pdf.id)]))
+        self.assertTrue(Attachment.with_user(self.head_of_studies).search([('id', '=', pdf.id)]))
+        request.with_user(self.secretary).action_complete()
+        self.assertTrue(Attachment.with_user(tutor).search([('id', '=', pdf.id)]))
+
+    def test_roles_with_decisions_keep_seeing_every_request_and_field(self):
+        tutor = self._tutor_of()
+        request = self._proposed()
+        other_student = self.student.copy({'name': 'Other Convalidation Student', 'student_id': next_student_id(),
+                                           'email': 'other.convalidation.student@example.com',
+                                           'main_group_id': False})
+        other = self._request(student=other_student)
+        for user in (self.head_of_studies, self.director, self.secretary):
+            seen = self.env['ems.convalidation'].with_user(user).search([('id', 'in', (request | other).ids)])
+            self.assertEqual(seen, request | other, user.name)
+            self.assertTrue(request.with_user(user).line_ids)
+            self.assertTrue(request.with_user(user).can_see_decisions)
+        self.assertFalse(request.with_user(tutor).can_see_decisions)
+
+    def test_convalidation_count_follows_the_users_own_scope(self):
+        tutor = self._tutor_of()
+        self._request()
+        self.assertEqual(self.student.with_user(tutor).convalidation_count, 1)
+        self.assertEqual(self.student.with_user(self.head_of_studies).convalidation_count, 1)
+        other_tutor = create_role_user(self, 'tutor', 'test_convalidation_tutor_other', name='Other Tutor')
+        create_role_employee(self, other_tutor)
+        self.assertEqual(self.student.with_user(other_tutor).convalidation_count, 0)
+        self.assertEqual(self.student.with_user(self.teacher).convalidation_count, 0)

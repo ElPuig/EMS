@@ -19,10 +19,10 @@
                     <field name="course_id" optional="show"/>
                     <field name="submission_date"/>
                     <field name="basis" optional="hide"/>
-                    <field name="pending_count"/>
-                    <field name="granted_count" optional="show"/>
-                    <field name="validation_date" optional="hide"/>
-                    <field name="resolution_date" optional="hide"/>
+                    <field name="pending_count" groups="ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin"/>
+                    <field name="granted_count" optional="show" groups="ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin"/>
+                    <field name="validation_date" optional="hide" groups="ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin"/>
+                    <field name="resolution_date" optional="hide" groups="ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin"/>
                     <field name="state" widget="badge"
                            decoration-info="state in ('pending', 'ministry')"
                            decoration-warning="state in ('documentation', 'direction', 'in_progress')"
@@ -91,7 +91,7 @@
                         <div class="alert alert-secondary" role="alert" invisible="state != 'cancelled' or not cancel_reason">
                             <strong>Reason for cancelling:</strong> <field name="cancel_reason" class="d-inline"/>
                         </div>
-                        <div class="alert alert-warning" role="alert" invisible="state != 'pending' or not return_reason">
+                        <div class="alert alert-warning" role="alert" groups="ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin" invisible="state != 'pending' or not return_reason">
                             <strong>Returned by the Director:</strong> <field name="return_reason" class="d-inline"/>
                         </div>
                         <div class="oe_title">
@@ -123,7 +123,13 @@
                             </group>
                         </group>
                         <notebook>
-                            <page name="subjects" string="Subjects">
+                            <!-- Issue #864: whoever may read the request but not its decisions (a tutor) sees it as the
+                                 student does: the same card as the portal. -->
+                            <page name="student_view" string="Request status" invisible="can_see_decisions">
+                                <field name="can_see_decisions" invisible="1"/>
+                                <field name="student_view_html" nolabel="1"/>
+                            </page>
+                            <page name="subjects" string="Subjects" groups="ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin">
                                 <field name="allowed_subject_ids" invisible="1"/>
                                 <field name="line_ids">
                                     <list editable="bottom"
@@ -198,7 +204,7 @@
                                        readonly="id"/>
                             </page>
                             <!-- Issue #657: the circuit's outcome lives here, out of the request's own data. -->
-                            <page name="resolution" string="Resolution">
+                            <page name="resolution" string="Resolution" groups="ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin">
                                 <group>
                                     <group>
                                         <field name="ministry_date" invisible="not resolved_by_ministry"/>
@@ -225,7 +231,7 @@
                             </page>
                         </notebook>
                     </sheet>
-                    <chatter/>
+                    <chatter groups="ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin"/>
                 </form>
             </field>
         </record>
@@ -240,7 +246,7 @@
                            filter_domain="['|', '|', ('student_id', 'ilike', self), ('student_idalu', 'ilike', self), ('student_document_id', 'ilike', self)]"/>
                     <field name="study_id"/>
                     <field name="course_id"/>
-                    <field name="line_ids" string="Subject" filter_domain="[('line_ids.subject_id', 'ilike', self)]"/>
+                    <field name="line_ids" string="Subject" groups="ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin" filter_domain="[('line_ids.subject_id', 'ilike', self)]"/>
                     <!-- Issue #610: what waits for whoever is looking, by their role (see
                          ems.convalidation._ems_states_pending_for_user). On by default. -->
                     <filter name="pending_for_me" string="Pending for me" domain="[('is_pending_for_me', '=', True)]"/>

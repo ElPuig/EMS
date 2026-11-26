@@ -45,7 +45,7 @@ ACCESS_MATRIX = {
     'ems.attendance_status': {'teacher': 'r'},
     'ems.content': {'teacher': 'r', 'secretary': 'r'},
     # Heads of Studies maintain the reasons they pick from, archiving instead of deleting (issue #654).
-    'ems.convalidation.info_reason': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
+    'ems.convalidation.info_reason': {'teacher': '', 'tutor': 'r', 'secretary': 'r', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
     'ems.convalidation.rejection_reason': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
     # Issue #835: the administrator configures certificate types and their circuits; whoever
     # takes part in a circuit reads them. The wizard asks for a step's text; whether its user may

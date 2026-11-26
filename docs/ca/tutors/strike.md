@@ -23,6 +23,12 @@ Com a tutor/a de grup, reps una notificació per correu electrònic cada vegada 
 
 No cal que facis res més: el correu de notificació que reps a cada strike ja t'indica qui l'ha posat, quan, per què i si l'alumne ha estat expulsat de classe o no.
 
+## Eliminar un strike
+
+Pots eliminar qualsevol strike d'un dels teus alumnes, el posi qui el posi, i els que has posat tu mateix/a: a la llista de **Strikes**, selecciona'l, obre el menú **⚙ Accions** i tria **Eliminar**. Un professor que no és tutor no pot eliminar strikes.
+
+Eliminar un strike no desfà el que ja ha passat: els correus a l'alumne, a la família i al tutor, i l'avís al coordinador de convivència quan el recompte ha arribat al llindar, ja s'han enviat.
+
 ---
 
 [← Tornar als manuals de Tutors](index.md)

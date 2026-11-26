@@ -1004,10 +1004,13 @@ class ResPartner(models.Model):
                     partner.benefit_status = 'none'
 
     def _compute_convalidation_count(self):
-        # sudo: the student form is open to roles with no access to convalidations; the button
-        # that uses the count is only shown to the ones that do.
-        counts = dict(self.env['ems.convalidation'].sudo()._read_group(
-            [('student_id', 'in', self._origin.ids)], ['student_id'], ['__count']))
+        # Issue #864: counted with the user's own rights (a tutor only reads their tutees'), so the
+        # button never shows a number the list behind it would not open. Nothing to count without
+        # read access at all.
+        Convalidation = self.env['ems.convalidation']
+        counts = dict(Convalidation._read_group(
+            [('student_id', 'in', self._origin.ids)], ['student_id'], ['__count'])
+        ) if Convalidation.has_access('read') else {}
         for partner in self:
             partner.convalidation_count = counts.get(partner._origin, 0)
 

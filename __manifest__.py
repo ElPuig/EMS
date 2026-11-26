@@ -64,6 +64,7 @@
         'security/rules/attendance.xml',
         'security/rules/quality.xml',
         'security/rules/coexistence.xml',
+        'security/rules/convalidation.xml',
         'security/rules/erasmus.xml',
         'security/rules/communications.xml',
         'security/rules/contacts.xml',

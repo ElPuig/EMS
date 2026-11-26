@@ -23,6 +23,7 @@ Esta sección contiene los manuales para los **tutores de grupo**.
 | [Solicitudes de datos de contacto: pedir a las familias que actualicen los datos](contact-data-requests.md) | Pedir al alumnado y a las familias que revisen los datos de contacto desde el portal, hacer el seguimiento de las respuestas y aprobar los cambios |
 | [Cómo gestionar el acceso al portal](acces-portal.md) | Dar de alta, dar de baja o reenviar las invitaciones de acceso al portal para alumnos y familias |
 | [Strikes: consultar los registros de tu grupo](strike.md) | Consultar los strikes puestos a tus alumnos tutorizados y los que has puesto tú mismo/a |
+| [Convalidaciones: seguimiento de las solicitudes de tus alumnos](convalidations.md) | Consultar las solicitudes de convalidación de tus alumnos tal como las ven ellos: el paso en que están y, cuando es oficial, el resultado |
 | [Gestionar los contactos familiares de tu alumnado](family-contacts.md) | Añadir y quitar los familiares (padre, madre, tutor legal…) de los alumnos que tutorizas |
 | [Credenciales de Google de tu alumnado](google-credentials.md) | Descargar el PDF con el usuario y la contraseña de la cuenta de Google de los alumnos que tutorizas, uno a uno o de varios alumnos a la vez en un ZIP, crearles la cuenta si aún no la tienen, y restablecerles la contraseña |
 | [Socios del AMPA de tu alumnado](ampa.md) | Ver qué alumnos que tutorizas son socios del AMPA y sacar la lista de los que lo son y de los que no |

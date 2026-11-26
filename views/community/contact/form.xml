@@ -48,8 +48,8 @@
                         </div>
                     </button>
                     <button name="action_view_convalidations" type="object" class="oe_stat_button" icon="fa-exchange"
-                            invisible="contact_type not in ('student', 'applicant') or convalidation_count == 0"
-                            groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies">
+                            invisible="contact_type not in ('student', 'applicant')"
+                            groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies,ems.group_tutor">
                         <field name="convalidation_count" widget="statinfo" string="Convalidations"/>
                     </button>
                     <button name="action_view_ex_officio_withdrawals" type="object" class="oe_stat_button" icon="fa-user-times"

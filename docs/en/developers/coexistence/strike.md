@@ -93,10 +93,12 @@ flowchart TD
 | Administrator | ✓ | ✓ (all) | ✓ | ✓ | `ems.group_academic_admin` |
 | Head of Studies / Deputy Head of Studies / Director | ✓ (own issued + tutees, via the teacher/tutor chain) | ✓ (all, centre-wide) | — | ✓ (all, centre-wide) | `ems.group_head_of_studies` (`group_director`/`group_academic_admin` both imply it) |
 | Coexistence Manager/Administrator | — | ✓ (all, centre-wide) | — | ✓ (all, centre-wide) | `ems.group_coexistence` / `ems.group_coexistence_admin` |
-| Tutor | ✓ | ✓ (own issued + tutees) | — | — | `ems.group_tutor` (implies `group_teacher`) |
+| Tutor | ✓ | ✓ (own issued + tutees) | — | ✓ (own issued + tutees, issue #864) | `ems.group_tutor` (implies `group_teacher`) |
 | Teacher | ✓ | ✓ (own issued only) | — | — | `ems.group_teacher` |
 
 Record rules: `security/rules/coexistence.xml`. `ems.group_coexistence` is a **new, independent security group family** (its own `ir.module.category`, `category_coexistence`), not nested under the teacher/tutor/HoS hierarchy — coexistence coordinators can read and delete every strike centre-wide regardless of branch (the HoS/DHoS branch matching logic is only used to route the *escalation email*, not to gate read/delete access). `ems.role_coexistence.group_id` is wired to `ems.group_coexistence`, and `ems.role_coexistence.unipersonal` is `false` — multiple coexistence coordinators (one per HoS/DHoS branch) are expected.
+
+Issue #864: the tutor deletes any strike of a tutee, whoever issued it (`access_ems_strike_tutor` and `perm_unlink` on `rule_strike_tutor`), and also the ones they issued themselves to students outside their tutorship (`rule_strike_tutor_own`): the delete right reaches exactly what their list shows, so the **Delete** action never fails on a row. A teacher who is not a tutor still cannot delete. Nothing else changes: `ems.strike` has no `unlink` override, so the email already sent to the family and the escalation are not undone.
 
 Head of Studies' centre-wide **read** actually comes from `group_student_data_reader` (implied by `group_head_of_studies`, see `security/rules/student_data_reader.xml`'s `rule_ems_strike_student_data_reader`), not from a strike-specific rule — the same technical group that gives HoS/DHoS/Director centre-wide read access to every student's data in general (issue #448). `rule_strike_head_of_studies` (`security/rules/coexistence.xml`) only adds the **delete** permission on top, mirroring `rule_contact_head_of_studies` (`security/rules/contacts.xml`).
 

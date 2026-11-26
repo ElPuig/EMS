@@ -49,8 +49,11 @@ class EmsSpaceReservationWizard(models.TransientModel):
 
     def write(self, vals):
         # What was found no longer answers what is typed now.
+        # The web client saves the chosen row in the same write as the change (Search pressed after
+        # choosing a row and editing the hour): the row is about to go, so the choice goes too.
         if vals.keys() & {'mode', 'date', 'date_from', 'date_to', 'start_time', 'end_time', 'space_type_id', 'space_id'}:
             self.line_ids.unlink()
+            vals = {**vals, 'selected_line_id': False}
         return super().write(vals)
 
     def _slot(self, day):

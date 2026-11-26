@@ -23,3 +23,4 @@ class TestSpaceReservationTour(HttpCase):
         })
         self.start_tour("/odoo", "ems_space_reservation", login="test_teacher_space_reservation_tour")
         self.start_tour("/odoo", "ems_space_reservation_by_space", login="test_teacher_space_reservation_tour")
+        self.start_tour("/odoo", "ems_space_reservation_search_again", login="test_teacher_space_reservation_tour")

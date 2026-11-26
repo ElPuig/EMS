@@ -118,3 +118,53 @@ registry.category("web_tour.tours").add("ems_space_reservation_by_space", {
         },
     ],
 });
+
+// Choosing a result and then changing the hour and searching again drops the choice (no error).
+registry.category("web_tour.tours").add("ems_space_reservation_search_again", {
+    test: true,
+    url: "/odoo/action-ems.action_space_reservation",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_list_button_add, .o_list_view button:contains('New')",
+            content: "New opens the reservation wizard",
+            run: "click",
+        },
+        {
+            trigger: ".modal button[name='action_search']",
+            content: "Search the free spaces",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row input.o_ems_radio_row",
+            content: "Choose a space",
+            run: "click",
+        },
+        {
+            trigger: ".modal-footer button[name='action_reserve']:not(.disabled)",
+            content: "Reserve is available",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='start_time'] input",
+            content: "Change the hour",
+            run: "edit 09:00",
+        },
+        {
+            trigger: ".modal button[name='action_search']",
+            content: "Search again",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row input.o_ems_radio_row",
+            content: "The results are back with nothing chosen",
+            run() {
+                if (document.querySelector(".modal input.o_ems_radio_row:checked")) {
+                    throw new Error("The choice must be dropped when the search changes");
+                }
+            },
+        },
+        {
+            trigger: ".modal-footer button.disabled[name='action_reserve']",
+            content: "Reserve is disabled again",
+        },
+    ],
+});

@@ -248,6 +248,16 @@ class TestSpaceReservation(TransactionCase):
         self.assertIn('Weekly schedule', days[self.monday].detail)
         self.assertTrue(days[tuesday].is_free)
 
+    def test_changing_the_search_after_choosing_a_result_drops_both(self):
+        # The web client saves what was typed and the chosen row in one write when Search is pressed.
+        wizard = self._wizard(14.0)
+        chosen = wizard.line_ids[:1]
+        wizard.write({'start_time': 15.0, 'end_time': 16.0, 'selected_line_id': chosen.id})
+        self.assertFalse(wizard.line_ids)
+        self.assertFalse(wizard.selected_line_id)
+        wizard.action_search()
+        self.assertTrue(wizard.line_ids)
+
     def test_the_wizard_needs_an_end_after_the_start(self):
         wizard = self.env['ems.space_reservation_wizard'].create({'date': self.monday, 'start_time': 12.0, 'end_time': 11.0})
         self.assertEqual(wizard.duration, -1.0)

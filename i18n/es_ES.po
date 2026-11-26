@@ -15414,6 +15414,8 @@ msgstr "El rol de secretario/a no se puede asignar ni quitar manualmente, se ges
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_department__top_level_area
 #: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report__area_id
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__area_id
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_walkout_report_line_search
 msgid "Area"
 msgstr "Área"
 

@@ -59,6 +59,7 @@
                     <field name="employee_id" widget="many2one_avatar_employee"/>
                     <field name="employee_type"/>
                     <field name="contract_type_id"/>
+                    <field name="area_id" optional="show"/>
                     <field name="on_walkout" sum="On walkout"/>
                 </list>
             </field>
@@ -71,11 +72,13 @@
                 <search>
                     <field name="employee_id"/>
                     <field name="period"/>
+                    <field name="area_id"/>
                     <filter name="on_walkout" string="On walkout" domain="[('on_walkout', '=', 1)]"/>
                     <group>
                         <filter name="group_period" string="Period" context="{'group_by': 'period'}"/>
                         <filter name="group_employee_type" string="Staff" context="{'group_by': 'employee_type'}"/>
                         <filter name="group_contract_type" string="Contract Type" context="{'group_by': 'contract_type_id'}"/>
+                        <filter name="group_area" string="Area" context="{'group_by': 'area_id'}"/>
                     </group>
                 </search>
             </field>

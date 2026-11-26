@@ -199,7 +199,7 @@ Un dia de vaga, les xifres del formulari del Departament que cal emplenar aproxi
    - **% vaga**: el percentatge de qui havia de treballar que està en vaga.
 
    La fila **Total** suma totes les franges i, com que cada franja ja inclou les anteriors, no té sentit: no en facis cas. La xifra que cal informar és la de l'última franja.
-3. Fes clic a una xifra per veure els noms, o canvia a la vista de llista. El botó de baixada exporta la taula a un full de càlcul.
+3. Fes clic a una xifra per veure els noms, o canvia a la vista de llista. El botó de baixada exporta la taula a un full de càlcul. Per veure només una àrea (FP, ESO / BTX, ASP), fes servir el cercador: escriu-hi el nom de l'àrea i tria l'opció d'**Àrea**, o **Agrupa per > Àrea**; a la taula, fent clic a la capçalera d'una fila o d'una columna també pots triar **Àrea**.
 
 ![Informe de vagues: una fila per franja i, per a cada col·lectiu i tipus de contracte, En vaga, No vaga, Havien de treballar i % vaga](../../assets/head_of_studies/hos-staff-walkout-report.png)
 

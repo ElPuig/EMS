@@ -1267,6 +1267,7 @@ flowchart LR
 | Absence requests approved or waiting for approval make their periods no walkout; refused/cancelled don't; detected absences (`ems.absence_pending`) don't | The day of a walkout, a detected absence for a missing check-in is the walkout |
 | Cumulative: a line per period already started (`hour_from <= now`) for everyone expected by then | The Departament's form asks for the walkers so far; today's future periods have no line |
 | Rows: every bound of every scheduled period that day, as the guard duty board does | ESO/BTX and vocational periods start at different times |
+| Each line carries the employee's area (`area_id`, the top-level department of theirs, issue #865), worked out once per department (`_get_department_areas`, shared with the control sheet) | To filter or group the figures by area afterwards, from the search bar or the pivot's headers |
 
 **Why a pivot of transient lines and not a custom table:** the columns (one per contract type)
 depend on the data, and the pivot already gives the names behind each figure (drill-down to the

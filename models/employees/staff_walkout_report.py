@@ -69,14 +69,22 @@ class EmsStaffWalkoutReport(models.TransientModel):
             raise UserError(_("Nobody was expected to work on this day yet."))
         bounds = sorted({hour for employee_periods in periods.values() for period in employee_periods for hour in period})
         format_time = self.env['ems.schedule_report_mixin']._format_report_time
+        area_of = self._get_department_areas(staff)
         return [{
             'period': f"{format_time(hour_from)}-{format_time(hour_to)}",
             'employee_id': employee.id,
             'employee_type': employee.employee_type,
             'contract_type_id': employee.contract_type_id.id,
+            'area_id': area_of.get(employee.department_id.id, False),
             'on_walkout': int(employee.id in on_walkout and on_walkout[employee.id] <= hour_from + HOUR_EPSILON),
         } for hour_from, hour_to in zip(bounds, bounds[1:]) if hour_from <= now + HOUR_EPSILON
             for employee in staff if employee.id in expected and expected[employee.id] <= hour_from + HOUR_EPSILON]
+
+    @api.model
+    def _get_department_areas(self, employees):
+        """`{department id: area id}` for the departments of `employees`: the top-level department
+        each one hangs from (issue #865), worked out once per department, not per employee."""
+        return {department.id: department._top_level_department().id for department in employees.department_id}
 
     def _check_not_public_holiday(self):
         holiday = self.env['resource.calendar.leaves']._ems_public_holiday_on(self.date)
@@ -115,6 +123,8 @@ class EmsStaffWalkoutReportLine(models.TransientModel):
     employee_id = fields.Many2one(string="Employee", comodel_name='hr.employee', required=True, ondelete='cascade')
     employee_type = fields.Selection(string="Staff", selection=employee_types)
     contract_type_id = fields.Many2one(string="Contract Type", comodel_name='hr.contract.type')
+    # Issue #865: the top-level department of the employee's, to filter or group the figures by.
+    area_id = fields.Many2one(string="Area", comodel_name='hr.department')
     on_walkout = fields.Integer(string="On walkout", aggregator='sum')
     not_on_walkout = fields.Integer(string="Not on walkout", compute='_compute_walkout_figures', store=True, aggregator='sum')
     expected = fields.Integer(string="Expected to work", default=1, aggregator='sum')

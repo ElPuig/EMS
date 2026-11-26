@@ -67,14 +67,14 @@ class EmsStaffWalkoutReport(models.TransientModel):
         slots = self.env['ems.absence_pending']._ems_scheduled_slots(self.date, teachers)
         absences = self.env['ems.course']._get_guard_duty_leave_intervals(self.date, teachers)
         students = self._get_expected_students(slots)
-        area_of = {department: department._top_level_department() for department in teachers.department_id}
+        area_of = self._get_department_areas(teachers)
         slots_by_area = defaultdict(lambda: defaultdict(lambda: slots.browse()))
         for slot in slots:
             teacher = slot.calendar_id.employee_id
-            slots_by_area[area_of[teacher.department_id]][teacher] |= slot
+            slots_by_area[area_of[teacher.department_id.id]][teacher] |= slot
         result = []
         for area in areas:
-            teacher_slots = slots_by_area.get(area)
+            teacher_slots = slots_by_area.get(area.id)
             if not teacher_slots:
                 continue
             members = _merge_absorbed_periods(sorted({(slot.hour_from, slot.hour_to)

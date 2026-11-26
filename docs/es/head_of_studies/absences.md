@@ -199,7 +199,7 @@ Un día de huelga, las cifras del formulario del Departament que hay que rellena
    - **% huelga**: el porcentaje de quien debía trabajar que está en huelga.
 
    La fila **Total** suma todas las franjas y, como cada franja ya incluye las anteriores, no tiene sentido: no le hagas caso. La cifra que hay que informar es la de la última franja.
-3. Haz clic en una cifra para ver los nombres, o cambia a la vista de lista. El botón de descarga exporta la tabla a una hoja de cálculo.
+3. Haz clic en una cifra para ver los nombres, o cambia a la vista de lista. El botón de descarga exporta la tabla a una hoja de cálculo. Para ver solo un área (FP, ESO / BTX, ASP), usa el buscador: escribe el nombre del área y elige la opción de **Área**, o **Agrupar por > Área**; en la tabla, haciendo clic en la cabecera de una fila o de una columna también puedes elegir **Área**.
 
 ![Informe de huelgas: una fila por franja y, para cada colectivo y tipo de contrato, En huelga, No huelga, Debían trabajar y % huelga](../../assets/head_of_studies/hos-staff-walkout-report.png)
 

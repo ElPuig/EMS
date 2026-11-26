@@ -172,3 +172,18 @@ class TestStaffWalkoutReport(TransactionCase):
         report = self.env['ems.staff_walkout_report'].with_user(self.director).create({'date': self.yesterday})
         with self.assertRaisesRegex(UserError, 'TSSR Holiday'):
             report.action_open_report()
+
+    def test_each_line_carries_the_area_of_the_employees_department(self):
+        """Issue #865: the top-level department, to filter or group the figures by afterwards."""
+        Department = self.env['hr.department']
+        area = Department.create({'name': 'TSSR Area', 'is_top_level': True, 'top_level_area': 'academic'})
+        department = Department.create({'name': 'TSSR Department', 'parent_id': area.id})
+        walker = self._employee('TSSR Area Walker', department_id=department.id)
+        loose = self._employee('TSSR No Department')
+
+        report = self.env['ems.staff_walkout_report'].with_user(self.director).create({'date': self.yesterday})
+        lines = self.env['ems.staff_walkout_report.line'].with_user(self.director).search(
+            report.action_open_report()['domain'])
+
+        self.assertEqual(lines.filtered(lambda line: line.employee_id == walker).area_id, area)
+        self.assertFalse(lines.filtered(lambda line: line.employee_id == loose).area_id)

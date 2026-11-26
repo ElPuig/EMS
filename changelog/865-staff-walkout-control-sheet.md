@@ -12,6 +12,7 @@
 
 ## Staff walkouts report for Heads of Studies too:
 
+- Each line of the walkout report carries the employee's area (VET, ESO / BTX, ASP), so the figures can be filtered or grouped by area afterwards, in the pivot and the list.
 - The walkout report and its control sheet follow the same access as the other reports under Absences > Reporting (by Employee, by Type, Monthly totals): the Time Off officers, that is the Heads of Studies, their Deputies and the Director. It used to be the Director's only.
 
 # Internal changes

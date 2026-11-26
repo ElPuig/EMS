@@ -201,7 +201,7 @@ On a walkout day, the figures for the Departament's form you fill in about every
    - **% on walkout**: the share of those expected to work who are on walkout.
 
    The **Total** row adds up every slot, and since each slot already includes the earlier ones, it means nothing: ignore it. The figure to report is the last slot's.
-3. Click a figure to see the names behind it, or switch to the list. The download button exports the table to a spreadsheet.
+3. Click a figure to see the names behind it, or switch to the list. The download button exports the table to a spreadsheet. To see one area only (VET, ESO / BTX, ASP), use the search bar: type the area's name and choose the **Area** option, or **Group By > Area**; in the table, clicking a row or column header also offers **Area**.
 
 ![Staff walkout report: one row per time slot and, for each staff type and contract type, On walkout, Not on walkout, Expected to work and % on walkout](../../assets/head_of_studies/hos-staff-walkout-report.png)
 

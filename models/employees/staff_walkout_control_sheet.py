@@ -174,8 +174,9 @@ class EmsStaffWalkoutReport(models.TransientModel):
             formats[f'{name}_centre'] = workbook.add_format({**base, **extra, 'align': 'center'})
         day = self.date.strftime('%d/%m/%Y')
         absence_notes = {'approved': _("Approved absence"), 'pending': _("Absence awaiting approval")}
-        headers = [_("Teacher"), _("Department"), _("Contract"), _("Activity"), _("Group"), _("Room code"), _("Room"),
-                   _("Expected students"), _("Students present"), _("Present"), _("Arrival time"), _("Notes")]
+        headers = [_("Teacher"), _("Department"), _("Contract"), _("Activity"), _("Group"), _("Classroom code"),
+                   _("Classroom"), _("Expected students"), _("Students present"), _("Present"), _("Arrival time"),
+                   _("Remarks")]
         centred = {5, 7, 8, 9, 10}
         for area, periods, teachers in areas:
             sheet = workbook.add_worksheet(_sheet_name(area.name, _('By period')))
@@ -224,7 +225,7 @@ class EmsStaffWalkoutReport(models.TransientModel):
         sheet.set_paper(9)
         sheet.repeat_rows(0)
         sheet.freeze_panes(1, 4)
-        sheet.write_row(0, 0, [_("Teacher"), _("Department"), _("Contract"), _("Start")]
+        sheet.write_row(0, 0, [_("Teacher"), _("Department"), _("Contract"), _("Expected arrival")]
                         + [label(period) for period in periods], formats['grid_header'])
         sheet.set_column(0, 0, 28)
         sheet.set_column(1, 1, 20)

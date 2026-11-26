@@ -189,7 +189,7 @@ To change the period, remove the **Current Course** filter and pick the one you 
 
 ## Staff walkouts
 
-**Absences > Reporting > Staff walkouts**, only for the Director.
+**Absences > Reporting > Staff walkouts**, for the management team: the Director and whoever the administrator has put on it (see [Assigning the management team](../admin/teacher-roles.md#assigning-the-management-team)).
 
 On a walkout day, the figures for the Departament's form you fill in about every hour: how many members of staff (teachers and administrative and services staff) are on walkout so far, separately for each contract type.
 
@@ -213,6 +213,19 @@ Not counted as on walkout:
 Today's figures are those at the moment you click **Show**, and the title says that time. Reloading the page shows the same figures again: to update them, open the report again from the menu.
 
 Only staff with their own schedule in EMS appear. The contract type is the **Contract Type** field of the employee's form, next to the employee type; whoever does not have one appears under **None**.
+
+### Control sheet to print
+
+To note down by hand who comes, before the day starts or during it:
+
+1. In the same dialog, choose the day (any day, also a coming one) and, if you want, an **Area** (VET or ESO / BTX). Empty, it takes every teaching area.
+2. Click **Control sheet (xlsx)**. A spreadsheet downloads with two sheets per area:
+   - **By period**: every teacher once, in the first period of their schedule that day, grouped by period. For each one: department, contract, activity, group, classroom code and classroom, expected students, and blank columns to fill in: **Students present**, **Present**, **Arrival time** and **Remarks**. Adding up each period gives the figures so far.
+   - **Grid**: every teacher by period, as on the guard duty board, with the group (its expected students in brackets and the classroom code) or the duty, and a box to tick.
+
+![Staff walkouts dialog: Date, Area (all teaching areas when empty), and the Show and Control sheet (xlsx) buttons](../../assets/head_of_studies/hos-staff-walkout-dialog.png)
+
+Teachers with an absence request covering that period, approved or waiting for approval, appear in grey and their remarks say which. The **Expected students** are those on the class's attendance list or, if it has none, its group's students; the column is empty for a split, optional or reinforcement group, whose students are not recorded in EMS.
 
 ---
 

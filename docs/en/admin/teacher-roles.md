@@ -175,4 +175,16 @@ This has an effect beyond the setting itself:
 
 ---
 
+## Assigning the management team
+
+The **management team** (Director, Heads of Studies, Secretary, any coordinator who sits on it...) sees the [staff walkouts report](../head_of_studies/absences.md#staff-walkouts). No role says on its own who is on the team, so each member is assigned by hand:
+
+1. Navigate to **Settings → Users & Companies → Users** and open the member's user.
+2. On the **Access Rights** tab, in the **EMS** section, set **Management team** to **Member**.
+3. Click **Save**.
+
+The Director is always on the team: they need no assignment. To take someone off it, leave **Management team** empty.
+
+---
+
 [← Back to main index](index.md)

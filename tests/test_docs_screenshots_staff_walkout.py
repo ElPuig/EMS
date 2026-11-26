@@ -71,3 +71,9 @@ class TestDocsScreenshotsStaffWalkout(HttpCase, DocsScreenshotMixin):
         self._capture(
             '/odoo/action-%d' % self.action.id, '.o_pivot table', 'hos-staff-walkout-report.png',
             login='doc_shot_director', wait_for='.o_pivot td.o_pivot_cell_value', viewport_width=1700)
+
+    def test_capture_staff_walkout_dialog(self):
+        """Issue #865: the dialog, with the area and the control sheet's button."""
+        self._capture(
+            '/odoo/action-ems.action_staff_walkout_report', '.modal-content', 'hos-staff-walkout-dialog.png',
+            login='doc_shot_director', wait_for=".modal button[name='action_download_control_sheet']")

@@ -175,4 +175,16 @@ Això té un efecte més enllà de l'ajust:
 
 ---
 
+## Assignar l'equip directiu
+
+L'**equip directiu** (director, caps d'estudis, secretari, qualsevol coordinador que en formi part...) veu l'[informe de vagues del personal](../head_of_studies/absences.md#vagues-del-personal). Cap rol no diu per si mateix qui forma part de l'equip, així que cada membre s'assigna a mà:
+
+1. Ves a **Configuració → Usuaris i empreses → Usuaris** i obre l'usuari del membre.
+2. A la pestanya **Drets d'accés**, a la secció **EMS**, posa **Equip directiu** a **Membre**.
+3. Fes clic a **Desa**.
+
+El director sempre forma part de l'equip: no cal assignar-l'hi. Per treure algú de l'equip, deixa **Equip directiu** buit.
+
+---
+
 [← Tornar a l'índex general](index.md)

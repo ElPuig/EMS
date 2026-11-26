@@ -187,7 +187,7 @@ Per canviar el període, treu el filtre **Curs actual** i tria el que necessitis
 
 ## Vagues del personal
 
-**Absències > Informes > Vagues**, només per a la directora o el director.
+**Absències > Informes > Vagues**, per a l'equip directiu: el director i qui l'administrador hi hagi posat (consulta [Assignar l'equip directiu](../admin/teacher-roles.md#assignar-lequip-directiu)).
 
 Un dia de vaga, les xifres del formulari del Departament que cal emplenar aproximadament cada hora: quantes persones del personal (docents i personal d'administració i serveis) estan en vaga fins al moment, separades per tipus de contracte.
 
@@ -211,6 +211,19 @@ No compten com a vaga:
 Les xifres d'avui són les del moment en què fas clic a **Mostra**, i el títol indica aquella hora. Si recarregues la pàgina, tornes a veure les mateixes xifres: per actualitzar-les, torna a obrir l'informe des del menú.
 
 Només hi apareix el personal que té el seu horari a EMS. El tipus de contracte és el camp **Tipus de contracte** de la fitxa de l'empleat, al costat del tipus d'empleat; qui no en té apareix a **Cap**.
+
+### Full de control per imprimir
+
+Per apuntar a mà qui ve, abans que comenci el dia o durant el dia:
+
+1. Al mateix diàleg, tria el dia (qualsevol, també un que encara ha de venir) i, si vols, una **Àrea** (FP o ESO / BTX). Si la deixes buida, agafa totes les àrees docents.
+2. Fes clic a **Full de control (xlsx)**. Es baixa un full de càlcul amb dos fulls per àrea:
+   - **Per franges**: cada docent una sola vegada, a la primera franja del seu horari aquell dia, agrupats per franja. Per a cadascun: departament, contracte, activitat, grup, codi i nom de l'aula, alumnes previstos i columnes en blanc per emplenar: **Alumnes presents**, **Present**, **Hora d'arribada** i **Observacions**. Sumant cada franja tens les xifres fins al moment.
+   - **Graella**: cada docent per franges, com al tauler de guàrdies, amb el grup (entre parèntesis els alumnes previstos, i el codi de l'aula) o la tasca, i una casella per marcar.
+
+![Diàleg de vagues: Data, Àrea (totes les àrees docents si és buida) i els botons Mostra i Full de control (xlsx)](../../assets/head_of_studies/hos-staff-walkout-dialog.png)
+
+Els docents que tenen una sol·licitud d'absència que cobreix aquella franja, aprovada o pendent d'aprovar, surten en gris i a les observacions s'indica quina. Els **Alumnes previstos** són els de la llista d'assistència de la classe o, si no en té, l'alumnat del grup; la columna queda buida en un desdoblament, una optativa o un grup de reforç, perquè EMS no en té l'alumnat.
 
 ---
 

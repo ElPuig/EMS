@@ -1325,6 +1325,7 @@ msgid "Activities"
 msgstr "Actividades"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model,name:ems.model_mail_activity
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__staff_activity
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
@@ -1333,6 +1334,7 @@ msgstr "Actividades"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_staff_proposal_wizard__proposal_activity
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
 msgid "Activity"
 msgstr "Actividad"
 
@@ -2616,9 +2618,11 @@ msgid "City"
 msgstr "Ciudad"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__space_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__space_id model:ems.space_type,name:ems.space_type_classroom
 #: model:ir.model.fields,field_description:ems.field_ems_strike__space_id
 #: model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
 msgid "Classroom"
 msgstr "Aula"
 
@@ -3598,10 +3602,12 @@ msgid "Deleting"
 msgstr "Borrando"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_minute__department_id
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__department_id
 #: model:ir.model,name:ems.model_hr_department model:ir.model.fields,field_description:ems.field_ems_quality_action__department_id
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute_type__scope_kind__department
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
 msgid "Department"
 msgstr "Departamento"
 
@@ -5081,6 +5087,7 @@ msgstr "Otorgar acceso"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__group_id
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
 msgid "Group"
 msgstr "Grupo"
 
@@ -9926,6 +9933,7 @@ msgid "Tasks"
 msgstr ""
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__teacher_id model:ir.model.fields,field_description:ems.field_ems_grade_outcome__teacher_id model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__teacher_id model:ir.model.fields,field_description:ems.field_ems_grade_session__teacher_id model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__teacher_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__teacher_id model:ir.model.fields,field_description:ems.field_ems_strike__teacher_id model:ir.model.fields,field_description:ems.field_ems_teaching__teacher_id model:ir.model.fields,field_description:ems.field_ems_tracking__teacher_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__teacher_id model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__employee_id model:ir.model.fields,field_description:ems.field_resource_calendar__employee_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__employee_id model:ir.model.fields.selection,name:ems.selection__ems_role__employee_type__teacher model:ir.model.fields.selection,name:ems.selection__hr_employee__employee_type__teacher model:ir.model.fields.selection,name:ems.selection__hr_job__employee_type__teacher model:res.groups,name:ems.group_teacher model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form model_terms:ir.ui.view,arch_db:ems.view_attendance_session_list model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__employee_id
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
@@ -9933,6 +9941,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
 #: model:ir.model.fields.selection,name:ems.selection__ems_staff_walkout_report_line__employee_type__teacher
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
 msgid "Teacher"
 msgstr "Profesor"
 
@@ -15404,6 +15413,7 @@ msgstr "El rol de secretario/a no se puede asignar ni quitar manualmente, se ges
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_department__top_level_area
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report__area_id
 msgid "Area"
 msgstr "Área"
 
@@ -17692,8 +17702,10 @@ msgid "Professional certificate or accreditation of competences"
 msgstr "Certificado de profesionalidad o acreditación de competencias"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__resolution_notes
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
 msgid "Remarks"
 msgstr "Observaciones"
 
@@ -20304,8 +20316,10 @@ msgid "People"
 msgstr "Personas"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__present_count model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence_line__state__present model_terms:ir.ui.view,arch_db:ems.report_meeting_presence
 #: model:ir.model.fields,field_description:ems.field_ems_minute_guest__attended
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
 msgid "Present"
 msgstr "Presente"
 
@@ -26971,6 +26985,7 @@ msgstr "Actas de reunión"
 #: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__employee_id
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute_member_line__team_role__member
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_panel__user_id
+#: model:res.groups,name:ems.group_management_team
 msgid "Member"
 msgstr "Miembro"
 
@@ -56547,3 +56562,163 @@ msgstr "Abrir el enlace"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_document_list
 msgid "Write what to correct"
 msgstr "Escribe qué hay que corregir"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "%(period)s - %(count)s teacher(s) start"
+msgstr "%(period)s - empiezan %(count)s docente(s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Absence awaiting approval"
+msgstr "Ausencia pendiente de aprobar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_walkout_report_form
+msgid "All teaching areas"
+msgstr "Todas las áreas docentes"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Approved absence"
+msgstr "Ausencia aprobada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Arrival time"
+msgstr "Hora de llegada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "By period"
+msgstr "Por franjas"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Contract"
+msgstr "Contrato"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report__control_sheet
+msgid "Control sheet"
+msgstr "Hoja de control"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_walkout_report_form
+msgid "Control sheet (xlsx)"
+msgstr "Hoja de control (xlsx)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report__control_sheet_name
+msgid "Control sheet file name"
+msgstr "Nombre del fichero de la hoja de control"
+
+#. module: ems
+#: model:ir.module.category,description:ems.category_management_team
+msgid "Educational Management System - Management team"
+msgstr "Educational Management System - Equipo directivo"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Expected students"
+msgstr "Alumnos previstos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Expected arrival"
+msgstr "Entrada prevista"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Classroom code"
+msgstr "Código del aula"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid ""
+"From the schedules in EMS, as on the guard duty board. Grey: an absence "
+"request covers it. Expected students: the class's roll-call list, or its "
+"group's students; empty when unknown."
+msgstr ""
+"A partir de los horarios de EMS, como en el tablero de guardias. En gris: "
+"hay una solicitud de ausencia que lo cubre. Alumnos previstos: la lista de "
+"asistencia de la clase, o el alumnado del grupo; vacío cuando no se sabe."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Grid"
+msgstr "Cuadrícula"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_staff_walkout_report__area_id
+msgid "Leave it empty for every teaching area, each on sheets of its own."
+msgstr ""
+"Déjalo vacío para todas las áreas docentes, cada una en hojas propias."
+
+#. module: ems
+#: model:ir.module.category,name:ems.category_management_team
+msgid "Management team"
+msgstr "Equipo directivo"
+
+#. module: ems
+#: model:res.groups,comment:ems.group_management_team
+msgid ""
+"Member of the management team: the staff walkout report and its control "
+"sheet."
+msgstr ""
+"Miembro del equipo directivo: el informe de huelgas del personal y su hoja "
+"de control."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Nobody in %s has a schedule on this day."
+msgstr "Nadie de %s tiene horario este día."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Students present"
+msgstr "Alumnos presentes"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Walkout %(day)s - %(area)s: each teacher once, in their first period"
+msgstr ""
+"Huelga %(day)s - %(area)s: cada docente una sola vez, en su primera franja"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Walkout control sheet"
+msgstr "Hoja de control de huelga"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "the teaching areas"
+msgstr "las áreas docentes"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_walkout_report_form
+msgid ""
+"Control sheet: an .xlsx to print and note down who comes, with every teacher of\n"
+"                        the area once, in the first period of their schedule that day, and what they have\n"
+"                        then. Any day can be chosen, also before it starts."
+msgstr ""
+"Hoja de control: un .xlsx para imprimir y apuntar quién viene, con cada "
+"docente del área una sola vez, en la primera franja de su horario ese día, y"
+" lo que tiene en ese momento. Se puede elegir cualquier día, también antes "
+"de que empiece."

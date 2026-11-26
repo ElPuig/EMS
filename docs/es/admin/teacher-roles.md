@@ -175,4 +175,16 @@ Esto tiene un efecto más allá del propio ajuste:
 
 ---
 
+## Asignar el equipo directivo
+
+El **equipo directivo** (director, jefes de estudios, secretario, cualquier coordinador que forme parte de él...) ve el [informe de huelgas del personal](../head_of_studies/absences.md#huelgas-del-personal). Ningún rol dice por sí mismo quién forma parte del equipo, así que cada miembro se asigna a mano:
+
+1. Ve a **Ajustes → Usuarios y compañías → Usuarios** y abre el usuario del miembro.
+2. En la pestaña **Permisos de acceso**, en la sección **EMS**, pon **Equipo directivo** en **Miembro**.
+3. Haz clic en **Guardar**.
+
+El director siempre forma parte del equipo: no hace falta asignárselo. Para quitar a alguien del equipo, deja **Equipo directivo** vacío.
+
+---
+
 [← Volver al índice general](index.md)

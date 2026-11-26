@@ -492,7 +492,7 @@ reminder they receive (no menu entry), so their "Absences" stays a single click.
 | Reporting, Configuration | native groups | Unchanged |
 | Management > Requested absences | `group_hr_holidays_responsible` | EMS entry on Odoo's own `hr_leave_action_action_approve_department`, replacing `hr_holidays.menu_open_department_leave_approve` ("Time Off"), which is archived: next to the detected absences, the name has to say which of the two kinds it lists. Its group is stated explicitly, since Management itself is now wider |
 | Management > Detected absences | `ems.group_department_chief`, `ems.group_academic_admin`, `base.group_system` | Added by EMS, see *Detected absences* |
-| Reporting > Staff walkouts | `ems.group_director` | Added by EMS, see *The staff walkout report* |
+| Reporting > Staff walkouts | `ems.group_management_team` | Added by EMS, see *The staff walkout report* |
 
 The action behind My Time Off also drops Odoo's default `search_default_group_date_from`: the
 centre's own list is short and already sorted by date, so grouping it by month only buries a
@@ -1242,9 +1242,11 @@ report. Nothing fails; the number is just wrong.
 
 ## The staff walkout report
 
-`Absences > Reporting > Staff walkouts` (`ems.action_staff_walkout_report`, issue #813), Director
-only: the figures the Director reports to the Departament about every hour of a walkout day, per
-staff type and contract type. Nobody declares the walkout in EMS; it is inferred.
+`Absences > Reporting > Staff walkouts` (`ems.action_staff_walkout_report`, issue #813), for the
+management team (`ems.group_management_team`, issue #865): the figures the Director reports to the
+Departament about every hour of a walkout day, per staff type and contract type, and a control sheet
+to print before the day starts (see *The walkout control sheet* below). Nobody declares the walkout
+in EMS; it is inferred.
 
 ```mermaid
 flowchart LR
@@ -1285,11 +1287,59 @@ on top). Named "walkout", never "strike", so it is not confused with `ems.strike
 
 | Role | `ems.staff_walkout_report` | `ems.staff_walkout_report.line` | Menu |
 |---|---|---|---|
-| Director (and `academic_admin`, which implies it) | rwc | rc (the lines are never edited) | yes |
-| Anyone else | - | - | no |
+| Management team (`ems.group_management_team`; the Director, and `academic_admin` above them, always belong to it) | rwc | rc (the lines are never edited) | yes |
+| Anyone else, Heads of Studies and the Secretary included unless they are on the team | - | - | no |
 
 The data is read with `sudo()` inside the helpers; only names, staff type, contract type and the
-two figures leave them.
+two figures leave them (the control sheet adds what each teacher has that day, below).
+
+**The management team group (issue #865).** Who sits on the management team is not something any
+role says on its own (a Head of Studies, the Secretary, a coordinator...), so it is a group of its
+own (`category_management_team`, "Member"), assigned by hand on the user's form. `group_director`
+implies it, so the Director always has the report. The menu sits under Odoo's *Absences >
+Reporting*, which hr_holidays keeps for Time Off officers: EMS adds the group to that header and gives
+its other entries (*by Employee*, *by Type*, *Monthly totals*) the officers group explicitly, so a
+member who is not an officer (the Secretary) sees this report and nothing else there.
+
+### The walkout control sheet
+
+The dialog's **Control sheet (xlsx)** button (`action_download_control_sheet`, issue #865): an .xlsx
+to print before a walkout day starts and note down who comes. Any day may be chosen, also a future
+one; a public holiday is refused (`_check_not_public_holiday`, shared with the report).
+
+```mermaid
+flowchart LR
+    B[Control sheet button<br/>date + optional area] --> A[_get_control_sheet_areas]
+    A --> S[_ems_scheduled_slots<br/>the guard duty board's reading]
+    A --> L[_get_guard_duty_leave_intervals]
+    A --> E[_get_expected_students<br/>roll-call list, else main groups]
+    A --> M[_merge_absorbed_periods<br/>a cut-short period folds into its whole one]
+    A --> X[_get_control_sheet_xlsx<br/>xlsxwriter, two sheets per area]
+    X --> F[control_sheet Binary, attachment=False<br/>/web/content download]
+```
+
+| Rule | Why |
+|---|---|
+| Areas: top-level departments with `top_level_area = 'academic'` (VET, ESO/BTX); the area field empty = all of them, two sheets each | The sheet is about classes; ASP staff have none. Each area is organised by its own Head of Studies |
+| Teachers: `employee_type` teacher of the area (`department_id` child of it), vacancies left out | Same population as the walkout report's teachers |
+| Each teacher once, in the first period of their schedule that day, with what they do then (several slots at once: one row, joined) | Whoever counts by hand adds up the period totals themselves (developer, 2026-11-26) |
+| Periods per area, a teacher's own shortened period folded into the whole one (`_merge_absorbed_periods`) | Each area keeps its own timetable framework, as on the guard duty board |
+| Expected students: the class's roll-call list (`attendance_schedule_id.student_ids`); with no list and only main groups, those groups' students; otherwise empty | The list is what the teacher calls at that class. ESO/BTX have no enrollments per subject, so no list; a split, optional or Flex group says nowhere who goes to it |
+| An absence request (approved or awaiting approval) covering the first period greys the row and says which; in the grid, per period | The same requests the walkout report takes as justified |
+| Blank columns: students present, present (a box), arrival time, notes | Filled in by hand |
+
+**Why a Binary on the transient record and not a controller:** the file is built once, when asked
+for, so an error (a holiday, nobody scheduled) shows in the dialog rather than as a broken download,
+and Odoo's own `/web/content` serves it with the record's access rules. `attachment=False` keeps it in
+the transient table: the staff's data leaves the database with the record when Odoo vacuums it. The
+file is written with `xlsxwriter`, which ships with Odoo and is what EMS's other spreadsheets use
+(Erasmus+ participants and economy); OCA's `report_xlsx` would add a dependency for a single file
+with nothing a report action gives here (the sheet is not tied to a printable record).
+
+**Cost:** one search for the teachers, one for their slots, one for the absence requests, the
+roll-call lists read in one batch (prefetch) and one `_read_group` for the main groups' students, then
+work in memory over the slots of the day. On this dev database's real data (119 teachers, 547
+slots for a Thursday) it takes 0.18 s for the data and 0.08 s for the file, cold, in `odoo shell`.
 
 ## Who gets told
 

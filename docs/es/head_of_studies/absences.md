@@ -187,7 +187,7 @@ Para cambiar el periodo, quita el filtro **Curso actual** y elige el que necesit
 
 ## Huelgas del personal
 
-**Ausencias > Informes > Huelgas**, solo para la directora o el director.
+**Ausencias > Informes > Huelgas**, para el equipo directivo: el director y quien el administrador haya puesto en él (consulta [Asignar el equipo directivo](../admin/teacher-roles.md#asignar-el-equipo-directivo)).
 
 Un día de huelga, las cifras del formulario del Departament que hay que rellenar aproximadamente cada hora: cuántas personas del personal (docentes y personal de administración y servicios) están en huelga hasta el momento, separadas por tipo de contrato.
 
@@ -212,6 +212,19 @@ Las cifras de hoy son las del momento en que haces clic en **Mostrar**, y el tí
 
 Solo aparece el personal que tiene su horario en EMS. El tipo de contrato es el campo **Tipo de contrato** de la ficha del empleado, junto al tipo de empleado; quien no tiene ninguno aparece en **Ninguno**.
 
+
+### Hoja de control para imprimir
+
+Para apuntar a mano quién viene, antes de que empiece el día o durante el día:
+
+1. En el mismo diálogo, elige el día (cualquiera, también uno que aún no ha llegado) y, si quieres, un **Área** (FP o ESO / BTX). Si la dejas vacía, toma todas las áreas docentes.
+2. Haz clic en **Hoja de control (xlsx)**. Se descarga una hoja de cálculo con dos hojas por área:
+   - **Por franjas**: cada docente una sola vez, en la primera franja de su horario ese día, agrupados por franja. Para cada uno: departamento, contrato, actividad, grupo, código y nombre del aula, alumnos previstos y columnas en blanco para rellenar: **Alumnos presentes**, **Presente**, **Hora de llegada** y **Observaciones**. Sumando cada franja tienes las cifras hasta el momento.
+   - **Cuadrícula**: cada docente por franjas, como en el tablero de guardias, con el grupo (entre paréntesis los alumnos previstos, y el código del aula) o la tarea, y una casilla para marcar.
+
+![Diálogo de huelgas: Fecha, Área (todas las áreas docentes si está vacía) y los botones Mostrar y Hoja de control (xlsx)](../../assets/head_of_studies/hos-staff-walkout-dialog.png)
+
+Los docentes que tienen una solicitud de ausencia que cubre esa franja, aprobada o pendiente de aprobar, salen en gris y en las observaciones se indica cuál. Los **Alumnos previstos** son los de la lista de asistencia de la clase o, si no la tiene, el alumnado del grupo; la columna queda vacía en un desdoble, una optativa o un grupo de refuerzo, porque EMS no tiene su alumnado.
 ---
 
 ## Ausencias detectadas

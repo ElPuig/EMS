@@ -57,7 +57,9 @@ The results are chosen with a radio button per row (`ems_radio_row`, `static/src
 or by clicking anywhere on the row (the widget listens on its row, which is highlighted, so a row
 where the field is invisible, a busy day, cannot be chosen). Either way it writes the row into `selected_line_id` of the wizard, so the footer's *Reserve* (`action_reserve`)
 is enabled only once a row is chosen (until then a lookalike button with the `disabled` class is shown,
-since a view button has no disabled attribute). A busy day offers no radio button. The *Search*
+since a view button has no disabled attribute). A busy day offers no radio button. The list is paginated ten rows at a time (`limit="10"` on the list, the standard x2many pager),
+so the dialog does not grow with the results; the choice lives on the wizard, not on a page, and
+survives a change of page. The *Search*
 button sits between the fields and the list. The lines are real records, not a computed list (the
 choice points to a record). Changing anything the search
 depends on drops the lines (`write`), so a stale answer is never shown. *Reserve* (on a row)

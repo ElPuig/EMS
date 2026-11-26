@@ -17,6 +17,8 @@ Prem **Nou** a la llista de reserves. S'obre una finestra i el primer que has de
 - **Data: quins espais són lliures** - quan saps el dia i l'hora però no l'espai. Indica el **dia** (i, si vols, el **tipus**), l'hora d'**inici** i la de **final** i prem **Cerca espais lliures**. La finestra llista els espais lliures en aquell moment. Tria l'espai que vulguis fent clic a la seva fila (o al seu botó de ràdio), escriu el **motiu** si vols i prem **Reserva** (queda desactivat fins que en triïs un).
 - **Espai: quins dies és lliure** - quan necessites un espai concret (el saló d'actes, per exemple) i et va bé qualsevol dia. Tria l'**espai**, l'interval de dies (**Des de** i **Fins a**, fins a dos mesos), l'hora d'**inici** i la de **final**, i prem **Cerca dies lliures**. La finestra llista cada dia de l'interval, amb el dia de la setmana: pots triar qualsevol dels dies lliures fent clic a la seva fila (o al seu botó de ràdio) i prémer **Reserva**; als altres t'indica què l'ocupa i quan (una classe, una altra reserva).
 
+Els resultats es mostren de deu en deu: usa les fletxes de sobre de la llista per veure els altres; l'elecció es manté quan canvies de pàgina.
+
 No es pot reservar una hora que ja ha començat. Si canvies qualsevol cosa després de cercar, torna a cercar.
 
 ## Les teves reserves

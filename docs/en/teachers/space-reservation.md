@@ -17,6 +17,8 @@ Press **New** on the list of reservations. A window opens and the first thing to
 - **Date: which spaces are free** - for when you know the day and the time but not the space. Enter the **day** (and, if you wish, the **type**), the **start** and the **end** time and press **Search free spaces**. The window lists the spaces that are free at that time. Choose the one you want by clicking its row (or its radio button), write a **reason** if you wish and press **Reserve** (it stays disabled until you choose one).
 - **Space: which days it is free** - for when you need one space (the assembly hall, say) and any day will do. Choose the **space**, the range of days (**From** and **To**, up to two months), the **start** and the **end** time, and press **Search free days**. The window lists every day of the range, with the weekday: you can choose any of the days it is free by clicking its row (or its radio button) and press **Reserve**; for the others it says what holds it and when (a class, another reservation).
 
+The results are shown ten at a time: use the arrows above the list to see the others; your choice is kept when you change page.
+
 You cannot reserve a time that has already started. If you change anything after searching, search again.
 
 ## Your reservations

@@ -44,7 +44,7 @@
                 </div>
                 <field name="selected_line_id" invisible="1"/>
                 <field name="line_ids" invisible="not line_ids" nolabel="1">
-                    <list create="false" delete="false" edit="false" no_open="1" decoration-muted="not is_free and not space_id">
+                    <list create="false" delete="false" edit="false" no_open="1" limit="10" decoration-muted="not is_free and not space_id">
                         <field name="selected" widget="ems_radio_row" options="{'chosen_field': 'selected_line_id'}" nolabel="1"
                                width="40px" invisible="parent.mode == 'space' and not is_free"/>
                         <field name="space_id" column_invisible="parent.mode != 'date'"/>

@@ -86,7 +86,7 @@ registry.category("web_tour.tours").add("ems_space_reservation_by_space", {
         {
             trigger: ".modal .o_field_widget[name='space_id'] input",
             content: "Choose the space",
-            run: "edit Tour Busy",
+            run: "edit 000 Tour Busy",
         },
         {
             trigger: ".o-autocomplete--dropdown-item:contains('Tour Busy Space')",

@@ -56,8 +56,8 @@ class EmsStaffWalkoutReport(models.TransientModel):
     def _get_control_sheet_areas(self):
         """`[(area, periods, teachers)]`, one per teaching area with somebody scheduled that day:
         `periods` the area's own periods in order, `teachers` one dict per teacher (see
-        _get_control_sheet_teacher). sudo: the sheet is for the management team, who see the whole
-        staff's day (the same reach as the walkout report itself)."""
+        _get_control_sheet_teacher). sudo: the sheet is for whoever sees the walkout report, who
+        sees the whole staff's day (the same reach as the report itself)."""
         self.ensure_one()
         self._check_not_public_holiday()
         areas = self.area_id or self.env['hr.department'].search(AREA_DOMAIN, order='name')
@@ -65,8 +65,7 @@ class EmsStaffWalkoutReport(models.TransientModel):
             ('employee_type', '=', 'teacher'), ('schedule_import_code', '=', False),
             ('department_id', 'child_of', areas.ids)])
         slots = self.env['ems.absence_pending']._ems_scheduled_slots(self.date, teachers)
-        absences = self.env['ems.course']._get_guard_duty_leave_intervals(self.date, teachers)
-        students = self._get_expected_students(slots)
+        day = self._get_control_sheet_day(teachers, slots)
         area_of = self._get_department_areas(teachers)
         slots_by_area = defaultdict(lambda: defaultdict(lambda: slots.browse()))
         for slot in slots:
@@ -81,7 +80,7 @@ class EmsStaffWalkoutReport(models.TransientModel):
                                                       for area_slots in teacher_slots.values() for slot in area_slots}))
             period_of = {member: period for period, period_members in members.items() for member in period_members}
             result.append((area, sorted(members), sorted(
-                (self._get_control_sheet_teacher(teacher, area_slots, period_of, absences.get(teacher.id, ()), students)
+                (self._get_control_sheet_teacher(teacher, area_slots, period_of, day)
                  for teacher, area_slots in teacher_slots.items()),
                 key=lambda entry: (entry['start'], entry['name']))))
         if not result:
@@ -89,36 +88,78 @@ class EmsStaffWalkoutReport(models.TransientModel):
                               self.area_id.name or _("the teaching areas")))
         return result
 
-    def _get_control_sheet_teacher(self, teacher, slots, period_of, absences, students):
+    def _get_control_sheet_day(self, teachers, slots):
+        """What is known of the day so far, read once for every teacher and class: 'absences' (the
+        absence requests, as the walkout report takes them), 'arrivals' (each teacher's first
+        check-in), 'expected' and 'present' (students per slot, see _get_expected_students and
+        _get_present_students) and 'now', the hour up to which the day has gone by (24 for a day
+        over, -1 for one to come)."""
+        utils = self.env['ems.datetime_utils']
+        local_now = utils.get_local_datetime()
+        if self.date < local_now.date():
+            now = 24.0
+        elif self.date == local_now.date():
+            now = utils.time_to_float(local_now)
+        else:
+            now = -1.0
+        return {
+            'absences': self.env['ems.course']._get_guard_duty_leave_intervals(self.date, teachers),
+            'arrivals': self.env['hr.attendance']._ems_first_check_in_hours(self.date, teachers),
+            'expected': self._get_expected_students(slots),
+            'present': self._get_present_students(slots),
+            'now': now,
+        }
+
+    def _get_control_sheet_teacher(self, teacher, slots, period_of, day):
         """What the sheet shows of `teacher`: their name, department and contract, the period they
         start in ('start') with what they do then ('first', see _get_control_sheet_cell), and every
         period of their day ('grid'). 'absence' tells whether an absence request (approved or
-        awaiting approval) covers their first period; 'absent' lists the grid's periods one covers."""
+        awaiting approval) covers their first period; 'absent' lists the grid's periods one covers.
+        'status' and 'arrival' are the teacher's attendance so far (see _get_teacher_status)."""
         by_period = defaultdict(lambda: slots.browse())
         for slot in slots.sorted(lambda slot: (slot.hour_from, slot.id)):
             by_period[period_of[(slot.hour_from, slot.hour_to)]] |= slot
         start = min(by_period)
+        absences = day['absences'].get(teacher.id, ())
 
         def covering(period):
             return [state for hour_from, hour_to, state in absences if overlaps(*period, hour_from, hour_to)]
 
         first_absences = covering(start)
+        absence = ('pending' if 'pending' in first_absences else 'approved') if first_absences else False
         return {
             'name': teacher.name,
             'department': teacher.department_id.name or '',
             'contract': teacher.contract_type_id.name or '',
             'start': start,
-            'first': self._get_control_sheet_cell(by_period[start], students),
-            'absence': ('pending' if 'pending' in first_absences else 'approved') if first_absences else False,
-            'grid': {period: self._get_control_sheet_cell(period_slots, students)
+            'first': self._get_control_sheet_cell(by_period[start], day),
+            'absence': absence,
+            'status': self._get_teacher_status(absence, day['arrivals'].get(teacher.id), start, day['now']),
+            'arrival': day['arrivals'].get(teacher.id),
+            'grid': {period: self._get_control_sheet_cell(period_slots, day)
                      for period, period_slots in by_period.items()},
             'absent': {period for period in by_period if covering(period)},
         }
 
-    def _get_control_sheet_cell(self, slots, students):
+    @staticmethod
+    def _get_teacher_status(absence, arrival, start, now):
+        """'absence' when an absence request covers their first period, 'present' once they have
+        checked in (at any time: a late arrival may be the walkout's own doing, as the walkout report
+        counts it), 'walkout' when their first period has started with neither, None until then."""
+        if absence:
+            return 'absence'
+        if arrival is not None:
+            return 'present'
+        return 'walkout' if start[0] <= now else None
+
+    def _get_control_sheet_cell(self, slots, day):
         """What `slots` (a teacher's slots in one period, usually one) are about: activity, groups,
-        room code and name, expected students (None when unknown) and whether it is a class."""
-        counts = [students[slot.id] for slot in slots if students.get(slot.id) is not None]
+        room code and name, expected and present students (None when unknown) and whether it is a
+        class."""
+        def total(counts):
+            known = [counts[slot.id] for slot in slots if counts.get(slot.id) is not None]
+            return sum(known) if known else None
+
         return {
             'activity': ' / '.join(
                 slot.subject_id._label_with_topic(slot.topic) if slot.subject_id else (slot.non_teaching.name or slot.name)
@@ -126,9 +167,27 @@ class EmsStaffWalkoutReport(models.TransientModel):
             'groups': ', '.join(slots.group_ids.mapped('name')),
             'room_code': ', '.join(code for code in slots.space_id.mapped('code') if code),
             'room': ', '.join(slots.space_id.mapped('name')),
-            'students': sum(counts) if counts else None,
+            'students': total(day['expected']),
+            'present': total(day['present']),
             'teaching': bool(slots.subject_id),
         }
+
+    def _get_present_students(self, slots):
+        """`{slot.id: count}` for the classes among `slots` whose roll call has been taken that day:
+        the students marked with an attendance status (attended, minor delay), as the attendance
+        reports count them. A class with no roll call yet is left out. Two queries for every class."""
+        schedules = slots.attendance_schedule_id
+        sessions = self.env['ems.attendance_session_header'].sudo().search(
+            [('attendance_schedule_id', 'in', schedules.ids), ('date', '=', self.date)])
+        if not sessions:
+            return {}
+        present = dict(self.env['ems.attendance_session_line'].sudo()._read_group(
+            [('attendance_session_id', 'in', sessions.ids), ('status_id.category', '=', 'assistance'),
+             ('not_expected_reason', '=', False)],
+            ['attendance_session_id'], ['__count']))
+        by_schedule = {session.attendance_schedule_id.id: present.get(session, 0) for session in sessions}
+        return {slot.id: by_schedule[slot.attendance_schedule_id.id]
+                for slot in slots if slot.attendance_schedule_id.id in by_schedule}
 
     def _get_expected_students(self, slots):
         """`{slot.id: count}` for the classes among `slots`: the roll-call list of the class (its
@@ -174,8 +233,9 @@ class EmsStaffWalkoutReport(models.TransientModel):
             formats[f'{name}_centre'] = workbook.add_format({**base, **extra, 'align': 'center'})
         day = self.date.strftime('%d/%m/%Y')
         absence_notes = {'approved': _("Approved absence"), 'pending': _("Absence awaiting approval")}
+        statuses = {'present': _("Present"), 'walkout': _("On walkout"), 'absence': _("Absence"), None: '☐'}
         headers = [_("Teacher"), _("Department"), _("Contract"), _("Activity"), _("Group"), _("Classroom code"),
-                   _("Classroom"), _("Expected students"), _("Students present"), _("Present"), _("Arrival time"),
+                   _("Classroom"), _("Expected students"), _("Students present"), _("Attendance"), _("Arrival time"),
                    _("Remarks")]
         centred = {5, 7, 8, 9, 10}
         for area, periods, teachers in areas:
@@ -192,7 +252,12 @@ class EmsStaffWalkoutReport(models.TransientModel):
                 "From the schedules in EMS, as on the guard duty board. Grey: an absence request covers it. "
                 "Expected students: the class's roll-call list, or its group's students; empty when unknown."),
                 formats['note'])
-            row = 3
+            sheet.merge_range(2, 0, 2, last, _(
+                "Attendance as at %(time)s: present once checked in, on walkout when their first period has "
+                "started without it; students present as the roll call was taken, empty if not taken yet.",
+                time=self.env['ems.datetime_utils'].get_local_datetime().strftime('%d/%m/%Y %H:%M')),
+                formats['note'])
+            row = 4
             for period in periods:
                 starting = [teacher for teacher in teachers if teacher['start'] == period]
                 if not starting:
@@ -204,8 +269,10 @@ class EmsStaffWalkoutReport(models.TransientModel):
                 for teacher in starting:
                     cell = teacher['first']
                     kind = 'absent' if teacher['absence'] else ('cell' if cell['teaching'] else 'duty')
+                    arrival = teacher['arrival']
                     values = [teacher['name'], teacher['department'], teacher['contract'], cell['activity'],
-                              cell['groups'], cell['room_code'], cell['room'], cell['students'], '', '☐', '',
+                              cell['groups'], cell['room_code'], cell['room'], cell['students'], cell['present'],
+                              statuses[teacher['status']], format_time(arrival) if arrival is not None else '',
                               absence_notes.get(teacher['absence'], '')]
                     for column, value in enumerate(values):
                         style = formats[f'{kind}_centre' if column in centred else kind]
@@ -216,9 +283,17 @@ class EmsStaffWalkoutReport(models.TransientModel):
         workbook.close()
         return stream.getvalue()
 
+    @staticmethod
+    def _students_label(cell):
+        """'(present/expected)' once the roll call is taken, '(expected)' before, '' when unknown."""
+        expected = '?' if cell['students'] is None else cell['students']
+        if cell['present'] is not None:
+            return f"({cell['present']}/{expected})"
+        return f"({expected})" if cell['students'] is not None else ''
+
     def _write_control_sheet_grid(self, workbook, formats, area, periods, teachers, label):
         """Every teacher of `area` by period, like the guard duty board: the group (with its
-        expected students and room code) or the duty, and a box to tick."""
+        students, see _students_label, and room code) or the duty, and a box to tick."""
         sheet = workbook.add_worksheet(_sheet_name(area.name, _('Grid')))
         sheet.set_landscape()
         sheet.fit_to_pages(1, 0)
@@ -244,8 +319,7 @@ class EmsStaffWalkoutReport(models.TransientModel):
                 if cell:
                     kind = 'absent' if period in teacher['absent'] else ('cell' if cell['teaching'] else 'duty')
                     text = cell['activity'] if not cell['groups'] else ' '.join(filter(None, (
-                        cell['groups'], f"({cell['students']})" if cell['students'] is not None else '',
-                        cell['room_code'])))
+                        cell['groups'], self._students_label(cell), cell['room_code'])))
                     if kind != 'absent':
                         text += '\n☐'
                 sheet.write(row, column, text, formats[f'{kind}_centre'])

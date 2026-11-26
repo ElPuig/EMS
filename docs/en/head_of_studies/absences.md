@@ -220,10 +220,17 @@ To note down by hand who comes, before the day starts or during it:
 
 1. In the same dialog, choose the day (any day, also a coming one) and, if you want, an **Area** (VET or ESO / BTX). Empty, it takes every teaching area.
 2. Click **Control sheet (xlsx)**. A spreadsheet downloads with two sheets per area:
-   - **By period**: every teacher once, in the first period of their schedule that day, grouped by period. For each one: department, contract, activity, group, classroom code and classroom, expected students, and blank columns to fill in: **Students present**, **Present**, **Arrival time** and **Remarks**. Adding up each period gives the figures so far.
-   - **Grid**: every teacher by period, as on the guard duty board, with the group (its expected students in brackets and the classroom code) or the duty, and a box to tick.
+   - **By period**: every teacher once, in the first period of their schedule that day, grouped by period. For each one: department, contract, activity, group, classroom code and classroom, expected students, **Students present**, **Attendance**, **Arrival time** and **Remarks**. Adding up each period gives the figures so far.
+   - **Grid**: every teacher by period, as on the guard duty board, with the group (in brackets the students present out of those expected, once the roll call is taken, and the classroom code) or the duty, and a box to tick.
 
 ![Staff walkouts dialog: Date, Area (all teaching areas when empty), and the Show and Control sheet (xlsx) buttons](../../assets/head_of_studies/hos-staff-walkout-dialog.png)
+
+The attendance columns come filled in with what EMS knows when you download the sheet (the third line says when):
+
+- **Attendance**: **Present** if the teacher has checked in (at any time), **On walkout** if their first period has started and they have not, **Absence** if an absence request covers it. Empty, with a box, while their first period has not started yet. **Arrival time** is their first check-in.
+- **Students present**: those marked as attended (or with a minor delay) in that class's roll call that day. Empty if the roll call has not been taken yet.
+
+To update them, download the sheet again.
 
 Teachers with an absence request covering that period, approved or waiting for approval, appear in grey and their remarks say which. The **Expected students** are those on the class's attendance list or, if it has none, its group's students; the column is empty for a split, optional or reinforcement group, whose students are not recorded in EMS.
 

@@ -133,6 +133,42 @@ class TestStaffWalkoutControlSheet(TransactionCase):
                          {'TWCS Approved': 'approved', 'TWCS Pending': 'pending', 'TWCS Later': False})
         self.assertEqual(sheet['TWCS Later']['absent'], {(11.0, 12.0)})
 
+    def test_the_teachers_attendance_so_far(self):
+        """10:00 (shift_ems_clock): present once checked in, at whatever time; on walkout when the
+        first period has started without it; nothing yet for a later period or a day to come."""
+        came = self._teacher('TWCS Came', [(9.0, 10.0, self._class(self.group))])
+        self._teacher('TWCS Walker', [(9.0, 10.0, self._class(self.group))])
+        self._teacher('TWCS Later', [(11.0, 12.0, self._class(self.group))])
+        away = self._teacher('TWCS Away', [(9.0, 10.0, self._class(self.group))])
+        create_absence(self.env, away, self.day)
+        Pending = self.env['ems.absence_pending']
+        self.env['hr.attendance'].create({
+            'employee_id': came.id, 'check_in': Pending._utc_bounds(self.day, 0.0, 9.25)[1]})
+
+        sheet = self._sheet()
+
+        self.assertEqual({name: entry['status'] for name, entry in sheet.items()}, {
+            'TWCS Came': 'present', 'TWCS Walker': 'walkout', 'TWCS Later': None, 'TWCS Away': 'absence'})
+        self.assertAlmostEqual(sheet['TWCS Came']['arrival'], 9.25)
+        # A day to come: nothing has started.
+        self.assertIsNone(self.env['ems.staff_walkout_report']._get_teacher_status(False, None, (8.0, 9.0), -1.0))
+
+    def test_the_students_present_come_from_the_roll_call_taken(self):
+        values = self._class(self.group, with_list=True)
+        self._teacher('TWCS Roll Call', [(9.0, 10.0, values)])
+        self.assertIsNone(self._sheet()['TWCS Roll Call']['first']['present'])
+        schedule = self.env['ems.attendance_schedule'].browse(values['attendance_schedule_id'])
+        # Starting the roll call fills it with the list, each student as attended until marked.
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': schedule.id, 'date': self.day, 'mode': 'manual',
+            'session_teacher_id': schedule.attendance_template_id.teacher_ids[:1].id})
+        self.assertEqual(len(session.attendance_session_line_ids), 2)
+        session.attendance_session_line_ids[:1].status_id = self.env.ref('ems.attendance_status_miss')
+
+        cell = self._sheet()['TWCS Roll Call']['first']
+        self.assertEqual((cell['present'], cell['students']), (1, 2))
+        self.assertEqual(self.env['ems.staff_walkout_report']._students_label(cell), '(1/2)')
+
     def test_only_the_areas_own_teachers_and_never_a_vacancy(self):
         self._teacher('TWCS Mine', [(9.0, 10.0, self._class(self.group))])
         self._teacher('TWCS Vacancy', [(9.0, 10.0, self._class(self.group))], schedule_import_code='TWCS-V1')
@@ -156,7 +192,8 @@ class TestStaffWalkoutControlSheet(TransactionCase):
         self.assertEqual(workbook.sheetnames, ['TWCS - Area - By period', 'TWCS - Area - Grid'])
         rows = list(workbook['TWCS - Area - By period'].iter_rows(values_only=True))
         teacher_row = next(row for row in rows if row[0] == 'TWCS Mine')
-        self.assertEqual(teacher_row[4:10], (self.group.name, 'TWCS-9.19', 'TWCS Room', 3, None, '☐'))
+        # 10:00, their 9:00 class started and no check-in: on walkout; no roll call taken yet.
+        self.assertEqual(teacher_row[4:11], (self.group.name, 'TWCS-9.19', 'TWCS Room', 3, None, 'On walkout', None))
         self.assertTrue(report.control_sheet_name.endswith(f'{self.day.isoformat()}.xlsx'))
 
     def test_nobody_scheduled_in_the_area_says_so(self):

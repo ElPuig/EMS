@@ -1000,6 +1000,7 @@ msgstr "Nom del PAS"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__leave_id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__leave_id
 #: code:addons/ems/models/attendance/attendance_reports.py:0
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
 msgid "Absence"
 msgstr "Absència"
 
@@ -1944,6 +1945,7 @@ msgid "Attachment Count"
 msgstr "Quantitat d'adjunts"
 
 #. module: ems
+#. odoo-python
 #: model:ir.ui.menu,name:ems.menu_hr_attendance_group
 #: model:ir.ui.menu,name:ems.menu_meeting_presence
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__attendance_id
@@ -1951,6 +1953,7 @@ msgstr "Quantitat d'adjunts"
 #: model:ir.model.fields,field_description:ems.field_ems_minute__attendance_mode
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_log__kind__attendance
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_review__kind__attendance
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
 msgid "Attendance"
 msgstr "Assistència"
 
@@ -49623,9 +49626,11 @@ msgid "Nobody was expected to work on this day yet."
 msgstr "Encara no hi havia ningú que hagués de treballar aquest dia."
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__on_walkout
 #: model_terms:ir.ui.view,arch_db:ems.view_staff_walkout_report_line_list
 #: model_terms:ir.ui.view,arch_db:ems.view_staff_walkout_report_line_search
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
 msgid "On walkout"
 msgstr "En vaga"
 
@@ -56670,3 +56675,16 @@ msgstr ""
 "l'àrea una sola vegada, a la primera franja del seu horari aquell dia, i el "
 "que hi té en aquell moment. Es pot triar qualsevol dia, també abans que "
 "comenci."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+#, python-format
+msgid ""
+"Attendance as at %(time)s: present once checked in, on walkout when their "
+"first period has started without it; students present as the roll call was "
+"taken, empty if not taken yet."
+msgstr ""
+"Assistència a %(time)s: present si ha fitxat, en vaga si la seva primera "
+"franja ha començat sense fitxar; alumnes presents segons el pas de llista, "
+"buit si encara no s'ha passat."

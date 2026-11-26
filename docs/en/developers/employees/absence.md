@@ -1325,7 +1325,9 @@ flowchart LR
 | Periods per area, a teacher's own shortened period folded into the whole one (`_merge_absorbed_periods`) | Each area keeps its own timetable framework, as on the guard duty board |
 | Expected students: the class's roll-call list (`attendance_schedule_id.student_ids`); with no list and only main groups, those groups' students; otherwise empty | The list is what the teacher calls at that class. ESO/BTX have no enrollments per subject, so no list; a split, optional or Flex group says nowhere who goes to it |
 | An absence request (approved or awaiting approval) covering the first period greys the row and says which; in the grid, per period | The same requests the walkout report takes as justified |
-| Blank columns: students present, present (a box), arrival time, notes | Filled in by hand |
+| Attendance filled in as at the download (`_get_control_sheet_day`): **Attendance** present once checked in at any time, on walkout when the first period has started without a check-in, absence when a request covers it, a box until then (`_get_teacher_status`); **Arrival time** the first check-in (`_ems_first_check_in_hours`) | The walkout report's own rules, so both agree; the box is for whoever notes it by hand before EMS knows |
+| **Students present**: lines of that day's roll call (`ems.attendance_session_header` of the slot's schedule) whose status is in the `assistance` category, students not expected left out (`_get_present_students`); empty with no roll call | What the attendance reports count. A roll call starts with every student as attended until marked, so a started one counts what the teacher has recorded so far |
+| **Remarks** left for hand notes, beside the absence's state | Filled in by hand |
 
 **Why a Binary on the transient record and not a controller:** the file is built once, when asked
 for, so an error (a holiday, nobody scheduled) shows in the dialog rather than as a broken download,
@@ -1335,8 +1337,10 @@ file is written with `xlsxwriter`, which ships with Odoo and is what EMS's other
 (Erasmus+ participants and economy); OCA's `report_xlsx` would add a dependency for a single file
 with nothing a report action gives here (the sheet is not tied to a printable record).
 
-**Cost:** one search for the teachers, one for their slots, one for the absence requests, the
-roll-call lists read in one batch (prefetch) and one `_read_group` for the main groups' students, then
+**Cost:** one search for the teachers, one for their slots, one for the absence requests, one
+`_read_group` for the first check-ins, the roll-call lists read in one batch (prefetch), one
+`_read_group` for the main groups' students, and one search plus one `_read_group` for the day's
+roll calls, then
 work in memory over the slots of the day. On this dev database's real data (119 teachers, 547
 slots for a Thursday) it takes 0.18 s for the data and 0.08 s for the file, cold, in `odoo shell`.
 

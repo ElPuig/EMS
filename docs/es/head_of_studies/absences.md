@@ -219,10 +219,17 @@ Para apuntar a mano quién viene, antes de que empiece el día o durante el día
 
 1. En el mismo diálogo, elige el día (cualquiera, también uno que aún no ha llegado) y, si quieres, un **Área** (FP o ESO / BTX). Si la dejas vacía, toma todas las áreas docentes.
 2. Haz clic en **Hoja de control (xlsx)**. Se descarga una hoja de cálculo con dos hojas por área:
-   - **Por franjas**: cada docente una sola vez, en la primera franja de su horario ese día, agrupados por franja. Para cada uno: departamento, contrato, actividad, grupo, código y nombre del aula, alumnos previstos y columnas en blanco para rellenar: **Alumnos presentes**, **Presente**, **Hora de llegada** y **Observaciones**. Sumando cada franja tienes las cifras hasta el momento.
-   - **Cuadrícula**: cada docente por franjas, como en el tablero de guardias, con el grupo (entre paréntesis los alumnos previstos, y el código del aula) o la tarea, y una casilla para marcar.
+   - **Por franjas**: cada docente una sola vez, en la primera franja de su horario ese día, agrupados por franja. Para cada uno: departamento, contrato, actividad, grupo, código y nombre del aula, alumnos previstos **Alumnos presentes**, **Asistencia**, **Hora de llegada** y **Observaciones**. Sumando cada franja tienes las cifras hasta el momento.
+   - **Cuadrícula**: cada docente por franjas, como en el tablero de guardias, con el grupo (entre paréntesis los alumnos presentes de los previstos, una vez pasada lista, y el código del aula) o la tarea, y una casilla para marcar.
 
 ![Diálogo de huelgas: Fecha, Área (todas las áreas docentes si está vacía) y los botones Mostrar y Hoja de control (xlsx)](../../assets/head_of_studies/hos-staff-walkout-dialog.png)
+
+Las columnas de asistencia salen rellenadas con lo que EMS sabe en el momento de descargar la hoja (la tercera línea indica cuándo):
+
+- **Asistencia**: **Presente** si el docente ha fichado (a cualquier hora), **En huelga** si su primera franja ha empezado y no ha fichado, **Ausencia** si una solicitud de ausencia la cubre. Vacía, con una casilla, mientras su primera franja no ha empezado. La **Hora de llegada** es su primer fichaje.
+- **Alumnos presentes**: los marcados como asistidos (o con retraso leve) en el pase de lista de esa clase ese día. Vacía si aún no se ha pasado lista.
+
+Para actualizarlas, vuelve a descargar la hoja.
 
 Los docentes que tienen una solicitud de ausencia que cubre esa franja, aprobada o pendiente de aprobar, salen en gris y en las observaciones se indica cuál. Los **Alumnos previstos** son los de la lista de asistencia de la clase o, si no la tiene, el alumnado del grupo; la columna queda vacía en un desdoble, una optativa o un grupo de refuerzo, porque EMS no tiene su alumnado.
 ---

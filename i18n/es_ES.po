@@ -1000,6 +1000,7 @@ msgstr "Nombre del PAS"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__leave_id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__leave_id
 #: code:addons/ems/models/attendance/attendance_reports.py:0
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
 msgid "Absence"
 msgstr "Ausencia"
 
@@ -1944,6 +1945,7 @@ msgid "Attachment Count"
 msgstr "Cantidad de adjuntos"
 
 #. module: ems
+#. odoo-python
 #: model:ir.ui.menu,name:ems.menu_hr_attendance_group
 #: model:ir.ui.menu,name:ems.menu_meeting_presence
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__attendance_id
@@ -1951,6 +1953,7 @@ msgstr "Cantidad de adjuntos"
 #: model:ir.model.fields,field_description:ems.field_ems_minute__attendance_mode
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_log__kind__attendance
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_review__kind__attendance
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
 msgid "Attendance"
 msgstr "Asistencia"
 
@@ -49649,9 +49652,11 @@ msgid "Nobody was expected to work on this day yet."
 msgstr "Todavía no había nadie que tuviera que trabajar este día."
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__on_walkout
 #: model_terms:ir.ui.view,arch_db:ems.view_staff_walkout_report_line_list
 #: model_terms:ir.ui.view,arch_db:ems.view_staff_walkout_report_line_search
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
 msgid "On walkout"
 msgstr "En huelga"
 
@@ -56704,3 +56709,16 @@ msgstr ""
 "docente del área una sola vez, en la primera franja de su horario ese día, y"
 " lo que tiene en ese momento. Se puede elegir cualquier día, también antes "
 "de que empiece."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+#, python-format
+msgid ""
+"Attendance as at %(time)s: present once checked in, on walkout when their "
+"first period has started without it; students present as the roll call was "
+"taken, empty if not taken yet."
+msgstr ""
+"Asistencia a %(time)s: presente si ha fichado, en huelga si su primera "
+"franja ha empezado sin fichar; alumnos presentes según el pase de lista, "
+"vacío si aún no se ha pasado."

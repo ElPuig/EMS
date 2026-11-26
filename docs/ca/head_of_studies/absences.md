@@ -218,10 +218,17 @@ Per apuntar a mà qui ve, abans que comenci el dia o durant el dia:
 
 1. Al mateix diàleg, tria el dia (qualsevol, també un que encara ha de venir) i, si vols, una **Àrea** (FP o ESO / BTX). Si la deixes buida, agafa totes les àrees docents.
 2. Fes clic a **Full de control (xlsx)**. Es baixa un full de càlcul amb dos fulls per àrea:
-   - **Per franges**: cada docent una sola vegada, a la primera franja del seu horari aquell dia, agrupats per franja. Per a cadascun: departament, contracte, activitat, grup, codi i nom de l'aula, alumnes previstos i columnes en blanc per emplenar: **Alumnes presents**, **Present**, **Hora d'arribada** i **Observacions**. Sumant cada franja tens les xifres fins al moment.
-   - **Graella**: cada docent per franges, com al tauler de guàrdies, amb el grup (entre parèntesis els alumnes previstos, i el codi de l'aula) o la tasca, i una casella per marcar.
+   - **Per franges**: cada docent una sola vegada, a la primera franja del seu horari aquell dia, agrupats per franja. Per a cadascun: departament, contracte, activitat, grup, codi i nom de l'aula, alumnes previstos **Alumnes presents**, **Assistència**, **Hora d'arribada** i **Observacions**. Sumant cada franja tens les xifres fins al moment.
+   - **Graella**: cada docent per franges, com al tauler de guàrdies, amb el grup (entre parèntesis els alumnes presents dels previstos, un cop passada la llista, i el codi de l'aula) o la tasca, i una casella per marcar.
 
 ![Diàleg de vagues: Data, Àrea (totes les àrees docents si és buida) i els botons Mostra i Full de control (xlsx)](../../assets/head_of_studies/hos-staff-walkout-dialog.png)
+
+Les columnes d'assistència surten emplenades amb el que EMS sap en el moment de baixar el full (la tercera línia indica quan):
+
+- **Assistència**: **Present** si el docent ha fitxat (a qualsevol hora), **En vaga** si la seva primera franja ha començat i no ha fitxat, **Absència** si una sol·licitud d'absència la cobreix. Buida, amb una casella, mentre la seva primera franja no ha començat. L'**Hora d'arribada** és el seu primer fitxatge.
+- **Alumnes presents**: els marcats com a assistits (o amb retard lleu) al pas de llista d'aquella classe aquell dia. Buida si encara no s'ha passat llista.
+
+Per actualitzar-les, torna a baixar el full.
 
 Els docents que tenen una sol·licitud d'absència que cobreix aquella franja, aprovada o pendent d'aprovar, surten en gris i a les observacions s'indica quina. Els **Alumnes previstos** són els de la llista d'assistència de la classe o, si no en té, l'alumnat del grup; la columna queda buida en un desdoblament, una optativa o un grup de reforç, perquè EMS no en té l'alumnat.
 

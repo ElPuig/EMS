@@ -7,7 +7,7 @@
 - The model had no record rules before; the tutor's is limited to their tutees (the tutor scope of the whole application) and the Heads of Studies, Director, secretariat and administrator get explicit unrestricted ones.
 
 ## Tutors delete the strikes of their students:
-- A tutor can delete any strike given to one of their students, whoever issued it, and the ones they issued themselves. A teacher who is not a tutor still cannot.
+- A teacher can delete the strikes they issued themselves (for a mistake) and sees only those. A tutor also deletes any strike given to one of their students, whoever issued it, and so do the Department/Seminar Chief and Head of Studies above them.
 
 # Changes
 

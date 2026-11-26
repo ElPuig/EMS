@@ -69,33 +69,19 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_unlink" eval="True"/>
         </record>
 
         <record id="rule_strike_tutor" model="ir.rule">
             <!-- ORed with rule_strike_teacher_own since group_tutor implies group_teacher:
                  a tutor sees strikes they issued plus strikes on their own tutees. Issue #864:
-                 the tutor also deletes any strike of a tutee, whoever issued it (the teacher
-                 who is not a tutor still cannot delete). -->
+                 the tutor also deletes any strike of a tutee, whoever issued it; the strikes they
+                 issued themselves they delete through rule_strike_teacher_own, like any teacher. -->
             <field name="name">Strike: tutees</field>
             <field name="model_id" ref="ems.model_ems_strike"/>
             <field name="groups" eval="[(4, ref('ems.group_tutor'))]"/>
             <field name="domain_force">[('student_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
             <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="False"/>
-            <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="True"/>
-        </record>
-
-        <record id="rule_strike_tutor_own" model="ir.rule">
-            <!-- Issue #864: the tutor's own delete right (access_ems_strike_tutor) reaches every strike
-                 their list shows, so the Delete action never fails on a row: the ones they issued to
-                 students outside their tutorship too (rule_strike_teacher_own cannot delete). -->
-            <field name="name">Strike: own issued, tutor deletes</field>
-            <field name="model_id" ref="ems.model_ems_strike"/>
-            <field name="groups" eval="[(4, ref('ems.group_tutor'))]"/>
-            <field name="domain_force">[('teacher_id.user_id', '=', user.id)]</field>
-            <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="True"/>

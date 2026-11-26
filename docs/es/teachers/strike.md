@@ -73,6 +73,10 @@ Mientras se envía un strike, su botón **Enviar** queda desactivado, así que s
 
 > Si también eres tutor/a, Jefatura de Estudios, Jefatura de Estudios Adjunta, Dirección o coordinador/a de convivencia, consulta el manual correspondiente para saber cómo puedes consultar un conjunto más amplio de strikes.
 
+## Eliminar un strike que has puesto
+
+Si has puesto un strike por error, selecciónalo en la lista de **Strikes**, abre el menú **⚙ Acciones** y elige **Eliminar**. Solo puedes eliminar tus propios strikes. Eliminarlo no deshace los correos ya enviados.
+
 ---
 
 [← Volver a los manuales de Profesores](index.md)

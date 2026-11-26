@@ -73,6 +73,10 @@ While a strike is being sent, its **Send** button stays disabled, so clicking it
 
 > If you are also a tutor, Head of Studies, Deputy Head of Studies, Director or coexistence coordinator, see the corresponding manual for how you can consult a wider set of strikes.
 
+## Deleting a strike you issued
+
+If you issued a strike by mistake, select it in the **Strikes** list, open the **⚙ Actions** menu and choose **Delete**. You can only delete your own strikes. Deleting does not undo the emails already sent.
+
 ---
 
 [← Back to Teachers manuals](index.md)

@@ -25,7 +25,7 @@ No cal que facis res més: el correu de notificació que reps a cada strike ja t
 
 ## Eliminar un strike
 
-Pots eliminar qualsevol strike d'un dels teus alumnes, el posi qui el posi, i els que has posat tu mateix/a: a la llista de **Strikes**, selecciona'l, obre el menú **⚙ Accions** i tria **Eliminar**. Un professor que no és tutor no pot eliminar strikes.
+Pots eliminar un strike que has posat tu mateix/a (per exemple, si ha estat un error) i qualsevol strike d'un dels teus alumnes, el posi qui el posi: a la llista de **Strikes**, selecciona'l, obre el menú **⚙ Accions** i tria **Eliminar**. El cap de departament o seminari i el cap d'estudis que tens per sobre poden fer el mateix amb els teus alumnes.
 
 Eliminar un strike no desfà el que ja ha passat: els correus a l'alumne, a la família i al tutor, i l'avís al coordinador de convivència quan el recompte ha arribat al llindar, ja s'han enviat.
 

@@ -164,10 +164,13 @@ class TestStrike(TransactionCase):
         found = self.env['ems.strike'].with_user(self.other_teacher_user).search([('id', '=', own.id)])
         self.assertFalse(found)
 
-    def test_teacher_cannot_unlink(self):
+    def test_teacher_unlinks_only_their_own_strikes(self):
+        # Issue #864: a teacher deletes what they issued (a mistake), never another teacher's.
         strike = self._create_strike(self.teacher_a_user)
         with self.assertRaises(AccessError):
-            strike.with_user(self.teacher_a_user).unlink()
+            strike.with_user(self.other_teacher_user).unlink()
+        strike.with_user(self.teacher_a_user).unlink()
+        self.assertFalse(strike.exists())
 
     def test_tutor_can_unlink_any_strike_of_their_tutees(self):
         # Issue #864: whoever issued it (here another teacher), the tutor deletes it.
@@ -177,7 +180,7 @@ class TestStrike(TransactionCase):
 
     def test_tutor_unlinks_only_what_their_list_shows(self):
         # Another group's strike by someone else is neither readable nor deletable; one they issued
-        # themselves is both (the list never offers a Delete that fails).
+        # themselves is both (as for any teacher).
         other_student = self.minor_student.copy({
             'name': 'Test Other Student (Strike)', 'student_id': next_student_id(), 'main_group_id': False,
             'student_email': 'test_other_student_strike@example.com'})

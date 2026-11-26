@@ -25,7 +25,7 @@ No hace falta que hagas nada más: el correo de notificación que recibes en cad
 
 ## Eliminar un strike
 
-Puedes eliminar cualquier strike de uno de tus alumnos, lo ponga quien lo ponga, y los que has puesto tú mismo/a: en la lista de **Strikes**, selecciónalo, abre el menú **⚙ Acciones** y elige **Eliminar**. Un profesor que no es tutor no puede eliminar strikes.
+Puedes eliminar un strike que has puesto tú mismo/a (por ejemplo, si ha sido un error) y cualquier strike de uno de tus alumnos, lo ponga quien lo ponga: en la lista de **Strikes**, selecciónalo, abre el menú **⚙ Acciones** y elige **Eliminar**. El jefe de departamento o seminario y el jefe de estudios que tienes por encima pueden hacer lo mismo con tus alumnos.
 
 Eliminar un strike no deshace lo que ya ha pasado: los correos al alumno, a la familia y al tutor, y el aviso al coordinador de convivencia cuando el recuento ha alcanzado el umbral, ya se han enviado.
 

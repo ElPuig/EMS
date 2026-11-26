@@ -25,7 +25,7 @@ You do not need to do anything else: the notification email you receive on every
 
 ## Deleting a Strike
 
-You can delete any strike of one of your students, whoever issued it, and the ones you issued yourself: in the **Strikes** list, select it, open the **⚙ Actions** menu and choose **Delete**. A teacher who is not a tutor cannot delete strikes.
+You can delete a strike you issued yourself (for example, if it was a mistake) and any strike given to one of your students, whoever issued it: in the **Strikes** list, select it, open the **⚙ Actions** menu and choose **Delete**. The Department/Seminar Chief and the Head of Studies above you can do the same for your students.
 
 Deleting a strike does not undo what already happened: the emails to the student, the family and the tutor, and the notice to the Coexistence coordinator when the count reached the threshold, have already been sent.
 

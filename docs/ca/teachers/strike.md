@@ -73,6 +73,10 @@ Mentre s'envia un strike, el seu botó **Enviar** queda desactivat, de manera qu
 
 > Si també ets tutor/a, cap d'estudis, cap d'estudis adjunt/a, Direcció o coordinador/a de convivència, consulta el manual corresponent per saber com pots consultar un conjunt més ampli de strikes.
 
+## Eliminar un strike que has posat
+
+Si has posat un strike per error, selecciona'l a la llista de **Strikes**, obre el menú **⚙ Accions** i tria **Eliminar**. Només pots eliminar els teus strikes. Eliminar-lo no desfà els correus ja enviats.
+
 ---
 
 [← Tornar als manuals de professors](index.md)

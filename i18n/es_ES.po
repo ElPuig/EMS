@@ -56727,12 +56727,6 @@ msgid "Whether the spaces of this type can be reserved. Untick it for the types 
 msgstr "Indica si se pueden reservar los espacios de este tipo. Desmárcala en los tipos que nunca se reservan (WC...): tampoco se ofrecen al buscar un espacio."
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/facilities/space_reservation_wizard.py:0
-msgid "Choose a space."
-msgstr "Elige un espacio."
-
-#. module: ems
 #: model:ems.space_type,name:ems.space_type_warehouse
 msgid "Warehouse"
 msgstr "Almacén"
@@ -56765,7 +56759,6 @@ msgstr "Espacio: cuándo está libre"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__show_grid
-#: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_wizard_form
 msgid "Show the occupation"
 msgstr "Mostrar la ocupación"
 
@@ -56846,3 +56839,9 @@ msgstr "Final de la franja"
 #: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__space_reason
 msgid "Reason of the reservation"
 msgstr "Motivo de la reserva"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/space_week_grid_field.xml:0
+msgid "Now"
+msgstr "Ahora"

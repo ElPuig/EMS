@@ -24,3 +24,14 @@ class TestSpaceReservationTour(HttpCase):
         self.start_tour("/odoo", "ems_space_reservation", login="test_teacher_space_reservation_tour")
         self.start_tour("/odoo", "ems_space_reservation_by_space", login="test_teacher_space_reservation_tour")
         self.start_tour("/odoo", "ems_space_reservation_search_again", login="test_teacher_space_reservation_tour")
+
+    def test_space_reservation_now_line_tour(self):
+        teacher = create_role_user(self, 'teacher', 'test_teacher_space_reservation_now')
+        create_role_employee(self, teacher)
+        self.env['ems.space'].create({'code': 'TSRT-N', 'name': '000 Tour Free Space'})
+        # 12:00 company time of a school day, so today's column is on the grid with the line in the
+        # middle of it (the clock keeps running from there).
+        shift_ems_clock(self, hour=12.0, weekdays=(0, 1, 2, 3, 4))
+        # The tour ends on the wizard with a time chosen and nothing reserved, on purpose.
+        self.allow_end_on_form = True
+        self.start_tour("/odoo", "ems_space_reservation_now_line", login="test_teacher_space_reservation_now")

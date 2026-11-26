@@ -1,20 +1,24 @@
 /** @odoo-module **/
 
-import { Component, onWillUnmount, useEffect, useState } from "@odoo/owl";
+import { Component, onMounted, onWillStart, onWillUnmount, useEffect, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
+import { serverNow, syncServerClock } from "./server_clock";
 
 // One pixel height per hour of the grid, and the step a time snaps to (a quarter of an hour).
 const HOUR_PX = 40;
 const STEP = 0.25;
 const ISO_DAY = 24 * 3600 * 1000;
+// How often the current-time line moves down the grid: once a minute, its own resolution.
+const NOW_REFRESH_MS = 60 * 1000;
 
 // The week of a space as a grid (space reservation wizard, issue #475): the days as columns, the
 // hours as rows, what holds the space drawn over it (classes and duties of the weekly schedule,
 // reservations) and the free time left blank. Dragging over a free time (or clicking it, for an
 // hour) fills the wizard's day, start and end; a time already held, or a day gone by, cannot be
-// chosen. The server decides what holds the space (ems.space_reservation_wizard.get_occupation_week):
+// chosen. A dotted red line marks the current time in today's column: what lies above it is the
+// past, shaded, and cannot be chosen either. The server decides what holds the space (ems.space_reservation_wizard.get_occupation_week):
 // the grid only draws it. It is hosted by a boolean field, whose value tells whether to show it.
 export class EmsSpaceWeekGridField extends Component {
     static template = "ems.SpaceWeekGridField";
@@ -22,7 +26,15 @@ export class EmsSpaceWeekGridField extends Component {
 
     setup() {
         this.orm = useService("orm");
-        this.state = useState({ data: null, monday: null, weekend: false, drag: null });
+        this.state = useState({ data: null, monday: null, weekend: false, drag: null, now: null });
+        // The company's "now" comes from the server's clock, never the computer's (see server_clock.js).
+        onWillStart(async () => {
+            await syncServerClock(this.orm);
+            this.state.now = serverNow();
+        });
+        onMounted(() => {
+            this.nowTimer = setInterval(() => (this.state.now = serverNow()), NOW_REFRESH_MS);
+        });
         this.onMove = (ev) => this.dragTo(ev);
         this.onUp = () => this.dragEnd();
         useEffect(
@@ -33,7 +45,10 @@ export class EmsSpaceWeekGridField extends Component {
             },
             () => [this.spaceId, this.state.monday]
         );
-        onWillUnmount(() => this.removeListeners());
+        onWillUnmount(() => {
+            clearInterval(this.nowTimer);
+            this.removeListeners();
+        });
     }
 
     get spaceId() {
@@ -51,8 +66,27 @@ export class EmsSpaceWeekGridField extends Component {
 
     get days() {
         const days = this.state.data ? this.state.data.days : [];
-        return days.map((day, index) => ({ ...day, index, past: day.date < this.state.data.today }))
+        const today = this.state.now.toISODate();
+        return days.map((day, index) => ({ ...day, index, past: day.date < today, today: day.date === today }))
             .filter((day) => this.state.weekend || day.index < 5);
+    }
+
+    /** The current time as an hour of the day (a float). */
+    get nowHour() {
+        return this.state.now.hour + this.state.now.minute / 60;
+    }
+
+    /** Today's column: how much of it is gone by (the shaded past) and where the line goes, if inside the grid. */
+    nowBox(day) {
+        const { hour_from: from, hour_to: to } = this.state.data;
+        const elapsedTo = Math.min(Math.max(this.nowHour, from), to);
+        const line = this.nowHour >= from && this.nowHour <= to;
+        return { elapsed: this.box(from, elapsedTo), line: line ? `top: ${(this.nowHour - from) * HOUR_PX}px;` : null };
+    }
+
+    /** Whether the time asked for has already gone by (a day before today, or earlier today). */
+    isGone(day, start) {
+        return day.past || (day.today && start < this.nowHour);
     }
 
     get hours() {
@@ -116,6 +150,9 @@ export class EmsSpaceWeekGridField extends Component {
         ev.preventDefault();
         const column = ev.currentTarget;
         const start = Math.min(this.timeAt(ev, column), this.state.data.hour_to - STEP);
+        if (this.isGone(day, start)) {
+            return;
+        }
         this.state.drag = { day, column, anchor: start, start, end: start + STEP };
         document.addEventListener("mousemove", this.onMove);
         document.addEventListener("mouseup", this.onUp);
@@ -143,7 +180,7 @@ export class EmsSpaceWeekGridField extends Component {
             // A click: an hour from where it was made.
             end = Math.min(start + 1, this.state.data.hour_to);
         }
-        if (this.isHeld(drag.day, start, end)) {
+        if (this.isHeld(drag.day, start, end) || this.isGone(drag.day, start)) {
             return;
         }
         this.props.record.update({

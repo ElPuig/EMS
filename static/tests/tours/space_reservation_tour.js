@@ -85,17 +85,12 @@ registry.category("web_tour.tours").add("ems_space_reservation_by_space", {
         },
         {
             trigger: ".modal .o_field_widget[name='space_id'] input",
-            content: "Choose the space",
+            content: "Choose the space: its week appears by itself",
             run: "edit 000 Tour Busy",
         },
         {
             trigger: ".o-autocomplete--dropdown-item:contains('Tour Busy Space')",
             content: "Pick it",
-            run: "click",
-        },
-        {
-            trigger: ".modal button[name='action_search']:contains('Show the occupation')",
-            content: "Show its occupation",
             run: "click",
         },
         {
@@ -203,6 +198,70 @@ registry.category("web_tour.tours").add("ems_space_reservation_search_again", {
         {
             trigger: ".modal-footer button.disabled[name='action_reserve']",
             content: "Reserve is disabled again",
+        },
+    ],
+});
+
+// The current time is a dotted red line in today's column; what is above it is the past and cannot be chosen.
+registry.category("web_tour.tours").add("ems_space_reservation_now_line", {
+    test: true,
+    url: "/odoo/action-ems.action_space_reservation",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_list_button_add, .o_list_view button:contains('New')",
+            content: "New opens the reservation wizard",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='mode'] .o_radio_item:contains('when it is free') input",
+            content: "Search by space",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='space_id'] input",
+            content: "Choose the space",
+            run: "edit 000 Tour Free",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Tour Free Space')",
+            content: "Pick it",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_ems_week_grid_column .o_ems_week_grid_now",
+            content: "The current time is marked in today's column",
+        },
+        {
+            trigger: ".modal .o_ems_week_grid_column .o_ems_week_grid_elapsed",
+            content: "What is above it is shaded",
+            run() {
+                const column = document.querySelector(".modal .o_ems_week_grid_column:has(.o_ems_week_grid_now)");
+                const rect = column.getBoundingClientRect();
+                const at = (y) => ({ bubbles: true, button: 0, clientX: rect.left + 10, clientY: rect.top + y });
+                // 9:00 is before the current time (12:00): clicking there chooses nothing.
+                column.dispatchEvent(new MouseEvent("mousedown", at(40)));
+                document.dispatchEvent(new MouseEvent("mouseup", at(40)));
+            },
+        },
+        {
+            trigger: ".modal .o_ems_week_grid_column .o_ems_week_grid_now",
+            content: "Nothing was chosen in the past",
+            async run() {
+                await new Promise((resolve) => setTimeout(resolve, 300));
+                if (document.querySelector(".modal .o_ems_week_grid_chosen")) {
+                    throw new Error("A time that has gone by must not be chosen");
+                }
+                const column = document.querySelector(".modal .o_ems_week_grid_column:has(.o_ems_week_grid_now)");
+                const rect = column.getBoundingClientRect();
+                const at = (y) => ({ bubbles: true, button: 0, clientX: rect.left + 10, clientY: rect.top + y });
+                // 14:00 is after it: that is free.
+                column.dispatchEvent(new MouseEvent("mousedown", at(40 * 6)));
+                document.dispatchEvent(new MouseEvent("mouseup", at(40 * 6)));
+            },
+        },
+        {
+            trigger: ".modal .o_ems_week_grid_chosen",
+            content: "A time after the current one can be chosen",
         },
     ],
 });

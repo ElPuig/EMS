@@ -32,6 +32,11 @@
                              t-att-style="box(block.start, block.end)" t-att-title="block.label">
                             <span t-esc="block.label"/>
                         </div>
+                        <t t-if="day.today">
+                            <t t-set="gone" t-value="nowBox(day)"/>
+                            <div class="o_ems_week_grid_elapsed" t-att-style="gone.elapsed"/>
+                            <div t-if="gone.line" class="o_ems_week_grid_now" t-att-style="gone.line" aria-hidden="true"/>
+                        </t>
                         <t t-set="slot" t-value="chosen(day)"/>
                         <div t-if="slot" class="o_ems_week_grid_chosen" t-att-style="box(slot.start, slot.end)"/>
                         <div t-if="state.drag and state.drag.day.date === day.date"
@@ -45,6 +50,7 @@
                 <span><span class="o_ems_week_grid_swatch o_ems_week_grid_schedule"/> Weekly schedule</span>
                 <span><span class="o_ems_week_grid_swatch o_ems_week_grid_reservation"/> Reservation</span>
                 <span><span class="o_ems_week_grid_swatch o_ems_week_grid_choice"/> Your choice</span>
+                <span><span class="o_ems_week_grid_swatch o_ems_week_grid_nowline"/> Now</span>
                 <span>Drag over a free time to choose it.</span>
             </div>
         </div>

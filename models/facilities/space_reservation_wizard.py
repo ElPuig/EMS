@@ -40,7 +40,8 @@ class EmsSpaceReservationWizard(models.TransientModel):
 
     # By space. Its own slot fields, so each mode lays out its form on its own.
     space_id = fields.Many2one(string="Space", comodel_name="ems.space", domain="[('reservable', '=', True)]")
-    show_grid = fields.Boolean(string="Show the occupation")
+    # Only hosts the week grid (widget ems_space_week_grid), which loads itself once there is a space.
+    show_grid = fields.Boolean(string="Show the occupation", compute="_compute_show_grid")
     space_day = fields.Date(string="Day to reserve")
     space_start = fields.Float(string="Start of the slot", default=10.0)
     space_end = fields.Float(string="End of the slot", default=11.0)
@@ -51,6 +52,11 @@ class EmsSpaceReservationWizard(models.TransientModel):
         for wizard in self:
             wizard.duration = wizard.end_time - wizard.start_time
 
+    @api.depends('space_id')
+    def _compute_show_grid(self):
+        for wizard in self:
+            wizard.show_grid = bool(wizard.space_id)
+
     def write(self, vals):
         # What was found no longer answers what is typed now. The web client saves the chosen row
         # in the same write as the change (Search pressed after choosing a row and editing the
@@ -58,8 +64,6 @@ class EmsSpaceReservationWizard(models.TransientModel):
         if vals.keys() & {'mode', 'date', 'start_time', 'end_time', 'space_type_id'}:
             self.line_ids.unlink()
             vals = {**vals, 'selected_line_id': False}
-        if vals.keys() & {'mode', 'space_id'}:
-            vals = {**vals, 'show_grid': False}
         return super().write(vals)
 
     def _slot(self, day, start_time, end_time):
@@ -72,15 +76,11 @@ class EmsSpaceReservationWizard(models.TransientModel):
             for hour in (start_time, end_time))
 
     def action_search(self):
-        """By date: fills the results with the spaces that are free. By space: shows the grid."""
+        """By date: fills the results with the spaces that are free (by space there is nothing to
+        search: the grid shows the week of the chosen space by itself)."""
         self.ensure_one()
-        if self.mode == 'date':
-            self.line_ids.unlink()
-            self.line_ids = self._free_spaces_lines()
-        else:
-            if not self.space_id:
-                raise UserError(_("Choose a space."))
-            self.show_grid = True
+        self.line_ids.unlink()
+        self.line_ids = self._free_spaces_lines()
         return {
             'type': 'ir.actions.act_window', 'name': _("Reserve a space"), 'res_model': self._name, 'res_id': self.id,
             'view_mode': 'form', 'views': [(False, 'form')], 'target': 'new', 'context': {'dialog_size': 'large'},

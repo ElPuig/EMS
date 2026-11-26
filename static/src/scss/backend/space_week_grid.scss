@@ -25,6 +25,12 @@ $ems-grid-head: 28px;
         &.o_ems_week_grid_schedule { background: #ced4da; border: 1px solid #adb5bd; color: #343a40; }
         &.o_ems_week_grid_reservation { background: #fdeedc; border: 1px solid #ef902a; color: #8a4a05; }
     }
+    // The current time (same dotted red line as the guard duty board) and the part of today already gone by.
+    .o_ems_week_grid_elapsed { position: absolute; left: 0; right: 0; top: 0; background: rgba(241, 243, 245, 0.8); pointer-events: none; }
+    .o_ems_week_grid_now {
+        position: absolute; left: 0; right: 0; height: 0; border-top: 2px dotted #dc3545; margin-top: -1px;
+        pointer-events: none; z-index: 3;
+    }
     .o_ems_week_grid_chosen {
         position: absolute; left: 2px; right: 2px; border-radius: 3px; pointer-events: none;
         background: rgba(151, 10, 44, 0.25); border: 2px solid #970a2c;
@@ -38,6 +44,7 @@ $ems-grid-head: 28px;
         display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: middle;
         &.o_ems_week_grid_schedule { background: #ced4da; border: 1px solid #adb5bd; }
         &.o_ems_week_grid_reservation { background: #fdeedc; border: 1px solid #ef902a; }
+        &.o_ems_week_grid_nowline { height: 0; width: 18px; border-radius: 0; border: 0; border-top: 2px dotted #dc3545; }
         &.o_ems_week_grid_choice { background: rgba(151, 10, 44, 0.25); border: 2px solid #970a2c; }
     }
 }

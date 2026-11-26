@@ -47,15 +47,15 @@ wizard instead of the form. The first field is `mode`:
 
 - **By date** (`date`): day and type (same row), start and end time (the wizard asks for an end time; `duration` is computed from it), reason (full width). *Search free spaces* writes one
   `ems.space_reservation_wizard.line` per reservable space (of that type) that is free.
-- **By space** (`space`): a space and *Show the occupation* (`action_search` sets `show_grid`), which shows
-  the week of the space as a grid, `ems_space_week_grid` (`static/src/js/backend/space_week_grid_field.js`,
-  hosted by the boolean `show_grid`). The widget asks `get_occupation_week(space_id, monday)` for the
+- **By space** (`space`): choosing a space shows its week as a grid, `ems_space_week_grid`
+  (`static/src/js/backend/space_week_grid_field.js`, hosted by the computed boolean `show_grid`, true
+  once there is a space; there is no search button, the grid loads itself). The widget asks `get_occupation_week(space_id, monday)` for the
   seven days, what holds the space in each (from `_get_space_busy`: weekly schedule blocks and
   reservations, hours as floats in the company's timezone) and the hours the grid covers (the school
   day of the default schedule framework, widened to take in anything held outside it). It only draws:
   the server decides what is held. Dragging over a free time (or a click, for an hour) writes the
   slot into `space_day`/`space_start`/`space_end`, which can also be typed; a held time or a day
-  gone by cannot be chosen. The weekend is hidden unless ticked. Each mode has its own slot fields
+  gone by cannot be chosen. The weekend is hidden unless ticked. A dotted red line marks the current time in today's column (the company's `serverNow()`, moved every minute); what is above it is shaded and cannot be chosen. Each mode has its own slot fields
   (`date`/`start_time`/`end_time`/`reason` by date, `space_*` by space) so each lays out its own form.
   Reserving creates the reservation (never in the past) and opens it.
 

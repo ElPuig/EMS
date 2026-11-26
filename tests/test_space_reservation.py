@@ -270,7 +270,6 @@ class TestSpaceReservation(TransactionCase):
         wizard = self.env['ems.space_reservation_wizard'].create({
             'mode': 'space', 'space_id': self.space.id, 'space_day': self.monday, 'space_start': 15.0,
             'space_end': 16.5, 'space_reason': 'Talk'})
-        wizard.action_search()
         self.assertTrue(wizard.show_grid)
         reservation = self.env['ems.space_reservation'].browse(wizard.action_reserve()['res_id'])
         self.assertEqual((reservation.space_id, reservation.reason, reservation.start_datetime, reservation.end_datetime),
@@ -279,17 +278,17 @@ class TestSpaceReservation(TransactionCase):
         with self.assertRaises(ValidationError):
             wizard.action_reserve()
 
-    def test_the_space_mode_needs_a_space_and_a_slot_and_forgets_the_grid_when_the_space_changes(self):
+    def test_the_space_mode_shows_the_grid_by_itself_and_needs_a_day(self):
         wizard = self.env['ems.space_reservation_wizard'].create({'mode': 'space'})
-        with self.assertRaises(UserError):
-            wizard.action_search()
+        self.assertFalse(wizard.show_grid)
         wizard.space_id = self.space
-        wizard.action_search()
         self.assertTrue(wizard.show_grid)
         with self.assertRaises(UserError):
             wizard.action_reserve()                      # no day chosen yet
-        wizard.space_id = self.other_space
+        wizard.space_id = False
         self.assertFalse(wizard.show_grid)
+        with self.assertRaises(UserError):
+            wizard.action_reserve()                      # no space
 
     def test_the_wizard_reserves_a_free_space_and_refuses_the_past(self):
         wizard = self._wizard(16.0, reason='Line')

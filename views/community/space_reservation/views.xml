@@ -46,9 +46,6 @@
                 <group invisible="mode != 'space'">
                     <field name="space_id" required="mode == 'space'" options="{'no_create': True, 'no_open': True}"/>
                 </group>
-                <div class="mb-3" invisible="mode != 'space'">
-                    <button name="action_search" type="object" class="btn btn-primary" string="Show the occupation"/>
-                </div>
                 <field name="show_grid" widget="ems_space_week_grid" nolabel="1" invisible="mode != 'space' or not show_grid"/>
                 <group invisible="mode != 'space' or not show_grid">
                     <group>

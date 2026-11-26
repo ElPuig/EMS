@@ -232,6 +232,8 @@ The attendance columns come filled in with what EMS knows when you download the 
 
 To update them, download the sheet again.
 
+Beside each period, from column N, a small table gives the figures so far for each contract type: how many teachers are on walkout, present or absent, counting that period and every earlier one. They are formulas: when you change a teacher's **Attendance** by hand (pick **Present**, **On walkout** or **Absence** from its list), the figures update.
+
 Teachers with an absence request covering that period, approved or waiting for approval, appear in grey and their remarks say which. The **Expected students** are those on the class's attendance list or, if it has none, its group's students; the column is empty for a split, optional or reinforcement group, whose students are not recorded in EMS.
 
 ---

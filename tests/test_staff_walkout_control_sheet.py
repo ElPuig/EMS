@@ -196,6 +196,33 @@ class TestStaffWalkoutControlSheet(TransactionCase):
         self.assertEqual(teacher_row[4:11], (self.group.name, 'TWCS-9.19', 'TWCS Room', 3, None, 'On walkout', None))
         self.assertTrue(report.control_sheet_name.endswith(f'{self.day.isoformat()}.xlsx'))
 
+    def test_each_period_ends_with_the_figures_so_far_per_contract_type(self):
+        """Issue #865: beside each block, from column N, on walkout / present / absent per contract type,
+        counting every block up to it, as formulas over the Contract and Attendance columns."""
+        came = self._teacher('TWCS Early Came', [(8.0, 9.0, self._class(self.group))], contract_type_id=self.contract.id)
+        self._teacher('TWCS Late Walker', [(9.0, 10.0, self._class(self.group))], contract_type_id=self.contract.id)
+        self._teacher('TWCS Loose', [(9.0, 10.0, self._class(self.group))])
+        self.env['hr.attendance'].create({
+            'employee_id': came.id, 'check_in': self.env['ems.absence_pending']._utc_bounds(self.day, 0.0, 7.9)[1]})
+        report = self._report()
+        report.action_download_control_sheet()
+        content = io.BytesIO(base64.b64decode(report.control_sheet))
+        formulas = openpyxl.load_workbook(content)['TWCS - Area - By period']
+        cached = openpyxl.load_workbook(content, data_only=True)['TWCS - Area - By period']
+        first = next(row[0].row for row in formulas.iter_rows() if row[0].value == 'TWCS Early Came')
+        last = next(row[0].row for row in formulas.iter_rows() if row[0].value == 'TWCS Loose')
+
+        # The 9:00 block's summary ends on its last row: Interim, then the teachers with no contract.
+        self.assertEqual([formulas.cell(last - 2, column).value for column in (14, 17)], ['TWCS Interim', 'No contract'])
+        self.assertEqual([formulas.cell(last - 1, column).value for column in range(14, 17)],
+                         ['T-Walkout', 'T-Pres.', 'T-Abs.'])
+        self.assertEqual(formulas.cell(last, 15).value,
+                         f'=COUNTIFS($C${first}:$C${last},"TWCS Interim",$J${first}:$J${last},"Present")')
+        self.assertEqual([cached.cell(last, column).value for column in range(14, 20)], [1, 1, 0, 1, 0, 0])
+        # The 8:00 block only counts itself.
+        self.assertEqual([cached.cell(first, column).value for column in range(14, 17)], [0, 1, 0])
+        self.assertEqual(formulas.cell(first, 10).value, 'Present')
+
     def test_nobody_scheduled_in_the_area_says_so(self):
         with self.assertRaisesRegex(Exception, 'has a schedule on this day'):
             self._report(self.other_area)._get_control_sheet_areas()

@@ -56722,3 +56722,27 @@ msgstr ""
 "Asistencia a %(time)s: presente si ha fichado, en huelga si su primera "
 "franja ha empezado sin fichar; alumnos presentes según el pase de lista, "
 "vacío si aún no se ha pasado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Walkout"
+msgstr "Huelga"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Pres."
+msgstr "Pres."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Abs."
+msgstr "Aus."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "No contract"
+msgstr "Sin contrato"

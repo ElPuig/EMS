@@ -231,6 +231,8 @@ Las columnas de asistencia salen rellenadas con lo que EMS sabe en el momento de
 
 Para actualizarlas, vuelve a descargar la hoja.
 
+Al lado de cada franja, a partir de la columna N, una pequeña tabla da las cifras hasta el momento para cada tipo de contrato: cuántos docentes están en huelga, presentes o ausentes, contando esa franja y todas las anteriores. Son fórmulas: cuando cambias a mano la **Asistencia** de un docente (elige **Presente**, **En huelga** o **Ausencia** de la lista), las cifras se actualizan.
+
 Los docentes que tienen una solicitud de ausencia que cubre esa franja, aprobada o pendiente de aprobar, salen en gris y en las observaciones se indica cuál. Los **Alumnos previstos** son los de la lista de asistencia de la clase o, si no la tiene, el alumnado del grupo; la columna queda vacía en un desdoble, una optativa o un grupo de refuerzo, porque EMS no tiene su alumnado.
 ---
 

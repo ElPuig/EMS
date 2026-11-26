@@ -6,6 +6,7 @@ import re
 from collections import defaultdict
 
 import xlsxwriter
+from xlsxwriter.utility import xl_range_abs
 
 from odoo import _, fields, models
 from odoo.exceptions import UserError
@@ -14,6 +15,9 @@ from ..attendance.absence_coverage import overlaps
 from ..attendance.guard_duty_board import _merge_absorbed_periods
 
 AREA_DOMAIN = [('is_top_level', '=', True), ('top_level_area', '=', 'academic')]
+# The "By period" sheet's columns the summary counts on, and where the summary starts (column N).
+CONTRACT_COLUMN, ATTENDANCE_COLUMN, SUMMARY_COLUMN = 2, 9, 13
+SUMMARY_STATUSES = ('walkout', 'present', 'absence')
 
 
 def _sheet_name(*parts):
@@ -224,6 +228,7 @@ class EmsStaffWalkoutReport(models.TransientModel):
             'note': workbook.add_format({'italic': True, 'font_size': 9}),
             'block': workbook.add_format({'bold': True, 'font_size': 12, 'font_color': '#FFFFFF', 'bg_color': '#970A2C'}),
             'header': workbook.add_format({**base, 'bold': True, 'bg_color': '#F1EDEE'}),
+            'header_centre': workbook.add_format({**base, 'bold': True, 'bg_color': '#F1EDEE', 'align': 'center'}),
             'grid_header': workbook.add_format({**base, 'bold': True, 'font_color': '#FFFFFF', 'bg_color': '#970A2C',
                                                 'align': 'center'}),
         }
@@ -257,7 +262,10 @@ class EmsStaffWalkoutReport(models.TransientModel):
                 "started without it; students present as the roll call was taken, empty if not taken yet.",
                 time=self.env['ems.datetime_utils'].get_local_datetime().strftime('%d/%m/%Y %H:%M')),
                 formats['note'])
+            contracts = sorted({teacher['contract'] for teacher in teachers}, key=lambda contract: (not contract, contract))
             row = 4
+            first_row = row + 2
+            counted = []
             for period in periods:
                 starting = [teacher for teacher in teachers if teacher['start'] == period]
                 if not starting:
@@ -266,6 +274,11 @@ class EmsStaffWalkoutReport(models.TransientModel):
                                                        period=label(period), count=len(starting)), formats['block'])
                 sheet.write_row(row + 1, 0, headers, formats['header'])
                 row += 2
+                sheet.data_validation(row, ATTENDANCE_COLUMN, row + len(starting) - 1, ATTENDANCE_COLUMN, {
+                    'validate': 'list', 'source': [statuses[status] for status in SUMMARY_STATUSES] + ['☐']})
+                counted += starting
+                self._write_control_sheet_summary(
+                    sheet, formats, contracts, statuses, counted, first_row, row + len(starting) - 1)
                 for teacher in starting:
                     cell = teacher['first']
                     kind = 'absent' if teacher['absence'] else ('cell' if cell['teaching'] else 'duty')
@@ -282,6 +295,33 @@ class EmsStaffWalkoutReport(models.TransientModel):
             self._write_control_sheet_grid(workbook, formats, area, periods, teachers, label)
         workbook.close()
         return stream.getvalue()
+
+    @staticmethod
+    def _write_control_sheet_summary(sheet, formats, contracts, statuses, counted, first_row, last_row):
+        """Beside a period's block, from column N and ending on its last row: for each contract type,
+        how many teachers are on walkout, present or absent so far (every block up to this one).
+        Formulas over the Contract and Attendance columns, so the figures follow what is filled in by
+        hand; their cached values are the ones known now, for whatever opens the file without
+        recalculating."""
+        short = {'walkout': _("Walkout"), 'present': _("Pres."), 'absence': _("Abs.")}
+        for index, contract in enumerate(contracts):
+            column = SUMMARY_COLUMN + index * len(SUMMARY_STATUSES)
+            title = contract or _("No contract")
+            sheet.merge_range(last_row - 2, column, last_row - 2, column + len(SUMMARY_STATUSES) - 1, title,
+                              formats['header_centre'])
+            for offset, status in enumerate(SUMMARY_STATUSES):
+                sheet.write(last_row - 1, column + offset, f"{title[:1]}-{short[status]}", formats['header_centre'])
+                criteria = (contract or '').replace('"', '""')
+                label = statuses[status].replace('"', '""')
+                contract_range = xl_range_abs(first_row, CONTRACT_COLUMN, last_row, CONTRACT_COLUMN)
+                attendance_range = xl_range_abs(first_row, ATTENDANCE_COLUMN, last_row, ATTENDANCE_COLUMN)
+                value = sum(1 for teacher in counted
+                            if teacher['contract'] == contract and teacher['status'] == status)
+                sheet.write_formula(
+                    last_row, column + offset,
+                    f'=COUNTIFS({contract_range},"{criteria}",{attendance_range},"{label}")',
+                    formats['cell_centre'], value)
+            sheet.set_column(column, column + len(SUMMARY_STATUSES) - 1, 9)
 
     @staticmethod
     def _students_label(cell):

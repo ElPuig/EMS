@@ -230,6 +230,8 @@ Les columnes d'assistència surten emplenades amb el que EMS sap en el moment de
 
 Per actualitzar-les, torna a baixar el full.
 
+Al costat de cada franja, a partir de la columna N, una petita taula dona les xifres fins al moment per a cada tipus de contracte: quants docents estan en vaga, presents o absents, comptant aquella franja i totes les anteriors. Són fórmules: quan canvies a mà l'**Assistència** d'un docent (tria **Present**, **En vaga** o **Absència** de la llista), les xifres s'actualitzen.
+
 Els docents que tenen una sol·licitud d'absència que cobreix aquella franja, aprovada o pendent d'aprovar, surten en gris i a les observacions s'indica quina. Els **Alumnes previstos** són els de la llista d'assistència de la classe o, si no en té, l'alumnat del grup; la columna queda buida en un desdoblament, una optativa o un grup de reforç, perquè EMS no en té l'alumnat.
 
 ---

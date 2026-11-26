@@ -56688,3 +56688,27 @@ msgstr ""
 "Assistència a %(time)s: present si ha fitxat, en vaga si la seva primera "
 "franja ha començat sense fitxar; alumnes presents segons el pas de llista, "
 "buit si encara no s'ha passat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Walkout"
+msgstr "Vaga"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Pres."
+msgstr "Pres."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Abs."
+msgstr "Abs."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "No contract"
+msgstr "Sense contracte"

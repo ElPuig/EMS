@@ -70,6 +70,14 @@ room, online, by email). The reservation is written under `sudo()` for the minut
 whoever edits the minute later did not ask for the room. A room that is taken makes the minute's
 save fail with the reservation's message. Deleting the minute deletes the reservation.
 
+## Existing installations
+
+`migrations/18.0.0.53.0/post-migrate.py` gives a reservation to every meeting already scheduled in a
+room (in person or hybrid, starting from now), oldest first, so when two of them hold the same room
+at once the earlier one keeps it. A meeting whose room is taken is left without a reservation and
+logged as a warning; the migration never fails on existing data. Past meetings need none. A clean
+install has no meetings, so it needs nothing in `post_init_hook`.
+
 ## Access
 
 | Role | Read | Create | Write / delete |

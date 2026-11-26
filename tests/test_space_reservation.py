@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import importlib.util
+import os
 from datetime import datetime, time, timedelta
 
+from odoo import fields
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
 
@@ -180,3 +183,27 @@ class TestSpaceReservation(TransactionCase):
             user = create_role_user(cls, role, f'tsr.{role}@example.com', name=f'Reservation {role}')
             reservation.with_user(user).write({'reason': role})
             self.assertEqual(reservation.reason, role)
+
+    # --- Migration -------------------------------------------------------------------------------
+
+    def test_migration_reserves_the_rooms_of_upcoming_meetings_and_logs_the_taken_ones(self):
+        path = os.path.join(os.path.dirname(__file__), '..', 'migrations', '18.0.0.53.0', 'post-migrate.py')
+        spec = importlib.util.spec_from_file_location('migration_53_0', path)
+        migration = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(migration)
+
+        # Meetings as they were before the reservation existed: a room, no reservation.
+        first = self._minute(12.0, space_id=self.other_space.id)
+        first.space_reservation_ids.unlink()
+        clashing = self._minute(12.5, space_id=self.other_space.id)
+        clashing.space_reservation_ids.unlink()
+        past = self.env['ems.minute'].create({
+            'type_id': self.claustre.id, 'space_id': self.other_space.id, 'duration': 1.0,
+            'start_datetime': fields.Datetime.now() - timedelta(days=2)})
+        past.space_reservation_ids.unlink()
+
+        migration._reserve_rooms_of_upcoming_meetings(self.env)
+
+        self.assertEqual(first.space_reservation_ids.space_id, self.other_space)
+        self.assertFalse(clashing.space_reservation_ids)     # the earlier meeting keeps the room
+        self.assertFalse(past.space_reservation_ids)         # past meetings need none

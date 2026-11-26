@@ -135,9 +135,18 @@ registry.category("web_tour.tours").add("ems_space_reservation_search_again", {
             run: "click",
         },
         {
-            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row input.o_ems_radio_row",
-            content: "Choose a space",
+            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row td[name='space_id']",
+            content: "Choose a space by clicking its row",
             run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row.table-active input.o_ems_radio_row",
+            content: "The row is highlighted and its radio button checked",
+            run() {
+                if (!document.querySelector(".modal input.o_ems_radio_row:checked")) {
+                    throw new Error("Clicking the row must check its radio button");
+                }
+            },
         },
         {
             trigger: ".modal-footer button[name='action_reserve']:not(.disabled)",

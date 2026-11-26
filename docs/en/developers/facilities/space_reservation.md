@@ -53,8 +53,9 @@ wizard instead of the form. The first field is `mode`:
   weekly schedule, with hours). The whole range is asked once from `_get_space_busy` and the days
   are checked in memory.
 
-The results are chosen with a radio button per row (`ems_radio_row`, `static/src/js/backend/radio_row_field.js`):
-it writes the row into `selected_line_id` of the wizard, so the footer's *Reserve* (`action_reserve`)
+The results are chosen with a radio button per row (`ems_radio_row`, `static/src/js/backend/radio_row_field.js`),
+or by clicking anywhere on the row (the widget listens on its row, which is highlighted, so a row
+where the field is invisible, a busy day, cannot be chosen). Either way it writes the row into `selected_line_id` of the wizard, so the footer's *Reserve* (`action_reserve`)
 is enabled only once a row is chosen (until then a lookalike button with the `disabled` class is shown,
 since a view button has no disabled attribute). A busy day offers no radio button. The *Search*
 button sits between the fields and the list. The lines are real records, not a computed list (the

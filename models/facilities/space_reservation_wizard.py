@@ -66,7 +66,7 @@ class EmsSpaceReservationWizard(models.TransientModel):
         self.line_ids.unlink()
         self.line_ids = self._free_spaces_lines() if self.mode == 'date' else self._free_days_lines()
         return {
-            'type': 'ir.actions.act_window', 'res_model': self._name, 'res_id': self.id,
+            'type': 'ir.actions.act_window', 'name': _("Reserve a space"), 'res_model': self._name, 'res_id': self.id,
             'view_mode': 'form', 'views': [(False, 'form')], 'target': 'new',
         }
 

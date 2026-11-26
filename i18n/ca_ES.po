@@ -56627,8 +56627,10 @@ msgid "Whether a teacher can reserve it. Untick it for the spaces that are not t
 msgstr "Indica si el professorat el pot reservar. Desmarqueu-la als espais que no s'han de reservar (serveis...)."
 
 #. module: ems
+#. odoo-python
 #: model:ir.actions.act_window,name:ems.action_space_reservation_wizard
 #: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_wizard_form
+#: code:addons/ems/models/facilities/space_reservation_wizard.py:0
 msgid "Reserve a space"
 msgstr "Reservar un espai"
 
@@ -56749,3 +56751,8 @@ msgstr "Magatzem"
 #: model:ems.space_type,name:ems.space_type_wc
 msgid "WC"
 msgstr "WC"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_wizard_form
+msgid "Press the calendar button of a row to reserve it."
+msgstr "Prem el botó del calendari d'una fila per reservar-la."

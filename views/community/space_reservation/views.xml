@@ -8,27 +8,45 @@
                 <group>
                     <field name="mode" widget="radio"/>
                 </group>
-                <group col="4">
-                    <field name="date" required="mode == 'date'" invisible="mode != 'date'"/>
-                    <field name="space_type_id" invisible="mode != 'date'" options="{'no_create': True, 'no_open': True}"/>
-                    <field name="space_id" required="mode == 'space'" invisible="mode != 'space'"
-                           options="{'no_create': True, 'no_open': True}"/>
-                    <field name="date_from" required="mode == 'space'" invisible="mode != 'space'"/>
-                    <field name="date_to" required="mode == 'space'" invisible="mode != 'space'"/>
-                    <field name="start_time" widget="float_time"/>
-                    <field name="end_time" widget="float_time"/>
-                    <field name="reason" colspan="4"/>
+                <group invisible="mode != 'date'">
+                    <group>
+                        <field name="date" required="mode == 'date'"/>
+                    </group>
+                    <group>
+                        <field name="space_type_id" options="{'no_create': True, 'no_open': True}"/>
+                    </group>
                 </group>
+                <group invisible="mode != 'space'">
+                    <group>
+                        <field name="space_id" required="mode == 'space'" options="{'no_create': True, 'no_open': True}"/>
+                    </group>
+                    <group>
+                        <field name="date_from" required="mode == 'space'"/>
+                        <field name="date_to" required="mode == 'space'"/>
+                    </group>
+                </group>
+                <group>
+                    <group>
+                        <field name="start_time" widget="float_time"/>
+                    </group>
+                    <group>
+                        <field name="end_time" widget="float_time"/>
+                    </group>
+                </group>
+                <group>
+                    <field name="reason"/>
+                </group>
+                <div class="text-muted" invisible="not line_ids">Press the calendar button of a row to reserve it.</div>
                 <field name="line_ids" invisible="not line_ids" nolabel="1">
                     <list create="false" delete="false" edit="false" no_open="1" decoration-muted="not is_free and not space_id">
                         <field name="space_id" column_invisible="parent.mode != 'date'"/>
-                        <field name="space_type_id" column_invisible="parent.mode != 'date'"/>
+                        <field name="space_type_id" column_invisible="parent.mode != 'date'" width="200px"/>
                         <field name="date" column_invisible="parent.mode != 'space'"/>
                         <field name="weekday" column_invisible="parent.mode != 'space'"/>
                         <field name="is_free" column_invisible="parent.mode != 'space'" widget="boolean"/>
                         <field name="detail" column_invisible="parent.mode != 'space'"/>
-                        <button name="action_reserve" type="object" string="Reserve" icon="fa-calendar-plus-o" class="btn-link"
-                                invisible="parent.mode == 'space' and not is_free"/>
+                        <button name="action_reserve" type="object" icon="fa-calendar-plus-o" title="Reserve"
+                                class="btn btn-link px-1" invisible="parent.mode == 'space' and not is_free"/>
                     </list>
                 </field>
                 <footer>

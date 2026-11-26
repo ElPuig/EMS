@@ -2,7 +2,7 @@
 
 import { registry } from "@web/core/registry";
 
-// Issue #813: a member of the management team (issue #865) chooses a day in the dialog and the figures open as a pivot (one row
+// Issue #813: a Head of Studies (issue #865) chooses a day in the dialog and the figures open as a pivot (one row
 // per period, one column per staff type and contract type), whose figures open the names.
 registry.category("web_tour.tours").add("ems_staff_walkout_report", {
     test: true,

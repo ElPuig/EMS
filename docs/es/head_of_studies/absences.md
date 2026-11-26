@@ -187,7 +187,7 @@ Para cambiar el periodo, quita el filtro **Curso actual** y elige el que necesit
 
 ## Huelgas del personal
 
-**Ausencias > Informes > Huelgas**, para el equipo directivo: el director y quien el administrador haya puesto en él (consulta [Asignar el equipo directivo](../admin/teacher-roles.md#asignar-el-equipo-directivo)).
+**Ausencias > Informes > Huelgas**, para el jefe de estudios, el jefe de estudios adjunto y el director, como los otros informes de ese menú.
 
 Un día de huelga, las cifras del formulario del Departament que hay que rellenar aproximadamente cada hora: cuántas personas del personal (docentes y personal de administración y servicios) están en huelga hasta el momento, separadas por tipo de contrato.
 

@@ -492,7 +492,7 @@ reminder they receive (no menu entry), so their "Absences" stays a single click.
 | Reporting, Configuration | native groups | Unchanged |
 | Management > Requested absences | `group_hr_holidays_responsible` | EMS entry on Odoo's own `hr_leave_action_action_approve_department`, replacing `hr_holidays.menu_open_department_leave_approve` ("Time Off"), which is archived: next to the detected absences, the name has to say which of the two kinds it lists. Its group is stated explicitly, since Management itself is now wider |
 | Management > Detected absences | `ems.group_department_chief`, `ems.group_academic_admin`, `base.group_system` | Added by EMS, see *Detected absences* |
-| Reporting > Staff walkouts | `ems.group_management_team` | Added by EMS, see *The staff walkout report* |
+| Reporting > Staff walkouts | (Reporting's own: Time Off officers) | Added by EMS, see *The staff walkout report* |
 
 The action behind My Time Off also drops Odoo's default `search_default_group_date_from`: the
 centre's own list is short and already sorted by date, so grouping it by month only buries a
@@ -1242,8 +1242,9 @@ report. Nothing fails; the number is just wrong.
 
 ## The staff walkout report
 
-`Absences > Reporting > Staff walkouts` (`ems.action_staff_walkout_report`, issue #813), for the
-management team (`ems.group_management_team`, issue #865): the figures the Director reports to the
+`Absences > Reporting > Staff walkouts` (`ems.action_staff_walkout_report`, issue #813), for the Time
+Off officers (`hr_holidays.group_hr_holidays_user`: Heads of Studies, Deputies and Direction; issue #865),
+like every other report under *Reporting*: the figures the Director reports to the
 Departament about every hour of a walkout day, per staff type and contract type, and a control sheet
 to print before the day starts (see *The walkout control sheet* below). Nobody declares the walkout
 in EMS; it is inferred.
@@ -1287,19 +1288,16 @@ on top). Named "walkout", never "strike", so it is not confused with `ems.strike
 
 | Role | `ems.staff_walkout_report` | `ems.staff_walkout_report.line` | Menu |
 |---|---|---|---|
-| Management team (`ems.group_management_team`; the Director, and `academic_admin` above them, always belong to it) | rwc | rc (the lines are never edited) | yes |
-| Anyone else, Heads of Studies and the Secretary included unless they are on the team | - | - | no |
+| Time Off officers (`hr_holidays.group_hr_holidays_user`, implied by `group_head_of_studies` and so by the Director and `academic_admin`) | rwc | rc (the lines are never edited) | yes |
+| Anyone else | - | - | no |
 
 The data is read with `sudo()` inside the helpers; only names, staff type, contract type and the
 two figures leave them (the control sheet adds what each teacher has that day, below).
 
-**The management team group (issue #865).** Who sits on the management team is not something any
-role says on its own (a Head of Studies, the Secretary, a coordinator...), so it is a group of its
-own (`category_management_team`, "Member"), assigned by hand on the user's form. `group_director`
-implies it, so the Director always has the report. The menu sits under Odoo's *Absences >
-Reporting*, which hr_holidays keeps for Time Off officers: EMS adds the group to that header and gives
-its other entries (*by Employee*, *by Type*, *Monthly totals*) the officers group explicitly, so a
-member who is not an officer (the Secretary) sees this report and nothing else there.
+**Who sees it (issue #865).** The menu has no group of its own: like the other reports under
+*Absences > Reporting* (by Employee, by Type, Monthly totals) it is for whoever sees that header,
+the Time Off officers, and the models' access is granted to the same group. Until #865 it was the
+Director's only.
 
 ### The walkout control sheet
 

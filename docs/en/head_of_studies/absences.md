@@ -189,7 +189,7 @@ To change the period, remove the **Current Course** filter and pick the one you 
 
 ## Staff walkouts
 
-**Absences > Reporting > Staff walkouts**, for the management team: the Director and whoever the administrator has put on it (see [Assigning the management team](../admin/teacher-roles.md#assigning-the-management-team)).
+**Absences > Reporting > Staff walkouts**, for the Head of Studies, the Deputy Head of Studies and the Director, like the other reports in that menu.
 
 On a walkout day, the figures for the Departament's form you fill in about every hour: how many members of staff (teachers and administrative and services staff) are on walkout so far, separately for each contract type.
 

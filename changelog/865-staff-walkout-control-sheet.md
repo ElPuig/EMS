@@ -10,10 +10,9 @@
 
 # Changes
 
-## Staff walkouts report for the whole management team:
+## Staff walkouts report for Heads of Studies too:
 
-- New group **Management team > Member** (Settings > Users > Access Rights, EMS section), assigned by hand to whoever sits on the management team. The walkout report and its control sheet are now for this group instead of the Director only; the Director always belongs to it (implied), so nobody loses access on upgrade.
-- A member who is not a Time Off officer (e.g. the Secretary) sees Absences > Reporting with only Staff walkouts in it: the other reports there (by Employee, by Type, Monthly totals) are now explicitly for Time Off officers, who already were the only ones to see them.
+- The walkout report and its control sheet follow the same access as the other reports under Absences > Reporting (by Employee, by Type, Monthly totals): the Time Off officers, that is the Heads of Studies, their Deputies and the Director. It used to be the Director's only.
 
 # Internal changes
 

@@ -47,7 +47,7 @@
 
         <menuitem id="menu_absence_monthly_report" name="Monthly totals" sequence="1"
                   parent="hr_holidays.menu_hr_holidays_report"
-                  action="action_absence_monthly_report" groups="hr_holidays.group_hr_holidays_user"/>
+                  action="action_absence_monthly_report"/>
 
     </data>
 </odoo>

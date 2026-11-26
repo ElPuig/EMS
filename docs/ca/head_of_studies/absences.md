@@ -187,7 +187,7 @@ Per canviar el període, treu el filtre **Curs actual** i tria el que necessitis
 
 ## Vagues del personal
 
-**Absències > Informes > Vagues**, per a l'equip directiu: el director i qui l'administrador hi hagi posat (consulta [Assignar l'equip directiu](../admin/teacher-roles.md#assignar-lequip-directiu)).
+**Absències > Informes > Vagues**, per al cap d'estudis, el cap d'estudis adjunt i el director, com els altres informes d'aquest menú.
 
 Un dia de vaga, les xifres del formulari del Departament que cal emplenar aproximadament cada hora: quantes persones del personal (docents i personal d'administració i serveis) estan en vaga fins al moment, separades per tipus de contracte.
 

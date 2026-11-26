@@ -42,7 +42,7 @@ class TestStaffWalkoutControlSheet(TransactionCase):
             {'student_id': student.id, 'group_id': cls.group.id, 'subject_id': cls.subject.id} for student in students[:2]])
         cls.space = cls.env['ems.space'].create({'name': 'TWCS Room', 'code': 'TWCS-9.19'})
         cls.guard = cls.env.ref('ems.non_teaching_g')
-        cls.member = create_role_user(cls, 'management_team', 'test_twcs_member')
+        cls.member = create_role_user(cls, 'head_of_studies', 'test_twcs_hos')
 
     @classmethod
     def _teacher(cls, name, slots, department=None, **values):
@@ -163,20 +163,10 @@ class TestStaffWalkoutControlSheet(TransactionCase):
         with self.assertRaisesRegex(Exception, 'has a schedule on this day'):
             self._report(self.other_area)._get_control_sheet_areas()
 
-    def test_a_member_of_the_management_team_reaches_the_report_but_not_the_other_reports(self):
-        secretary = create_role_user(self, 'secretary', 'test_twcs_secretary')
-        secretary.groups_id |= self.env.ref('ems.group_management_team')
-        visible = self.env['ir.ui.menu'].with_user(secretary)._visible_menu_ids()
-        self.assertIn(self.env.ref('ems.menu_staff_walkout_report').id, visible)
-        self.assertIn(self.env.ref('hr_holidays.menu_hr_holidays_report').id, visible)
-        for xmlid in ('hr_holidays.menu_hr_available_holidays_report_tree', 'hr_holidays.menu_hr_holidays_summary_all',
-                      'ems.menu_absence_monthly_report'):
-            self.assertNotIn(self.env.ref(xmlid).id, visible, xmlid)
-        # Without the group, the Secretary does not see the report.
-        plain = create_role_user(self, 'secretary', 'test_twcs_plain_secretary')
-        self.assertNotIn(self.env.ref('ems.menu_staff_walkout_report').id,
-                         self.env['ir.ui.menu'].with_user(plain)._visible_menu_ids())
-
-    def test_the_director_belongs_to_the_management_team(self):
-        director = create_role_user(self, 'director', 'test_twcs_director')
-        self.assertTrue(director.has_group('ems.group_management_team'))
+    def test_the_time_off_officers_reach_the_report_like_the_other_reports(self):
+        menus = self.env['ir.ui.menu']
+        report = self.env.ref('ems.menu_staff_walkout_report').id
+        self.assertIn(report, menus.with_user(self.member)._visible_menu_ids())
+        for role in ('teacher', 'secretary'):
+            user = create_role_user(self, role, f'test_twcs_{role}')
+            self.assertNotIn(report, menus.with_user(user)._visible_menu_ids(), role)

@@ -8,9 +8,9 @@ from .common import create_role_user, make_working_day, mock_outgoing_email, shi
 
 @tagged('post_install', '-at_install')
 class TestStaffWalkoutReportTour(HttpCase):
-    """Issue #813: the walkout report as a member of the management team (issue #865: the group it
-    is for, here without any other role): the day's dialog with the control sheet's area and
-    download, the pivot and the list behind it."""
+    """Issue #813: the walkout report as a Head of Studies (issue #865: the least of the roles it is
+    for, the Time Off officers): the day's dialog with the control sheet's area and download, the
+    pivot and the list behind it."""
 
     @classmethod
     def setUpClass(cls):
@@ -19,7 +19,7 @@ class TestStaffWalkoutReportTour(HttpCase):
         # 10:00 of a school day: the fixture's 8:00 period has started.
         today = shift_ems_clock(cls, hour=10.0, weekdays=(0, 1, 2, 3, 4)).date()
         make_working_day(cls, today)
-        cls.member = create_role_user(cls, 'management_team', 'staff_walkout_tour_member')
+        cls.member = create_role_user(cls, 'head_of_studies', 'staff_walkout_tour_hos')
         walker = cls.env['hr.employee'].create({'name': '0000 TSSR Tour Walker', 'employee_type': 'teacher'})
         walker.resource_calendar_id = cls.env['resource.calendar'].create({
             'name': walker.name, 'employee_id': walker.id,

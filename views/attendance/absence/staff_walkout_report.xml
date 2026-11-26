@@ -88,22 +88,12 @@
             <field name="target">new</field>
         </record>
 
-        <!-- Issue #865: the management team reaches this report through Absences > Reporting,
-             which Odoo keeps for Time Off officers: a member who is not one (the Secretary, say)
-             gets that header too, and the other reports under it keep the officers only. -->
-        <record model="ir.ui.menu" id="hr_holidays.menu_hr_holidays_report">
-            <field name="groups_id" eval="[(4, ref('ems.group_management_team'))]"/>
-        </record>
-        <record model="ir.ui.menu" id="hr_holidays.menu_hr_available_holidays_report_tree">
-            <field name="groups_id" eval="[(4, ref('hr_holidays.group_hr_holidays_user'))]"/>
-        </record>
-        <record model="ir.ui.menu" id="hr_holidays.menu_hr_holidays_summary_all">
-            <field name="groups_id" eval="[(4, ref('hr_holidays.group_hr_holidays_user'))]"/>
-        </record>
-
+        <!-- Issue #865: for the Time Off officers, like the other reports under Reporting. The
+             "-" unlinks the Director-only group #813 set, which an upgrade would otherwise keep. -->
         <menuitem id="menu_staff_walkout_report" name="Staff walkouts" sequence="2"
                   parent="hr_holidays.menu_hr_holidays_report"
-                  action="action_staff_walkout_report" groups="ems.group_management_team"/>
+                  action="action_staff_walkout_report"
+                  groups="-ems.group_director,hr_holidays.group_hr_holidays_user"/>
 
     </data>
 </odoo>

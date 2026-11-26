@@ -26985,7 +26985,6 @@ msgstr "Actas de reunión"
 #: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__employee_id
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute_member_line__team_role__member
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_panel__user_id
-#: model:res.groups,name:ems.group_management_team
 msgid "Member"
 msgstr "Miembro"
 
@@ -56620,11 +56619,6 @@ msgid "Control sheet file name"
 msgstr "Nombre del fichero de la hoja de control"
 
 #. module: ems
-#: model:ir.module.category,description:ems.category_management_team
-msgid "Educational Management System - Management team"
-msgstr "Educational Management System - Equipo directivo"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
 msgid "Expected students"
@@ -56665,20 +56659,6 @@ msgstr "Cuadrícula"
 msgid "Leave it empty for every teaching area, each on sheets of its own."
 msgstr ""
 "Déjalo vacío para todas las áreas docentes, cada una en hojas propias."
-
-#. module: ems
-#: model:ir.module.category,name:ems.category_management_team
-msgid "Management team"
-msgstr "Equipo directivo"
-
-#. module: ems
-#: model:res.groups,comment:ems.group_management_team
-msgid ""
-"Member of the management team: the staff walkout report and its control "
-"sheet."
-msgstr ""
-"Miembro del equipo directivo: el informe de huelgas del personal y su hoja "
-"de control."
 
 #. module: ems
 #. odoo-python

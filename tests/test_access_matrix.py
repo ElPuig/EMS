@@ -20,13 +20,13 @@ ACCESS_MATRIX = {
     'ems.absence_pending': {
         'teacher': 'r', 'department_chief': 'rwc', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
     # Issue #813: the walkout report, whose figures the Director reports to the Departament. Issue
-    # #865: for the whole management team (the Director always on it), assigned by hand; a Head of
-    # Studies or the Secretary who is not on it does not see who is on walkout.
+    # #865: like the other reports under Absences > Reporting, for the Time Off officers (the Heads
+    # of Studies and Direction).
     'ems.staff_walkout_report': {
-        'teacher': '', 'head_of_studies': '', 'secretary': '', 'management_team': 'rwc', 'director': 'rwc',
+        'teacher': '', 'department_chief': '', 'secretary': '', 'head_of_studies': 'rwc', 'director': 'rwc',
         'academic_admin': 'rwc'},
     'ems.staff_walkout_report.line': {
-        'teacher': '', 'head_of_studies': '', 'secretary': '', 'management_team': 'rc', 'director': 'rc',
+        'teacher': '', 'department_chief': '', 'secretary': '', 'head_of_studies': 'rc', 'director': 'rc',
         'academic_admin': 'rc'},
     # Issue #818: Discard asks why, for whoever reviews detected absences; the Heads of Studies
     # and the administrator maintain the reasons, which only the administrator deletes.

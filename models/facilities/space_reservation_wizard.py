@@ -4,7 +4,7 @@ from datetime import datetime, time, timedelta
 
 from pytz import UTC
 
-from odoo import Command, _, api, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools.misc import format_date
 
@@ -12,7 +12,8 @@ from odoo.tools.misc import format_date
 class EmsSpaceReservationWizard(models.TransientModel):
     """Reserving a space (issue #475). Two ways in, both reading the same answer
     ('ems.space._get_space_busy()'):
-    - by date: a day, a start and an end -> the spaces that are free, to choose one;
+    - by date: a day, a start and an end -> the spaces that are free (recomputed at every change), to
+      choose one;
     - by space: a space -> its week as a grid (what holds it, when it is free), where the slot is
       chosen by dragging over a free time (or typing it)."""
     _name = "ems.space_reservation_wizard"
@@ -32,11 +33,14 @@ class EmsSpaceReservationWizard(models.TransientModel):
         string="Type", comodel_name="ems.space_type", domain="[('reservable', '=', True)]",
         help="Narrows the spaces looked at to those of this type.")
     reason = fields.Char(string="Reason")
-    # Real records (not a computed list): the radio button of a row needs the row to exist.
-    line_ids = fields.One2many(
-        string="Results", comodel_name="ems.space_reservation_wizard.line", inverse_name="wizard_id")
-    selected_line_id = fields.Many2one(
-        string="Chosen result", comodel_name="ems.space_reservation_wizard.line", ondelete='set null')
+    # Recomputed by the form at every change of the day, the hours or the type: no search button.
+    free_space_ids = fields.Many2many(
+        string="Free spaces", comodel_name="ems.space", compute="_compute_free_space_ids",
+        help="The reservable spaces (of the type chosen) that nothing holds at that time.")
+    # Kept while the space is still free for what is typed, dropped when it is not.
+    chosen_space_id = fields.Many2one(
+        string="Chosen space", comodel_name="ems.space", compute="_compute_chosen_space_id", store=True,
+        readonly=False)
 
     # By space. Its own slot fields, so each mode lays out its form on its own.
     space_id = fields.Many2one(string="Space", comodel_name="ems.space", domain="[('reservable', '=', True)]")
@@ -52,19 +56,22 @@ class EmsSpaceReservationWizard(models.TransientModel):
         for wizard in self:
             wizard.duration = wizard.end_time - wizard.start_time
 
+    @api.depends('mode', 'date', 'start_time', 'end_time', 'space_type_id')
+    def _compute_free_space_ids(self):
+        for wizard in self:
+            wizard.free_space_ids = wizard._free_spaces()
+
+    @api.depends('mode', 'date', 'start_time', 'end_time', 'space_type_id')
+    def _compute_chosen_space_id(self):
+        for wizard in self:
+            # By id: in the form's onchange the chosen space comes as a new record (its _origin is the real one).
+            if wizard.chosen_space_id._origin.id not in wizard.free_space_ids._origin.ids:
+                wizard.chosen_space_id = False
+
     @api.depends('space_id')
     def _compute_show_grid(self):
         for wizard in self:
             wizard.show_grid = bool(wizard.space_id)
-
-    def write(self, vals):
-        # What was found no longer answers what is typed now. The web client saves the chosen row
-        # in the same write as the change (Search pressed after choosing a row and editing the
-        # hour): the row is about to go, so the choice goes too.
-        if vals.keys() & {'mode', 'date', 'start_time', 'end_time', 'space_type_id'}:
-            self.line_ids.unlink()
-            vals = {**vals, 'selected_line_id': False}
-        return super().write(vals)
 
     def _slot(self, day, start_time, end_time):
         """(start, end) of the slot on `day`, as naive UTC datetimes."""
@@ -75,33 +82,28 @@ class EmsSpaceReservationWizard(models.TransientModel):
             self.local_datetime_to_utc(midnight + timedelta(hours=hour)).replace(tzinfo=None)
             for hour in (start_time, end_time))
 
-    def action_search(self):
-        """By date: fills the results with the spaces that are free (by space there is nothing to
-        search: the grid shows the week of the chosen space by itself)."""
+    def _free_spaces(self):
+        """By date: the reservable spaces (of the type chosen) free for the slot typed; none while the
+        slot is incomplete or the end is not after the start (the form says so)."""
         self.ensure_one()
-        self.line_ids.unlink()
-        self.line_ids = self._free_spaces_lines()
-        return {
-            'type': 'ir.actions.act_window', 'name': _("Reserve a space"), 'res_model': self._name, 'res_id': self.id,
-            'view_mode': 'form', 'views': [(False, 'form')], 'target': 'new', 'context': {'dialog_size': 'large'},
-        }
-
-    def _free_spaces_lines(self):
+        spaces = self.env['ems.space']
+        if self.mode != 'date' or not self.date or not 0 <= self.start_time < self.end_time <= 24:
+            return spaces
         start, end = self._slot(self.date, self.start_time, self.end_time)
-        spaces = self.env['ems.space'].search([('reservable', '=', True)] + (
+        spaces = spaces.search([('reservable', '=', True)] + (
             [('space_type_id', '=', self.space_type_id.id)] if self.space_type_id else []))
         busy = spaces._get_space_conflicts(start, end)
-        return [Command.create({'space_id': space_id}) for space_id in spaces.ids if space_id not in busy]
+        return spaces.filtered(lambda space: space.id not in busy)
 
     def action_reserve(self):
         """Reserves what the wizard has: the result chosen in the list (by date) or the slot of the
         chosen space (by space)."""
         self.ensure_one()
         if self.mode == 'date':
-            if not self.selected_line_id:
-                raise UserError(_("Choose one of the results."))
+            if not self.chosen_space_id:
+                raise UserError(_("Choose one of the free spaces."))
             space, day, start_time, end_time, reason = (
-                self.selected_line_id.space_id, self.date, self.start_time, self.end_time, self.reason)
+                self.chosen_space_id, self.date, self.start_time, self.end_time, self.reason)
         else:
             if not self.space_id or not self.space_day:
                 raise UserError(_("Choose a space and a free time of its week."))
@@ -161,14 +163,3 @@ class EmsSpaceReservationWizard(models.TransientModel):
             'hour_from': hour_from, 'hour_to': min(hour_to, 24), 'blocks': blocks,
         }
 
-
-class EmsSpaceReservationWizardLine(models.TransientModel):
-    _name = "ems.space_reservation_wizard.line"
-    _description = "A result of the reservation wizard: a space that is free for the time asked."
-    _order = "id"
-
-    wizard_id = fields.Many2one(comodel_name="ems.space_reservation_wizard", required=True, ondelete='cascade')
-    space_id = fields.Many2one(string="Space", comodel_name="ems.space", required=True)
-    space_type_id = fields.Many2one(string="Type", related="space_id.space_type_id")
-    # Only hosts the radio button column (widget ems_radio_row): the choice is wizard.selected_line_id.
-    selected = fields.Boolean(string="Choose")

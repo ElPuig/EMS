@@ -3,8 +3,8 @@
 import { registry } from "@web/core/registry";
 
 // A teacher reserves a free space (issue #475): the reservation list's New button opens the
-// wizard, which lists the spaces that are free for the day, start and duration typed (never the
-// one a reservation already holds); Reserve on a row books it.
+// wizard, which lists by itself the spaces that are free for the day, start and end typed (never
+// the one a reservation already holds); Reserve books the chosen one.
 registry.category("web_tour.tours").add("ems_space_reservation", {
     test: true,
     url: "/odoo/action-ems.action_space_reservation",
@@ -19,15 +19,10 @@ registry.category("web_tour.tours").add("ems_space_reservation", {
             run: "click",
         },
         {
-            trigger: ".modal button[name='action_search']",
-            content: "Search the free spaces",
-            run: "click",
-        },
-        {
-            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row td:contains('Tour Free Space')",
-            content: "The free space is offered",
+            trigger: ".modal .o_field_widget[name='free_space_ids'] .o_data_row td:contains('Tour Free Space')",
+            content: "The free space is offered without searching",
             run() {
-                if ([...document.querySelectorAll(".modal .o_field_widget[name='line_ids'] .o_data_row")]
+                if ([...document.querySelectorAll(".modal .o_field_widget[name='free_space_ids'] .o_data_row")]
                         .some((row) => row.textContent.includes("Tour Busy Space"))) {
                     throw new Error("A space that is already reserved must not be offered");
                 }
@@ -43,7 +38,7 @@ registry.category("web_tour.tours").add("ems_space_reservation", {
             content: "Reserve is not available until a space is chosen",
         },
         {
-            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row:contains('Tour Free Space') input.o_ems_radio_row",
+            trigger: ".modal .o_field_widget[name='free_space_ids'] .o_data_row:contains('Tour Free Space') input.o_ems_radio_row",
             content: "Choose the free space",
             run: "click",
         },
@@ -143,7 +138,9 @@ registry.category("web_tour.tours").add("ems_space_reservation_by_space", {
     ],
 });
 
-// Choosing a result and then changing the hour and searching again drops the choice (no error).
+// The free spaces follow what is typed: a space held at 10:00 appears once the hours move past its
+// reservation (09:30-12:30), the choice stays while its space is still free, and goes when the hours
+// stop making sense (the end before the start).
 registry.category("web_tour.tours").add("ems_space_reservation_search_again", {
     test: true,
     url: "/odoo/action-ems.action_space_reservation",
@@ -154,50 +151,76 @@ registry.category("web_tour.tours").add("ems_space_reservation_search_again", {
             run: "click",
         },
         {
-            trigger: ".modal button[name='action_search']",
-            content: "Search the free spaces",
-            run: "click",
-        },
-        {
-            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row td[name='space_id']",
+            trigger: ".modal .o_field_widget[name='free_space_ids'] .o_data_row:contains('Tour Spare Space') td[name='display_name']",
             content: "Choose a space by clicking its row",
             run: "click",
         },
         {
-            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row.table-active input.o_ems_radio_row",
+            trigger: ".modal .o_field_widget[name='free_space_ids'] .o_data_row.table-active:contains('Tour Spare Space') input.o_ems_radio_row:checked",
             content: "The row is highlighted and its radio button checked",
-            run() {
-                if (!document.querySelector(".modal input.o_ems_radio_row:checked")) {
-                    throw new Error("Clicking the row must check its radio button");
-                }
-            },
         },
         {
             trigger: ".modal-footer button[name='action_reserve']:not(.disabled)",
             content: "Reserve is available",
         },
         {
+            trigger: ".modal .o_field_widget[name='end_time'] input",
+            content: "Change the end",
+            run: "edit 14:00 && press Tab",
+        },
+        {
             trigger: ".modal .o_field_widget[name='start_time'] input",
-            content: "Change the hour",
-            run: "edit 09:00",
+            content: "Change the start, past the reservation of the busy space",
+            run: "edit 13:00 && press Tab",
         },
         {
-            trigger: ".modal button[name='action_search']",
-            content: "Search again",
-            run: "click",
+            trigger: ".modal .o_field_widget[name='free_space_ids'] .o_data_row td:contains('Tour Busy Space')",
+            content: "The list follows by itself: the busy space is free from 13:00",
         },
         {
-            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row input.o_ems_radio_row",
+            trigger: ".modal .o_field_widget[name='free_space_ids'] .o_data_row.table-active:contains('Tour Spare Space') input.o_ems_radio_row:checked",
+            content: "The chosen space is still free, so it stays chosen",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='end_time'] input",
+            content: "An end before the start",
+            run: "edit 12:00 && press Tab",
+        },
+        {
+            trigger: ".modal .alert-warning",
+            content: "The wizard says the end must be after the start",
+            run() {
+                if (document.querySelector(".modal .o_field_widget[name='free_space_ids'] .o_data_row")) {
+                    throw new Error("No space can be offered for an end before the start");
+                }
+            },
+        },
+        {
+            trigger: ".modal .o_field_widget[name='end_time'] input",
+            content: "A valid end again",
+            run: "edit 14:00 && press Tab",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='free_space_ids'] .o_data_row input.o_ems_radio_row",
             content: "The results are back with nothing chosen",
             run() {
                 if (document.querySelector(".modal input.o_ems_radio_row:checked")) {
-                    throw new Error("The choice must be dropped when the search changes");
+                    throw new Error("The choice must be dropped when its space stopped being offered");
                 }
             },
         },
         {
             trigger: ".modal-footer button.disabled[name='action_reserve']",
             content: "Reserve is disabled again",
+        },
+        {
+            trigger: ".modal-header .btn-close",
+            content: "Close the wizard without reserving",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal))",
+            content: "The wizard is closed",
         },
     ],
 });

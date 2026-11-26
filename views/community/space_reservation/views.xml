@@ -29,15 +29,22 @@
                 <group invisible="mode != 'date'">
                     <field name="reason"/>
                 </group>
-                <div class="mb-3" invisible="mode != 'date'">
-                    <button name="action_search" type="object" class="btn btn-primary" string="Search free spaces"/>
+                <!-- The free spaces follow what is typed: recomputed at every change, no search button. -->
+                <div class="alert alert-warning" role="alert" invisible="mode != 'date' or duration &gt; 0">
+                    The end must be after the start.
                 </div>
-                <field name="selected_line_id" invisible="1"/>
-                <field name="line_ids" invisible="mode != 'date' or not line_ids" nolabel="1">
-                    <list create="false" delete="false" edit="false" no_open="1" limit="10">
-                        <field name="selected" widget="ems_radio_row" options="{'chosen_field': 'selected_line_id'}" nolabel="1"
-                               width="40px"/>
-                        <field name="space_id"/>
+                <div class="alert alert-info" role="alert" invisible="mode != 'date' or duration &lt;= 0 or free_space_ids">
+                    No space is free at that time.
+                </div>
+                <field name="duration" invisible="1"/>
+                <field name="chosen_space_id" invisible="1"/>
+                <field name="free_space_ids" widget="ems_sorted_x2many" invisible="mode != 'date' or not free_space_ids" nolabel="1">
+                    <list create="false" delete="false" edit="false" no_open="1" limit="10" default_order="name">
+                        <!-- reservable only hosts the radio button column: the choice is chosen_space_id. -->
+                        <field name="reservable" widget="ems_radio_row" options="{'chosen_field': 'chosen_space_id'}"
+                               nolabel="1" width="40px"/>
+                        <field name="name" column_invisible="1"/>
+                        <field name="display_name" string="Space"/>
                         <field name="space_type_id" width="200px"/>
                     </list>
                 </field>
@@ -66,10 +73,10 @@
 
                 <footer>
                     <button name="action_reserve" type="object" string="Reserve" class="btn-primary"
-                            invisible="(mode == 'date' and not selected_line_id) or (mode == 'space' and (not show_grid or not space_day))"/>
+                            invisible="(mode == 'date' and not chosen_space_id) or (mode == 'space' and (not show_grid or not space_day))"/>
                     <!-- Looks disabled until there is something to reserve (a view button has no disabled attribute). -->
                     <button name="action_reserve" type="object" string="Reserve" class="btn-primary disabled"
-                            invisible="(mode == 'date' and selected_line_id) or (mode == 'space' and show_grid and space_day)"/>
+                            invisible="(mode == 'date' and chosen_space_id) or (mode == 'space' and show_grid and space_day)"/>
                     <button special="cancel" string="Close"/>
                 </footer>
             </form>

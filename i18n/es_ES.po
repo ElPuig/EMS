@@ -9275,7 +9275,7 @@ msgstr "Grupo de origen"
 #: model:ir.model.fields,field_description:ems.field_ems_space_reservation__space_id
 #: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_search
 #: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__space_id
-#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard_line__space_id
+#: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_wizard_form
 msgid "Space"
 msgstr "Espacio"
 
@@ -10519,7 +10519,6 @@ msgstr "Tutorías"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_payment_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_list
 #: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__space_type_id
-#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard_line__space_type_id
 msgid "Type"
 msgstr "Tipo"
 
@@ -10999,7 +10998,6 @@ msgstr "Indica si hay nota final (la nota calculada está disponible)."
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_close_wizard_line__wizard_id
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__wizard_id
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__wizard_id
-#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard_line__wizard_id
 msgid "Wizard"
 msgstr "Asistente"
 
@@ -33059,7 +33057,6 @@ msgstr "Resuelta el"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
 #: code:addons/ems/models/erasmus/quality.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_staff_form
-#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__line_ids
 msgid "Results"
 msgstr "Resultados"
 
@@ -56672,11 +56669,6 @@ msgid "Reserve a space"
 msgstr "Reservar un espacio"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_wizard_form
-msgid "Search free spaces"
-msgstr "Buscar espacios libres"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/facilities/space_reservation.py:0
 msgid "%(space)s cannot be reserved."
@@ -56737,22 +56729,6 @@ msgid "WC"
 msgstr "WC"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard_line__selected
-msgid "Choose"
-msgstr "Elegir"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__selected_line_id
-msgid "Chosen result"
-msgstr "Resultado elegido"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/facilities/space_reservation_wizard.py:0
-msgid "Choose one of the results."
-msgstr "Elige uno de los resultados."
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_space_reservation_wizard__mode__space
 msgid "Space: when it is free"
 msgstr "Espacio: cuándo está libre"
@@ -56766,11 +56742,6 @@ msgstr "Mostrar la ocupación"
 #: model:ir.model,name:ems.model_ems_space_reservation_wizard
 msgid "Reserve a space: by date (the free spaces) or by space (when it is free)."
 msgstr "Reservar un espacio: por fecha (los espacios libres) o por espacio (cuándo está libre)."
-
-#. module: ems
-#: model:ir.model,name:ems.model_ems_space_reservation_wizard_line
-msgid "A result of the reservation wizard: a space that is free for the time asked."
-msgstr "Un resultado del asistente de reserva: un espacio libre para la hora pedida."
 
 #. module: ems
 #. odoo-python
@@ -56845,3 +56816,34 @@ msgstr "Motivo de la reserva"
 #: code:addons/ems/static/src/xml/backend/space_week_grid_field.xml:0
 msgid "Now"
 msgstr "Ahora"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__free_space_ids
+msgid "Free spaces"
+msgstr "Espacios libres"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_space_reservation_wizard__free_space_ids
+msgid "The reservable spaces (of the type chosen) that nothing holds at that time."
+msgstr "Los espacios reservables (del tipo elegido) que nada ocupa a esa hora."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_space_reservation_wizard__chosen_space_id
+msgid "Chosen space"
+msgstr "Espacio elegido"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/facilities/space_reservation_wizard.py:0
+msgid "Choose one of the free spaces."
+msgstr "Elige uno de los espacios libres."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_wizard_form
+msgid "The end must be after the start."
+msgstr "El final debe ser posterior al inicio."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_space_reservation_wizard_form
+msgid "No space is free at that time."
+msgstr "Ningún espacio está libre a esa hora."

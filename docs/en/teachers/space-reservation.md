@@ -14,12 +14,12 @@ A space is taken when it is in someone's weekly timetable at that time (a class 
 
 Press **New** on the list of reservations. A window opens and the first thing to choose is **Search by**:
 
-- **Date: which spaces are free** - for when you know the day and the time but not the space. Enter the **day** (and, if you wish, the **type**), the **start** and the **end** time and press **Search free spaces**. The window lists the spaces that are free at that time. Choose the one you want by clicking its row (or its radio button), write a **reason** if you wish and press **Reserve** (it stays disabled until you choose one).
+- **Date: which spaces are free** - for when you know the day and the time but not the space. Enter the **day** (and, if you wish, the **type**), the **start** and the **end** time. The window lists the spaces that are free at that time, and the list follows every change of the day, the hours or the type. Choose the one you want by clicking its row (or its radio button), write a **reason** if you wish and press **Reserve** (it stays disabled until you choose one).
 - **Space: when it is free** - for when you need one space (the assembly hall, say) and any time will do. Choose the **space** and its week appears as a grid, with the days as columns and the hours as rows. The grey blocks are classes and duties of the weekly schedule, the orange ones are reservations, and what is left blank is free. Use the arrows to move through the weeks (the weekend is hidden unless you tick **Show the weekend**). Drag over a free time to choose it (or click it, for an hour), or type the **day**, the **start** and the **end** below the grid. A dotted red line marks the current time: what is above it, today, is already the past and cannot be chosen, and neither can a time already held or a day gone by. Write a **reason** if you wish and press **Reserve**.
 
 The results are shown ten at a time: use the arrows above the list to see the others; your choice is kept when you change page.
 
-You cannot reserve a time that has already started. If you change anything after searching, search again.
+You cannot reserve a time that has already started. If you change the time after choosing a space, the choice is kept while that space is still free; if it is no longer free, choose another one.
 
 ## Your reservations
 

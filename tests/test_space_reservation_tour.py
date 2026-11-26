@@ -14,6 +14,8 @@ class TestSpaceReservationTour(HttpCase):
         create_role_employee(self, teacher)
         busy = self.env['ems.space'].create({'code': 'TSRT-A', 'name': '000 Tour Busy Space'})
         self.env['ems.space'].create({'code': 'TSRT-B', 'name': '000 Tour Free Space'})
+        # The first tour reserves the free space: the third one chooses this one.
+        self.env['ems.space'].create({'code': 'TSRT-C', 'name': '000 Tour Spare Space'})
         # 08:00 company time, so the wizard's default (that day at 10:00, one hour) is still ahead
         # whenever the suite runs; the busy space is held across that hour.
         now = shift_ems_clock(self, hour=8.0)

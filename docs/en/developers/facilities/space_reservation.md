@@ -45,8 +45,12 @@ flowchart LR
 The list's **New** button (`display="always"` header button, the list has `create="false"`) opens the
 wizard instead of the form. The first field is `mode`:
 
-- **By date** (`date`): day and type (same row), start and end time (the wizard asks for an end time; `duration` is computed from it), reason (full width). *Search free spaces* writes one
-  `ems.space_reservation_wizard.line` per reservable space (of that type) that is free.
+- **By date** (`date`): day and type (same row), start and end time (the wizard asks for an end time; `duration` is computed from it), reason (full width). The free spaces are `free_space_ids`, a non-stored computed
+  many2many of `ems.space` over `mode`/`date`/`start_time`/`end_time`/`space_type_id`, so the form's
+  onchange recomputes them at every change (no search button): the reservable spaces (of that type)
+  that `_get_space_conflicts` leaves free, none while the end is not after the start (the form then
+  says so). Cost per change: two searches plus one per calendar day of the slot, as any availability
+  check.
 - **By space** (`space`): choosing a space shows its week as a grid, `ems_space_week_grid`
   (`static/src/js/backend/space_week_grid_field.js`, hosted by the computed boolean `show_grid`, true
   once there is a space; there is no search button, the grid loads itself). The widget asks `get_occupation_week(space_id, monday)` for the
@@ -59,17 +63,19 @@ wizard instead of the form. The first field is `mode`:
   (`date`/`start_time`/`end_time`/`reason` by date, `space_*` by space) so each lays out its own form.
   Reserving creates the reservation (never in the past) and opens it.
 
-The results are chosen with a radio button per row (`ems_radio_row`, `static/src/js/backend/radio_row_field.js`),
-or by clicking anywhere on the row (the widget listens on its row, which is highlighted, so a row
-where the field is invisible, a busy day, cannot be chosen). Either way it writes the row into `selected_line_id` of the wizard, so the footer's *Reserve* (`action_reserve`)
-is enabled only once a row is chosen (until then a lookalike button with the `disabled` class is shown,
-since a view button has no disabled attribute). A busy day offers no radio button. The list is paginated ten rows at a time (`limit="10"` on the list, the standard x2many pager),
-so the dialog does not grow with the results (by-date mode); the choice lives on the wizard, not on a
-page, and survives a change of page. The *Search*
-button sits between the fields and the list. The lines are real records, not a computed list (the
-choice points to a record). Changing anything the search
-depends on drops the lines (`write`), so a stale answer is never shown. *Reserve* (on a row)
-creates the reservation (never in the past) and opens it.
+The free spaces are chosen with a radio button per row (`ems_radio_row`, `static/src/js/backend/radio_row_field.js`,
+hosted by the space's `reservable` column, which only gives it a place), or by clicking anywhere on the row
+(the widget listens on its row, which is highlighted). Either way it writes the space into `chosen_space_id`
+of the wizard, so the footer's *Reserve* (`action_reserve`) is enabled only once a space is chosen (until
+then a lookalike button with the `disabled` class is shown, since a view button has no disabled attribute).
+`chosen_space_id` is a stored compute (`readonly=False`) over the same fields as the list: it keeps the
+choice while that space is still free and drops it when it is not (compared by `_origin` id, since the
+onchange hands it over as a new record). The list is paginated ten rows at a time (`limit="10"`, the
+standard x2many pager), so the dialog does not grow with the results; the choice lives on the wizard, not on
+a page. The web client appends the rows an onchange links at the end, unsorted, so the list uses
+`ems_sorted_x2many` (`static/src/js/backend/sorted_x2many_field.js`, an `X2ManyField` that re-applies the
+list's `default_order` whenever its rows change): a space that becomes free is shown in its place by name,
+not on the last page. *Reserve* creates the reservation (never in the past) and opens it.
 
 Not reservable: `ems.space_type.reservable` (WC...) decides it for the spaces of the type through
 `ems.space.reservable`, a stored compute that can still be set on one space. A non-reservable space

@@ -184,7 +184,6 @@ ACCESS_MATRIX = {
     # Issue #475: a teacher's own are limited by the record rule, tested in test_space_reservation.
     'ems.space_reservation': {'teacher': 'rwcu', 'secretary': 'rwcu'},
     'ems.space_reservation_wizard': {'teacher': 'rwcu', 'secretary': 'rwcu', 'academic_admin': 'rwcu'},
-    'ems.space_reservation_wizard.line': {'teacher': 'rwcu', 'secretary': 'rwcu', 'academic_admin': 'rwcu'},
     # Issue #672: read-only SQL view joining both histories in one list.
     'ems.student.history_line': {'teacher': 'r', 'secretary': 'r', 'head_of_studies': 'r', 'academic_admin': 'r'},
     # Issue #672: read by the whole teaching staff, like the academic history; written only

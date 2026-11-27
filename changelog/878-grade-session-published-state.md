@@ -21,4 +21,4 @@
 
 ## Wizard overlay stuck after changing states from the list:
 
-- The "Changing the state..." overlay stayed on screen forever when the wizard closed itself and went back to the list.
+- The "Changing the state..." overlay stayed on screen forever when the wizard closed itself and went back to the list, and the long-running wizards (session creation, imports, course transition) showed their "in progress" overlay forever when a required field was left empty.

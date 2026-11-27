@@ -45,12 +45,16 @@ export function blockingActionFormView(messages) {
         }
 
         async beforeExecuteActionButton(clickParams) {
+            // Block only once the wizard has saved: a required field left empty stops the save
+            // (the fields turn red) and Odoo then never calls afterExecuteActionButton, so a block
+            // put before it stayed on screen as if the action were running (issue #878).
+            const proceed = await super.beforeExecuteActionButton(clickParams);
             const buildMessage = messages[clickParams.name];
-            if (buildMessage) {
+            if (proceed !== false && buildMessage) {
                 this.ui.block({ message: buildMessage(this.model.root.data) });
                 this.uiBlocked = true;
             }
-            return super.beforeExecuteActionButton(clickParams);
+            return proceed;
         }
 
         async afterExecuteActionButton(clickParams) {

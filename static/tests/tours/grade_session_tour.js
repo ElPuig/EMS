@@ -27,5 +27,20 @@ registry.category("web_tour.tours").add("ems_grade_session_ui", {
             trigger: ".o_form_view .o_field_widget[name='claim_date_from'].o_required_modifier",
             content: "Claims period present and required (issue #878)",
         },
+        {
+            trigger: ".modal-footer button[name='action_create_sessions'], .o_form_view button[name='action_create_sessions']",
+            content: "Create without the required fields",
+            run: "click",
+        },
+        {
+            // The save stops on the empty fields: the "creating" overlay must not appear (issue #878).
+            trigger: ".o_form_view .o_field_widget[name='claim_date_from'].o_field_invalid",
+            content: "Claims dates flagged, no blocking overlay",
+            run() {
+                if (document.querySelector(".o_blockUI")) {
+                    throw new Error("The creation overlay is shown although nothing is being created.");
+                }
+            },
+        },
     ],
 });

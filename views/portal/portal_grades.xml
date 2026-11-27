@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Issue #878 (#271) - the student's published grades on the portal (/my/calificaciones),
+         for the student and, view-only, their family (get_portal_student()). The tables are the
+         same sub-template the non-official PDF calls (reports/grades/report_student_grades.xml). -->
+    <template id="portal_grades" name="Grades">
+        <t t-call="portal.portal_layout">
+            <div id="grades_content" class="container mt-4 o_ems_portal_grades">
+                <div class="mb-4 d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <div>
+                        <h3 class="mb-0">Grades</h3>
+                        <span t-if="student" class="text-muted small">
+                            <t t-esc="student.name"/><t t-if="student.main_group_id"> - <t t-esc="student.main_group_id.name"/></t>
+                        </span>
+                    </div>
+                    <a t-if="rounds" href="/my/calificaciones/pdf" class="btn btn-primary o_ems_portal_grades_pdf">
+                        <i class="fa fa-download me-2"/>Download PDF (non-official)
+                    </a>
+                </div>
+                <div t-if="rounds" class="table-responsive">
+                    <t t-call="ems.student_grades_tables"/>
+                </div>
+                <div t-else="" class="alert alert-info">No grades published yet.</div>
+            </div>
+        </t>
+    </template>
+</odoo>

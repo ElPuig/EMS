@@ -108,6 +108,8 @@ class EmsGradeSessionStateWizard(models.TransientModel):
     allowed_states = fields.Char(string="Allowed states", compute="_compute_allowed_states",
                                  help="Comma-separated states every target session can move to (the dropdown's options).")
     from_selection = fields.Boolean(default=lambda self: bool(self._selected_sessions()))
+    announce = fields.Boolean(string="Announce the publication",
+                              help="Email every student, and their family while a minor, that the grades are in the portal. The email carries no grades.")
     publish_warning = fields.Text(string="Empty grades", compute="_compute_publish_warning",
                                   help="Sessions about to be published that still have empty outcome grades.")
 
@@ -183,6 +185,8 @@ class EmsGradeSessionStateWizard(models.TransientModel):
         if not sessions:
             raise UserError(_("No grade sessions were found for the selected scope and round."))
         sessions.write({"state": self.target_state})
+        if self.announce and self.target_state == "published":
+            sessions._ems_announce_publication()
 
         action = self.env["ir.actions.act_window"]._for_xml_id("ems.action_grade_session_tree")
         action["domain"] = [("id", "in", sessions.ids)]

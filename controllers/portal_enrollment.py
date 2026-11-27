@@ -339,15 +339,6 @@ class EMSPortalController(CustomerPortal):
         )
 
     # -------------------------------------------------------------
-    # (Páginas en Construcción)
-    # -------------------------------------------------------------
-    # '/my/asistencia' shows the student's schedule now (controllers/portal_schedule.py, issue #453).
-    @http.route(['/my/calificaciones'], type='http', auth='user', website=True)
-    def under_construction(self, **kwargs):
-        values = self._prepare_portal_layout_values()
-        return request.render('ems.portal_under_construction_page', values)
-
-    # -------------------------------------------------------------
     # Documentació de l'alumne
     # -------------------------------------------------------------
     @http.route('/my/documentacion', type='http', auth='user', website=True)

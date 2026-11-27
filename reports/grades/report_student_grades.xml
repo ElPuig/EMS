@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #878 (#271) - the student's grades, shared by the portal page (ems.portal_grades)
+             and its non-official PDF: one table per round, newest first, from
+             res.partner._ems_portal_grade_rounds(). -->
+        <template id="student_grades_tables">
+            <t t-foreach="rounds" t-as="grade_round">
+                <div class="o_ems_grades_round mb-4">
+                    <h4 class="mb-1" t-out="grade_round['label']"/>
+                    <t t-set="claim_subject" t-value="[subject for subject in grade_round['subjects'] if subject['published'] and subject['claim_to']][:1]"/>
+                    <p t-if="claim_subject" class="text-muted small mb-2">
+                        Claims period: <span t-out="claim_subject[0]['claim_from']" t-options="{'widget': 'date'}"/> - <span t-out="claim_subject[0]['claim_to']" t-options="{'widget': 'date'}"/>
+                    </p>
+                    <table class="table table-sm table-bordered o_ems_grades_table">
+                        <thead>
+                            <tr>
+                                <th>Module</th>
+                                <th class="text-center" style="width: 90px;">Grade</th>
+                                <th>Learning outcomes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="grade_round['subjects']" t-as="subject">
+                                <td><t t-out="subject['code']"/> - <t t-out="subject['name']"/></td>
+                                <td class="text-center">
+                                    <t t-if="subject['status'] == 'convalidated'">
+                                        <span class="badge text-bg-info"><t t-if="subject['score']" t-out="subject['score']"/> CV</span>
+                                    </t>
+                                    <t t-elif="subject['status'] == 'pending'">
+                                        <span class="badge text-bg-light">Pending</span>
+                                    </t>
+                                    <t t-elif="subject['status'] == 'provisional'">
+                                        <span class="badge text-bg-warning"><t t-out="subject['score']"/>*</span>
+                                    </t>
+                                    <t t-else="">
+                                        <span t-attf-class="badge {{ 'text-bg-success' if subject['status'] == 'pass' else 'text-bg-danger' }}" t-out="subject['score']"/>
+                                    </t>
+                                </td>
+                                <td class="small">
+                                    <t t-foreach="subject['outcomes']" t-as="outcome">
+                                        <span class="me-3 text-nowrap" t-att-title="outcome['name']">
+                                            <strong t-out="outcome['acronym']"/>:
+                                            <t t-if="outcome['score'] is None">-</t>
+                                            <t t-else=""><t t-out="outcome['score']"/><t t-if="outcome['provisional']">*</t><t t-if="outcome['carried']"> (✓)</t></t>
+                                        </span>
+                                    </t>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+            <p class="text-muted small mb-0">
+                * Provisional grade: something is still pending. - Not evaluated yet. (✓) Passed in an earlier evaluation. CV: convalidated.
+            </p>
+        </template>
+
+        <record id="action_report_student_grades" model="ir.actions.report">
+            <field name="name">Grades (non-official)</field>
+            <field name="model">res.partner</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_student_grades</field>
+            <field name="report_file">ems.report_student_grades</field>
+            <field name="print_report_name">'Grades - %s' % object.name</field>
+        </record>
+
+        <template id="report_student_grades">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="student">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <h1 style="font-size: 22px; margin-bottom: 2px;"><span t-field="student.name"/></h1>
+                            <p class="text-muted mb-3">
+                                <t t-if="student.main_group_id"><t t-out="student.main_group_id.name"/> - </t>Grades report, not an official document.
+                            </p>
+                            <t t-set="rounds" t-value="student._ems_portal_grade_rounds()"/>
+                            <t t-if="rounds" t-call="ems.student_grades_tables"/>
+                            <p t-else="">No grades published yet.</p>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

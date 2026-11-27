@@ -378,6 +378,7 @@
             'reports/contacts/report_student_card.xml',
             'reports/facilities/report_space_schedule.xml',
             'reports/grades/report_convalidation_resolution.xml',
+            'reports/grades/report_student_grades.xml',
             'reports/certificates/report_certificate.xml',
         'reports/enrollment/templates/report_enrollment_template.xml',
         'reports/enrollment/enrollment.xml',
@@ -444,6 +445,7 @@
             'views/portal/portal_enrollment_confirmed.xml',
             'views/portal/portal_comms.xml',
             'views/portal/portal_schedule.xml',
+            'views/portal/portal_grades.xml',
             'views/portal/portal_contact_data.xml',
             'views/portal/portal_documentation.xml',
             'views/portal/portal_convalidations.xml',
@@ -451,7 +453,6 @@
             'views/portal/portal_erasmus.xml',
             'views/portal/portal_erasmus_group.xml',
             'views/portal/portal_student_walkout.xml',
-            'views/portal/portal_under_construction.xml',
 
 
         'views/shared/attachment/form.xml',
@@ -470,6 +471,7 @@
         'mails/grades/convalidation_resolved.xml',
         'mails/grades/convalidation_info_request.xml',
         'mails/certificates/certificate.xml',
+        'mails/grades/grades_published.xml',
         'mails/erasmus/layout.xml',
         'mails/erasmus/application.xml',
         'mails/erasmus/call.xml',

@@ -47,6 +47,7 @@
                         <field name="study_ids" widget="many2many_tags" invisible="from_selection or mode != 'study'" required="not from_selection and mode == 'study'"/>
                         <field name="round" invisible="from_selection"/>
                         <field name="target_state" required="1" widget="ems_selection_allowed" options="{'allowed_field': 'allowed_states'}"/>
+                        <field name="announce" invisible="target_state != 'published'"/>
                     </group>
                     <div class="alert alert-warning" role="alert" invisible="not publish_warning">
                         <p class="mb-1">These sessions still have empty outcome grades. You can publish them anyway:</p>

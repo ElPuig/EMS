@@ -5019,7 +5019,11 @@ msgid "Grade subject line: a student's subject grade within a grade session (com
 msgstr "Línea de asignatura: la nota de asignatura de un alumno dentro de una sesión de evaluación (calculada a partir de los RA; el profesor puede sobrescribirla)."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/controllers/portal_grades.py:0
 #: model:ir.ui.menu,name:ems.menu_grades model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_grades
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades
 msgid "Grades"
 msgstr "Calificaciones"
 
@@ -5245,6 +5249,7 @@ msgstr "Jefe de estudios"
 #. module: ems
 #: model:res.groups,name:ems.group_head_of_studies model_terms:ir.ui.view,arch_db:ems.view_department_form
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__head_of_studies_id
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_grades
 msgid "Head of Studies"
 msgstr "Jefe de estudios"
 
@@ -17477,6 +17482,7 @@ msgstr "Volver a pendiente"
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/grade_matrix_field.js:0
 #: code:addons/ems/static/src/js/backend/grade_tutor_matrix.js:0
+#: model_terms:ir.ui.view,arch_db:ems.student_grades_tables
 msgid "CV"
 msgstr "CV"
 
@@ -18105,6 +18111,7 @@ msgstr "Resultado de aprendizaje"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__line_ids
+#: model_terms:ir.ui.view,arch_db:ems.student_grades_tables
 msgid "Learning outcomes"
 msgstr "Resultados de aprendizaje"
 
@@ -18499,6 +18506,7 @@ msgstr "EMS: Convalidación, documentación solicitada"
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__grade
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__grade
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_grade__grade
+#: model_terms:ir.ui.view,arch_db:ems.student_grades_tables
 msgid "Grade"
 msgstr "Nota"
 
@@ -20755,6 +20763,7 @@ msgstr "Resolución del Ministerio.pdf"
 #: model:ir.model.fields.selection,name:ems.selection__ems_previous_curriculum_wizard_line__kind__module
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_previous_curriculum_record_line__kind__module
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_grade__subject_id
+#: model_terms:ir.ui.view,arch_db:ems.student_grades_tables
 msgid "Module"
 msgstr "Módulo"
 
@@ -56725,3 +56734,115 @@ msgstr "Estados permitidos"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session__provisional_outcome_ids
 msgid "Provisional outcomes"
 msgstr "Resultados de aprendizaje provisionales"
+
+#. module: ems
+#: model:ir.actions.report,print_report_name:ems.action_report_student_grades
+msgid "'Grades - %s' % object.name"
+msgstr "'Calificaciones - %s' % object.name"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.student_grades_tables
+msgid "* Provisional grade: something is still pending. - Not evaluated yet. (✓) Passed in an earlier evaluation. CV: convalidated."
+msgstr "* Nota provisional: todavía hay algo pendiente. - Aún no evaluado. (✓) Superado en una evaluación anterior. CV: convalidado."
+
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_grades_published
+msgid ""
+"<div>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">GRADES PUBLISHED</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\"><t t-out=\"ctx.get('ems_round_label')\"/></h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello, the grades of <strong t-out=\"object.name\"/> for this evaluation are now available on the portal.</p>\n"
+"    <p t-if=\"ctx.get('ems_claim_from') and ctx.get('ems_claim_to')\" style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">The claims period runs from <strong t-out=\"ctx.get('ems_claim_from')\"/> to <strong t-out=\"ctx.get('ems_claim_to')\"/>.</p>\n"
+"</div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">NOTAS PUBLICADAS</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\"><t t-out=\"ctx.get('ems_round_label')\"/></h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, las notas de <strong t-out=\"object.name\"/> de esta evaluación ya se pueden consultar en el portal.</p>\n"
+"    <p t-if=\"ctx.get('ems_claim_from') and ctx.get('ems_claim_to')\" style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">El plazo de reclamaciones va del <strong t-out=\"ctx.get('ems_claim_from')\"/> al <strong t-out=\"ctx.get('ems_claim_to')\"/>.</p>\n"
+"</div>\n"
+"                \n"
+"            "
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades
+msgid "<i class=\"fa fa-download me-2\"/>Download PDF (non-official)"
+msgstr "<i class=\"fa fa-download me-2\"/>Descargar PDF (no oficial)"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.student_grades_tables
+msgid "<span class=\"badge text-bg-light\">Pending</span>"
+msgstr "<span class=\"badge text-bg-light\">Pendiente</span>"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__announce
+msgid "Announce the publication"
+msgstr "Anunciar la publicación"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.student_grades_tables
+msgid "Claims period:"
+msgstr "Plazo de reclamaciones:"
+
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_session_state_wizard__allowed_states
+msgid "Comma-separated states every target session can move to (the dropdown's options)."
+msgstr "Estados a los que pueden pasar todas las sesiones (las opciones del desplegable), separados por comas."
+
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_grades_published
+msgid "EMS: Grades published"
+msgstr "EMS: Notas publicadas"
+
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_session_state_wizard__announce
+msgid "Email every student, and their family while a minor, that the grades are in the portal. The email carries no grades."
+msgstr "Envía un correo a cada alumno, y a su familia si es menor de edad, para avisar de que las notas ya están en el portal. El correo no incluye las notas."
+
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_report_student_grades
+msgid "Grades (non-official)"
+msgstr "Calificaciones (no oficiales)"
+
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_grades_published
+msgid "Grades published: {{ ctx.get('ems_round_label') }} - {{ object.name }}"
+msgstr "Notas publicadas: {{ ctx.get('ems_round_label') }} - {{ object.name }}"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_student_grades
+msgid "Grades report, not an official document."
+msgstr "Informe de calificaciones, no es un documento oficial."
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades model_terms:ir.ui.view,arch_db:ems.report_student_grades
+msgid "No grades published yet."
+msgstr "Todavía no hay notas publicadas."
+
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_session__provisional_outcome_ids
+msgid "Outcomes whose grades are all provisional: every grade entered in them is marked as provisional."
+msgstr "RA con todas las notas provisionales: cualquier nota que se ponga en ellos se marca como provisional."
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_grades
+msgid "See the grades"
+msgstr "Consultar las notas"
+

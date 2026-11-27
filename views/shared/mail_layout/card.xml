@@ -92,4 +92,14 @@
             <t t-else="" t-set="button_label">Open my request</t>
         </t>
     </template>
+
+    <!-- Grades published (issue #878): the button opens the student's grades on the portal. -->
+    <template id="mail_layout_grades">
+        <t t-call="ems.mail_layout_card">
+            <t t-set="area">Grades</t>
+            <t t-set="unit">Head of Studies</t>
+            <t t-set="button_label">See the grades</t>
+            <t t-set="button_url" t-value="record._ems_grades_portal_url() if record else False"/>
+        </t>
+    </template>
 </odoo>

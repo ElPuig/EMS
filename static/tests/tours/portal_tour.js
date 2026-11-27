@@ -50,14 +50,22 @@ registry.category("web_tour.tours").add("ems_portal_account_render", {
     ],
 });
 
-registry.category("web_tour.tours").add("ems_portal_under_construction_render", {
+// Issue #878 (#271): the student's published grades. Structural selectors only, see above.
+registry.category("web_tour.tours").add("ems_portal_grades_render", {
     test: true,
     url: "/my/calificaciones",
     steps: () => [
         {
-            // Structural, not text-based - see the account tour above for why.
-            trigger: "h1.display-5.fw-bold",
-            content: "The placeholder page rendered (/my/asistencia now shows the student's schedule instead)",
+            trigger: ".o_ems_portal_grades .o_ems_grades_table td:contains('TPGSUB')",
+            content: "The published session's subject is listed",
+        },
+        {
+            trigger: ".o_ems_portal_grades .o_ems_grades_table .badge.text-bg-success",
+            content: "Its grade is shown as passed",
+        },
+        {
+            trigger: ".o_ems_portal_grades .o_ems_portal_grades_pdf",
+            content: "The non-official PDF can be downloaded",
         },
     ],
 });

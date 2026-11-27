@@ -76,9 +76,37 @@ class TestPortalTour(HttpCase):
                         ready="!!document.querySelector('.o_portal_my_home')",
                         login="test_portal_tour_student")
 
-    def test_portal_under_construction_render_tour(self):
-        self.start_tour("/my/calificaciones", "ems_portal_under_construction_render",
-                         login="test_portal_tour_student")
+    def test_portal_grades_render_tour(self):
+        """Issue #878 (#271): the student sees the grades of a published session, not those of a
+        session still open, and downloads them as a non-official PDF."""
+        __, study = create_level_study(self, 'TPG', level={'name': 'Portal Grades Level'}, study={
+            'code': 'TPG001', 'acronym': 'TPGS', 'name': 'Portal Grades Study'})
+        subject = self.env['ems.subject'].create({
+            'code': 'TPGSUB', 'acronym': 'TPG', 'name': 'Portal Grades Subject', 'study_ids': [(4, study.id)]})
+        hidden = self.env['ems.subject'].create({
+            'code': 'TPGHID', 'acronym': 'TPH', 'name': 'Portal Grades Hidden', 'study_ids': [(4, study.id)]})
+        for code, current in (('TPGSUB_01RA', subject), ('TPGHID_01RA', hidden)):
+            outcome = self.env['ems.outcome'].create({'code': code, 'acronym': 'RA1', 'name': 'Outcome', 'subject_id': current.id})
+            self.env['ems.planning'].create({
+                'study_id': study.id, 'subject_id': current.id,
+                'internal_ponderation': 100.0, 'external_ponderation': 0.0,
+                'planning_outcome_ids': [(0, 0, {'outcome_id': outcome.id, 'ponderation': 100.0})],
+            })
+        group = self.env['ems.group'].create({'course': 1, 'acronym': 'A', 'level_id': study.level_id.id, 'study_id': study.id})
+        sessions = self.env['ems.grade_session']
+        for current in (subject, hidden):
+            self.env['ems.enrollment'].create({'student_id': self.student.id, 'group_id': group.id, 'subject_id': current.id})
+            session = self.env['ems.grade_session'].create({'group_id': group.id, 'subject_id': current.id, 'round': '1'})
+            session.fill_students()
+            session.grade_outcome_line_ids.write({'score': 7, 'is_scored': True})
+            sessions |= session
+        sessions[0].write({'state': 'published', 'claim_date_from': '2027-01-10', 'claim_date_to': '2027-01-15'})
+        self.start_tour("/my/calificaciones", "ems_portal_grades_render", login="test_portal_tour_student")
+        self.assertNotIn('TPGHID', str(self.student._ems_portal_grade_rounds()))
+
+        self.authenticate('test_portal_tour_student', 'test_portal_tour_student')
+        response = self.url_open('/my/calificaciones/pdf')
+        self.assertEqual(response.headers['Content-Type'], 'application/pdf')
 
     def _confirmed_enrollment_with_paid_installment(self, with_plan=True):
         """A confirmed enrollment with its invoice issued and a settled installment.

@@ -2,7 +2,7 @@ from odoo import Command
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, create_role_user, next_student_id
+from .common import create_level_study, create_role_user, mock_outgoing_email, next_student_id
 
 # The creation wizard requires the claims period (issue #878).
 CLAIMS = {'claim_date_from': '2027-01-10', 'claim_date_to': '2027-01-15'}
@@ -711,6 +711,53 @@ class TestGradeSession(TransactionCase):
         with self.assertRaises(UserError):
             session.with_user(self.teacher_user).write(
                 {'provisional_outcome_ids': [Command.set(session.grade_outcome_line_ids.outcome_id.ids)]})
+
+    def test_portal_grade_rounds_only_published_and_final(self):
+        # Issue #878 (#271): the portal shows published and final sessions, never open or board.
+        session = self._new_session()
+        session.fill_students()
+        lines = session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student1)
+        lines.filtered(lambda line: line.outcome_id == self.outcome1).write({'score': 8, 'is_scored': True, 'is_provisional': True})
+        session.grade_subject_line_ids.filtered(lambda line: line.student_id == self.student1).write(
+            {'external_score': 6, 'external_is_scored': True})
+        self.assertEqual(self.student1._ems_portal_grade_rounds(), [])
+        session.write(dict(CLAIMS, state='published'))
+        rounds = self.student1._ems_portal_grade_rounds()
+        self.assertEqual([grade_round['round'] for grade_round in rounds], ['1'])
+        subject = rounds[0]['subjects'][0]
+        self.assertEqual(subject['code'], 'TGSUB1')
+        # RA2 still pending: the internal grade, provisional, as in the grids.
+        self.assertEqual(subject['status'], 'provisional')
+        subject_line = session.grade_subject_line_ids.filtered(lambda line: line.student_id == self.student1)
+        self.assertEqual(subject['score'], subject_line.internal_score)
+        outcomes = {outcome['acronym']: outcome for outcome in subject['outcomes']}
+        self.assertEqual((outcomes['RA1']['score'], outcomes['RA1']['provisional']), (8, True))
+        self.assertIsNone(outcomes['RA2']['score'])
+
+    def test_announce_publication_one_email_per_student_and_round(self):
+        # Issue #878: ticking "Announce the publication" queues one email per student and round,
+        # whatever the number of sessions, with no grades in it.
+        mock_outgoing_email(self)
+        self.student1.email = 'student.one@example.com'
+        self.student2.email = 'student.two@example.com'
+        subject2 = self.env['ems.subject'].create({
+            'code': 'TGSUB2', 'acronym': 'TGS2', 'name': 'Test Grade Subject 2', 'study_ids': [(4, self.study.id)]})
+        self.env['ems.outcome'].create({'code': 'TGSUB2_01RA', 'acronym': 'RA1', 'name': 'Outcome', 'subject_id': subject2.id})
+        sessions = self._new_session()
+        for student in (self.student1, self.student2):
+            self.env['ems.enrollment'].create({'student_id': student.id, 'group_id': self.group.id, 'subject_id': subject2.id})
+        sessions |= self.env['ems.grade_session'].create({
+            'group_id': self.group.id, 'subject_id': subject2.id, 'round': '1', 'teacher_id': self.teacher_employee.id})
+        sessions.fill_students()
+        sessions.write(dict(CLAIMS, state='board'))
+        wizard = self.env['ems.grade_session_state_wizard'].with_user(self._head_of_studies()).with_context(
+            active_model='ems.grade_session', active_ids=sessions.ids,
+        ).create({'target_state': 'published', 'announce': True})
+        wizard.action_apply_state()
+        mails = self.env['mail.mail'].search([('email_to', 'in', ['student.one@example.com', 'student.two@example.com'])])
+        self.assertEqual(sorted(mails.mapped('email_to')), ['student.one@example.com', 'student.two@example.com'])
+        self.assertIn('/my/calificaciones', mails[0].body_html)
+        self.assertNotIn('TGSUB1', mails[0].body_html)
 
     def test_only_head_of_studies_sets_allow_provisional(self):
         session = self._new_session()

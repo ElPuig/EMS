@@ -21,6 +21,7 @@ class EmsGradeOutcomeLine(models.Model):
     is_scored = fields.Boolean(string="Scored", default=False, help="Whether the score has been informed (an empty score is excluded from the subject grade).")
     is_locked = fields.Boolean(string="Locked", compute="_compute_is_locked", store=False, help="Whether this outcome was already passed (score >= 5) in an earlier round for the same student, group and subject; a passed outcome cannot be re-evaluated.")
     is_lock_released = fields.Boolean(string="Lock released", default=False, help="Set when the official grade import overwrites this line: the cross-round lock is released for this line only, so the imported grade is shown without the padlock. Earlier rounds are left untouched, preserving their history.")
+    is_provisional = fields.Boolean(string="Provisional", default=False, help="The teacher marks this grade as provisional (e.g. pending a submission); the student sees it as such. Only when the session allows provisional grades.")
     is_auto_generated = fields.Boolean(default=False)
 
     # Used only for access-rule filtering.
@@ -57,19 +58,18 @@ class EmsGradeOutcomeLine(models.Model):
             ]))
 
     def write(self, vals):
-        # open: scoped teachers/tutors; board: only the group's tutor; final: only admin.
+        # open: scoped teachers/tutors; board: only the group's tutor; published and final: only admin.
         scoring = "score" in vals or "is_scored" in vals
         # The official grade importer may overwrite a locked outcome: the file is the source of
         # truth. This bypass is set only by ems.grade_import_wizard, never on manual editing.
         bypass_lock = self.env.context.get("ems_grade_import_bypass_lock")
         for line in self:
-            if not line.grade_session_id.can_edit:
-                if line.grade_session_id.state == "final":
-                    raise UserError(_("This evaluation session is final; only administrators can edit the grades."))
-                raise UserError(_("This evaluation session is in the board stage; only the group's tutor (or an administrator) can edit the grades."))
+            line.grade_session_id._ems_check_can_edit()
             # A passed outcome from an earlier round cannot be re-evaluated (no exception, not even for admins).
             if scoring and line.is_locked and not bypass_lock:
                 raise UserError(_("This learning outcome was already passed in an earlier round; its grade cannot be modified."))
+            if vals.get("is_provisional") and not line.grade_session_id.allow_provisional:
+                raise UserError(_("This evaluation session does not allow provisional grades."))
         return super().write(vals)
 
     @api.constrains("score")

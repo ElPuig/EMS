@@ -8,6 +8,7 @@
                     <field name="has_planning" invisible="1"/>
                     <field name="allowed_subject_ids" invisible="1"/>
                     <field name="can_edit" invisible="1"/>
+                    <field name="can_manage" invisible="1"/>
                     <field name="active" invisible="1"/>
 
                     <div class="alert alert-warning" role="alert" name="alert-warning" invisible="has_planning or group_id == False or subject_id == False">
@@ -16,6 +17,9 @@
                     </div>
 
                     <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_open_state_wizard" type="object" string="Change state" groups="ems.group_head_of_studies,ems.group_academic_admin"/>
+                        </div>
                         <field name="state" widget="statusbar" readonly="1"/>
                     </header>
 
@@ -33,6 +37,22 @@
                             </group>
                             <group>
                                 <field name="teacher_id" readonly="id or not user_is_admin" widget="many2one_avatar_employee"/>
+                            </group>
+                        </group>
+                        <!-- Set by the Head of Studies (issue #878); read-only for everybody else
+                             (also enforced in write()). -->
+                        <group col="4">
+                            <group>
+                                <field name="session_type" readonly="not can_manage"/>
+                            </group>
+                            <group>
+                                <field name="claim_date_from" readonly="not can_manage"/>
+                            </group>
+                            <group>
+                                <field name="claim_date_to" readonly="not can_manage"/>
+                            </group>
+                            <group>
+                                <field name="allow_provisional" readonly="not can_manage"/>
                             </group>
                         </group>
 
@@ -70,6 +90,7 @@
                                 <field name="score"/>
                                 <field name="is_scored"/>
                                 <field name="is_locked"/>
+                                <field name="is_provisional"/>
                             </list>
                         </field>
                     </sheet>

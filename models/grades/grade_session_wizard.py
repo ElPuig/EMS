@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
-from .grade_session import grade_round_selection, grade_state_selection
+from odoo.exceptions import UserError, ValidationError
+from .grade_session import grade_round_selection, grade_session_type_selection, grade_state_selection
 
 class EmsGradeSessionWizard(models.TransientModel):
     _name = "ems.grade_session_wizard"
@@ -11,7 +11,14 @@ class EmsGradeSessionWizard(models.TransientModel):
     mode = fields.Selection(string="Mode", selection=[("level", "By level"), ("study", "By study")], default="study", required=True)
     level_ids = fields.Many2many(string="Levels", comodel_name="ems.level")
     study_ids = fields.Many2many(string="Studies", comodel_name="ems.study")
-    round = fields.Selection(string="Round", selection=grade_round_selection, default="1", required=True)
+    # Not asked (issue #354): the round following the highest one already existing within the
+    # selected scope, shown read-only. Still writable so a caller (or a test) can force one.
+    # Not required at the database level: it depends on the studies, a many2many that is only
+    # written after the wizard's row is inserted.
+    round = fields.Selection(string="Round", selection=grade_round_selection, compute="_compute_round", store=True, readonly=False)
+    session_type = fields.Selection(string="Type", selection=grade_session_type_selection, default="ordinary", required=True)
+    claim_date_from = fields.Date(string="Claims from")
+    claim_date_to = fields.Date(string="Claims until")
 
     def _target_studies(self):
         self.ensure_one()
@@ -19,26 +26,30 @@ class EmsGradeSessionWizard(models.TransientModel):
             return self.env["ems.study"].search([("level_id", "in", self.level_ids.ids)])
         return self.study_ids
 
-    @api.onchange("mode", "level_ids", "study_ids")
-    def _onchange_suggest_round(self):
-        # Suggest the round following the highest one already existing within the selected scope.
+    @api.depends("mode", "level_ids", "study_ids")
+    def _compute_round(self):
+        last_round = int(grade_round_selection[-1][0])
         for wizard in self:
             studies = wizard._target_studies()
-            if not studies:
-                wizard.round = "1"
-                continue
-            groups = self.env["ems.group"].search([("study_id", "in", studies.ids)])
-            existing = self.env["ems.grade_session"].search([("group_id", "in", groups.ids)])
-            max_round = max([int(session.round) for session in existing], default=0)
-            wizard.round = str(min(max_round + 1, int(grade_round_selection[-1][0])))
+            max_round = 0
+            if studies:
+                # One grouped query instead of reading every session of the scope.
+                rounds = self.env["ems.grade_session"]._read_group(
+                    [("group_id.study_id", "in", studies.ids)], groupby=["round"])
+                max_round = max((int(session_round) for session_round, in rounds), default=0)
+            wizard.round = str(min(max_round + 1, last_round))
 
     def action_create_sessions(self):
         self.ensure_one()
+        if not self.env["ems.grade_session"]._ems_user_manages_sessions():
+            raise UserError(_("Only the Head of Studies or an administrator can create evaluation sessions."))
         studies = self._target_studies()
         if not studies:
             raise UserError(_("Please select at least one level or study."))
 
-        session_model = self.env["ems.grade_session"]
+        # sudo: the Head of Studies manages the sessions but has no rights on the grade lines
+        # fill_students() creates (checked just above).
+        session_model = self.env["ems.grade_session"].sudo()
         created = session_model
         skipped = 0
         for study in studies:
@@ -59,6 +70,9 @@ class EmsGradeSessionWizard(models.TransientModel):
                         "group_id": group.id,
                         "subject_id": subject.id,
                         "round": self.round,
+                        "session_type": self.session_type,
+                        "claim_date_from": self.claim_date_from,
+                        "claim_date_to": self.claim_date_to,
                         "teacher_id": session_model._derive_teacher(group, subject).id,
                     })
                     session.fill_students()
@@ -72,16 +86,23 @@ class EmsGradeSessionWizard(models.TransientModel):
         action["context"] = {}
         return action
 
+    @api.constrains("claim_date_from", "claim_date_to")
+    def _check_claim_dates(self):
+        for wizard in self:
+            if wizard.claim_date_from and wizard.claim_date_to and wizard.claim_date_from > wizard.claim_date_to:
+                raise ValidationError(_("The claims period cannot end before it starts."))
+
 
 class EmsGradeSessionStateWizard(models.TransientModel):
     _name = "ems.grade_session_state_wizard"
-    _description = "Grade session state wizard: bulk state transition (board / final) by level or study."
+    _description = "Grade session state wizard: state transition of the selected sessions, or of a whole level or study."
 
     mode = fields.Selection(string="Mode", selection=[("level", "By level"), ("study", "By study")], default="study", required=True)
     level_ids = fields.Many2many(string="Levels", comodel_name="ems.level")
     study_ids = fields.Many2many(string="Studies", comodel_name="ems.study")
     round = fields.Selection(string="Round", selection=grade_round_selection, default="1", required=True)
     target_state = fields.Selection(string="Target state", selection=grade_state_selection, default="board", required=True)
+    from_selection = fields.Boolean(default=lambda self: bool(self._selected_sessions()))
 
     def _target_studies(self):
         self.ensure_one()
@@ -89,17 +110,25 @@ class EmsGradeSessionStateWizard(models.TransientModel):
             return self.env["ems.study"].search([("level_id", "in", self.level_ids.ids)])
         return self.study_ids
 
+    def _selected_sessions(self):
+        # Launched from the sessions' list (issue #354) it acts on the selection; from the menu,
+        # on every session of the chosen scope and round.
+        context = self.env.context
+        if context.get("active_model") == "ems.grade_session" and context.get("active_ids"):
+            return self.env["ems.grade_session"].browse(context["active_ids"])
+        return self.env["ems.grade_session"]
+
     def action_apply_state(self):
         self.ensure_one()
-        studies = self._target_studies()
-        if not studies:
-            raise UserError(_("Please select at least one level or study."))
-
-        groups = self.env["ems.group"].search([("study_id", "in", studies.ids)])
-        sessions = self.env["ems.grade_session"].search([
-            ("group_id", "in", groups.ids),
-            ("round", "=", self.round),
-        ])
+        sessions = self._selected_sessions()
+        if not sessions:
+            studies = self._target_studies()
+            if not studies:
+                raise UserError(_("Please select at least one level or study."))
+            sessions = self.env["ems.grade_session"].search([
+                ("group_id.study_id", "in", studies.ids),
+                ("round", "=", self.round),
+            ])
         if not sessions:
             raise UserError(_("No grade sessions were found for the selected scope and round."))
         sessions.write({"state": self.target_state})

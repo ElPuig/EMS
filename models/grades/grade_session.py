@@ -6,7 +6,11 @@ from ..shared import base
 from psycopg2 import IntegrityError
 
 grade_round_selection = [("1", "1a"), ("2", "2a"), ("3", "3a"), ("4", "4a")]
-grade_state_selection = [("open", "Open"), ("board", "Board"), ("final", "Finalised")]
+grade_state_selection = [("open", "Open"), ("board", "Board"), ("published", "Published"), ("final", "Finalised")]
+grade_session_type_selection = [("ordinary", "Ordinary"), ("second_chance", "Second chance")]
+# Fields only the Head of Studies (or an administrator) may change on a session: its place in the
+# evaluation calendar and what teachers may do in it (issue #878).
+MANAGED_FIELDS = {"state", "claim_date_from", "claim_date_to", "allow_provisional", "session_type"}
 
 class EmsGradeSession(models.Model):
     _name = "ems.grade_session"
@@ -25,11 +29,16 @@ class EmsGradeSession(models.Model):
     allowed_subject_ids = fields.Many2many(related="group_id.study_id.subject_ids", store=False)
     round = fields.Selection(string="Round", selection=grade_round_selection, default="1", required=True)
     state = fields.Selection(string="State", selection=grade_state_selection, default="open", required=True, tracking=True)
+    session_type = fields.Selection(string="Type", selection=grade_session_type_selection, default="ordinary", required=True)
+    claim_date_from = fields.Date(string="Claims from", help="First day students may claim a grade of this session once it is published.")
+    claim_date_to = fields.Date(string="Claims until", help="Last day students may claim a grade of this session.")
+    allow_provisional = fields.Boolean(string="Provisional grades allowed", default=True, help="Teachers may mark a learning outcome's grade as provisional.")
     teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", default=lambda self: self._default_teacher_id())
 
     planning_id = fields.Many2one(string="Planning", comodel_name="ems.planning", compute="_compute_planning_id", store=True)
     has_planning = fields.Boolean(string="Has planning", compute="_compute_has_planning", store=True)
     can_edit = fields.Boolean(string="Can edit", compute="_compute_can_edit", store=False, help="Whether the current user may edit the grades at the session's current state.")
+    can_manage = fields.Boolean(string="Can manage", compute="_compute_can_manage", store=False, help="Whether the current user may change the session's state, type, claims period and provisional grades.")
 
     grade_outcome_line_ids = fields.One2many(string="Grades per outcome", comodel_name="ems.grade_outcome_line", inverse_name="grade_session_id")
     grade_subject_line_ids = fields.One2many(string="Subject grades", comodel_name="ems.grade_subject_line", inverse_name="grade_session_id")
@@ -56,23 +65,55 @@ class EmsGradeSession(models.Model):
     @api.depends_context("uid")
     @api.depends("state", "group_id")
     def _compute_can_edit(self):
-        # open: everyone in scope; board: only the group's tutor (and admin); final: only admin.
-        is_admin = self.env.user.has_group("ems.group_academic_admin")
+        # open: everyone in scope; board: only the group's tutor (and admin); published and final:
+        # only admin (issue #879 lets an accepted claim correct a published grade).
+        # "In scope" mirrors the line rules (security/rules/grading.xml): the session's teacher (or
+        # whoever created it) and the group's tutor scope. Whoever only reads every session (the
+        # Head of Studies, the secretariat) must not be offered an editable grid it cannot save.
+        user = self.env.user
+        is_admin = user.has_group("ems.group_academic_admin")
         for session in self:
+            is_tutor = base.EmsBase.user_acts_as_tutor(self, session.group_id.tutor_id)
             if is_admin:
                 session.can_edit = True
             elif session.state == "open":
-                session.can_edit = True
+                session.can_edit = is_tutor or session.create_uid == user or user in session.teacher_id.sudo().acting_user_ids
             elif session.state == "board":
-                session.can_edit = base.EmsBase.user_acts_as_tutor(self, session.group_id.tutor_id)
+                session.can_edit = is_tutor
             else:
                 session.can_edit = False
 
-    @api.depends("group_id", "subject_id", "round")
+    @api.depends_context("uid")
+    def _compute_can_manage(self):
+        self.can_manage = self._ems_user_manages_sessions()
+
+    def _ems_check_can_edit(self):
+        """Raise the reason the current user may not edit this session's grades (see can_edit).
+        Shared by the outcome and subject lines' write()."""
+        for session in self:
+            if session.can_edit:
+                continue
+            if session.state == "final":
+                raise UserError(_("This evaluation session is final; only administrators can edit the grades."))
+            if session.state == "published":
+                raise UserError(_("The grades of this evaluation session are published; only administrators can edit them."))
+            raise UserError(_("This evaluation session is in the board stage; only the group's tutor (or an administrator) can edit the grades."))
+
+    @api.depends("group_id", "subject_id", "round", "session_type")
     def _compute_display_name(self):
         labels = dict(grade_round_selection)
+        second_chance = dict(self._fields["session_type"]._description_selection(self.env))["second_chance"]
         for session in self:
-            session.display_name = "%s %s (%s)" % (session.group_id.name or "", session.subject_id.display_name or "", labels.get(session.round, ""))
+            label = labels.get(session.round, "")
+            if session.session_type == "second_chance":
+                label = f"{label}, {second_chance}"
+            session.display_name = f"{session.group_id.name or ''} {session.subject_id.display_name or ''} ({label})"
+
+    @api.constrains("claim_date_from", "claim_date_to")
+    def _check_claim_dates(self):
+        for session in self:
+            if session.claim_date_from and session.claim_date_to and session.claim_date_from > session.claim_date_to:
+                raise ValidationError(_("The claims period cannot end before it starts."))
 
     @api.onchange("group_id", "subject_id", "round")
     def _onchange_fill_students(self):
@@ -197,6 +238,14 @@ class EmsGradeSession(models.Model):
             SubjectLine.browse(int(line_id)).write(vals)
         return True
 
+    def action_open_state_wizard(self):
+        # The form's Actions entry: an object method, so the wizard gets this record only (a
+        # type="action" button would send the pager's whole list as active_ids).
+        self.ensure_one()
+        action = self.env["ir.actions.act_window"]._for_xml_id("ems.action_grade_session_state_wizard")
+        action["context"] = {"active_model": self._name, "active_ids": self.ids}
+        return action
+
     @api.model_create_multi
     def create(self, vals_list):
         try:
@@ -204,10 +253,14 @@ class EmsGradeSession(models.Model):
         except IntegrityError as e:
             raise e if "grade_session_is_duped" not in str(e) else ValidationError(_('A grade session already exists for this group, subject and round. Please edit the existing one.'))
 
+    @api.model
+    def _ems_user_manages_sessions(self):
+        return self.env.user.has_group("ems.group_academic_admin") or self.env.user.has_group("ems.group_head_of_studies")
+
     def write(self, vals):
+        if MANAGED_FIELDS & set(vals) and not self._ems_user_manages_sessions():
+            raise UserError(_("Only the Head of Studies or an administrator can change the evaluation state, type, claims period or provisional grades."))
         if not self.env.user.has_group("ems.group_academic_admin"):
-            if "state" in vals:
-                raise UserError(_("Only administrators can change the evaluation state."))
             # Archiving / unarchiving (active) is a write; only administrators may archive or restore sessions.
             if "active" in vals:
                 raise UserError(_("Only administrators can archive or delete evaluation sessions."))

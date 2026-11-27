@@ -44,6 +44,9 @@ ACCESS_MATRIX = {
     'ems.attendance_justification_reason': {'teacher': 'r', 'secretary': 'r', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
     'ems.attendance_status': {'teacher': 'r'},
     'ems.content': {'teacher': 'r', 'secretary': 'r'},
+    # Issue #878: the Head of Studies creates the evaluation sessions and changes their state.
+    'ems.grade_session_wizard': {'teacher': '', 'secretary': '', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
+    'ems.grade_session_state_wizard': {'teacher': '', 'secretary': '', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
     # Heads of Studies maintain the reasons they pick from, archiving instead of deleting (issue #654).
     'ems.convalidation.info_reason': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
     'ems.convalidation.rejection_reason': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},

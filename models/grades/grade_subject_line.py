@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import ValidationError
 
 
 class EmsGradeSubjectLine(models.Model):
@@ -177,7 +177,7 @@ class EmsGradeSubjectLine(models.Model):
             subject_line.has_final = subject_line.computed_is_scored and subject_line.internal_is_complete
 
     def write(self, vals):
-        # open: scoped teachers/tutors; board: only the group's tutor; final: only admin.
+        # open: scoped teachers/tutors; board: only the group's tutor; published and final: only admin.
         # Exception — the work placement (EM) grade: it arrives when each student finishes the
         # internship, i.e. AFTER the rounds are closed, so the state guard would block the normal
         # case. The EM grading wizard (which does its own ownership check: tutor of the group,
@@ -190,11 +190,7 @@ class EmsGradeSubjectLine(models.Model):
         if self.env.context.get('ems_convalidation_sync') and set(vals) <= {'is_convalidated',
                                                                             'convalidation_grade'}:
             return super().write(vals)
-        for subject_line in self:
-            if not subject_line.grade_session_id.can_edit:
-                if subject_line.grade_session_id.state == "final":
-                    raise UserError(_("This evaluation session is final; only administrators can edit the grades."))
-                raise UserError(_("This evaluation session is in the board stage; only the group's tutor (or an administrator) can edit the grades."))
+        self.grade_session_id._ems_check_can_edit()
         return super().write(vals)
 
     @api.constrains("internal_score", "external_score", "final_score")

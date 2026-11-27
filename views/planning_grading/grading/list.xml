@@ -8,7 +8,10 @@
                     <field name="group_id"/>
                     <field name="subject_id"/>
                     <field name="round"/>
-                    <field name="state" widget="badge" decoration-success="state == 'open'" decoration-warning="state == 'board'" decoration-muted="state == 'final'"/>
+                    <field name="session_type" optional="show"/>
+                    <field name="state" widget="badge" decoration-success="state == 'open'" decoration-warning="state == 'board'" decoration-info="state == 'published'" decoration-muted="state == 'final'"/>
+                    <field name="claim_date_from" optional="hide"/>
+                    <field name="claim_date_to" optional="hide"/>
                     <field name="teacher_id" widget="many2one_avatar_employee"/>
                     <field name="has_planning" optional="hide"/>
                 </list>

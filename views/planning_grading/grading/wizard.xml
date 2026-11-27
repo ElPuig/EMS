@@ -10,7 +10,12 @@
                         <field name="mode" widget="radio" options="{'horizontal': true}"/>
                         <field name="level_ids" widget="many2many_tags" invisible="mode != 'level'" required="mode == 'level'"/>
                         <field name="study_ids" widget="many2many_tags" invisible="mode != 'study'" required="mode == 'study'"/>
-                        <field name="round"/>
+                        <field name="round" readonly="1" force_save="1"/>
+                        <field name="session_type" widget="radio" options="{'horizontal': true}"/>
+                        <label for="claim_date_from" string="Claims period"/>
+                        <div class="o_row">
+                            <field name="claim_date_from"/> - <field name="claim_date_to"/>
+                        </div>
                     </group>
                     <footer>
                         <button name="action_create_sessions" type="object" string="Create sessions" class="btn-primary"/>
@@ -27,18 +32,21 @@
             <field name="target">new</field>
         </record>
 
-        <menuitem name="Create grade sessions" sequence="1" id="menu_grade_session_wizard" parent="menu_grade_management" action="action_grade_session_wizard" groups="ems.group_academic_admin"/>
+        <menuitem name="Create grade sessions" sequence="1" id="menu_grade_session_wizard" parent="menu_grade_management" action="action_grade_session_wizard" groups="ems.group_head_of_studies,ems.group_academic_admin"/>
 
         <record model="ir.ui.view" id="view_grade_session_state_wizard_form">
             <field name="name">ems.grade_session_state_wizard.form</field>
             <field name="model">ems.grade_session_state_wizard</field>
             <field name="arch" type="xml">
                 <form string="Change evaluation state" js_class="ems_grade_session_state_wizard_form">
+                    <field name="from_selection" invisible="1"/>
+                    <!-- From the sessions' list or a session's form it acts on the selection;
+                         from the menu, on a whole level or study and round. -->
                     <group>
-                        <field name="mode" widget="radio" options="{'horizontal': true}"/>
-                        <field name="level_ids" widget="many2many_tags" invisible="mode != 'level'" required="mode == 'level'"/>
-                        <field name="study_ids" widget="many2many_tags" invisible="mode != 'study'" required="mode == 'study'"/>
-                        <field name="round"/>
+                        <field name="mode" widget="radio" options="{'horizontal': true}" invisible="from_selection"/>
+                        <field name="level_ids" widget="many2many_tags" invisible="from_selection or mode != 'level'" required="not from_selection and mode == 'level'"/>
+                        <field name="study_ids" widget="many2many_tags" invisible="from_selection or mode != 'study'" required="not from_selection and mode == 'study'"/>
+                        <field name="round" invisible="from_selection"/>
                         <field name="target_state"/>
                     </group>
                     <footer>
@@ -56,6 +64,18 @@
             <field name="target">new</field>
         </record>
 
-        <menuitem name="Change grade session state" sequence="2" id="menu_grade_session_state_wizard" parent="menu_grade_management" action="action_grade_session_state_wizard" groups="ems.group_academic_admin"/>
+        <!-- Same wizard on the sessions selected in the list (issue #354); the form offers it from
+             its Actions dropdown, so the binding is list only. -->
+        <record model="ir.actions.act_window" id="action_grade_session_state_wizard_selection">
+            <field name="name">Change state</field>
+            <field name="res_model">ems.grade_session_state_wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="binding_model_id" ref="ems.model_ems_grade_session"/>
+            <field name="binding_view_types">list</field>
+            <field name="groups_id" eval="[(4, ref('ems.group_head_of_studies')), (4, ref('ems.group_academic_admin'))]"/>
+        </record>
+
+        <menuitem name="Change grade session state" sequence="2" id="menu_grade_session_state_wizard" parent="menu_grade_management" action="action_grade_session_state_wizard" groups="ems.group_head_of_studies,ems.group_academic_admin"/>
     </data>
 </odoo>

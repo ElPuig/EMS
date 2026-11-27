@@ -23,6 +23,21 @@
         <field name="perm_unlink" eval="False"/>
     </record>
 
+    <!-- Issue #878: the Head of Studies manages the evaluation calendar of the whole centre (states,
+         claims period, provisional grades), so every session. The grades themselves stay with the
+         teacher and tutor rules on the lines; write() lets the Head of Studies change only the
+         managed fields (MANAGED_FIELDS). -->
+    <record id="rule_grade_session_head_of_studies" model="ir.rule">
+        <field name="name">Grade session: Head of Studies (every session)</field>
+        <field name="model_id" ref="ems.model_ems_grade_session"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
     <record id="rule_grade_session_tutor" model="ir.rule">
         <!-- A group's tutor can edit all the grade sessions of the tutored group, even for subjects they don't teach. -->
         <field name="name">Grade session: tutored group</field>

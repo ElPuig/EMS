@@ -1,7 +1,7 @@
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, next_student_id
+from .common import create_level_study, create_role_user, next_student_id
 
 
 class TestGradeSession(TransactionCase):
@@ -547,15 +547,6 @@ class TestGradeSession(TransactionCase):
         ])
         self.assertEqual(session.teacher_id, self.teacher_employee)
 
-    def test_wizard_suggests_next_round(self):
-        wizard = self.env['ems.grade_session_wizard'].new({'mode': 'study', 'study_ids': [(6, 0, [self.study.id])]})
-        wizard._onchange_suggest_round()
-        self.assertEqual(wizard.round, '1')
-        self._new_session(round='1')
-        wizard2 = self.env['ems.grade_session_wizard'].new({'mode': 'study', 'study_ids': [(6, 0, [self.study.id])]})
-        wizard2._onchange_suggest_round()
-        self.assertEqual(wizard2.round, '2')
-
     def test_wizard_skips_existing(self):
         self._new_session(round='1')
         wizard = self.env['ems.grade_session_wizard'].create({
@@ -563,3 +554,94 @@ class TestGradeSession(TransactionCase):
         })
         with self.assertRaises(UserError):
             wizard.action_create_sessions()
+
+    # ------------------------------------------------------------------
+    # Evaluation lifecycle (issue #878)
+    # ------------------------------------------------------------------
+    def _head_of_studies(self):
+        return create_role_user(self, 'head_of_studies', 'test_hos_grade878')
+
+    def test_published_is_read_only_except_admin(self):
+        tutor_user, tutor_employee = self._make_teacher('test_tutor_published', 'Tutor Published')
+        self.group.tutor_id = tutor_employee
+        session = self._new_session()
+        session.fill_students()
+        session.state = 'published'
+        line = session.grade_outcome_line_ids[0]
+        for user in (self.teacher_user, tutor_user):
+            with self.assertRaises(UserError):
+                line.with_user(user).write({'score': 5, 'is_scored': True})
+        line.write({'score': 8, 'is_scored': True})
+        self.assertEqual(line.score, 8)
+
+    def test_head_of_studies_changes_state(self):
+        session = self._new_session()
+        session.with_user(self._head_of_studies()).write({'state': 'published'})
+        self.assertEqual(session.state, 'published')
+
+    def test_claim_dates_must_be_ordered(self):
+        session = self._new_session()
+        with self.assertRaises(ValidationError):
+            session.write({'claim_date_from': '2027-01-20', 'claim_date_to': '2027-01-10'})
+
+    def test_head_of_studies_creates_sessions_with_claim_period(self):
+        wizard = self.env['ems.grade_session_wizard'].with_user(self._head_of_studies()).create({
+            'mode': 'study', 'study_ids': [(6, 0, [self.study.id])],
+            'session_type': 'second_chance',
+            'claim_date_from': '2027-01-10', 'claim_date_to': '2027-01-15',
+        })
+        wizard.action_create_sessions()
+        session = self.env['ems.grade_session'].search([
+            ('group_id', '=', self.group.id), ('subject_id', '=', self.subject.id),
+        ])
+        self.assertEqual(len(session), 1)
+        self.assertEqual(session.session_type, 'second_chance')
+        self.assertEqual(str(session.claim_date_from), '2027-01-10')
+        self.assertEqual(str(session.claim_date_to), '2027-01-15')
+        self.assertEqual(len(session.grade_outcome_line_ids), 4)
+
+    def test_wizard_round_is_incremental(self):
+        first = self.env['ems.grade_session_wizard'].create({'mode': 'study', 'study_ids': [(6, 0, [self.study.id])]})
+        self.assertEqual(first.round, '1')
+        self._new_session(round='1')
+        wizard = self.env['ems.grade_session_wizard'].create({
+            'mode': 'study', 'study_ids': [(6, 0, [self.study.id])],
+        })
+        self.assertEqual(wizard.round, '2')
+        wizard.action_create_sessions()
+        self.assertTrue(self.env['ems.grade_session'].search([
+            ('group_id', '=', self.group.id), ('subject_id', '=', self.subject.id), ('round', '=', '2'),
+        ]))
+
+    def test_state_wizard_on_selected_sessions(self):
+        session = self._new_session(round='1')
+        other = self._new_session(round='2')
+        wizard = self.env['ems.grade_session_state_wizard'].with_context(
+            active_model='ems.grade_session', active_ids=[session.id],
+        ).create({'target_state': 'published'})
+        wizard.action_apply_state()
+        self.assertEqual(session.state, 'published')
+        self.assertEqual(other.state, 'open')
+
+    def test_provisional_outcome_allowed_by_default(self):
+        session = self._new_session()
+        session.fill_students()
+        self.assertTrue(session.allow_provisional)
+        line = session.grade_outcome_line_ids[0]
+        line.with_user(self.teacher_user).write({'score': 6, 'is_scored': True, 'is_provisional': True})
+        self.assertTrue(line.is_provisional)
+
+    def test_provisional_outcome_refused_when_not_allowed(self):
+        session = self._new_session()
+        session.fill_students()
+        session.allow_provisional = False
+        line = session.grade_outcome_line_ids[0]
+        with self.assertRaises(UserError):
+            line.with_user(self.teacher_user).write({'is_provisional': True})
+
+    def test_only_head_of_studies_sets_allow_provisional(self):
+        session = self._new_session()
+        with self.assertRaises(UserError):
+            session.with_user(self.teacher_user).write({'allow_provisional': False})
+        session.with_user(self._head_of_studies()).write({'allow_provisional': False})
+        self.assertFalse(session.allow_provisional)

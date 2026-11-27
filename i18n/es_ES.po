@@ -56572,8 +56572,8 @@ msgstr "%(session)s está en estado %(state)s: solo puede pasar al estado anteri
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/grade_session.py:0
-msgid "%(session)s: %(count)s empty outcome grade(s)"
-msgstr "%(session)s: %(count)s nota(s) de RA sin poner"
+msgid "%(session)s: no outcome has been graded"
+msgstr "%(session)s: no tiene ningún RA con nota"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_grade_session_state_wizard_selection
@@ -56595,8 +56595,8 @@ msgstr "Reclamaciones hasta"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__publish_warning
-msgid "Empty grades"
-msgstr "Notas sin poner"
+msgid "Ungraded subjects"
+msgstr "Módulos sin notas"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__session_state
@@ -56670,8 +56670,8 @@ msgstr "Notas provisionales permitidas"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_session_state_wizard__publish_warning
-msgid "Sessions about to be published that still have empty outcome grades."
-msgstr "Sesiones que se publicarán y que aún tienen notas de RA sin poner."
+msgid "Sessions about to be published with no outcome graded at all."
+msgstr "Sesiones que se publicarán sin ningún RA con nota."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_outcome_line__allow_provisional
@@ -56699,8 +56699,8 @@ msgstr "El profesor marca esta nota como provisional (p. ej. pendiente de una en
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_session_state_wizard_form
-msgid "These sessions still have empty outcome grades. You can publish them anyway:"
-msgstr "Estas sesiones aún tienen notas de RA sin poner. Puede publicarlas igualmente:"
+msgid "These sessions have no outcome graded at all. You can publish them anyway:"
+msgstr "Estos módulos no tienen ningún RA con nota. Puedes publicarlos igualmente:"
 
 #. module: ems
 #. odoo-python

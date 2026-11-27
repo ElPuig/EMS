@@ -50,7 +50,7 @@
                         <field name="announce" invisible="target_state != 'published'"/>
                     </group>
                     <div class="alert alert-warning" role="alert" invisible="not publish_warning">
-                        <p class="mb-1">These sessions still have empty outcome grades. You can publish them anyway:</p>
+                        <p class="mb-1">These sessions have no outcome graded at all. You can publish them anyway:</p>
                         <field name="publish_warning" readonly="1" nolabel="1"/>
                     </div>
                     <footer>

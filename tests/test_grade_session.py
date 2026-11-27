@@ -642,16 +642,16 @@ class TestGradeSession(TransactionCase):
         with self.assertRaises(UserError):
             session.with_user(self._head_of_studies()).write({'state': 'published'})
 
-    def test_publish_warning_lists_empty_grades(self):
+    def test_publish_warning_lists_ungraded_subjects(self):
+        # Issue #878: only a session with no outcome graded at all is listed (a forgotten subject),
+        # not one with some outcomes still empty, the usual state of a term.
         session = self._new_session()
         session.fill_students()
-        session.grade_outcome_line_ids[0].write({'score': 6, 'is_scored': True})
         wizard = self.env['ems.grade_session_state_wizard'].with_context(
             active_model='ems.grade_session', active_ids=[session.id],
         ).create({'target_state': 'published'})
-        # 2 students x 2 outcomes, one graded.
-        self.assertIn('3', wizard.publish_warning)
-        session.grade_outcome_line_ids.write({'score': 6, 'is_scored': True})
+        self.assertIn(session.display_name, wizard.publish_warning)
+        session.grade_outcome_line_ids[0].write({'score': 6, 'is_scored': True})
         wizard.invalidate_recordset(['publish_warning'])
         self.assertFalse(wizard.publish_warning)
 

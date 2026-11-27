@@ -289,25 +289,27 @@ class EmsGradeSession(models.Model):
                                   session=session.display_name))
 
     def _ems_empty_grades_summary(self):
-        """One line per session that still has empty outcome grades, for the warning shown before
-        publishing. Publishing is not blocked: not every outcome is evaluated in every round. A
-        convalidated subject's outcomes are never graded, so they don't count. Two queries for
-        every session together."""
+        """One line per session with no outcome grade at all, for the warning shown before
+        publishing: a whole subject forgotten. Not one with only some outcomes graded, which is
+        the usual state of a term (developer, issue #878). Publishing is not blocked. A
+        convalidated subject's outcomes are never graded, so a session whose students are all
+        convalidated has nothing to grade. Two queries for every session together."""
         convalidated = {
             (line.grade_session_id.id, line.student_id.id)
             for line in self.env["ems.grade_subject_line"].sudo().search([
                 ("grade_session_id", "in", self.ids), ("is_convalidated", "=", True)])
         }
-        empty = defaultdict(int)
-        for session, student, count in self.env["ems.grade_outcome_line"].sudo()._read_group([
+        gradable, graded = set(), set()
+        for session, student, is_scored, _count in self.env["ems.grade_outcome_line"].sudo()._read_group([
             ("grade_session_id", "in", self.ids),
-            ("is_scored", "=", False),
-        ], groupby=["grade_session_id", "student_id"], aggregates=["__count"]):
+        ], groupby=["grade_session_id", "student_id", "is_scored"], aggregates=["__count"]):
             if (session.id, student.id) not in convalidated:
-                empty[session.id] += count
+                gradable.add(session.id)
+                if is_scored:
+                    graded.add(session.id)
         return [
-            _("%(session)s: %(count)s empty outcome grade(s)", session=session.display_name, count=empty[session.id])
-            for session in self if empty[session.id]
+            _("%(session)s: no outcome has been graded", session=session.display_name)
+            for session in self if session.id in gradable and session.id not in graded
         ]
 
     def write(self, vals):

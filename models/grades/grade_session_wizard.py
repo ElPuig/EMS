@@ -110,8 +110,8 @@ class EmsGradeSessionStateWizard(models.TransientModel):
     from_selection = fields.Boolean(default=lambda self: bool(self._selected_sessions()))
     announce = fields.Boolean(string="Announce the publication",
                               help="Email every student, and their family while a minor, that the grades are in the portal. The email carries no grades.")
-    publish_warning = fields.Text(string="Empty grades", compute="_compute_publish_warning",
-                                  help="Sessions about to be published that still have empty outcome grades.")
+    publish_warning = fields.Text(string="Ungraded subjects", compute="_compute_publish_warning",
+                                  help="Sessions about to be published with no outcome graded at all.")
 
     def _target_studies(self):
         self.ensure_one()

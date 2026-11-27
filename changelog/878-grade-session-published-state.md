@@ -5,7 +5,7 @@
 - New "Published" state between the board and the final state: the grades become read-only (except for an administrator) and, in a later step, visible in the student portal.
 - The Head of Studies manages the evaluation sessions (until now only the administrator): creates them, changes their state and sets the claims period and whether provisional grades are allowed.
 - The creation wizard no longer asks for the round (the next one is computed) and requires the claims period (two clearly labelled dates); the fourth round is now the extraordinary evaluation (2a convocatòria).
-- States move one step at a time, forwards or backwards, and the state wizard only offers the states the sessions can reach; publishing needs the claims period and warns (without blocking) about sessions with empty outcome grades.
+- States move one step at a time, forwards or backwards, and the state wizard only offers the states the sessions can reach; publishing needs the claims period and warns (without blocking) about subjects with no outcome graded at all.
 - State changes from the sessions' list on the selected sessions (Actions > Change state) and from each session's Actions dropdown; the claims period and the provisional switch can be edited in bulk from the list.
 - Teachers can mark an outcome's grade as provisional by typing `6*` or `6p`, or ticking "Provisional" on the outcome's column, which stays ticked and makes every grade entered later in that outcome provisional too; allowed by default, the Head of Studies can turn it off per session.
 

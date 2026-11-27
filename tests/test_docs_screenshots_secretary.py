@@ -341,7 +341,8 @@ class TestDocsScreenshotsSecretary(DocsScreenshotMixin, HttpCase):
                    '.o_data_row + .o_data_row .o_list_record_selector input',
                    ".o_list_selection_container .o_ems_actions_toggle"],
             wait_after=['.o_group_header.o_group_open + .o_group_header', '.o_data_row',
-                        '.o_data_row.o_data_row_selected', "button[name='action_enrollment_proposal']"],
+                        '.o_data_row.o_data_row_selected', '.o_list_selection_container .o_ems_actions_toggle',
+                        "button[name='action_enrollment_proposal']"],
             marks=[(".o_list_selection_container .o_ems_actions_toggle", '1', 'top')],
         )
         # 04b: the internal continuers, in Enrollment proposals with the GEDAC filter.
@@ -395,7 +396,7 @@ class TestDocsScreenshotsSecretary(DocsScreenshotMixin, HttpCase):
         confirmed.action_confirm()
         enrollments = self.env.ref('ems.action_ems_enrollments')
         enrollments.domain = str([('id', 'in', (drafts | confirmed).ids)])
-        enrollments.context = str({'ems_enrollment': 1, 'search_default_sense_enviar': 1})
+        enrollments.context = str({'ems_enrollment': 1, 'ems_header_actions': 1, 'search_default_sense_enviar': 1})
         enrollments_url = '/odoo/action-ems.action_ems_enrollments'
 
         # 08: Enrollment > Enrollments (1) with the Not sent filter (2).
@@ -412,7 +413,8 @@ class TestDocsScreenshotsSecretary(DocsScreenshotMixin, HttpCase):
             click=['.o_data_row .o_list_record_selector input',
                    '.o_data_row + .o_data_row .o_list_record_selector input',
                    '.o_list_selection_container .o_ems_actions_toggle'],
-            wait_after=['.o_data_row.o_data_row_selected', ".o_ems_actions_menu button[name='action_send_enrollment_proposal']"],
+            wait_after=['.o_data_row.o_data_row_selected', '.o_list_selection_container .o_ems_actions_toggle',
+                        ".o_ems_actions_menu button[name='action_send_enrollment_proposal']"],
             marks=[('.o_data_row .o_list_record_selector', '1'),
                    ('.o_list_selection_container .o_ems_actions_toggle', '2', 'top')],
         )
@@ -424,7 +426,7 @@ class TestDocsScreenshotsSecretary(DocsScreenshotMixin, HttpCase):
             confirmed_url, '.o_action_manager', 'preinscrpcio-Secretaria-10.png', login=login,
             wait_for='.o_form_statusbar .o_ems_actions_toggle', max_height=360,
             click='.o_form_statusbar .o_ems_actions_toggle', wait_after=reapply,
-            marks=[(reapply, '1', 'top')],
+            marks=[(reapply, '1', 'right')], beyond_viewport=False,
         )
         self._capture(
             confirmed_url, '.modal-content', 'preinscrpcio-Secretaria-11.png', login=login,

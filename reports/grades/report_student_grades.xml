@@ -17,15 +17,15 @@
                     <table class="table table-sm table-bordered o_ems_grades_table">
                         <thead>
                             <tr>
-                                <th>Module</th>
-                                <th class="text-center" style="width: 70px;">Grade</th>
-                                <th t-foreach="range(columns)" t-as="column" class="text-center" style="width: 46px;">RA<t t-out="column + 1"/></th>
-                                <th>Comments</th>
+                                <th style="width: 24%;">Module</th>
+                                <th class="text-center" style="width: 60px;">Grade</th>
+                                <th t-foreach="range(columns)" t-as="column" class="text-center" style="width: 38px;">RA<t t-out="column + 1"/></th>
+                                <th style="width: 30%;">Comments</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr t-foreach="grade_round['subjects']" t-as="subject">
-                                <td><t t-out="subject['code']"/> - <t t-out="subject['name']"/></td>
+                                <td style="height: 3.2em;"><t t-out="subject['code']"/> - <t t-out="subject['name']"/></td>
                                 <td class="text-center">
                                     <t t-if="subject['status'] == 'convalidated'">
                                         <span class="badge" style="background-color: #0dcaf0; color: #000;"><t t-if="subject['score']" t-out="subject['score']"/> CV</span>
@@ -44,7 +44,9 @@
                                     <t t-set="outcome" t-value="subject['outcomes'][column] if column &lt; len(subject['outcomes']) else None"/>
                                     <!-- An outcome this subject does not have: greyed out, as in the tutors' view. -->
                                     <td t-if="not outcome" class="o_ems_grades_no_outcome" style="background-color: #e9ecef;"/>
-                                    <td t-else="" class="text-center" t-att-title="'%s: %s' % (outcome['acronym'], outcome['name'])">
+                                    <!-- A passed outcome lightly green, a failed one lightly red. -->
+                                    <td t-else="" class="text-center" t-att-title="'%s: %s' % (outcome['acronym'], outcome['name'])"
+                                        t-att-style="'background-color: #d1e7dd;' if outcome['score'] is not None and outcome['score'] &gt;= 5 else ('background-color: #f8d7da;' if outcome['score'] is not None else None)">
                                         <t t-if="outcome['score'] is None">-</t>
                                         <t t-else=""><t t-out="outcome['score']"/><t t-if="outcome['provisional']">*</t><t t-if="outcome['carried']"> ✓</t></t>
                                     </td>

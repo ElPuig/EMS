@@ -38,6 +38,8 @@ The sessions themselves are in **Planning and Grading → Grades → Evaluation 
 4. Fill in **Claims from** and **Claims until**: the days students may claim a grade once it is published. Both are required.
 5. Press **Create sessions**.
 
+![Creating the sessions of a round](../../assets/head_of_studies/evaluation-sessions-01-crear.png)
+
 EMS creates one session per group and subject with enrolled students (tutorships aside), each one filled with its students and their learning outcomes, and shows you the list of the sessions created.
 
 ---
@@ -83,6 +85,8 @@ When the target state is **Published**:
 - The sessions need their claims period: without it, they cannot be published.
 - If any of them has **no learning outcome graded at all**, a warning lists them (a whole module may have been forgotten). You can publish them anyway.
 - Tick **Announce the publication** to email every student, and the family of the minors, that the grades are in the portal. They get one email per evaluation, with the claims period and a button to the portal; the email never carries the grades.
+
+![Publishing the selected sessions and announcing it](../../assets/head_of_studies/evaluation-sessions-02-publicar.png)
 
 From then on, students and families see the grades in the portal's **Grades** card and can download them as a non-official PDF (see the [student portal guide](../families/manual-portal-alumne.md#checking-the-grades)).
 

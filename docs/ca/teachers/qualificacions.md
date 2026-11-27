@@ -112,7 +112,11 @@ A la dreta de les columnes de RA hi ha les columnes que resumeixen la nota del m
 - **Una nota:** escriu la nota seguida de `*` o `p` (per exemple `6*` o `6p`). La cel·la mostra `6*` en cursiva. Si tornes a escriure la nota sense la marca, deixa de ser provisional.
 - **Tot el RA:** marca **Provisional** a la capçalera de la columna del RA. Totes les notes d'aquest RA passen a ser provisionals, també les que posis després, mentre la casella estigui marcada. Desmarca-la per tornar a posar notes definitives.
 
-L'ajuda que hi ha sota la graella recorda totes dues maneres. Només apareixen quan la sessió permet notes provisionals, que és l'opció per defecte; el cap d'estudis les pot desactivar en una sessió.
+L'ajuda que hi ha a sobre de la graella recorda totes dues maneres. Només apareixen quan la sessió permet notes provisionals, que és l'opció per defecte; el cap d'estudis les pot desactivar en una sessió.
+
+![La casella «Provisional» marcada al RA3 (1) i l'ajuda de sobre la graella (2)](../../assets/teachers/teachers-08-provisional.png)
+
+A la imatge, **(1)** és la casella **Provisional** d'un RA i **(2)** l'ajuda.
 
 ---
 

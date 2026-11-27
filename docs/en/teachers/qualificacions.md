@@ -112,7 +112,11 @@ To the right of the outcome columns are the columns that summarise the subject g
 - **One grade:** type the grade followed by `*` or `p` (for example `6*` or `6p`). The cell shows `6*` in italics. Typing the grade again without the mark makes it final.
 - **The whole outcome:** tick **Provisional** in the outcome's column header. Every grade of that outcome becomes provisional, also those you enter later, while the box stays ticked. Untick it to enter final grades again.
 
-The hint under the grid reminds you of both ways. They only appear when the session allows provisional grades, which is the default; the Head of Studies can turn them off for a session.
+The hint above the grid reminds you of both ways. They only appear when the session allows provisional grades, which is the default; the Head of Studies can turn them off for a session.
+
+![The "Provisional" box ticked on RA3 (1) and the hint above the grid (2)](../../assets/teachers/teachers-08-provisional.png)
+
+In the image, **(1)** is the **Provisional** box of an outcome and **(2)** the hint.
 
 ---
 

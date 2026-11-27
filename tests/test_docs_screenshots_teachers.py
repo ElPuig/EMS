@@ -1396,7 +1396,10 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             'main_group_id': group.id,
         })
 
-    def test_capture_grading(self):
+    def _grading_fixture(self):
+        """Two groups of an invented study, one subject with four outcomes, six students: round 1
+        final (RA1 and RA2 graded), round 2 open (RA3 graded for some, RA4 pending), and the
+        other group's two rounds with no grade at all."""
         level, study, group = create_level_study_group(self, 'DOCGRD', level={
             'name': 'Formació professional',
         }, study={
@@ -1452,6 +1455,12 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
                 line.write({'score': (7, 4, 6, 8)[index], 'is_scored': True})
         sessions = first_round | second_round | session(other_group, '1') | session(other_group, '2')
 
+        return {'study': study, 'group': group, 'students': students, 'first_round': first_round,
+                'second_round': second_round, 'sessions': sessions}
+
+    def test_capture_grading(self):
+        fixture = self._grading_fixture()
+        first_round, second_round, sessions = fixture['first_round'], fixture['second_round'], fixture['sessions']
         # The native list, scoped to these fixtures for this (rolled-back) test.
         self.env.ref('ems.action_grade_session_tree').domain = str([('id', 'in', sessions.ids)])
         url = '/odoo/action-ems.action_grade_session_tree'
@@ -1491,6 +1500,70 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
                       wait_after=['input.o_grade_matrix_input', '.o_grade_matrix_toolbar button:not(:disabled)'])
         self._capture(form_url, '.o_form_statusbar .o_statusbar_status', 'teachers-07-estat.png',
                       login='doc_shot_teacher', wait_for='.o_form_statusbar .o_statusbar_status')
+
+    def test_capture_evaluation_lifecycle(self):
+        """Issue #878: provisional grades, the session's states, the Head of Studies' wizards and
+        the student's grades on the portal."""
+        mock_outgoing_email(self)
+        fixture = self._grading_fixture()
+        students, second_round, sessions = fixture['students'], fixture['second_round'], fixture['sessions']
+        claims = {'claim_date_from': '2027-01-11', 'claim_date_to': '2027-01-15'}
+        sessions.write(claims)
+        # A provisional outcome (RA3 ticked) and one provisional grade typed with the mark.
+        second_round.provisional_outcome_ids = second_round.grade_outcome_line_ids.outcome_id.filtered(
+            lambda outcome: outcome.acronym == 'RA3')
+        second_round.grade_outcome_line_ids.filtered(lambda line: line.outcome_id.acronym == 'RA3'
+                                                     and line.is_scored).write({'is_provisional': True})
+        comments = ('Ha de lliurar la pràctica 3.', 'Bona feina.', '', 'Cal repassar les consultes.', '', '')
+        for line in second_round.grade_subject_line_ids:
+            line.notes = comments[students.ids.index(line.student_id.id)] or False
+        self.env.ref('ems.action_grade_session_tree').domain = str([('id', 'in', sessions.ids)])
+        form_url = '/odoo/action-ems.action_grade_session_tree/%d' % second_round.id
+        grid = '.o_grade_matrix tbody tr'
+        self._capture(form_url, '.o_grade_matrix', 'teachers-08-provisional.png',
+                      login='doc_shot_teacher', wait_for=grid,
+                      marks=[('.o_grade_matrix_provisional_toggle:has(input:checked)', '1', 'right'),
+                             ('.o_grade_matrix_toolbar .o_grade_matrix_hint:has(.fa-info-circle)', '2', 'text-right')])
+
+        hos_user = create_role_user(self, 'head_of_studies', 'doc_shot_hos_grades', lang='ca_ES',
+                                    name="Cap d'Estudis Exemple")
+        create_role_employee(self, hos_user, name="0000 Cap d'Estudis Exemple")
+        Action = self.env['ir.actions.act_window']
+        create_action = Action.create({
+            'name': "Crea sessions d'avaluació", 'res_model': 'ems.grade_session_wizard',
+            'view_mode': 'form', 'target': 'new',
+            'view_id': self.env.ref('ems.view_grade_session_wizard_form').id,
+            'context': str({'default_study_ids': [fixture['study'].id],
+                            'default_claim_date_from': '2027-04-12', 'default_claim_date_to': '2027-04-16'}),
+        })
+        self._capture('/odoo/action-%d' % create_action.id, '.modal-content', 'evaluation-sessions-01-crear.png',
+                      login='doc_shot_hos_grades', wait_for=".modal .o_field_widget[name='claim_date_to'] input")
+
+        # Round 2 of both groups in the board stage, about to be published and announced.
+        board = second_round | sessions.filtered(
+            lambda session: session.group_id != fixture['group'] and session.round == '2')
+        board.write({'state': 'board'})
+        state_action = Action.create({
+            'name': "Canviar l'estat de l'avaluació", 'res_model': 'ems.grade_session_state_wizard',
+            'view_mode': 'form', 'target': 'new',
+            'view_id': self.env.ref('ems.view_grade_session_state_wizard_form').id,
+            'context': str({'active_model': 'ems.grade_session', 'active_ids': board.ids,
+                            'default_target_state': 'published', 'default_announce': True}),
+        })
+        self._capture('/odoo/action-%d' % state_action.id, '.modal-content', 'evaluation-sessions-02-publicar.png',
+                      login='doc_shot_hos_grades', wait_for=".modal .o_field_widget[name='announce']")
+
+        second_round.state = 'published'
+        self._capture(form_url, '.o_form_statusbar .o_statusbar_status', 'teachers-07-estat.png',
+                      login='doc_shot_teacher', wait_for='.o_form_statusbar .o_statusbar_status')
+
+        student = students[0]
+        self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': student.name, 'login': 'doc_shot_grades_student', 'password': 'doc_shot_grades_student',
+            'partner_id': student.id, 'lang': 'ca_ES', 'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
+        })
+        self._capture('/my/calificaciones', '#grades_content', 'qualificacions-portal.png',
+                      login='doc_shot_grades_student', wait_for='.o_ems_grades_table')
 
     def test_capture_absences_menu(self):
         # The apps menu opened (a trusted mouse click: it ignores a synthetic one), with

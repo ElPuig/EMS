@@ -93,7 +93,7 @@ Igual que a la vista de professors:
 - **Colors:** **verd** (nota ≥ 5, aprovat), **vermell** (nota < 5, suspès), **blanc** (sense informar).
 - **RA bloquejats:** un RA **ja aprovat en una avaluació anterior** apareix en **verd amb un cadenat** i no es pot modificar.
 - **Nota del mòdul provisional:** mentre quedin RA per avaluar, la nota del centre es mostra **en cursiva i amb un asterisc** (`*`); canviarà quan s'informin els RA que falten. La nota final només apareix quan tots els RA estan avaluats.
-- **Nota d'un RA provisional:** escriu la nota seguida de `*` o `p` (per exemple `6*`) per marcar-la com a provisional; l'alumne la veu amb l'asterisc al portal. L'ajuda que hi ha sota la graella t'ho recorda, quan la sessió permet notes provisionals.
+- **Nota d'un RA provisional:** escriu la nota seguida de `*` o `p` (per exemple `6*`) per marcar-la com a provisional; l'alumne la veu amb l'asterisc al portal. L'ajuda que hi ha a sobre de la graella t'ho recorda, quan la sessió permet notes provisionals.
 
 ---
 

@@ -93,7 +93,7 @@ Igual que en la vista de profesores:
 - **Colores:** **verde** (nota ≥ 5, aprobado), **rojo** (nota < 5, suspenso), **blanco** (sin informar).
 - **RA bloqueados:** un RA **ya aprobado en una evaluación anterior** aparece en **verde con un candado** y no se puede modificar.
 - **Nota del módulo provisional:** mientras queden RA por evaluar, la nota del centro se muestra **en cursiva y con un asterisco** (`*`); cambiará cuando se informen los RA que faltan. La nota final solo aparece cuando todos los RA están evaluados.
-- **Nota de un RA provisional:** escribe la nota seguida de `*` o `p` (por ejemplo `6*`) para marcarla como provisional; el alumno la ve con el asterisco en el portal. La ayuda que hay bajo la cuadrícula te lo recuerda, cuando la sesión permite notas provisionales.
+- **Nota de un RA provisional:** escribe la nota seguida de `*` o `p` (por ejemplo `6*`) para marcarla como provisional; el alumno la ve con el asterisco en el portal. La ayuda que hay encima de la cuadrícula te lo recuerda, cuando la sesión permite notas provisionales.
 
 ---
 

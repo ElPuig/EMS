@@ -38,6 +38,8 @@ Las sesiones están en **Planificación y calificación → Calificaciones → E
 4. Rellena **Reclamaciones desde** y **Reclamaciones hasta**: los días en que el alumnado puede reclamar una nota una vez publicada. Las dos fechas son obligatorias.
 5. Pulsa **Crear sesiones**.
 
+![Crear las sesiones de una evaluación](../../assets/head_of_studies/evaluation-sessions-01-crear.png)
+
 EMS crea una sesión por cada grupo y módulo con alumnos matriculados (sin las tutorías), cada una con sus alumnos y sus resultados de aprendizaje, y te muestra la lista de las sesiones creadas.
 
 ---
@@ -72,7 +74,7 @@ Una sesión avanza **de uno en uno**, hacia delante o hacia atrás: de Abierta a
 
 **Para todo un estudio o nivel:** abre **Cambiar el estado de la sesión de evaluación** y elige los estudios o niveles y la evaluación.
 
-En los dos casos, el **Estado destino** solo ofrece los estados a los que pueden pasar las sesiones, por defecto el siguiente. Pulsa **Aplica**.
+En los dos casos, el **Estado destino** solo ofrece los estados a los que pueden pasar las sesiones, por defecto el siguiente. Pulsa **Aplicar**.
 
 ---
 
@@ -83,6 +85,8 @@ Cuando el estado destino es **Publicada**:
 - Las sesiones necesitan el plazo de reclamaciones: sin él, no se pueden publicar.
 - Si alguna **no tiene ningún resultado de aprendizaje con nota**, un aviso las lista (quizá se ha olvidado un módulo entero). Puedes publicarlas igualmente.
 - Marca **Anunciar la publicación** para enviar un correo a cada alumno, y a la familia de los menores de edad, avisando de que las notas ya están en el portal. Reciben un correo por evaluación, con el plazo de reclamaciones y un botón para ir al portal; el correo nunca lleva las notas.
+
+![Publicar las sesiones seleccionadas y anunciarlo](../../assets/head_of_studies/evaluation-sessions-02-publicar.png)
 
 A partir de ese momento, el alumnado y las familias ven las notas en la tarjeta **Calificaciones** del portal y las pueden descargar en un PDF no oficial (véase la [guía del portal del alumno](../families/manual-portal-alumne.md#consultar-las-notas)).
 

@@ -93,7 +93,7 @@ The same as in the teachers' view:
 - **Colours:** **green** (grade ≥ 5, pass), **red** (grade < 5, fail), **white** (not informed).
 - **Locked outcomes:** an outcome **already passed in an earlier round** appears **green with a padlock** and cannot be modified.
 - **Provisional subject grade:** while there are outcomes still to be evaluated, the internal grade is shown **in italics with an asterisk** (`*`); it will change when the missing outcomes are informed. The final grade only appears once every outcome is evaluated.
-- **Provisional outcome grade:** type the grade followed by `*` or `p` (for example `6*`) to mark it as provisional; the student sees it with the asterisk in the portal. The hint under the grid reminds you of it, when the session allows provisional grades.
+- **Provisional outcome grade:** type the grade followed by `*` or `p` (for example `6*`) to mark it as provisional; the student sees it with the asterisk in the portal. The hint above the grid reminds you of it, when the session allows provisional grades.
 
 ---
 

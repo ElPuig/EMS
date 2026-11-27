@@ -112,7 +112,11 @@ A la derecha de las columnas de RA están las columnas que resumen la nota del m
 - **Una nota:** escribe la nota seguida de `*` o `p` (por ejemplo `6*` o `6p`). La celda muestra `6*` en cursiva. Si vuelves a escribir la nota sin la marca, deja de ser provisional.
 - **Todo el RA:** marca **Provisional** en la cabecera de la columna del RA. Todas las notas de ese RA pasan a ser provisionales, también las que pongas después, mientras la casilla esté marcada. Desmárcala para volver a poner notas definitivas.
 
-La ayuda que hay bajo la cuadrícula recuerda las dos maneras. Solo aparecen cuando la sesión permite notas provisionales, que es la opción por defecto; el jefe de estudios las puede desactivar en una sesión.
+La ayuda que hay encima de la cuadrícula recuerda las dos maneras. Solo aparecen cuando la sesión permite notas provisionales, que es la opción por defecto; el jefe de estudios las puede desactivar en una sesión.
+
+![La casilla «Provisional» marcada en el RA3 (1) y la ayuda encima de la cuadrícula (2)](../../assets/teachers/teachers-08-provisional.png)
+
+En la imagen, **(1)** es la casilla **Provisional** de un RA y **(2)** la ayuda.
 
 ---
 

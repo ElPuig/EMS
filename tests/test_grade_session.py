@@ -82,14 +82,14 @@ class TestGradeSession(TransactionCase):
         })
         return user, employee
 
-    def _new_session(self, round="1", user=None, teacher=None):
+    def _new_session(self, grade_round="1", user=None, teacher=None):
         model = self.env['ems.grade_session']
         if user:
             model = model.with_user(user)
         return model.create({
             'group_id': self.group.id,
             'subject_id': self.subject.id,
-            'round': round,
+            'round': grade_round,
             'teacher_id': (teacher or self.teacher_employee).id,
         })
 
@@ -108,9 +108,9 @@ class TestGradeSession(TransactionCase):
         self.assertEqual(session.display_name, "%s %s (1a)" % (self.group.name, self.subject.display_name))
 
     def test_unique_group_subject_round(self):
-        self._new_session(round="1")
+        self._new_session(grade_round="1")
         with self.assertRaises(Exception):
-            self._new_session(round="1")
+            self._new_session(grade_round="1")
 
     def test_fill_students_generates_lines(self):
         session = self._new_session()
@@ -122,7 +122,7 @@ class TestGradeSession(TransactionCase):
 
     def test_passed_outcome_is_locked_in_later_round(self):
         # Student1 passes outcome1 (>= 5) in round 1; fails outcome2.
-        session1 = self._new_session(round="1")
+        session1 = self._new_session(grade_round="1")
         session1.fill_students()
         lines1 = session1.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student1)
         lines1.filtered(lambda line: line.outcome_id == self.outcome1).write({'score': 7, 'is_scored': True})
@@ -130,7 +130,7 @@ class TestGradeSession(TransactionCase):
 
         # Round 2: the passed outcome is locked and carried over; the failed one is carried over too (with
         # its previous score) but stays open and editable.
-        session2 = self._new_session(round="2")
+        session2 = self._new_session(grade_round="2")
         session2.fill_students()
         lines2 = session2.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student1)
         locked = lines2.filtered(lambda line: line.outcome_id == self.outcome1)
@@ -143,13 +143,13 @@ class TestGradeSession(TransactionCase):
         self.assertEqual(reopen.score, 3)
 
     def test_locked_outcome_cannot_be_rewritten(self):
-        session1 = self._new_session(round="1")
+        session1 = self._new_session(grade_round="1")
         session1.fill_students()
         session1.grade_outcome_line_ids.filtered(
             lambda line: line.student_id == self.student1 and line.outcome_id == self.outcome1
         ).write({'score': 8, 'is_scored': True})
 
-        session2 = self._new_session(round="2")
+        session2 = self._new_session(grade_round="2")
         session2.fill_students()
         locked = session2.grade_outcome_line_ids.filtered(
             lambda line: line.student_id == self.student1 and line.outcome_id == self.outcome1
@@ -178,12 +178,12 @@ class TestGradeSession(TransactionCase):
         self.assertTrue(subject_line.internal_is_complete)
 
     def test_apply_grade_changes_enforces_lock(self):
-        session1 = self._new_session(round="1")
+        session1 = self._new_session(grade_round="1")
         session1.fill_students()
         session1.grade_outcome_line_ids.filtered(
             lambda line: line.student_id == self.student1 and line.outcome_id == self.outcome1
         ).write({'score': 8, 'is_scored': True})
-        session2 = self._new_session(round="2")
+        session2 = self._new_session(grade_round="2")
         session2.fill_students()
         locked = session2.grade_outcome_line_ids.filtered(
             lambda line: line.student_id == self.student1 and line.outcome_id == self.outcome1
@@ -197,13 +197,13 @@ class TestGradeSession(TransactionCase):
     def test_failed_outcome_carried_over_but_editable(self):
         # A failed outcome (< 5) does not lock the next round: its previous score is carried over as a
         # starting point, but it can still be re-evaluated.
-        session1 = self._new_session(round="1")
+        session1 = self._new_session(grade_round="1")
         session1.fill_students()
         session1.grade_outcome_line_ids.filtered(
             lambda line: line.student_id == self.student1 and line.outcome_id == self.outcome1
         ).write({'score': 4, 'is_scored': True})
 
-        session2 = self._new_session(round="2")
+        session2 = self._new_session(grade_round="2")
         session2.fill_students()
         reopen = session2.grade_outcome_line_ids.filtered(
             lambda line: line.student_id == self.student1 and line.outcome_id == self.outcome1
@@ -503,7 +503,7 @@ class TestGradeSession(TransactionCase):
         self.assertFalse(session.active)
 
     def test_state_wizard_bulk_transition(self):
-        session = self._new_session(round='1')
+        session = self._new_session(grade_round='1')
         wizard = self.env['ems.grade_session_state_wizard'].create({
             'mode': 'study', 'study_ids': [(6, 0, [self.study.id])], 'round': '1', 'target_state': 'board',
         })
@@ -552,7 +552,7 @@ class TestGradeSession(TransactionCase):
         self.assertEqual(session.teacher_id, self.teacher_employee)
 
     def test_wizard_skips_existing(self):
-        self._new_session(round='1')
+        self._new_session(grade_round='1')
         wizard = self.env['ems.grade_session_wizard'].create({
             'mode': 'study', 'study_ids': [(6, 0, [self.study.id])], **CLAIMS, 'round': '1',
         })
@@ -604,7 +604,7 @@ class TestGradeSession(TransactionCase):
     def test_wizard_round_is_incremental(self):
         first = self.env['ems.grade_session_wizard'].create({'mode': 'study', 'study_ids': [(6, 0, [self.study.id])], **CLAIMS})
         self.assertEqual(first.round, '1')
-        self._new_session(round='1')
+        self._new_session(grade_round='1')
         wizard = self.env['ems.grade_session_wizard'].create({
             'mode': 'study', 'study_ids': [(6, 0, [self.study.id])], **CLAIMS,
         })
@@ -615,8 +615,8 @@ class TestGradeSession(TransactionCase):
         ]))
 
     def test_state_wizard_on_selected_sessions(self):
-        session = self._new_session(round='1')
-        other = self._new_session(round='2')
+        session = self._new_session(grade_round='1')
+        other = self._new_session(grade_round='2')
         wizard = self.env['ems.grade_session_state_wizard'].with_user(self._head_of_studies()).with_context(
             active_model='ems.grade_session', active_ids=[session.id],
         ).create({'target_state': 'board'})
@@ -684,7 +684,7 @@ class TestGradeSession(TransactionCase):
         self.assertEqual(wizard.allowed_states, 'open,published')
         self.assertEqual(wizard.target_state, 'published')
         # Mixed states: only what every session can reach.
-        other = self._new_session(round='2')
+        other = self._new_session(grade_round='2')
         other.state = 'published'
         wizard = Wizard.with_context(active_ids=[session.id, other.id]).create({})
         self.assertEqual(wizard.allowed_states, 'board,published')

@@ -120,6 +120,8 @@ Each evaluation, the most recent first, has a table with one row per module:
 * **RA1, RA2…:** the grade of each **learning outcome** (RA) of the module. Hover over a cell to see the outcome's name. An asterisk (`*`) marks a provisional grade, a dash (`-`) an outcome not evaluated yet and a tick (`✓`) one already passed in an earlier evaluation. The cells in **grey** are outcomes the module does not have.
 * **Comments:** the teacher's comment for the module, if any.
 
+![The Grades page of the portal](../../assets/families/qualificacions-portal.png)
+
 Above each table you will find the **claims period** of that evaluation.
 
 The **Download PDF (non-official)** button gives you the same tables in a PDF. It is not an official document.

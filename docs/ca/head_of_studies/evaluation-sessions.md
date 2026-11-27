@@ -38,6 +38,8 @@ Les sessions són a **Planificació i qualificació → Qualificacions → Avalu
 4. Omple **Reclamacions des de** i **Reclamacions fins a**: els dies en què l'alumnat pot reclamar una nota un cop publicada. Totes dues dates són obligatòries.
 5. Prem **Crea sessions**.
 
+![Crear les sessions d'una avaluació](../../assets/head_of_studies/evaluation-sessions-01-crear.png)
+
 EMS crea una sessió per cada grup i mòdul amb alumnes matriculats (sense les tutories), cadascuna amb els seus alumnes i els seus resultats d'aprenentatge, i et mostra la llista de les sessions creades.
 
 ---
@@ -72,7 +74,7 @@ Una sessió avança **d'un en un**, endavant o enrere: d'Oberta a Junta d'avalua
 
 **Per a tot un estudi o nivell:** obre **Canviar l'estat de la sessió d'avaluació** i tria els estudis o nivells i l'avaluació.
 
-En tots dos casos, l'**Estat destí** només ofereix els estats als quals poden passar les sessions, per defecte el següent. Prem **Aplica**.
+En tots dos casos, l'**Estat destí** només ofereix els estats als quals poden passar les sessions, per defecte el següent. Prem **Aplicar**.
 
 ---
 
@@ -83,6 +85,8 @@ Quan l'estat destí és **Publicada**:
 - Les sessions necessiten el termini de reclamacions: sense, no es poden publicar.
 - Si alguna **no té cap resultat d'aprenentatge amb nota**, un avís les llista (potser s'ha oblidat un mòdul sencer). Les pots publicar igualment.
 - Marca **Anuncia la publicació** per enviar un correu a cada alumne, i a la família dels menors d'edat, per avisar que les notes ja són al portal. Reben un correu per avaluació, amb el termini de reclamacions i un botó per anar al portal; el correu mai no porta les notes.
+
+![Publicar les sessions seleccionades i anunciar-ho](../../assets/head_of_studies/evaluation-sessions-02-publicar.png)
 
 A partir d'aquest moment, l'alumnat i les famílies veuen les notes a la targeta **Qualificacions** del portal i les poden descarregar en un PDF no oficial (vegeu la [guia del portal de l'alumne](../families/manual-portal-alumne.md#consultar-les-notes)).
 

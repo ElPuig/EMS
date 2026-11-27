@@ -46,3 +46,39 @@ registry.category("web_tour.tours").add("ems_grade_matrix_entry", {
         },
     ],
 });
+
+// Issue #878: moving to another session with the pager must show that session's grades. The grid
+// reused its buffer and showed empty cells until the page was reloaded.
+registry.category("web_tour.tours").add("ems_grade_matrix_pager", {
+    test: true,
+    url: "/odoo/action-ems.action_grade_session_tree",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_group_header:contains('TGMX1A')",
+            content: "Expand the seeded sessions' group",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row td[name='subject_id']:contains('Test Subject (Grade Matrix Tour)')",
+            content: "Open the first session (its first cell graded 3)",
+            run: "click",
+        },
+        {
+            trigger: ".o_grade_matrix tbody tr:first-child td.o_grade_matrix_cell span:contains('3')",
+            content: "The first session's grade is shown",
+        },
+        {
+            trigger: ".o_pager_next",
+            content: "Go to the other session with the pager",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='subject_id']:contains('Pager Subject (Grade Matrix Tour)')",
+            content: "The other session is loaded",
+        },
+        {
+            trigger: ".o_grade_matrix tbody tr:first-child td.o_grade_matrix_cell span:contains('9')",
+            content: "Its grade is shown without reloading the page",
+        },
+    ],
+});

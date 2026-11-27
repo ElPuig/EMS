@@ -74,3 +74,22 @@ class TestGradeMatrixTour(HttpCase):
         self.assertEqual(len(line), 1)
         self.assertTrue(line.is_scored)
         self.assertEqual(line.score, 8)
+
+    def test_grade_matrix_pager_tour(self):
+        # Issue #878: the grid follows the pager to another session without reloading the page.
+        subject = self.env['ems.subject'].create({
+            'code': 'TGMX002', 'acronym': 'TGMP', 'name': 'Pager Subject (Grade Matrix Tour)',
+            'study_ids': [(4, self.study.id)],
+        })
+        self.env['ems.outcome'].create({
+            'code': 'TGMX002_01RA', 'acronym': 'RA1', 'name': 'Outcome (Grade Matrix Pager)', 'subject_id': subject.id,
+        })
+        for student in (self.student_first, self.student_second):
+            self.env['ems.enrollment'].create({'student_id': student.id, 'group_id': self.group.id, 'subject_id': subject.id})
+        other = self.env['ems.grade_session'].create({
+            'group_id': self.group.id, 'subject_id': subject.id, 'round': '1', 'teacher_id': self.teacher_employee.id,
+        })
+        other.fill_students()
+        other.grade_outcome_line_ids.write({'score': 9, 'is_scored': True})
+        self.grade_session.grade_outcome_line_ids.write({'score': 3, 'is_scored': True})
+        self.start_tour("/odoo", "ems_grade_matrix_pager", login="admin")

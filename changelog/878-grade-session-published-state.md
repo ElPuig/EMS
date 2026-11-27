@@ -25,6 +25,10 @@
 
 - Creating the sessions of a study went from 28 s to 6 s, and opening the tutors' view from 12 s to 0.2 s.
 
+## Grade grid empty after moving to another session:
+
+- Moving from one evaluation session to another with the form's arrows showed the new session's grid with empty cells (the grid kept the previous session's data) until the page was reloaded.
+
 ## Wizard overlay stuck after changing states from the list:
 
 - The "Changing the state..." overlay stayed on screen forever when the wizard closed itself and went back to the list, and the long-running wizards (session creation, imports, course transition) showed their "in progress" overlay forever when a required field was left empty.

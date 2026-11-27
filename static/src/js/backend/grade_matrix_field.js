@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import { Component, useState, useRef, onPatched, onMounted, onWillUnmount } from "@odoo/owl";
+import { Component, useState, useRef, onPatched, onMounted, onWillUnmount, onWillUpdateProps } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { useSetupAction } from "@web/search/action_hook";
@@ -50,6 +50,15 @@ export class GradeMatrixField extends Component {
         };
         this._onDocPaste = (ev) => this.onPaste(ev);
         this._syncBuffer();
+        // The form reuses this component when it shows another session (the pager's arrows) or
+        // reloads the record: without this the grid kept the previous session's buffer, so its
+        // cells came out empty until the page was reloaded (issue #878).
+        onWillUpdateProps((nextProps) => {
+            const list = (props) => props.record.data[props.name];
+            if (nextProps.record !== this.props.record || list(nextProps) !== list(this.props)) {
+                this._syncBuffer(nextProps);
+            }
+        });
         onMounted(() => {
             document.addEventListener("mousedown", this._onDocMouseDown, true);
             document.addEventListener("paste", this._onDocPaste);
@@ -81,9 +90,9 @@ export class GradeMatrixField extends Component {
 
     // Copy the current record values into the buffer and mark it clean. Called on setup and after each
     // apply (the records are reloaded with the freshly computed grades).
-    _syncBuffer() {
+    _syncBuffer(props = this.props) {
         const outcomes = {};
-        for (const line of this.lines) {
+        for (const line of props.record.data[props.name].records) {
             outcomes[line.id] = {
                 score: line.data.score,
                 is_scored: line.data.is_scored,
@@ -92,7 +101,7 @@ export class GradeMatrixField extends Component {
             };
         }
         const subjects = {};
-        for (const line of this.subjectLines) {
+        for (const line of props.record.data.grade_subject_line_ids?.records || []) {
             subjects[line.id] = {
                 external_score: line.data.external_score,
                 external_is_scored: line.data.external_is_scored,
@@ -103,7 +112,7 @@ export class GradeMatrixField extends Component {
         }
         this.buffer.outcomes = outcomes;
         this.buffer.subjects = subjects;
-        this.buffer.provisionalCols = this._savedProvisionalCols();
+        this.buffer.provisionalCols = this._savedProvisionalCols(props);
         this.dirty.value = false;
     }
 
@@ -145,9 +154,9 @@ export class GradeMatrixField extends Component {
     }
 
     // The outcomes ticked as "Provisional", saved on the session: {outcomeId: true}.
-    _savedProvisionalCols() {
+    _savedProvisionalCols(props = this.props) {
         const cols = {};
-        for (const outcomeId of this.props.record.data.provisional_outcome_ids?.currentIds || []) {
+        for (const outcomeId of props.record.data.provisional_outcome_ids?.currentIds || []) {
             cols[outcomeId] = true;
         }
         return cols;

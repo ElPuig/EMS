@@ -103,6 +103,7 @@ export class GradeMatrixField extends Component {
         }
         this.buffer.outcomes = outcomes;
         this.buffer.subjects = subjects;
+        this.buffer.provisionalCols = this._savedProvisionalCols();
         this.dirty.value = false;
     }
 
@@ -143,14 +144,30 @@ export class GradeMatrixField extends Component {
             .filter((b) => b && b.is_scored && !b.is_locked);
     }
 
+    // The outcomes ticked as "Provisional", saved on the session: {outcomeId: true}.
+    _savedProvisionalCols() {
+        const cols = {};
+        for (const outcomeId of this.props.record.data.provisional_outcome_ids?.currentIds || []) {
+            cols[outcomeId] = true;
+        }
+        return cols;
+    }
+
+    // A ticked outcome stays ticked until the teacher unticks it, and every grade entered in it is
+    // provisional, whatever was typed (the server enforces it too).
     isColumnProvisional(col) {
-        const graded = this._columnGradedBuffers(col);
-        return graded.length > 0 && graded.every((b) => b.is_provisional);
+        return !!this.buffer.provisionalCols[col.id];
     }
 
     onColumnProvisional(col, ev) {
+        const checked = ev.target.checked;
+        if (checked) {
+            this.buffer.provisionalCols[col.id] = true;
+        } else {
+            delete this.buffer.provisionalCols[col.id];
+        }
         for (const b of this._columnGradedBuffers(col)) {
-            b.is_provisional = ev.target.checked;
+            b.is_provisional = checked;
         }
         this.dirty.value = true;
     }
@@ -180,7 +197,7 @@ export class GradeMatrixField extends Component {
             if (b) {
                 b.score = score;
                 b.is_scored = is_scored;
-                b.is_provisional = is_scored && is_provisional;
+                b.is_provisional = is_scored && (is_provisional || this.isColumnProvisional(col));
             }
         }
         this.dirty.value = true;
@@ -871,8 +888,16 @@ export class GradeMatrixField extends Component {
                 subjectVals[line.resId] = changes;
             }
         }
-        if (Object.keys(outcomeVals).length || Object.keys(subjectVals).length) {
-            await this.orm.call("ems.grade_session", "apply_grade_changes", [outcomeVals, subjectVals]);
+        const provisionalOutcomes = {};
+        const ticked = Object.keys(this.buffer.provisionalCols).map(Number).sort();
+        const saved = Object.keys(this._savedProvisionalCols()).map(Number).sort();
+        if (ticked.join() !== saved.join()) {
+            provisionalOutcomes[this.props.record.resId] = ticked;
+        }
+        if (Object.keys(outcomeVals).length || Object.keys(subjectVals).length
+                || Object.keys(provisionalOutcomes).length) {
+            await this.orm.call("ems.grade_session", "apply_grade_changes",
+                [outcomeVals, subjectVals, provisionalOutcomes]);
             await this.props.record.load();
         }
         this._syncBuffer();

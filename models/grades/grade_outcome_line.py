@@ -86,7 +86,17 @@ class EmsGradeOutcomeLine(models.Model):
         # An emptied grade is no longer provisional either.
         if "is_scored" in vals and not vals["is_scored"]:
             vals = dict(vals, is_provisional=False)
-        return super().write(vals)
+        result = super().write(vals)
+        if scoring and not bypass_lock:
+            # A grade entered in an outcome the teacher ticked as "Provisional" is provisional too,
+            # whatever was typed (issue #878). Not an official import's grade. sudo: the student's
+            # tutor may grade a session of another group they cannot read.
+            provisional = self.sudo().filtered(lambda line: line.is_scored and not line.is_provisional
+                                        and line.grade_session_id.allow_provisional
+                                        and line.outcome_id in line.grade_session_id.provisional_outcome_ids)
+            if provisional:
+                super(EmsGradeOutcomeLine, provisional).write({"is_provisional": True})
+        return result
 
     @api.constrains("score")
     def _check_score(self):

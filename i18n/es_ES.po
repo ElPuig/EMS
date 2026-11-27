@@ -56579,11 +56579,6 @@ msgid "Claims from"
 msgstr "Reclamaciones desde"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_grade_session_wizard_form
-msgid "Claims period"
-msgstr "Plazo de reclamaciones"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session__claim_date_to
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__claim_date_to
 msgid "Claims until"
@@ -56630,8 +56625,8 @@ msgstr "Último día en que el alumnado puede reclamar una nota de esta sesión.
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/grade_matrix_field.xml:0
-msgid "Mark every grade of this outcome as provisional"
-msgstr "Marca todas las notas de este RA como provisionales"
+msgid "Every grade of this outcome, also those entered later, is provisional"
+msgstr "Todas las notas de este RA, también las que se pongan después, son provisionales"
 
 #. module: ems
 #. odoo-python
@@ -56720,3 +56715,13 @@ msgstr "Para marcar una nota como provisional, escriba * o p detrás de la nota 
 #: model:ir.model.fields,help:ems.field_ems_grade_session__can_manage
 msgid "Whether the current user may change the session's state, claims period and provisional grades."
 msgstr "Si el usuario actual puede cambiar el estado, el plazo de reclamaciones y las notas provisionales de la sesión."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__allowed_states
+msgid "Allowed states"
+msgstr "Estados permitidos"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_session__provisional_outcome_ids
+msgid "Provisional outcomes"
+msgstr "Resultados de aprendizaje provisionales"

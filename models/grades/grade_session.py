@@ -2,7 +2,7 @@
 
 from collections import defaultdict
 
-from odoo import models, fields, api, _
+from odoo import Command, api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from ..shared import base
 from psycopg2 import IntegrityError
@@ -35,6 +35,9 @@ class EmsGradeSession(models.Model):
     claim_date_from = fields.Date(string="Claims from", help="First day students may claim a grade of this session once it is published.")
     claim_date_to = fields.Date(string="Claims until", help="Last day students may claim a grade of this session.")
     allow_provisional = fields.Boolean(string="Provisional grades allowed", default=True, help="Teachers may mark a learning outcome's grade as provisional.")
+    provisional_outcome_ids = fields.Many2many(string="Provisional outcomes", comodel_name="ems.outcome",
+                                               relation="ems_grade_session_provisional_outcome_rel",
+                                               help="Outcomes whose grades are all provisional: every grade entered in them is marked as provisional.")
     teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", default=lambda self: self._default_teacher_id())
 
     planning_id = fields.Many2one(string="Planning", comodel_name="ems.planning", compute="_compute_planning_id", store=True)
@@ -234,12 +237,15 @@ class EmsGradeSession(models.Model):
         self.fill_students()
 
     @api.model
-    def apply_grade_changes(self, outcome_vals, subject_vals):
+    def apply_grade_changes(self, outcome_vals, subject_vals, provisional_outcomes=None):
         # Batch-write the buffered edits from the tutor view in a single request. Each line carries its own
         # values, so the client cannot merge them into one ORM write; grouping them here turns what used to
         # be one RPC per changed line into a single round trip. Outcome lines are written before subject
         # lines so the subject grades recompute from the new outcome scores. The per-line write() overrides
         # still enforce the locking and state rules. Computed fields recompute once at flush.
+        # The session's "Provisional" outcome ticks first, so the grades written next follow them.
+        for session_id, outcome_ids in (provisional_outcomes or {}).items():
+            self.browse(int(session_id)).write({"provisional_outcome_ids": [Command.set(outcome_ids)]})
         OutcomeLine = self.env["ems.grade_outcome_line"]
         for line_id, vals in outcome_vals.items():
             OutcomeLine.browse(int(line_id)).write(vals)
@@ -310,8 +316,14 @@ class EmsGradeSession(models.Model):
         # The superuser (data migrations, tests building fixtures) may set any state directly.
         if "state" in vals and not self.env.su:
             self._ems_check_state_change(vals["state"])
+        if "provisional_outcome_ids" in vals:
+            # A grading tick, not a management one: whoever may grade the session sets it.
+            self._ems_check_can_edit()
         if not self.env.user.has_group("ems.group_academic_admin"):
             # Archiving / unarchiving (active) is a write; only administrators may archive or restore sessions.
             if "active" in vals:
                 raise UserError(_("Only administrators can archive or delete evaluation sessions."))
-        return super().write(vals)
+        result = super().write(vals)
+        if "provisional_outcome_ids" in vals and any(s.provisional_outcome_ids and not s.allow_provisional for s in self):
+            raise UserError(_("This evaluation session does not allow provisional grades."))
+        return result

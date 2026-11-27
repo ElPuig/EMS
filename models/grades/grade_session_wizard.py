@@ -103,7 +103,10 @@ class EmsGradeSessionStateWizard(models.TransientModel):
     level_ids = fields.Many2many(string="Levels", comodel_name="ems.level")
     study_ids = fields.Many2many(string="Studies", comodel_name="ems.study")
     round = fields.Selection(string="Round", selection=grade_round_selection, default="1", required=True)
-    target_state = fields.Selection(string="Target state", selection=grade_state_selection, default="board", required=True)
+    target_state = fields.Selection(string="Target state", selection=grade_state_selection,
+                                    compute="_compute_target_state", store=True, readonly=False)
+    allowed_states = fields.Char(string="Allowed states", compute="_compute_allowed_states",
+                                 help="Comma-separated states every target session can move to (the dropdown's options).")
     from_selection = fields.Boolean(default=lambda self: bool(self._selected_sessions()))
     publish_warning = fields.Text(string="Empty grades", compute="_compute_publish_warning",
                                   help="Sessions about to be published that still have empty outcome grades.")
@@ -134,6 +137,36 @@ class EmsGradeSessionStateWizard(models.TransientModel):
             ("group_id.study_id", "in", studies.ids),
             ("round", "=", self.round),
         ])
+
+    @api.depends("mode", "level_ids", "study_ids", "round")
+    def _compute_allowed_states(self):
+        # A session moves one step at a time (see ems.grade_session._ems_check_state_change): offer
+        # only the states every target session can reach, leaving out the one they are all in already.
+        order = [state for state, _label in grade_state_selection]
+        for wizard in self:
+            current = set(wizard._target_sessions().mapped("state"))
+            if not current:
+                # Nothing chosen yet (from the menu): every state, until a scope is picked.
+                wizard.allowed_states = False
+                continue
+            allowed = set(order)
+            for state in current:
+                index = order.index(state)
+                allowed &= set(order[max(index - 1, 0):index + 2])
+            if len(current) == 1:
+                allowed -= current
+            wizard.allowed_states = ",".join(state for state in order if state in allowed)
+
+    @api.depends("allowed_states")
+    def _compute_target_state(self):
+        # The next state by default: the furthest one allowed. With mixed states that share no
+        # reachable state, nothing is offered and the write explains which session cannot move.
+        for wizard in self:
+            allowed = [state for state in (wizard.allowed_states or "").split(",") if state]
+            if not allowed:
+                wizard.target_state = wizard.target_state or "board"
+            elif wizard.target_state not in allowed:
+                wizard.target_state = allowed[-1]
 
     @api.depends("target_state", "mode", "level_ids", "study_ids", "round")
     def _compute_publish_warning(self):

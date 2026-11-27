@@ -44,7 +44,7 @@
                             <th class="text-center o_grade_matrix_col" t-att-class="col.isExternal ? 'o_grade_matrix_sep' : ''">
                                 <t t-esc="col.label"/>-<t t-esc="formatPonderation(col.ponderation)"/>%
                                 <label t-if="showProvisional and !col.isExternal" class="o_grade_matrix_provisional_toggle"
-                                       title="Mark every grade of this outcome as provisional">
+                                       title="Every grade of this outcome, also those entered later, is provisional">
                                     <input type="checkbox" class="form-check-input me-1"
                                            t-att-checked="isColumnProvisional(col)"
                                            t-on-change="(ev) => this.onColumnProvisional(col, ev)"/>Provisional

@@ -1,3 +1,4 @@
+from odoo import Command
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
@@ -669,6 +670,47 @@ class TestGradeSession(TransactionCase):
         line = session.grade_outcome_line_ids[0]
         with self.assertRaises(UserError):
             line.with_user(self.teacher_user).write({'is_provisional': True})
+
+    def test_state_wizard_offers_only_adjacent_states(self):
+        # Issue #878: the dropdown lists the previous and the next state, next by default.
+        session = self._new_session()
+        Wizard = self.env['ems.grade_session_state_wizard'].with_context(
+            active_model='ems.grade_session', active_ids=[session.id])
+        wizard = Wizard.create({})
+        self.assertEqual(wizard.allowed_states, 'board')
+        self.assertEqual(wizard.target_state, 'board')
+        session.state = 'board'
+        wizard = Wizard.create({})
+        self.assertEqual(wizard.allowed_states, 'open,published')
+        self.assertEqual(wizard.target_state, 'published')
+        # Mixed states: only what every session can reach.
+        other = self._new_session(round='2')
+        other.state = 'published'
+        wizard = Wizard.with_context(active_ids=[session.id, other.id]).create({})
+        self.assertEqual(wizard.allowed_states, 'board,published')
+
+    def test_provisional_outcome_column_marks_new_grades(self):
+        # Issue #878: a ticked outcome makes every grade entered in it provisional, even typed
+        # without the mark; unticked, grades are entered as typed again.
+        session = self._new_session()
+        session.fill_students()
+        line = session.grade_outcome_line_ids[0]
+        self.env['ems.grade_session'].with_user(self.teacher_user).apply_grade_changes(
+            {line.id: {'score': 6, 'is_scored': True, 'is_provisional': False}}, {},
+            {session.id: [line.outcome_id.id]})
+        self.assertEqual(session.provisional_outcome_ids, line.outcome_id)
+        self.assertTrue(line.is_provisional)
+        session.with_user(self.teacher_user).write({'provisional_outcome_ids': [Command.clear()]})
+        line.with_user(self.teacher_user).write({'score': 7, 'is_scored': True, 'is_provisional': False})
+        self.assertFalse(line.is_provisional)
+
+    def test_provisional_outcome_column_refused_when_not_allowed(self):
+        session = self._new_session()
+        session.fill_students()
+        session.allow_provisional = False
+        with self.assertRaises(UserError):
+            session.with_user(self.teacher_user).write(
+                {'provisional_outcome_ids': [Command.set(session.grade_outcome_line_ids.outcome_id.ids)]})
 
     def test_only_head_of_studies_sets_allow_provisional(self):
         session = self._new_session()

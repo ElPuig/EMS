@@ -9,6 +9,7 @@
                     <field name="allowed_subject_ids" invisible="1"/>
                     <field name="can_edit" invisible="1"/>
                     <field name="can_manage" invisible="1"/>
+                    <field name="provisional_outcome_ids" invisible="1"/>
                     <field name="active" invisible="1"/>
 
                     <div class="alert alert-warning" role="alert" name="alert-warning" invisible="has_planning or group_id == False or subject_id == False">

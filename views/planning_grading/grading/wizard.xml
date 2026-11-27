@@ -11,10 +11,10 @@
                         <field name="level_ids" widget="many2many_tags" invisible="mode != 'level'" required="mode == 'level'"/>
                         <field name="study_ids" widget="many2many_tags" invisible="mode != 'study'" required="mode == 'study'"/>
                         <field name="round" readonly="1" force_save="1"/>
-                        <label for="claim_date_from" string="Claims period"/>
-                        <div class="o_row">
-                            <field name="claim_date_from" required="1"/> - <field name="claim_date_to" required="1"/>
-                        </div>
+                        <!-- Each date with its own label and a visible box (o_field_highlight): an empty
+                             date pair joined by a dash went unnoticed (issue #878). -->
+                        <field name="claim_date_from" required="1" class="o_field_highlight"/>
+                        <field name="claim_date_to" required="1" class="o_field_highlight"/>
                     </group>
                     <footer>
                         <button name="action_create_sessions" type="object" string="Create sessions" class="btn-primary"/>
@@ -46,7 +46,7 @@
                         <field name="level_ids" widget="many2many_tags" invisible="from_selection or mode != 'level'" required="not from_selection and mode == 'level'"/>
                         <field name="study_ids" widget="many2many_tags" invisible="from_selection or mode != 'study'" required="not from_selection and mode == 'study'"/>
                         <field name="round" invisible="from_selection"/>
-                        <field name="target_state"/>
+                        <field name="target_state" required="1" widget="ems_selection_allowed" options="{'allowed_field': 'allowed_states'}"/>
                     </group>
                     <div class="alert alert-warning" role="alert" invisible="not publish_warning">
                         <p class="mb-1">These sessions still have empty outcome grades. You can publish them anyway:</p>

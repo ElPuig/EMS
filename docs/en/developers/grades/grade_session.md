@@ -192,3 +192,35 @@ Test coverage was already extensive before this pass (`tests/test_grade_session.
 tests spanning all three models plus both bulk wizards, `tests/test_grade_session_tour.py`)
 — no new tests were needed; this was a normalization-only pass (plus the regression fix
 above). No dev doc existed for this triad before now.
+
+---
+
+## Evaluation lifecycle: publication, provisional outcomes and the student portal (issue #878)
+
+> **Spec, in progress (issue #878).** Requirements for this cycle; reconciled with the
+> implementation at Close.
+
+```mermaid
+stateDiagram-v2
+    [*] --> open: created by the Head of Studies
+    open --> board: list action
+    board --> published: list action (optional announcement email)
+    published --> final: list action (claims period over)
+    note right of published
+        Grades visible in the student portal.
+        Read-only except for an administrator
+        (accepted claims, issue #879).
+    end note
+```
+
+| Requirement | Design |
+|---|---|
+| New state | `published` between `board` and `final` (`grade_state_selection`). `can_edit` is `False` except for an administrator; #879 adds the accepted-claim exception. |
+| Claims period | `claim_date_from` / `claim_date_to` (Date) on the session, set in the creation wizard, editable on the form; `from <= to` constraint. |
+| Who manages sessions | `ems.group_head_of_studies` (and the administrator): create sessions, change states, set the claims period and the provisional switch. Other roles keep their current read/edit scope. |
+| State changes from the list (#354) | One wizard launched from the list's selection (`binding_model_id`, list only; the form's Actions dropdown runs it on its record): target state, announcement checkbox when publishing. The old level/study state wizard and its menu go away. |
+| Incremental round, session type (#354) | The creation wizard no longer asks for the round: each (group, subject) gets the next round after its highest existing one. New `session_type` (`ordinary` / `second_chance`), asked in the wizard. |
+| Provisional outcomes (#314) | `allow_provisional` on the session (Head of Studies); `is_provisional` on `ems.grade_outcome_line`, editable by the teacher only when allowed. Shown as provisional in the portal. |
+| Portal (#271) | `/my/calificaciones`: the student's published and final sessions, by round: subject grade (provisional while incomplete) and every outcome's score (pending / provisional). Families in view-only mode see their child's (`get_portal_student()`). Read through `sudo()` scoped to the portal student. |
+| PDF (#271) | Non-official grades report, downloadable from that page. |
+| Announcement | Checkbox when publishing: one email per student (deduplicated across the published sessions), card layout (`ems.mail_layout_card`), link to the portal, no grades. |

@@ -56636,8 +56636,8 @@ msgstr "Solo una matrícula confirmada puede cambiar de estudios."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/enrollment/enrollment.py:0
-msgid "Studies changed from %(old)s to %(new)s."
-msgstr "Estudios cambiados de %(old)s a %(new)s."
+msgid "Studies changed from %(old)s to %(new)s. The enrollment %(old_name)s is now %(name)s."
+msgstr "Estudios cambiados de %(old)s a %(new)s. La matrícula %(old_name)s ahora es %(name)s."
 
 #. module: ems
 #. odoo-python

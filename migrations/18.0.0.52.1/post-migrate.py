@@ -15,6 +15,8 @@ def _realign_enrollments_with_main_group(cr):
     and the portal kept reading it (e.g. convalidations offered the old study's modules). Realigns
     those enrollments with the student's main group, see sale.order._ems_realign_study_with_group()."""
     env = api.Environment(cr, SUPERUSER_ID, {})
+    # The chatter note it leaves is read by the centre: in the centre language (issue #746).
+    env = env['res.company']._ems_centre_env()
     orders = env['sale.order']._ems_realign_study_with_group()
     _logger.info("Issue #875: %s enrollment(s) realigned with the student's main group: %s",
                  len(orders), ', '.join(orders.mapped('name')))

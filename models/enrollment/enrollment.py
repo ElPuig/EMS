@@ -899,7 +899,8 @@ class SaleOrder(models.Model):
         and module lines, which become `products`. A confirmed line can't be deleted nor change
         product, so a module left behind goes to quantity 0 (the native way, which also keeps a
         trace of what was enrolled first) and a missing one gets a new line. Generic lines, and the
-        frozen fee price, are untouched. Never touches the student nor the invoices."""
+        frozen fee price, are untouched, and the enrollment is renamed after the new study. Never touches the
+        student nor the invoices."""
         self.ensure_one()
         module_lines = self._ems_module_lines()
         module_lines.filtered(lambda line: line.product_id not in products and line.product_uom_qty).write(
@@ -914,8 +915,14 @@ class SaleOrder(models.Model):
             'ems_group_id': group.id,
             'order_line': [Command.create({'product_id': product.id, 'product_uom_qty': 1}) for product in missing],
         })
+        # The code carries the study (M/26-27/CFGS/DAW/0148): renamed so it doesn't contradict the
+        # enrollment. A confirmed enrollment otherwise keeps its name (see write()); the number stays.
+        old_name = self.name
+        if self.ems_enrollment_number:
+            self.name = self._get_dynamic_enrollment_name()
         self.message_post(
-            body=_("Studies changed from %(old)s to %(new)s.", old=old_study.display_name, new=study.display_name),
+            body=_("Studies changed from %(old)s to %(new)s. The enrollment %(old_name)s is now %(name)s.",
+                   old=old_study.display_name, new=study.display_name, old_name=old_name, name=self.name),
             subtype_xmlid='mail.mt_note')
 
     def _ems_invoice_study_change_adjustment(self, amount):

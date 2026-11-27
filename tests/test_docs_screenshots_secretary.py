@@ -228,6 +228,35 @@ class TestDocsScreenshotsSecretary(DocsScreenshotMixin, HttpCase):
         workbook.save(buffer)
         return base64.b64encode(buffer.getvalue())
 
+    def test_capture_study_change(self):
+        """Issue #875: the "Change studies" dialog of a confirmed enrollment, DAW to DAM, with the
+        template and the destination group the wizard suggests."""
+        old_study = self.env['ems.study'].create({
+            'code': 'DOCSEC02', 'acronym': 'DAW', 'name': "Desenvolupament d'aplicacions web",
+            'date': '2026-01-01', 'deprecated': False, 'level_id': self.level.id})
+        old_group = self.env['ems.group'].create({
+            'course': 2, 'acronym': 'A', 'level_id': self.level.id, 'study_id': old_study.id, 'shift': 'morning'})
+        self.last_group.shift = 'morning'
+        subjects = {}
+        for study, code, name in ((old_study, 'DOCSEC21', 'Desenvolupament web en entorn servidor'),
+                                  (self.study, 'DOCSEC22', 'Accés a dades')):
+            subject = subjects[study] = self.env['ems.subject'].create({
+                'code': code, 'acronym': code[-2:], 'name': name, 'study_ids': [(6, 0, study.ids)]})
+            self.env['sale.order.template'].create({
+                'name': f'{study.acronym}-2', 'ems_study_id': study.id, 'study_year': 2,
+                'sale_order_template_line_ids': [(0, 0, {'product_id': subject.product_id.id, 'name': name})]})
+        student = self._student('Pere Exemple Soler', old_group)
+        order = self.env['sale.order'].create({
+            'partner_id': student.id, 'ems_study_id': old_study.id, 'shift': 'morning',
+            'ems_course_id': self.env['res.partner']._ems_running_course().id, 'ems_group_id': old_group.id,
+            'order_line': [(0, 0, {'product_id': subjects[old_study].product_id.id})],
+        })
+        order.action_confirm()
+        url = self._wizard_url('ems.enrollment_study_change_wizard', "Canviar d'estudis",
+                               context={'default_order_id': order.id, 'default_study_id': self.study.id})
+        self._capture(url, '.modal-content', 'preinscrpcio-Secretaria-12.png', login='doc_shot_secretary',
+                      wait_for=".modal-content .o_field_widget[name='group_id'] input")
+
     def test_capture_preinscription(self):
         # --- Fixtures: a made-up study GEDAC can resolve ('CFPM    DOCSMX' -> tail DOCSMX) ---
         self.env.company.center_code = '8028047'

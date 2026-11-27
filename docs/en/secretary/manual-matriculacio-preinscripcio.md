@@ -205,7 +205,9 @@ When a student who has already confirmed their enrollment moves to other studies
 4. Leave the **Adjustment amount** at **0** if the invoice stays as it is. If the change has to be charged or refunded, enter the amount: a positive amount issues an invoice for it, a negative one a credit note.
 5. Click **Change studies**.
 
-The enrollment takes the subjects of the new template (those of the previous studies stay on it with quantity 0, as a record), and the student is moved to the destination group with the new subjects. Subjects of the previous studies that already have grades are kept, and a note on the student's form lists them. The change is logged in the enrollment's chatter.
+![Change studies dialog of a confirmed enrollment](../../assets/secretary/preinscrpcio-Secretaria-12.png)
+
+The enrollment takes the subjects of the new template (those of the previous studies stay on it with quantity 0, as a record), and the student is moved to the destination group with the new subjects. Subjects of the previous studies that already have grades are kept, and a note on the student's form lists them. The enrollment code changes to the new studies (e.g. `M/26-27/CFGS/DAW/0148` becomes `M/26-27/CFGS/DAM/0148`, same number), and the change is logged in the enrollment's chatter.
 
 If you try to change the studies or the main group of a student with a confirmed enrollment directly on their form, EMS stops you and points you to this action. Students whose enrollment is not managed in EMS can still be changed on their form as usual.
 

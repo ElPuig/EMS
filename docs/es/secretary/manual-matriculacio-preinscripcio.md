@@ -205,7 +205,9 @@ Cuando un alumno que ya ha confirmado la matrícula pasa a otros estudios (por e
 4. Dejad el **Importe de ajuste** a **0** si la factura queda como está. Si el cambio se tiene que cobrar o devolver, indicad el importe: un importe positivo emite una factura por ese importe, y uno negativo, una factura rectificativa.
 5. Pulsad **Cambiar de estudios**.
 
-La matrícula toma las asignaturas de la plantilla nueva (las de los estudios anteriores se quedan en ella con cantidad 0, como registro), y el alumno pasa al grupo destino con las asignaturas nuevas. Las asignaturas de los estudios anteriores que ya tienen notas se conservan, y una nota en la ficha del alumno las lista. El cambio queda registrado en el chat de la matrícula.
+![Diálogo Cambiar de estudios de una matrícula confirmada](../../assets/secretary/preinscrpcio-Secretaria-12.png)
+
+La matrícula toma las asignaturas de la plantilla nueva (las de los estudios anteriores se quedan en ella con cantidad 0, como registro), y el alumno pasa al grupo destino con las asignaturas nuevas. Las asignaturas de los estudios anteriores que ya tienen notas se conservan, y una nota en la ficha del alumno las lista. El código de la matrícula pasa a los estudios nuevos (por ejemplo, `M/26-27/CFGS/DAW/0148` pasa a ser `M/26-27/CFGS/DAM/0148`, con el mismo número), y el cambio queda registrado en el chat de la matrícula.
 
 Si intentáis cambiar los estudios o el grupo principal de un alumno con matrícula confirmada directamente en su ficha, EMS no os deja y os indica esta acción. Los alumnos que no tienen la matrícula gestionada en EMS se pueden seguir cambiando en su ficha como siempre.
 

@@ -93,6 +93,8 @@ class TestEnrollmentStudyChange(TransactionCase):
         self.assertEqual(order.ems_study_id, self.new_study)
         self.assertEqual(order.sale_order_template_id, self.new_template)
         self.assertEqual(order.ems_group_id, self.new_group)
+        self.assertEqual(order.name, order._get_dynamic_enrollment_name())
+        self.assertIn('/SCN/', order.name, "Renamed after the new study")
         quantities = self._quantities(order)
         self.assertEqual(quantities[self.generic], 1, "Generic lines are never touched")
         for subject in self.old_subjects:
@@ -190,6 +192,7 @@ class TestEnrollmentStudyChange(TransactionCase):
         self.assertEqual(order.ems_study_id, self.new_study)
         self.assertEqual(order.sale_order_template_id, self.new_template)
         self.assertEqual(order.ems_group_id, self.new_group)
+        self.assertIn('/SCN/', order.name)
         self.assertEqual(order._ems_module_lines().filtered('product_uom_qty').product_id, attended.product_id)
         self.assertEqual(Enrollment.search([('student_id', '=', student.id)]).subject_id, attended,
                          "The realignment never touches the student")

@@ -205,7 +205,9 @@ Quan un alumne que ja ha confirmat la matrícula passa a uns altres estudis (per
 4. Deixeu l'**Import d'ajust** a **0** si la factura queda tal com està. Si el canvi s'ha de cobrar o retornar, indiqueu-ne l'import: un import positiu emet una factura per aquest import, i un de negatiu, una factura rectificativa.
 5. Premeu **Canviar d'estudis**.
 
-La matrícula agafa les assignatures de la plantilla nova (les dels estudis anteriors s'hi queden amb quantitat 0, com a registre), i l'alumne passa al grup destí amb les assignatures noves. Les assignatures dels estudis anteriors que ja tenen notes es conserven, i una nota a la fitxa de l'alumne les llista. El canvi queda registrat al xat de la matrícula.
+![Diàleg Canviar d'estudis d'una matrícula confirmada](../../assets/secretary/preinscrpcio-Secretaria-12.png)
+
+La matrícula agafa les assignatures de la plantilla nova (les dels estudis anteriors s'hi queden amb quantitat 0, com a registre), i l'alumne passa al grup destí amb les assignatures noves. Les assignatures dels estudis anteriors que ja tenen notes es conserven, i una nota a la fitxa de l'alumne les llista. El codi de la matrícula passa als estudis nous (per exemple, `M/26-27/CFGS/DAW/0148` passa a ser `M/26-27/CFGS/DAM/0148`, amb el mateix número), i el canvi queda registrat al xat de la matrícula.
 
 Si intenteu canviar els estudis o el grup principal d'un alumne amb matrícula confirmada directament a la seva fitxa, EMS no us ho deixa fer i us indica aquesta acció. Els alumnes que no tenen la matrícula gestionada a EMS es poden continuar canviant a la fitxa com sempre.
 

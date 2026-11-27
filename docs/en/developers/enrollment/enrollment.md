@@ -57,7 +57,9 @@ flowchart TD
 
 The name is only ever refreshed while the order is still editable
 (`draft`/`sent`); once confirmed (`sale`) a study/course change no longer
-touches `name` — the code is meant to be stable from that point on.
+touches `name` — the code is meant to be stable from that point on. The one exception is the
+[change of studies](#change-of-studies-after-confirmation-issue-875), which renames it after the new
+study (same number) so the code never contradicts the enrollment.
 
 ---
 
@@ -438,7 +440,7 @@ and academic admin:
 ```mermaid
 flowchart TD
     A["Change studies (wizard)"] --> B["sale.order._ems_change_study(study, template, group, products)"]
-    B --> B1["header: study, template, destination group"]
+    B --> B1["header: study, template, destination group;\nname rebuilt (same number)"]
     B --> B2["module lines not in products: quantity 0"]
     B --> B3["products missing: new line (or a quantity-0 line back to 1)"]
     A --> C{"adjustment != 0?"}
@@ -466,7 +468,7 @@ flowchart TD
 - **Existing data:** `migrations/18.0.0.52.1/post-migrate.py` realigns every confirmed enrollment of
   the current course whose study differs from the student's main group's study (the group is what
   the student actually attends): header from the group, lines from the student's current subject
-  enrollments, no invoice, no change to the student.
+  enrollments, renamed after the group's study, no invoice, no change to the student.
 
 ---
 

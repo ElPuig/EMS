@@ -1313,7 +1313,7 @@ flowchart LR
     A --> L[_get_guard_duty_leave_intervals]
     A --> E[_get_expected_students<br/>roll-call list, else main groups]
     A --> M[_merge_absorbed_periods<br/>a cut-short period folds into its whole one]
-    A --> X[_get_control_sheet_xlsx<br/>xlsxwriter, two sheets per area]
+    A --> X[_get_control_sheet_xlsx<br/>xlsxwriter, two sheets per area<br/>+ Total with every area]
     X --> F[control_sheet Binary, attachment=False<br/>/web/content download]
 ```
 
@@ -1328,7 +1328,8 @@ flowchart LR
 | Attendance filled in as at the download (`_get_control_sheet_day`): **Attendance** present once checked in at any time, on walkout when the first period has started without a check-in, absence when a request covers it, a box until then (`_get_teacher_status`); **Arrival time** the first check-in (`_ems_first_check_in_hours`) | The walkout report's own rules, so both agree; the box is for whoever notes it by hand before EMS knows |
 | **Students present**: lines of that day's roll call (`ems.attendance_session_header` of the slot's schedule) whose status is in the `assistance` category, students not expected left out (`_get_present_students`); empty with no roll call | What the attendance reports count. A roll call starts with every student as attended until marked, so a started one counts what the teacher has recorded so far |
 | **Remarks** left for hand notes, beside the absence's state | Filled in by hand |
-| Beside each block, from column N and ending on its last row, the figures so far per contract type (on walkout / present / absent), as `COUNTIFS` over the Contract and Attendance columns from the sheet's first teacher to the block's last (`_write_control_sheet_summary`); the Attendance cells offer those values as a list (data validation) | Whoever fills the sheet by hand gets the cumulative figures the Departament asks for without counting; the cached values are the ones known at the download, for viewers that do not recalculate |
+| Beside each block, from column N and ending on its last row, the figures so far per contract type (on walkout / present / absent) under a **Cumulative figures** heading, as `COUNTIFS` over the Contract and Attendance columns from the sheet's first teacher to the block's last (`_write_control_sheet_summary`); the Attendance cells offer those values as a list (data validation) | Whoever fills the sheet by hand gets the cumulative figures the Departament asks for without counting; the cached values are the ones known at the download, for viewers that do not recalculate. The heading says they add up the earlier periods (developer, 2026-11-27) |
+| With more than one area (the area field empty), a first **Total** sheet (`_write_control_sheet_total`): every period of every area, sorted by start, each with only the cumulative figures table of the whole teaching staff, i.e. the teachers whose first period starts by then (`start[0] <= period[0]`). Each figure adds up one `COUNTIFS` per area over that area's **By period** sheet, from its first teacher to the last block starting by then | The overall view of the walkout per period for the whole staff (developer, 2026-11-27). Formulas over the areas' sheets keep it in step with what is filled in there; the areas' periods differ (VET and ESO/BTX frameworks), so a period counts every block that has started, whatever the area |
 
 **Why a Binary on the transient record and not a controller:** the file is built once, when asked
 for, so an error (a holiday, nobody scheduled) shows in the dialog rather than as a broken download,
@@ -1343,7 +1344,9 @@ with nothing a report action gives here (the sheet is not tied to a printable re
 `_read_group` for the main groups' students, and one search plus one `_read_group` for the day's
 roll calls, then
 work in memory over the slots of the day. On this dev database's real data (119 teachers, 547
-slots for a Thursday) it takes 0.18 s for the data and 0.08 s for the file, cold, in `odoo shell`.
+slots for a Thursday) it takes 0.18 s for the data and 0.08 s for the file, cold, in `odoo shell`. The **Total** sheet adds no query: it is written from what the areas' sheets already computed
+(periods x areas x teachers in memory; 9 periods, 2 areas, 119 teachers on 2026-11-27's copy of
+production, 0.27 s for the whole file).
 
 ## Who gets told
 

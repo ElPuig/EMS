@@ -219,8 +219,10 @@ Para apuntar a mano quién viene, antes de que empiece el día o durante el día
 
 1. En el mismo diálogo, elige el día (cualquiera, también uno que aún no ha llegado) y, si quieres, un **Área** (FP o ESO / BTX). Si la dejas vacía, toma todas las áreas docentes.
 2. Haz clic en **Hoja de control (xlsx)**. Se descarga una hoja de cálculo con dos hojas por área:
-   - **Por franjas**: cada docente una sola vez, en la primera franja de su horario ese día, agrupados por franja. Para cada uno: departamento, contrato, actividad, grupo, código y nombre del aula, alumnos previstos **Alumnos presentes**, **Asistencia**, **Hora de llegada** y **Observaciones**. Sumando cada franja tienes las cifras hasta el momento.
+   - **Por franjas**: cada docente una sola vez, en la primera franja de su horario ese día, agrupados por franja. Para cada uno: departamento, contrato, actividad, grupo, código y nombre del aula, alumnos previstos **Alumnos presentes**, **Asistencia**, **Hora de llegada** y **Observaciones**. Junto a cada franja, la tabla **Datos acumulados** da, por tipo de contrato, cuántos docentes están en huelga, presentes o con ausencia hasta esa franja, contando también las anteriores. Las cifras se actualizan solas cuando cambias la columna **Asistencia**.
    - **Cuadrícula**: cada docente por franjas, como en el tablero de guardias, con el grupo (entre paréntesis los alumnos presentes de los previstos, una vez pasada lista, y el código del aula) o la tarea, y una casilla para marcar.
+
+   Si no has elegido ningún área, la primera hoja, **Total**, es la visión global de la huelga: todas las franjas de todas las áreas, cada una solo con la tabla de datos acumulados de todo el profesorado. Las cifras salen de las hojas **Por franjas** de cada área, así que también se actualizan cuando las rellenas.
 
 ![Diálogo de huelgas: Fecha, Área (todas las áreas docentes si está vacía) y los botones Mostrar y Hoja de control (xlsx)](../../assets/head_of_studies/hos-staff-walkout-dialog.png)
 

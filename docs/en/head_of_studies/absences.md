@@ -220,8 +220,10 @@ To note down by hand who comes, before the day starts or during it:
 
 1. In the same dialog, choose the day (any day, also a coming one) and, if you want, an **Area** (VET or ESO / BTX). Empty, it takes every teaching area.
 2. Click **Control sheet (xlsx)**. A spreadsheet downloads with two sheets per area:
-   - **By period**: every teacher once, in the first period of their schedule that day, grouped by period. For each one: department, contract, activity, group, classroom code and classroom, expected students, **Students present**, **Attendance**, **Arrival time** and **Remarks**. Adding up each period gives the figures so far.
+   - **By period**: every teacher once, in the first period of their schedule that day, grouped by period. For each one: department, contract, activity, group, classroom code and classroom, expected students, **Students present**, **Attendance**, **Arrival time** and **Remarks**. Beside each period, the **Cumulative figures** table gives, per contract type, how many teachers are on walkout, present or absent up to that period, counting the earlier ones too. The figures update by themselves when you change the **Attendance** column.
    - **Grid**: every teacher by period, as on the guard duty board, with the group (in brackets the students present out of those expected, once the roll call is taken, and the classroom code) or the duty, and a box to tick.
+
+   If you have not chosen an area, the first sheet, **Total**, is the overall view of the walkout: every period of every area, each with only the cumulative figures table of the whole teaching staff. Its figures come from each area's **By period** sheet, so they also update as you fill those in.
 
 ![Staff walkouts dialog: Date, Area (all teaching areas when empty), and the Show and Control sheet (xlsx) buttons](../../assets/head_of_studies/hos-staff-walkout-dialog.png)
 

@@ -218,8 +218,10 @@ Per apuntar a mà qui ve, abans que comenci el dia o durant el dia:
 
 1. Al mateix diàleg, tria el dia (qualsevol, també un que encara ha de venir) i, si vols, una **Àrea** (FP o ESO / BTX). Si la deixes buida, agafa totes les àrees docents.
 2. Fes clic a **Full de control (xlsx)**. Es baixa un full de càlcul amb dos fulls per àrea:
-   - **Per franges**: cada docent una sola vegada, a la primera franja del seu horari aquell dia, agrupats per franja. Per a cadascun: departament, contracte, activitat, grup, codi i nom de l'aula, alumnes previstos **Alumnes presents**, **Assistència**, **Hora d'arribada** i **Observacions**. Sumant cada franja tens les xifres fins al moment.
+   - **Per franges**: cada docent una sola vegada, a la primera franja del seu horari aquell dia, agrupats per franja. Per a cadascun: departament, contracte, activitat, grup, codi i nom de l'aula, alumnes previstos **Alumnes presents**, **Assistència**, **Hora d'arribada** i **Observacions**. Al costat de cada franja, la taula **Dades acumulades** dona, per tipus de contracte, quants docents estan en vaga, presents o amb absència fins a aquella franja, comptant també les anteriors. Les xifres s'actualitzen soles quan canvies la columna **Assistència**.
    - **Graella**: cada docent per franges, com al tauler de guàrdies, amb el grup (entre parèntesis els alumnes presents dels previstos, un cop passada la llista, i el codi de l'aula) o la tasca, i una casella per marcar.
+
+   Si no has triat cap àrea, el primer full, **Total**, és la visió global de la vaga: totes les franges de totes les àrees, cadascuna només amb la taula de dades acumulades de tot el professorat. Les xifres surten dels fulls **Per franges** de cada àrea, així que també s'actualitzen quan els emplenes.
 
 ![Diàleg de vagues: Data, Àrea (totes les àrees docents si és buida) i els botons Mostra i Full de control (xlsx)](../../assets/head_of_studies/hos-staff-walkout-dialog.png)
 

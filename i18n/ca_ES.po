@@ -10404,6 +10404,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
 #: code:addons/ems/models/erasmus/satisfaction.py:0
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_economy_panel_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form_economy
@@ -56712,3 +56713,21 @@ msgstr "Abs."
 #: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
 msgid "No contract"
 msgstr "Sense contracte"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Cumulative figures"
+msgstr "Dades acumulades"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Walkout %(day)s - every teaching area: cumulative figures by period"
+msgstr "Vaga %(day)s - totes les àrees docents: dades acumulades per franja"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_control_sheet.py:0
+msgid "Each period counts the teachers of every area whose working day has started by then. The figures follow what is filled in on the areas' sheets."
+msgstr "Cada franja compta els docents de totes les àrees que ja han començat la jornada. Les xifres segueixen el que s'emplena als fulls de cada àrea."

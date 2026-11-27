@@ -3,6 +3,7 @@
 import base64
 import io
 from datetime import date
+from unittest.mock import patch
 
 import openpyxl
 
@@ -212,7 +213,9 @@ class TestStaffWalkoutControlSheet(TransactionCase):
         first = next(row[0].row for row in formulas.iter_rows() if row[0].value == 'TWCS Early Came')
         last = next(row[0].row for row in formulas.iter_rows() if row[0].value == 'TWCS Loose')
 
-        # The 9:00 block's summary ends on its last row: Interim, then the teachers with no contract.
+        # The 9:00 block's summary ends on its last row, under a heading saying the figures are
+        # cumulative: Interim, then the teachers with no contract.
+        self.assertEqual(formulas.cell(last - 3, 14).value, 'Cumulative figures')
         self.assertEqual([formulas.cell(last - 2, column).value for column in (14, 17)], ['TWCS Interim', 'No contract'])
         self.assertEqual([formulas.cell(last - 1, column).value for column in range(14, 17)],
                          ['T-Walkout', 'T-Pres.', 'T-Abs.'])
@@ -222,6 +225,40 @@ class TestStaffWalkoutControlSheet(TransactionCase):
         # The 8:00 block only counts itself.
         self.assertEqual([cached.cell(first, column).value for column in range(14, 17)], [0, 1, 0])
         self.assertEqual(formulas.cell(first, 10).value, 'Present')
+
+    def test_every_area_adds_a_total_sheet_with_the_figures_so_far_of_the_whole_staff(self):
+        """Issue #865: with every area, a first "Total" sheet has every period of every area, each with
+        the figures of every teacher who starts by then, added up from the areas' own sheets."""
+        other_department = self.env['hr.department'].create(
+            {'name': 'TWCS Other Department', 'parent_id': self.other_area.id})
+        self._teacher('TWCS Early', [(8.0, 9.0, self._class(self.group))], contract_type_id=self.contract.id)
+        self._teacher('TWCS Other Late', [(9.5, 10.5, self._class(self.group))], department=other_department,
+                      contract_type_id=self.contract.id)
+        report = self.env['ems.staff_walkout_report'].with_user(self.member).create({'date': self.day})
+        # Only the fixture's areas: the database may have teaching areas of its own.
+        areas = [entry for entry in report._get_control_sheet_areas()
+                 if entry[0] in self.area | self.other_area]
+        with patch.object(type(report), '_get_control_sheet_areas', return_value=areas):
+            report.action_download_control_sheet()
+        content = io.BytesIO(base64.b64decode(report.control_sheet))
+        workbook = openpyxl.load_workbook(content)
+        self.assertEqual(workbook.sheetnames[0], 'Total')
+        formulas = workbook['Total']
+        cached = openpyxl.load_workbook(content, data_only=True)['Total']
+        blocks = {formulas.cell(row, 1).value: row for row in range(1, formulas.max_row + 1)
+                  if formulas.cell(row, 1).value in ('08:00-09:00', '09:30-10:30')}
+
+        self.assertEqual(set(blocks), {'08:00-09:00', '09:30-10:30'})
+        early, late = blocks['08:00-09:00'], blocks['09:30-10:30']
+        self.assertEqual(formulas.cell(early + 1, 1).value, 'Cumulative figures')
+        self.assertEqual(formulas.cell(early + 2, 1).value, 'TWCS Interim')
+        # At 8:00 only this area's teacher counts; at 9:30, both areas' (on walkout, at 10:00).
+        self.assertEqual(formulas.cell(early + 4, 1).value,
+                         """=COUNTIFS('TWCS - Area - By period'!$C$7,"TWCS Interim","""
+                         """'TWCS - Area - By period'!$J$7,"On walkout")""")
+        self.assertEqual(cached.cell(early + 4, 1).value, 1)
+        self.assertIn("+COUNTIFS('TWCS Other Area - By period'!", formulas.cell(late + 4, 1).value)
+        self.assertEqual(cached.cell(late + 4, 1).value, 2)
 
     def test_nobody_scheduled_in_the_area_says_so(self):
         with self.assertRaisesRegex(Exception, 'has a schedule on this day'):

@@ -389,14 +389,17 @@ class TestDocsScreenshotsSecretary(DocsScreenshotMixin, HttpCase):
         )
         # 10-11: Re-apply Benefits on a confirmed enrollment, and its confirmation.
         confirmed_url = '%s/%d' % (enrollments_url, confirmed.id)
+        # The action is in the form's Actions dropdown (issue #875).
+        reapply = ".o_ems_actions_menu button[name='action_ems_reapply_benefits']"
         self._capture(
             confirmed_url, '.o_action_manager', 'preinscrpcio-Secretaria-10.png', login=login,
-            wait_for="button[name='action_ems_reapply_benefits']", max_height=260,
-            marks=[("button[name='action_ems_reapply_benefits']", '1', 'top')],
+            wait_for='.o_form_statusbar .o_ems_actions_toggle', max_height=360,
+            click='.o_form_statusbar .o_ems_actions_toggle', wait_after=reapply,
+            marks=[(reapply, '1', 'top')],
         )
         self._capture(
             confirmed_url, '.modal-content', 'preinscrpcio-Secretaria-11.png', login=login,
-            wait_for="button[name='action_ems_reapply_benefits']",
-            click="button[name='action_ems_reapply_benefits']", wait_after='.modal-content',
+            wait_for='.o_form_statusbar .o_ems_actions_toggle',
+            click=['.o_form_statusbar .o_ems_actions_toggle', reapply], wait_after=[reapply, '.modal-content'],
         )
 

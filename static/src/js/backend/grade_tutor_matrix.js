@@ -7,6 +7,7 @@ import { useSetupAction } from "@web/search/action_hook";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { user } from "@web/core/user";
 import { _t } from "@web/core/l10n/translation";
+import { formatGradeInput, parseGradeInput } from "./grade_input";
 
 const ROUND_LABELS = { "1": "1a", "2": "2a", "3": "3a", "4": "4a" };
 
@@ -42,6 +43,7 @@ export class GradeTutorMatrix extends Component {
         this.editRef = useRef("editInput");
         // Snapshots of the applied values, to diff on apply.
         this._outRaw = {};
+        this._provisionalSessionIds = new Set();
         this._subRaw = {};
 
         useSetupAction({
@@ -65,8 +67,9 @@ export class GradeTutorMatrix extends Component {
         this.state.loading = true;
         const sessions = await this.orm.searchRead(
             "ems.grade_session",
-            [["group_id.tutor_id.user_id", "=", user.userId], ["state", "!=", "final"]],
-            ["group_id", "subject_id", "round", "state"]
+            // Only what the tutor can still edit: published and final sessions are read-only (#878).
+            [["group_id.tutor_id.user_id", "=", user.userId], ["state", "in", ["open", "board"]]],
+            ["group_id", "subject_id", "round", "state", "allow_provisional"]
         );
         if (!sessions.length) {
             this.data.students = [];
@@ -91,6 +94,7 @@ export class GradeTutorMatrix extends Component {
         }
         const groupSessions = sessions.filter((s) => s.group_id[0] === this.state.groupId);
         const sessionIds = groupSessions.map((s) => s.id);
+        this._provisionalSessionIds = new Set(groupSessions.filter((s) => s.allow_provisional).map((s) => s.id));
         this.data.groupName = groupSessions[0].group_id[1] || "";
         this.data.round = groupSessions[0].round;
 
@@ -107,7 +111,7 @@ export class GradeTutorMatrix extends Component {
         const outcomeLines = await this.orm.searchRead(
             "ems.grade_outcome_line",
             [["grade_session_id", "in", sessionIds]],
-            ["subject_id", "student_id", "outcome_id", "outcome_acronym", "ponderation", "score", "is_scored", "is_locked"]
+            ["grade_session_id", "subject_id", "student_id", "outcome_id", "outcome_acronym", "ponderation", "score", "is_scored", "is_provisional", "is_locked"]
         );
 
         // Outcome lines grouped by (student, subject).
@@ -120,8 +124,8 @@ export class GradeTutorMatrix extends Component {
         const studentsMap = new Map();
         const outBuf = {}, subBuf = {}, outRaw = {}, subRaw = {};
         for (const ol of outcomeLines) {
-            outBuf[ol.id] = { score: ol.score, is_scored: ol.is_scored, is_locked: ol.is_locked };
-            outRaw[ol.id] = { score: ol.score, is_scored: ol.is_scored };
+            outBuf[ol.id] = { score: ol.score, is_scored: ol.is_scored, is_provisional: ol.is_provisional, is_locked: ol.is_locked };
+            outRaw[ol.id] = { score: ol.score, is_scored: ol.is_scored, is_provisional: ol.is_provisional };
         }
         for (const sl of subjectLines) {
             const v = {
@@ -290,10 +294,17 @@ export class GradeTutorMatrix extends Component {
             return { disabled: true };
         }
         const b = this.buffer.outcomes[ol.id];
-        return { score: b ? b.score : 0, is_scored: b ? b.is_scored : false, disabled: false, locked: b ? !!b.is_locked : false, outcome: ol };
+        return {
+            score: b ? b.score : 0,
+            is_scored: b ? b.is_scored : false,
+            is_provisional: b ? !!b.is_provisional : false,
+            disabled: false,
+            locked: b ? !!b.is_locked : false,
+            outcome: ol,
+        };
     }
 
-    _cellSet(row, col, score, is_scored) {
+    _cellSet(row, col, score, is_scored, is_provisional = false) {
         if (col.kind === "external") {
             const b = this.buffer.subjects[row.subjectLineId];
             if (b) {
@@ -312,6 +323,7 @@ export class GradeTutorMatrix extends Component {
             // A passed outcome from an earlier round is final and cannot be re-evaluated.
             b.score = score;
             b.is_scored = is_scored;
+            b.is_provisional = is_scored && is_provisional;
             this.dirty.value = true;
         }
     }
@@ -347,11 +359,11 @@ export class GradeTutorMatrix extends Component {
     }
 
     cellValue(row, col) {
-        const { score, is_scored, disabled } = this._cellGet(row, col);
+        const { score, is_scored, is_provisional, disabled } = this._cellGet(row, col);
         if (disabled) {
             return "";
         }
-        return is_scored ? score : "";
+        return formatGradeInput(score, is_scored, is_provisional);
     }
 
     cellTitle(row, col) {
@@ -359,7 +371,11 @@ export class GradeTutorMatrix extends Component {
             return `External · ${this.formatPonderation(row.external_ponderation)}%`;
         }
         const ol = row.outcomes[col.pos];
-        return ol ? `${ol.outcome_acronym || ""} · ${this.formatPonderation(ol.ponderation)}%` : "";
+        if (!ol) {
+            return "";
+        }
+        const title = `${ol.outcome_acronym || ""} · ${this.formatPonderation(ol.ponderation)}%`;
+        return this._cellGet(row, col).is_provisional ? `${title} · ${_t("Provisional grade")}` : title;
     }
 
     cellClass(row, col, rowIndex, colIndex) {
@@ -370,6 +386,9 @@ export class GradeTutorMatrix extends Component {
         let cls = "";
         if (is_scored) {
             cls = score >= 5 ? "o_grade_cell_pass" : "o_grade_cell_fail";
+        }
+        if (this._cellGet(row, col).is_provisional) {
+            cls += " o_grade_cell_provisional";
         }
         if (locked) {
             cls += " o_grade_cell_locked";
@@ -544,23 +563,12 @@ export class GradeTutorMatrix extends Component {
         return this.edit.active && rowIndex === this.sel.r && colIndex === this.sel.c;
     }
 
-    _changesFor(raw) {
-        const value = (raw || "").trim().replace(",", ".");
-        if (value === "") {
-            return { score: 0, is_scored: false };
-        }
-        let parsed = Math.round(parseFloat(value));
-        if (Number.isNaN(parsed)) {
-            return null;
-        }
-        parsed = Math.max(0, Math.min(10, parsed));
-        return { score: parsed, is_scored: true };
-    }
-
     _applyOne(row, col, raw) {
-        const changes = this._changesFor(raw);
+        const ol = col.kind === "external" ? null : row.outcomes[col.pos];
+        const allowProvisional = !!ol && this._provisionalSessionIds.has(ol.grade_session_id[0]);
+        const changes = parseGradeInput(raw, allowProvisional);
         if (changes) {
-            this._cellSet(row, col, changes.score, changes.is_scored);
+            this._cellSet(row, col, changes.score, changes.is_scored, changes.is_provisional);
         }
     }
 
@@ -602,8 +610,8 @@ export class GradeTutorMatrix extends Component {
         }
         this.edit.selectAll = initial === undefined;
         if (initial === undefined) {
-            const { score, is_scored } = this._cellGet(row, col);
-            initial = is_scored ? String(score) : "";
+            const { score, is_scored, is_provisional } = this._cellGet(row, col);
+            initial = formatGradeInput(score, is_scored, is_provisional);
         }
         this.edit.value = initial;
         this.edit.active = true;
@@ -789,8 +797,8 @@ export class GradeTutorMatrix extends Component {
         const outcomeVals = {};
         for (const [id, b] of Object.entries(this.buffer.outcomes)) {
             const raw = this._outRaw[id];
-            if (raw && (b.score !== raw.score || b.is_scored !== raw.is_scored)) {
-                outcomeVals[id] = { score: b.score, is_scored: b.is_scored };
+            if (raw && (b.score !== raw.score || b.is_scored !== raw.is_scored || b.is_provisional !== raw.is_provisional)) {
+                outcomeVals[id] = { score: b.score, is_scored: b.is_scored, is_provisional: b.is_provisional };
             }
         }
         const subjectVals = {};

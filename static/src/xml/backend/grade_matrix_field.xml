@@ -63,6 +63,7 @@
                         </td>
                         <t t-foreach="columns" t-as="col" t-key="col.id">
                             <td class="text-center o_grade_matrix_cell" t-att-class="cellClass(row, col, row_index, col_index)"
+                                t-att-title="cellTitle(row, col)"
                                 t-on-mousedown="(ev) => this.onCellMouseDown(row_index, col_index, ev)"
                                 t-on-mouseenter="() => this.onCellMouseEnter(row_index, col_index)"
                                 t-on-dblclick="() => this.onCellDblClick(row_index, col_index)">

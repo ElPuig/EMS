@@ -7,6 +7,7 @@ import { useSetupAction } from "@web/search/action_hook";
 import { useService } from "@web/core/utils/hooks";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
+import { formatGradeInput, parseGradeInput } from "./grade_input";
 
 // Spreadsheet-like matrix widget for grade_outcome_line_ids: one row per student, one column per
 // learning outcome, plus the external grade and the subject-level columns (internal / computed / final /
@@ -83,7 +84,12 @@ export class GradeMatrixField extends Component {
     _syncBuffer() {
         const outcomes = {};
         for (const line of this.lines) {
-            outcomes[line.id] = { score: line.data.score, is_scored: line.data.is_scored, is_locked: line.data.is_locked };
+            outcomes[line.id] = {
+                score: line.data.score,
+                is_scored: line.data.is_scored,
+                is_provisional: line.data.is_provisional,
+                is_locked: line.data.is_locked,
+            };
         }
         const subjects = {};
         for (const line of this.subjectLines) {
@@ -117,7 +123,12 @@ export class GradeMatrixField extends Component {
             return { score: b ? b.external_score : 0, is_scored: b ? b.external_is_scored : false };
         }
         const b = this._outcomeBuf(row, col);
-        return { score: b ? b.score : 0, is_scored: b ? b.is_scored : false };
+        return { score: b ? b.score : 0, is_scored: b ? b.is_scored : false, is_provisional: b ? !!b.is_provisional : false };
+    }
+
+    // Whether the session lets teachers mark an outcome's grade as provisional (issue #314).
+    get allowProvisional() {
+        return !!this.props.record.data.allow_provisional;
     }
 
     // Whether a cell is locked (an outcome already passed in an earlier round). Locked cells show the
@@ -130,7 +141,7 @@ export class GradeMatrixField extends Component {
         return b ? !!b.is_locked : false;
     }
 
-    _cellSet(row, col, score, is_scored) {
+    _cellSet(row, col, score, is_scored, is_provisional = false) {
         if (this._cellLocked(row, col)) {
             return;  // a passed outcome from an earlier round is final
         }
@@ -145,6 +156,7 @@ export class GradeMatrixField extends Component {
             if (b) {
                 b.score = score;
                 b.is_scored = is_scored;
+                b.is_provisional = is_scored && is_provisional;
             }
         }
         this.dirty.value = true;
@@ -290,15 +302,22 @@ export class GradeMatrixField extends Component {
 
     // RA / external cells (from the buffer).
     cellValue(row, col) {
-        const { score, is_scored } = this._cellGet(row, col);
-        return is_scored ? score : "";
+        const { score, is_scored, is_provisional } = this._cellGet(row, col);
+        return formatGradeInput(score, is_scored, is_provisional);
+    }
+
+    cellTitle(row, col) {
+        return this._cellGet(row, col).is_provisional ? _t("Provisional grade") : "";
     }
 
     cellClass(row, col, rowIndex, colIndex) {
-        const { score, is_scored } = this._cellGet(row, col);
+        const { score, is_scored, is_provisional } = this._cellGet(row, col);
         let cls = "";
         if (is_scored) {
             cls = score >= 5 ? "o_grade_cell_pass" : "o_grade_cell_fail";
+        }
+        if (is_provisional) {
+            cls += " o_grade_cell_provisional";
         }
         if (this._cellLocked(row, col)) {
             cls += " o_grade_cell_locked";
@@ -505,31 +524,15 @@ export class GradeMatrixField extends Component {
         return rowIndex >= rMin && rowIndex <= rMax && colIndex >= cMin && colIndex <= cMax;
     }
 
-    _changesFor(raw) {
-        const value = (raw || "").trim().replace(",", ".");
-        if (value === "") {
-            return { score: 0, is_scored: false };
-        }
-        let parsed = Math.round(parseFloat(value));
-        if (Number.isNaN(parsed)) {
-            return null;
-        }
-        parsed = Math.max(0, Math.min(10, parsed));
-        return { score: parsed, is_scored: true };
-    }
-
     _applyOne(row, col, raw) {
-        const changes = this._changesFor(raw);
-        if (changes) {
-            this._cellSet(row, col, changes.score, changes.is_scored);
-        }
+        this._applyMany([{ row, col, raw }]);
     }
 
     _applyMany(entries) {
         for (const { row, col, raw } of entries) {
-            const changes = this._changesFor(raw);
+            const changes = parseGradeInput(raw, this.allowProvisional);
             if (changes) {
-                this._cellSet(row, col, changes.score, changes.is_scored);
+                this._cellSet(row, col, changes.score, changes.is_scored, changes.is_provisional);
             }
         }
     }
@@ -588,8 +591,8 @@ export class GradeMatrixField extends Component {
         }
         this.edit.selectAll = initial === undefined;
         if (initial === undefined) {
-            const { score, is_scored } = row && col ? this._cellGet(row, col) : {};
-            initial = is_scored ? String(score) : "";
+            const { score, is_scored, is_provisional } = row && col ? this._cellGet(row, col) : {};
+            initial = formatGradeInput(score, is_scored, is_provisional);
         }
         this.edit.value = initial;
         this.edit.active = true;
@@ -812,8 +815,9 @@ export class GradeMatrixField extends Component {
         const outcomeVals = {};
         for (const line of this.lines) {
             const b = this.buffer.outcomes[line.id];
-            if (b && (b.score !== line.data.score || b.is_scored !== line.data.is_scored)) {
-                outcomeVals[line.resId] = { score: b.score, is_scored: b.is_scored };
+            if (b && (b.score !== line.data.score || b.is_scored !== line.data.is_scored
+                    || b.is_provisional !== line.data.is_provisional)) {
+                outcomeVals[line.resId] = { score: b.score, is_scored: b.is_scored, is_provisional: b.is_provisional };
             }
         }
         const subjectVals = {};

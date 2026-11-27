@@ -70,6 +70,9 @@ class EmsGradeOutcomeLine(models.Model):
                 raise UserError(_("This learning outcome was already passed in an earlier round; its grade cannot be modified."))
             if vals.get("is_provisional") and not line.grade_session_id.allow_provisional:
                 raise UserError(_("This evaluation session does not allow provisional grades."))
+        # An emptied grade is no longer provisional either.
+        if "is_scored" in vals and not vals["is_scored"]:
+            vals = dict(vals, is_provisional=False)
         return super().write(vals)
 
     @api.constrains("score")

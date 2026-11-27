@@ -428,3 +428,9 @@
         rgba(0, 0, 0, 0.04) 8px
     );
 }
+
+/* Provisional outcome grade (issue #314): typed with a trailing "*" or "p"; the value shows the "*"
+   and is set in italics so it reads as not yet final. */
+.o_grade_matrix td.o_grade_cell_provisional {
+    font-style: italic;
+}

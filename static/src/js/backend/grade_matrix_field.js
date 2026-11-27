@@ -38,6 +38,14 @@ export class GradeMatrixField extends Component {
             beforeLeave: () => this._beforeLeave(),
             beforeUnload: (ev) => this._beforeUnload(ev),
         });
+        // The session form's pager asks the same question before moving to another session
+        // (static/src/js/backend/grade_session_form.js).
+        if (this.env.gradeMatrixLeaveGuard) {
+            this.env.gradeMatrixLeaveGuard.check = () => this._beforeLeave();
+            onWillUnmount(() => {
+                this.env.gradeMatrixLeaveGuard.check = null;
+            });
+        }
         this.rootRef = useRef("root");
         this.editRef = useRef("editInput");
         this._dragging = false;

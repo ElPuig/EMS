@@ -27,7 +27,7 @@
 
 ## Grade grid empty after moving to another session:
 
-- Moving from one evaluation session to another with the form's arrows showed the new session's grid with empty cells (the grid kept the previous session's data) until the page was reloaded.
+- Moving from one evaluation session to another with the form's arrows showed the new session's grid with empty cells (the grid kept the previous session's data) until the page was reloaded. Moving away with unapplied grade changes now asks first, as leaving the screen already did.
 
 ## Wizard overlay stuck after changing states from the list:
 

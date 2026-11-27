@@ -93,3 +93,5 @@ class TestGradeMatrixTour(HttpCase):
         other.grade_outcome_line_ids.write({'score': 9, 'is_scored': True})
         self.grade_session.grade_outcome_line_ids.write({'score': 3, 'is_scored': True})
         self.start_tour("/odoo", "ems_grade_matrix_pager", login="admin")
+        # The change discarded at the pager's warning was not saved.
+        self.assertEqual(set(self.grade_session.grade_outcome_line_ids.mapped('score')), {3})

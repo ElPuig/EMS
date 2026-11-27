@@ -4,7 +4,7 @@
             <field name="name">ems.grade_session.form</field>
             <field name="model">ems.grade_session</field>
             <field name="arch" type="xml">
-                <form string="Grade session" duplicate="0" create="0">
+                <form string="Grade session" duplicate="0" create="0" js_class="ems_grade_session_form">
                     <field name="has_planning" invisible="1"/>
                     <field name="allowed_subject_ids" invisible="1"/>
                     <field name="can_edit" invisible="1"/>

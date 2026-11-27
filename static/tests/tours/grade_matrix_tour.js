@@ -67,9 +67,30 @@ registry.category("web_tour.tours").add("ems_grade_matrix_pager", {
             trigger: ".o_grade_matrix tbody tr:first-child td.o_grade_matrix_cell span:contains('3')",
             content: "The first session's grade is shown",
         },
+        // Unapplied changes: the pager asks first (structural selectors, the admin's language varies).
+        editGradeMatrixCell(".o_grade_matrix tbody tr:first-child td.o_grade_matrix_cell", "5"),
         {
             trigger: ".o_pager_next",
-            content: "Go to the other session with the pager",
+            content: "Try to go to the other session with an unapplied change",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button:not(.btn-primary)",
+            content: "Warned: stay",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='subject_id']:contains('Test Subject (Grade Matrix Tour)')",
+            content: "Still on the first session",
+        },
+        {
+            trigger: ".o_pager_next",
+            content: "Go to the other session again",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button.btn-primary",
+            content: "Warned: leave and discard",
             run: "click",
         },
         {

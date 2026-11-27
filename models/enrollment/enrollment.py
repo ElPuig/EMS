@@ -3,7 +3,7 @@ from datetime import date
 
 from psycopg2 import IntegrityError
 
-from odoo import models, fields, api, _
+from odoo import Command, api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_date
 from odoo.addons.mail.tools.discuss import Store
@@ -838,7 +838,9 @@ class SaleOrder(models.Model):
         # (see ems.student.year_record.freeze_on_leaving). No-op when the history is
         # already there, which is the normal case of a student of the study being run.
         origin_group = student.main_group_id
-        if origin_group and origin_group != group:
+        # Not on a change of studies (issue #875): it happens during the course, so freezing would
+        # record the year with the group being left and block the new study's own record.
+        if origin_group and origin_group != group and not self.env.context.get('ems_study_change'):
             self.env['ems.student.year_record'].sudo().freeze_on_leaving(student, origin_group)
         # Study and level travel with the group, they are not derived from it: leaving
         # them behind would keep a student who moves to another study (or an applicant
@@ -852,8 +854,10 @@ class SaleOrder(models.Model):
         if any(student[field].id != value for field, value in placement.items()):
             student.sudo().write(placement)
         Enrollment = self.env['ems.enrollment'].sudo()
+        # A line at quantity 0 is a module taken out of a confirmed enrollment (Odoo's way of
+        # removing one, see _ems_change_study()): nothing to enrol into.
         subjects = self.env['ems.subject'].sudo().search([
-            ('product_id', 'in', self.order_line.product_id.ids)])
+            ('product_id', 'in', self.order_line.filtered('product_uom_qty').product_id.ids)])
         # A convalidated subject is never taken again (issue #276): completing the convalidation
         # already withdrew the student from it, and a placement confirmed afterwards must not
         # enrol them back.
@@ -877,6 +881,81 @@ class SaleOrder(models.Model):
                     'group_id': subject_group.id,
                     'subject_id': subject.id,
                 })
+
+    # ------------------------------------------------------------------
+    # Change of studies after confirmation (issue #875)
+    # ------------------------------------------------------------------
+    def action_ems_change_study(self):
+        self.ensure_one()
+        return self.env['ems.enrollment_study_change_wizard'].action_open(self)
+
+    def _ems_module_lines(self):
+        """The lines enrolling in a subject (tutorships included), as opposed to the generic ones
+        (enrollment fee, CFGS fee, AMPA)."""
+        return self.order_line.filtered(lambda line: line.product_template_id.ems_subject_ids)
+
+    def _ems_change_study(self, study, template, group, products):
+        """Moves this confirmed enrollment to `study`: header (study, template, destination group)
+        and module lines, which become `products`. A confirmed line can't be deleted nor change
+        product, so a module left behind goes to quantity 0 (the native way, which also keeps a
+        trace of what was enrolled first) and a missing one gets a new line. Generic lines, and the
+        frozen fee price, are untouched. Never touches the student nor the invoices."""
+        self.ensure_one()
+        module_lines = self._ems_module_lines()
+        module_lines.filtered(lambda line: line.product_id not in products and line.product_uom_qty).write(
+            {'product_uom_qty': 0})
+        dropped = module_lines.filtered(lambda line: line.product_id in products and not line.product_uom_qty)
+        dropped.write({'product_uom_qty': 1})
+        missing = products - module_lines.product_id
+        old_study = self.ems_study_id
+        self.write({
+            'ems_study_id': study.id,
+            'sale_order_template_id': template.id,
+            'ems_group_id': group.id,
+            'order_line': [Command.create({'product_id': product.id, 'product_uom_qty': 1}) for product in missing],
+        })
+        self.message_post(
+            body=_("Studies changed from %(old)s to %(new)s.", old=old_study.display_name, new=study.display_name),
+            subtype_xmlid='mail.mt_note')
+
+    def _ems_invoice_study_change_adjustment(self, amount):
+        """Bills the difference a change of studies leaves: an adjustment line for `amount`, and an
+        invoice (positive) or credit note (negative) for whatever the order has left to invoice."""
+        self.ensure_one()
+        product = self.env.ref('ems.product_study_change_adjustment').product_variant_id
+        self.write({'order_line': [Command.create({
+            'product_id': product.id, 'product_uom_qty': 1, 'price_unit': amount})]})
+        invoice = self.sudo()._create_invoices(final=True)
+        invoice.write({
+            'invoice_date': self.env['ems.datetime_utils'].get_local_today(),
+            'ref': self.name,
+            'payment_reference': self.name,
+        })
+        invoice.action_post()
+        return invoice
+
+    @api.model
+    def _ems_realign_study_with_group(self):
+        """Issue #875, existing data: confirmed enrollments of the running course whose study isn't
+        the one of the student's main group, left behind when students were moved to another study
+        by hand. The group is what the student attends, so the enrollment follows it, with the
+        subjects the student is enrolled in as its module lines. No invoice, no change to the
+        student. Returns the realigned enrollments."""
+        course = self.env['ems.course'].search([('is_current', '=', True)], limit=1)
+        if not course:
+            return self.browse()
+        orders = self.search([
+            ('state', '=', 'sale'), ('ems_course_id', '=', course.id), ('ems_study_id', '!=', False),
+            ('partner_id.main_group_id', '!=', False),
+        ]).filtered(lambda order: order.partner_id.main_group_id.study_id != order.ems_study_id)
+        Enrollment = self.env['ems.enrollment'].sudo()
+        for order in orders:
+            group = order.partner_id.main_group_id
+            subjects = Enrollment.search([('student_id', '=', order.partner_id.id)]).subject_id
+            order._ems_change_study(
+                group.study_id, self.env['sale.order.template']._ems_find_for(group.study_id, group.course),
+                group, subjects.product_id)
+        return orders
 
     # ------------------------------------------------------------------
     # Billing

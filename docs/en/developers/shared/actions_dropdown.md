@@ -10,7 +10,7 @@ It exists because neither native option covers the three needs at once:
 | Loose header buttons | Yes | Yes | No |
 | **Actions dropdown** | Yes | Yes | Yes |
 
-Used on the contact form (`views/community/contact/form.xml`), the employee form (`views/community/employee/form.xml`), the convalidation request form (`views/academic_management/convalidations/views.xml`), the notice form (`views/communications/notice/form.xml`) and the student document form (`views/community/contact/student_document.xml`); nothing in it is specific to any model.
+Used on the contact form (`views/community/contact/form.xml`), the employee form (`views/community/employee/form.xml`), the convalidation request form (`views/academic_management/convalidations/views.xml`), the notice form (`views/communications/notice/form.xml`), the student document form (`views/community/contact/student_document.xml`) and the enrollment form (`views/academic_management/enrollment/enrollment_form.xml`, native sale buttons moved in by `view_order_form_ems_native_actions`, priority 130); nothing in it is specific to any model.
 
 ## Usage
 

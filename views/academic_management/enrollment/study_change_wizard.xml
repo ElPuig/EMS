@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_enrollment_study_change_wizard_form" model="ir.ui.view">
+        <field name="name">ems.enrollment_study_change_wizard.form</field>
+        <field name="model">ems.enrollment_study_change_wizard</field>
+        <field name="arch" type="xml">
+            <form string="Change studies">
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        The enrollment and the student move to the new studies: its subjects replace the current
+                        ones (which stay in the enrollment with quantity 0) and the student is placed in the
+                        destination group. Subjects of the current studies that already have grades are kept.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="order_id"/>
+                            <field name="current_study_id"/>
+                            <field name="study_id" options="{'no_create': True, 'no_open': True}"/>
+                        </group>
+                        <group>
+                            <field name="template_id" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="group_id" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="adjustment_amount"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_apply" type="object" string="Change studies" class="btn-primary"
+                            data-hotkey="q"/>
+                    <button special="cancel" string="Cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

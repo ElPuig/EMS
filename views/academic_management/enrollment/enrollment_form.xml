@@ -189,11 +189,43 @@
             <xpath expr="//header/button[@name='action_cancel']" position="attributes">
                 <attribute name="groups">ems.group_academic_admin,ems.group_secretary</attribute>
             </xpath>
-            <xpath expr="//header/button[@name='action_cancel']" position="after">
-                <button name="action_ems_reapply_benefits" string="Re-apply Benefits" type="object"
-                        invisible="state != 'sale' or not ems_study_id"
-                        groups="ems.group_academic_admin,ems.group_secretary"
-                        confirm="This will cancel the current invoice, recompute the enrollment amounts with the student's current benefit status and regenerate the invoice. Continue?"/>
+            <!-- Every action of the form goes in its Actions dropdown: EMS's here, the native ones
+                 moved in by view_order_form_ems_native_actions, which has to run after them. -->
+            <xpath expr="//header" position="inside">
+                <div name="ems_actions" string="Actions">
+                    <button name="action_ems_change_study" string="Change studies" type="object"
+                            invisible="state != 'sale' or not ems_study_id"
+                            groups="ems.group_academic_admin,ems.group_secretary"/>
+                    <button name="action_ems_reapply_benefits" string="Re-apply Benefits" type="object"
+                            invisible="state != 'sale' or not ems_study_id"
+                            groups="ems.group_academic_admin,ems.group_secretary"
+                            confirm="This will cancel the current invoice, recompute the enrollment amounts with the student's current benefit status and regenerate the invoice. Continue?"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Priority 130: after every view adding or targeting a native header button (they all match
+         them by //header/button, which stops matching once moved). Buttons matched by id or name,
+         never by their translated string nor their %(xmlid)d action. "Preview" stays where it is,
+         hidden for good. -->
+    <record id="view_order_form_ems_native_actions" model="ir.ui.view">
+        <field name="name">sale.order.form.ems.native.actions</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="priority">130</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='ems_actions']" position="inside">
+                <xpath expr="//header/button[@id='send_by_email_primary']" position="move"/>
+                <xpath expr="//header/button[@id='action_confirm']" position="move"/>
+                <xpath expr="//header/button[@name='action_confirm' and not(@id)]" position="move"/>
+                <xpath expr="//header/button[@id='send_by_email']" position="move"/>
+                <xpath expr="//header/button[@id='create_invoice']" position="move"/>
+                <xpath expr="//header/button[@id='create_invoice_percentage']" position="move"/>
+                <xpath expr="//header/button[@name='payment_action_capture']" position="move"/>
+                <xpath expr="//header/button[@name='payment_action_void']" position="move"/>
+                <xpath expr="//header/button[@name='action_cancel']" position="move"/>
+                <xpath expr="//header/button[@name='action_draft']" position="move"/>
             </xpath>
         </field>
     </record>

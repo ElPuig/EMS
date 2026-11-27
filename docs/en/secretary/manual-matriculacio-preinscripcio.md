@@ -28,8 +28,9 @@ From Step 3 on, the circuit is the same for both.
 7. [Step 6 — Send the enrollment proposals](#step-6--send-the-enrollment-proposals)
 8. [Step 7 — Close the enrollments nobody confirmed](#step-7--close-the-enrollments-nobody-confirmed)
 9. [Study changes that do not come from GEDAC](#study-changes-that-do-not-come-from-gedac)
-10. [Bonifications and exemptions approved after confirmation](#bonifications-and-exemptions-approved-after-confirmation)
-11. [FAQ](#faq)
+10. [Changing the studies of a confirmed enrollment](#changing-the-studies-of-a-confirmed-enrollment)
+11. [Bonifications and exemptions approved after confirmation](#bonifications-and-exemptions-approved-after-confirmation)
+12. [FAQ](#faq)
 
 ---
 
@@ -194,6 +195,22 @@ The checkbox is only visible to **secretary** and **academic administration**. T
 
 ---
 
+## Changing the studies of a confirmed enrollment
+
+When a student who has already confirmed their enrollment moves to other studies (e.g. from DAW to DAM), change the studies **on the enrollment**, not on the student's form: the enrollment and the student must always say the same thing, because the portal (convalidation requests, authorizations, payments) reads the enrollment.
+
+1. Open the student's confirmed enrollment.
+2. In the **Actions** dropdown of the header, click **Change studies**.
+3. Choose the **New studies**. The **Enrollment template** of the same course and the **Destination group** of the same shift are filled in for you; change them if needed.
+4. Leave the **Adjustment amount** at **0** if the invoice stays as it is. If the change has to be charged or refunded, enter the amount: a positive amount issues an invoice for it, a negative one a credit note.
+5. Click **Change studies**.
+
+The enrollment takes the subjects of the new template (those of the previous studies stay on it with quantity 0, as a record), and the student is moved to the destination group with the new subjects. Subjects of the previous studies that already have grades are kept, and a note on the student's form lists them. The change is logged in the enrollment's chatter.
+
+If you try to change the studies or the main group of a student with a confirmed enrollment directly on their form, EMS stops you and points you to this action. Students whose enrollment is not managed in EMS can still be changed on their form as usual.
+
+---
+
 ## Bonifications and exemptions approved after confirmation
 
 When a student's fee **bonification or exemption** document is approved, the discount is automatically applied **only to enrollments still in draft**. **Already confirmed** enrollments are frozen: neither the lines nor the total change, because the invoice has already been issued with the original amounts. This way, what the student sees on the portal always matches the invoice.
@@ -201,7 +218,7 @@ When a student's fee **bonification or exemption** document is approved, the dis
 If the student was entitled to the benefit but uploaded it and it was approved **after** confirming the enrollment, it must be applied explicitly:
 
 1. Open the student's confirmed enrollment.
-2. Click the **Re-apply Benefits** button **(1)** in the header.
+2. In the **Actions** dropdown of the header, click **Re-apply Benefits** **(1)**.
 
 ![Re-apply Benefits button on the confirmed enrollment](../../assets/secretary/preinscrpcio-Secretaria-10.png)
 

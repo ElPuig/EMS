@@ -2469,6 +2469,7 @@ msgstr "Puede editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_discard_wizard_form
 #: model:ir.model.fields.selection,name:ems.selection__ems_certificate_wizard__mode__cancel
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_study_change_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -3197,6 +3198,7 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_value__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_study_change_wizard__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -3372,6 +3374,7 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_value__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_study_change_wizard__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3873,6 +3876,7 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_value__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_study_change_wizard__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -4292,6 +4296,7 @@ msgstr "Productos matriculados (Técnico)"
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__enrollment_id
 #: model_terms:ir.ui.view,arch_db:ems.view_student_list_no_destination
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_study_change_wizard__order_id
 msgid "Enrollment"
 msgstr "Matrícula"
 
@@ -4388,6 +4393,7 @@ msgstr "Asistente de propuesta de matrícula"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__template_id
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_study_change_wizard__template_id
 msgid "Enrollment template"
 msgstr "Plantilla de matrícula"
 
@@ -5498,6 +5504,7 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__id
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__id
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_value__id
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_study_change_wizard__id
 msgid "ID"
 msgstr "ID"
 
@@ -6269,6 +6276,7 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_value__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_study_change_wizard__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -6444,6 +6452,7 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_value__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_study_change_wizard__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -12778,6 +12787,7 @@ msgstr "Graduado/a = marcado para graduación (diferida) · Con matrícula = ya 
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__ems_group_id model:ir.model.fields,field_description:ems.field_sale_order__ems_group_id model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__destination_group_id
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_study_change_wizard__group_id
 msgid "Destination group"
 msgstr "Grupo destino"
 
@@ -21724,6 +21734,7 @@ msgstr "No se puede poner un strike con fecha futura."
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_form
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
 msgid "Actions"
 msgstr "Acciones"
 
@@ -35824,6 +35835,7 @@ msgstr "Tasas del curso"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_line__currency_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__currency_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__currency_id
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_study_change_wizard__currency_id
 msgid "Currency"
 msgstr "Moneda"
 
@@ -56547,3 +56559,104 @@ msgstr "Abrir el enlace"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_document_list
 msgid "Write what to correct"
 msgstr "Escribe qué hay que corregir"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid ""
+"%(student)s is enrolled in %(study)s (%(enrollment)s). To move them to "
+"another study, use \"Change studies\" on that enrollment: it updates the "
+"enrollment and the student together."
+msgstr ""
+"%(student)s está matriculado en %(study)s (%(enrollment)s). Para pasarlo a "
+"otros estudios, use \"Cambiar de estudios\" en esa matrícula: actualiza a la"
+" vez la matrícula y el alumno."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_enrollment_study_change_wizard__adjustment_amount
+msgid ""
+"0: the invoice stays as it is. Positive: an invoice for this amount is "
+"issued. Negative: a credit note for this amount is issued."
+msgstr ""
+"0: la factura queda como está. Positivo: se emite una factura por este "
+"importe. Negativo: se emite una factura rectificativa por este importe."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_study_change_wizard__adjustment_amount
+msgid "Adjustment amount"
+msgstr "Importe de ajuste"
+
+#. module: ems
+#: model:product.template,name:ems.product_study_change_adjustment
+msgid "Ajust per canvi d'estudis"
+msgstr "Ajuste por cambio de estudios"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_enrollment_study_change_wizard
+msgid "Change of studies of an enrollment"
+msgstr "Cambio de estudios de una matrícula"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/study_change_wizard.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_study_change_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid "Change studies"
+msgstr "Cambiar de estudios"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/study_change_wizard.py:0
+msgid "Choose studies other than the current ones."
+msgstr "Elija unos estudios distintos de los actuales."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_study_change_wizard__current_study_id
+msgid "Current studies"
+msgstr "Estudios actuales"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_enrollment_study_change_wizard__template_id
+msgid ""
+"Its subjects replace the ones of the current studies in the enrollment."
+msgstr ""
+"Sus asignaturas sustituyen a las de los estudios actuales en la matrícula."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_study_change_wizard__study_id
+msgid "New studies"
+msgstr "Estudios nuevos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/study_change_wizard.py:0
+msgid "Only a confirmed enrollment can change studies."
+msgstr "Solo una matrícula confirmada puede cambiar de estudios."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Studies changed from %(old)s to %(new)s."
+msgstr "Estudios cambiados de %(old)s a %(new)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/study_change_wizard.py:0
+msgid ""
+"The change of studies to %(study)s removed the subjects of %(old)s, except "
+"these ones, which already have grades:"
+msgstr ""
+"El cambio de estudios a %(study)s ha quitado las asignaturas de %(old)s, "
+"excepto estas, que ya tienen notas:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_study_change_wizard_form
+msgid ""
+"The enrollment and the student move to the new studies: its subjects replace the current\n"
+"                        ones (which stay in the enrollment with quantity 0) and the student is placed in the\n"
+"                        destination group. Subjects of the current studies that already have grades are kept."
+msgstr ""
+"La matrícula y el alumno pasan a los estudios nuevos: sus asignaturas "
+"sustituyen a las actuales (que se quedan en la matrícula con cantidad 0) y "
+"el alumno se ubica en el grupo de destino. Las asignaturas de los estudios "
+"actuales que ya tienen notas se conservan."

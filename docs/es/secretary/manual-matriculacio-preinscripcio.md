@@ -28,8 +28,9 @@ A partir del Paso 3 el circuito es el mismo para ambos.
 7. [Paso 6 — Enviar las propuestas de matrícula](#paso-6--enviar-las-propuestas-de-matrícula)
 8. [Paso 7 — Cerrar las matrículas que nadie ha confirmado](#paso-7--cerrar-las-matrículas-que-nadie-ha-confirmado)
 9. [Cambios de estudios que no vienen de GEDAC](#cambios-de-estudios-que-no-vienen-de-gedac)
-10. [Bonificaciones y exenciones aprobadas después de confirmar](#bonificaciones-y-exenciones-aprobadas-después-de-confirmar)
-11. [Preguntas frecuentes](#preguntas-frecuentes)
+10. [Cambiar los estudios de una matrícula confirmada](#cambiar-los-estudios-de-una-matrícula-confirmada)
+11. [Bonificaciones y exenciones aprobadas después de confirmar](#bonificaciones-y-exenciones-aprobadas-después-de-confirmar)
+12. [Preguntas frecuentes](#preguntas-frecuentes)
 
 ---
 
@@ -194,6 +195,22 @@ La casilla solo la ven **secretaría** y **administración académica**. Los tut
 
 ---
 
+## Cambiar los estudios de una matrícula confirmada
+
+Cuando un alumno que ya ha confirmado la matrícula pasa a otros estudios (por ejemplo, de DAW a DAM), cambiad los estudios **en la matrícula**, no en la ficha del alumno: la matrícula y el alumno siempre deben decir lo mismo, porque el portal (solicitudes de convalidación, autorizaciones, pagos) lee la matrícula.
+
+1. Abrid la matrícula confirmada del alumno.
+2. En el desplegable **Acciones** de la cabecera, pulsad **Cambiar de estudios**.
+3. Elegid los **Estudios nuevos**. La **Plantilla de matrícula** del mismo curso y el **Grupo destino** del mismo turno se rellenan solos; cambiadlos si hace falta.
+4. Dejad el **Importe de ajuste** a **0** si la factura queda como está. Si el cambio se tiene que cobrar o devolver, indicad el importe: un importe positivo emite una factura por ese importe, y uno negativo, una factura rectificativa.
+5. Pulsad **Cambiar de estudios**.
+
+La matrícula toma las asignaturas de la plantilla nueva (las de los estudios anteriores se quedan en ella con cantidad 0, como registro), y el alumno pasa al grupo destino con las asignaturas nuevas. Las asignaturas de los estudios anteriores que ya tienen notas se conservan, y una nota en la ficha del alumno las lista. El cambio queda registrado en el chat de la matrícula.
+
+Si intentáis cambiar los estudios o el grupo principal de un alumno con matrícula confirmada directamente en su ficha, EMS no os deja y os indica esta acción. Los alumnos que no tienen la matrícula gestionada en EMS se pueden seguir cambiando en su ficha como siempre.
+
+---
+
 ## Bonificaciones y exenciones aprobadas después de confirmar
 
 Cuando se aprueba un documento de **bonificación o exención** de tasas de un alumno, el descuento se aplica automáticamente **solo a las matrículas todavía en borrador**. Las matrículas **ya confirmadas** quedan congeladas: ni las líneas ni el total cambian, porque la factura ya se ha emitido con los importes originales. Así, lo que ve el alumno en el portal coincide siempre con la factura.
@@ -201,7 +218,7 @@ Cuando se aprueba un documento de **bonificación o exención** de tasas de un a
 Si el alumno tenía derecho al beneficio, pero lo ha subido y se ha aprobado **después** de confirmar la matrícula, hay que aplicarlo explícitamente:
 
 1. Abrid la matrícula confirmada del alumno.
-2. Pulsad el botón **Reaplicar beneficios** **(1)** de la cabecera.
+2. En el desplegable **Acciones** de la cabecera, pulsad **Reaplicar beneficios** **(1)**.
 
 ![Botón Reaplicar beneficios en la matrícula confirmada](../../assets/secretary/preinscrpcio-Secretaria-10.png)
 

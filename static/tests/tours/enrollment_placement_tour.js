@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { checkActions, clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 // Browser coverage for the per-subject destination-placement fix (D20,
 // docs/en/developers/settings/course_transition_wizard.md): confirming a repeater's
@@ -39,15 +40,10 @@ registry.category("web_tour.tours").add("enrollment_placement_pending_subject", 
             trigger: ".o_form_view .o_field_widget[name='ems_group_id'] input",
             content: "Enrollment form loaded with its (2nd-course) destination group",
         },
-        {
-            trigger: ".o_form_view button[name='action_confirm']:visible",
-            content: "Confirm the enrollment",
-            run: "click",
-        },
-        {
-            trigger: "body:not(:has(.o_form_view button[name='action_confirm']:visible))",
-            content: "Confirmation applied - the placement helper has run",
-        },
+        ...clickAction("action_confirm", "Confirm the enrollment"),
+        // Only a confirmed enrollment offers "Change studies": the placement helper has run.
+        ...checkActions({ offered: ["action_ems_change_study"], notOffered: ["action_confirm"] },
+            "Confirmation applied"),
         {
             trigger: ".o_breadcrumb .o_back_button, .o_breadcrumb a:first",
             content: "Back to the enrollments list",

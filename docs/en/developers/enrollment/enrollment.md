@@ -310,9 +310,10 @@ continuer; lowest-letter group of the shift for an applicant) without forcing
 it — placement always goes through the explicit `ems_group_id` field.
 
 `_ems_apply_destination_placement()` is idempotent and shared between this
-individual/latecomer path and the transition wizard's bulk path: it sets
-`partner.main_group_id` and creates one `ems.enrollment` row per
-(student, group, subject) triple not already present, running under `sudo()`
+individual/latecomer path, the transition wizard's bulk path and the change of
+studies (below): it sets `partner.main_group_id` and creates one `ems.enrollment`
+row per (student, group, subject) triple not already present, skipping lines at
+quantity 0 (a module taken out of a confirmed enrollment), running under `sudo()`
 because `ems.enrollment` blocks manual creation for non-admins.
 
 That `sudo()` did not actually get past the block until 2026-09-01. `sudo()`
@@ -415,6 +416,60 @@ payment registered.
 
 ---
 
+## Change of studies after confirmation (issue #875)
+
+A confirmed enrollment (`state == 'sale'`) can't be moved to another study from the form: changing
+`ems_study_id` runs `_onchange_ems_study_id`, which clears every line, and Odoo refuses to delete or
+re-product a line of a confirmed order. Changing the study on the student's form instead (what was
+done by hand before) left the enrollment on the old study, and the portal kept reading it (e.g. the
+convalidation request page offered the old study's modules).
+
+**Wizard** `ems.enrollment_study_change_wizard` (`models/enrollment/study_change_wizard.py`), entry
+"Change studies" in the enrollment form's Actions dropdown, confirmed enrollments only, secretary
+and academic admin:
+
+| Field | Notes |
+|-------|-------|
+| `study_id` | New study, any other than the current one. |
+| `template_id` | Enrollment template of the new study; defaults to the one for the same course as the current template. Its module lines become the enrollment's. |
+| `group_id` | Destination main group of the new study; defaults to the one of the template's course and the enrollment's shift. |
+| `adjustment_amount` | Default 0. Not 0: an extra line with the generic product `ems.product_study_change_adjustment` and that price, and an invoice (positive) or credit note (negative) is created and posted for it. |
+
+```mermaid
+flowchart TD
+    A["Change studies (wizard)"] --> B["sale.order._ems_change_study(study, template, group, products)"]
+    B --> B1["header: study, template, destination group"]
+    B --> B2["module lines not in products: quantity 0"]
+    B --> B3["products missing: new line (or a quantity-0 line back to 1)"]
+    A --> C{"adjustment != 0?"}
+    C -- yes --> C1["adjustment line + _create_invoices(final=True) + post"]
+    A --> D["_ems_apply_destination_placement()\n(context ems_study_change: no year-record freeze)"]
+    D --> E["old study's subject enrollments removed\n(kept, with a chatter note, when graded)"]
+```
+
+- **Module lines** are those whose product belongs to a subject (`product_template_id.ems_subject_ids`,
+  tutorships included); generic lines (enrollment fee, CFGS fee, AMPA) are never touched, and the fee
+  line keeps its frozen price (see [`enrollment_line.md`](enrollment_line.md)). Setting old lines to
+  quantity 0 rather than deleting them is the native way and keeps a trace of what was enrolled
+  first. The +1/-1 quantities at 0 € leave the order "To invoice" (`invoice_status`, hidden in the
+  list); nothing in EMS reads it, and an adjustment invoice, when there is one, picks them up.
+- **Placement** reuses `_ems_apply_destination_placement()`: student's main group, study and level,
+  and one `ems.enrollment` per new subject. Under `ems_study_change` it skips
+  `ems.student.year_record.freeze_on_leaving()`: a change of studies happens during the course, and
+  freezing would record the current year with the old group and then block the new study's own
+  record. The old study's subject enrollments are removed through the same graded-subject guard
+  `res.partner._ems_refresh_enrollments_from_template()` uses (`_ems_remove_enrollments()`).
+- **Guard (point 2.2):** `res.partner.write()` refuses, outside `sudo` and outside the wizard, to
+  give a student a study (directly, or through a main group) different from the one of their
+  enrollment in force (`_ems_enrollment_in_force()`, non-cancelled). Students without an enrollment
+  in EMS are not affected.
+- **Existing data:** `migrations/18.0.0.52.1/post-migrate.py` realigns every confirmed enrollment of
+  the current course whose study differs from the student's main group's study (the group is what
+  the student actually attends): header from the group, lines from the student's current subject
+  enrollments, no invoice, no change to the student.
+
+---
+
 ## Portal comment review
 
 When a student/family leaves a comment instead of confirming (the "comment"
@@ -432,12 +487,17 @@ relabeled "Enrollments".
 | View | File | Notes |
 |------|------|-------|
 | List/Search | `views/academic_management/enrollment/enrollment_list.xml`, `enrollment_search.xml` | The Matricules list; `action_ems_enrollments`. Header buttons "Send Enrollment" (`action_send_enrollment_proposal`) and "Close unconfirmed enrollments" (see [close_unconfirmed_wizard.md](close_unconfirmed_wizard.md)), shown in the list "Actions" dropdown (`ems_header_actions` in the action context). |
-| Form | `views/academic_management/enrollment/enrollment_form.xml` | Adds all EMS fields and authorization lines. |
+| Form | `views/academic_management/enrollment/enrollment_form.xml` | Adds all EMS fields and authorization lines. Every header action (EMS's and the native sale ones) is in the Actions dropdown, see [actions_dropdown.md](../shared/actions_dropdown.md). |
+| Change of studies wizard | `views/academic_management/enrollment/study_change_wizard.xml` | See [Change of studies](#change-of-studies-after-confirmation-issue-875). |
 | Menu | `views/academic_management/enrollment/menu.xml` | Under Academic Management. |
 | Contact kanban | `views/community/contact/kanban.xml` | Overrides `action_view_sale_order`, embedding the student's own enrollments. |
 | Contact form | `views/community/contact/form.xml` | Adds/relabels the *Sales & Purchase* page and its `action_view_sale_order` button for a student partner. |
 
 ## Data
+
+Change-of-studies adjustment product: `ems.product_study_change_adjustment` in
+`data/cat/product.template-generic.csv` (generic, no level, so it is never offered as an
+enrollment item nor counted as a subject by the CFGS fee).
 
 Enrollment number sequence: `data/custom/ems.sequence.enrollment.xml`
 (`ems.enrollment.number`, `__import__.`-prefixed per the centre-owned data

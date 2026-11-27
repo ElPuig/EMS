@@ -28,8 +28,9 @@ A partir del Pas 3 el circuit és el mateix per a tots dos.
 7. [Pas 6 — Enviar les propostes de matrícula](#pas-6--enviar-les-propostes-de-matrícula)
 8. [Pas 7 — Tancar les matrícules que ningú ha confirmat](#pas-7--tancar-les-matrícules-que-ningú-ha-confirmat)
 9. [Canvis d'estudis que no vénen de GEDAC](#canvis-destudis-que-no-vénen-de-gedac)
-10. [Bonificacions i exempcions aprovades després de confirmar](#bonificacions-i-exempcions-aprovades-després-de-confirmar)
-11. [Preguntes freqüents](#preguntes-freqüents)
+10. [Canviar els estudis d'una matrícula confirmada](#canviar-els-estudis-duna-matrícula-confirmada)
+11. [Bonificacions i exempcions aprovades després de confirmar](#bonificacions-i-exempcions-aprovades-després-de-confirmar)
+12. [Preguntes freqüents](#preguntes-freqüents)
 
 ---
 
@@ -194,6 +195,22 @@ La casella només la veuen **secretaria** i **administració acadèmica**. Els t
 
 ---
 
+## Canviar els estudis d'una matrícula confirmada
+
+Quan un alumne que ja ha confirmat la matrícula passa a uns altres estudis (per exemple, de DAW a DAM), canvieu els estudis **a la matrícula**, no a la fitxa de l'alumne: la matrícula i l'alumne sempre han de dir el mateix, perquè el portal (sol·licituds de convalidació, autoritzacions, pagaments) llegeix la matrícula.
+
+1. Obriu la matrícula confirmada de l'alumne.
+2. Al desplegable **Accions** de la capçalera, premeu **Canviar d'estudis**.
+3. Trieu els **Estudis nous**. La **Plantilla de matrícula** del mateix curs i el **Grup destí** del mateix torn s'omplen sols; canvieu-los si cal.
+4. Deixeu l'**Import d'ajust** a **0** si la factura queda tal com està. Si el canvi s'ha de cobrar o retornar, indiqueu-ne l'import: un import positiu emet una factura per aquest import, i un de negatiu, una factura rectificativa.
+5. Premeu **Canviar d'estudis**.
+
+La matrícula agafa les assignatures de la plantilla nova (les dels estudis anteriors s'hi queden amb quantitat 0, com a registre), i l'alumne passa al grup destí amb les assignatures noves. Les assignatures dels estudis anteriors que ja tenen notes es conserven, i una nota a la fitxa de l'alumne les llista. El canvi queda registrat al xat de la matrícula.
+
+Si intenteu canviar els estudis o el grup principal d'un alumne amb matrícula confirmada directament a la seva fitxa, EMS no us ho deixa fer i us indica aquesta acció. Els alumnes que no tenen la matrícula gestionada a EMS es poden continuar canviant a la fitxa com sempre.
+
+---
+
 ## Bonificacions i exempcions aprovades després de confirmar
 
 Quan s'aprova un document de **bonificació o exempció** de taxes d'un alumne, el descompte s'aplica automàticament **només a les matrícules encara en esborrany**. Les matrícules **ja confirmades** queden congelades: ni les línies ni el total no canvien, perquè la factura ja s'ha emès amb els imports originals. Així, el que veu l'alumne al portal coincideix sempre amb la factura.
@@ -201,7 +218,7 @@ Quan s'aprova un document de **bonificació o exempció** de taxes d'un alumne, 
 Si l'alumne tenia dret al benefici, però l'ha pujat i s'ha aprovat **després** de confirmar la matrícula, cal aplicar-lo explícitament:
 
 1. Obriu la matrícula confirmada de l'alumne.
-2. Premeu el botó **Reaplicar beneficis** **(1)** de la capçalera.
+2. Al desplegable **Accions** de la capçalera, premeu **Reaplicar beneficis** **(1)**.
 
 ![Botó Reaplicar beneficis a la matrícula confirmada](../../assets/secretary/preinscrpcio-Secretaria-10.png)
 

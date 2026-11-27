@@ -1339,6 +1339,7 @@ class ResPartner(models.Model):
 
         self._ems_end_stale_tutorship_transfers(values)
         self._compute_group_data(values)
+        self._ems_check_study_matches_enrollment(values)
         contact = super(ResPartner, self).write(values)
         if 'contact_type' in values:
             self._sync_category()
@@ -1795,7 +1796,6 @@ class ResPartner(models.Model):
         which case it is left alone and reported via a chatter note.
         """
         Enrollment = self.env['ems.enrollment'].sudo()
-        GradeSession = self.env['ems.grade_session']
         for student in self:
             group = student.main_group_id
             if not group:
@@ -1817,20 +1817,46 @@ class ResPartner(models.Model):
 
             stale = Enrollment.search([('student_id', '=', student.id)]).filtered(
                 lambda enrollment: (enrollment.group_id.id, enrollment.subject_id.id) not in new_pairs)
-            kept_with_grades = stale.filtered(
-                lambda enrollment: GradeSession._ems_has_scored_grades(
-                    student.id, enrollment.group_id.id, enrollment.subject_id.id))
-            (stale - kept_with_grades).unlink()
-            if kept_with_grades:
-                intro = _(
-                    "The study change refreshed this student's enrollments from the "
-                    "%(template)s template, but the following subjects already have "
-                    "grades and were kept as-is:",
-                    template=template.display_name,
-                )
-                items = kept_with_grades.mapped(
-                    lambda enrollment: f"{enrollment.subject_id.display_name} ({enrollment.group_id.display_name})")
-                student.message_post(body=Markup("<p>{}</p>").format(intro) + base.EmsBase.build_html_list(self, items))
+            student._ems_remove_enrollments(stale, _(
+                "The study change refreshed this student's enrollments from the "
+                "%(template)s template, but the following subjects already have "
+                "grades and were kept as-is:",
+                template=template.display_name,
+            ))
+
+    def _ems_remove_enrollments(self, enrollments, intro):
+        """Removes `enrollments` (ems.enrollment rows of this student), except those that already
+        have scored grades: those are kept and listed in a chatter note opened by `intro`. Shared by
+        the template refresh above and the enrollment's change of studies (issue #875)."""
+        self.ensure_one()
+        GradeSession = self.env['ems.grade_session']
+        kept = enrollments.filtered(lambda enrollment: GradeSession._ems_has_scored_grades(
+            self.id, enrollment.group_id.id, enrollment.subject_id.id))
+        (enrollments - kept).unlink()
+        if kept:
+            items = kept.mapped(
+                lambda enrollment: f"{enrollment.subject_id.display_name} ({enrollment.group_id.display_name})")
+            self.message_post(body=Markup("<p>{}</p>").format(intro) + base.EmsBase.build_html_list(self, items))
+        return kept
+
+    def _ems_check_study_matches_enrollment(self, values):
+        """Issue #875: a student with a confirmed enrollment in force only takes that enrollment's
+        study, whether written directly or through a main group (`values` already carries the study a
+        group implies, see _compute_group_data). Changing it goes through the enrollment's "Change
+        studies" wizard, which moves both together. System flows (sudo) place students themselves;
+        students whose enrollment isn't managed in EMS are not affected."""
+        study_id = values.get('study_id')
+        if self.env.su or not study_id:
+            return
+        for partner in self.filtered(lambda partner: partner.contact_type == 'student'):
+            enrollment = partner._ems_enrollment_in_force()
+            if enrollment.state == 'sale' and enrollment.ems_study_id and enrollment.ems_study_id.id != study_id:
+                raise UserError(_(
+                    "%(student)s is enrolled in %(study)s (%(enrollment)s). To move them to another study, "
+                    "use \"Change studies\" on that enrollment: it updates the enrollment and the student together.",
+                    student=partner.display_name, study=enrollment.ems_study_id.display_name,
+                    enrollment=enrollment.name,
+                ))
 
     @api.model
     def _ems_auto_group_for_study(self, study_id):

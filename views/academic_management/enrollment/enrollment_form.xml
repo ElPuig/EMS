@@ -48,7 +48,15 @@
             </xpath>
             <xpath expr="//field[@name='order_line']/list" position="attributes">
                 <attribute name="default_order">product_id asc</attribute>
-            </xpath>                        
+                <!-- A confirmed line can't be deleted: a module left behind (change of studies) stays at
+                     quantity 0 and is hidden here, by this decoration and ems.css (a list has no per-row
+                     invisible). The quantity column itself is hidden by default, so such a row would
+                     read as a subject still enrolled. The portal hides the same lines (_ems_visible_order_lines). -->
+                <attribute name="decoration-muted">not display_type and product_uom_qty == 0</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']" position="attributes">
+                <attribute name="class">o_ems_enrollment_lines</attribute>
+            </xpath>
             <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="attributes">
                 <attribute name="domain">
                     [

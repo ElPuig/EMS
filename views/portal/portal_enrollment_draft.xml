@@ -140,7 +140,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr t-foreach="enrollment.order_line" t-as="line">
+                                                <tr t-foreach="enrollment._ems_visible_order_lines()" t-as="line">
                                                     <td><span t-field="line.name"/></td>
                                                     <td class="text-end">
                                                         <t t-if="line.price_unit > 0">

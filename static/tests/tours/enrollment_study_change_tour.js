@@ -58,5 +58,13 @@ registry.category("web_tour.tours").add("enrollment_study_change", {
             trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='ems_study_id'] :contains('SCT New Study'), body:not(:has(.modal)) .o_form_view .o_field_widget[name='ems_study_id'] input:value(SCT New Study)",
             content: "The enrollment is on the new studies",
         },
+        {
+            trigger: ".o_ems_enrollment_lines .o_data_row:contains('SCTN subject')",
+            content: "The new study's module is listed",
+        },
+        {
+            trigger: "body:not(:has(.o_ems_enrollment_lines .o_data_row:contains('SCTO subject'):visible))",
+            content: "The old study's module, left at quantity 0, is hidden",
+        },
     ],
 });

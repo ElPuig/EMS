@@ -103,6 +103,8 @@ class TestEnrollmentStudyChange(TransactionCase):
             self.assertEqual(quantities[subject.product_id], 1)
         self.assertEqual(order.amount_total, total)
         self.assertEqual(order.invoice_ids, invoices, "No adjustment, no new invoice")
+        self.assertEqual(order._ems_visible_order_lines().product_id, self.generic | self.new_subjects.product_id,
+                         "The old study's modules, at quantity 0, are not shown")
 
     def test_change_places_the_student_without_freezing_the_year(self):
         order = self._confirmed_order()

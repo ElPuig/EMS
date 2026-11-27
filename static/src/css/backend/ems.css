@@ -71,3 +71,9 @@ th[data-name="deprecated"]{
 .o_field_CopyClipboardChar.o_ems_copy_compact > div > span:first-child {
     text-align: left;
 }
+
+/* Enrollment form: lines at quantity 0 (a module left behind by a change of studies, which a
+   confirmed enrollment can't delete) are hidden, see enrollment_form.xml. */
+.o_ems_enrollment_lines tr.o_data_row.text-muted {
+    display: none;
+}

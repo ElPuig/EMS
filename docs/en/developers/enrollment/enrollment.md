@@ -453,7 +453,10 @@ flowchart TD
   tutorships included); generic lines (enrollment fee, CFGS fee, AMPA) are never touched, and the fee
   line keeps its frozen price (see [`enrollment_line.md`](enrollment_line.md)). Setting old lines to
   quantity 0 rather than deleting them is the native way and keeps a trace of what was enrolled
-  first. The +1/-1 quantities at 0 € leave the order "To invoice" (`invoice_status`, hidden in the
+  first. Those lines are hidden wherever an enrollment's lines are shown: the form's list marks them
+  with `decoration-muted` and `ems.css` hides the marked rows (a list has no per-row `invisible`; the
+  quantity column is hidden by default, so they would read as subjects still enrolled), and the portal
+  lists `sale.order._ems_visible_order_lines()`. The +1/-1 quantities at 0 € leave the order "To invoice" (`invoice_status`, hidden in the
   list); nothing in EMS reads it, and an adjustment invoice, when there is one, picks them up.
 - **Placement** reuses `_ems_apply_destination_placement()`: student's main group, study and level,
   and one `ems.enrollment` per new subject. Under `ems_study_change` it skips

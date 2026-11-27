@@ -894,6 +894,12 @@ class SaleOrder(models.Model):
         (enrollment fee, CFGS fee, AMPA)."""
         return self.order_line.filtered(lambda line: line.product_template_id.ems_subject_ids)
 
+    def _ems_visible_order_lines(self):
+        """The lines a family or the secretary is shown: a confirmed line can't be deleted, so a
+        module left behind (a change of studies) stays at quantity 0 and is hidden instead. Section
+        and note lines have no quantity and always show. The form hides the same rows (enrollment_form.xml)."""
+        return self.order_line.filtered(lambda line: line.display_type or line.product_uom_qty)
+
     def _ems_change_study(self, study, template, group, products):
         """Moves this confirmed enrollment to `study`: header (study, template, destination group)
         and module lines, which become `products`. A confirmed line can't be deleted nor change

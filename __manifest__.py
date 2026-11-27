@@ -237,17 +237,8 @@
             'views/community/space_type/menu.xml',    
 
             'views/community/content/form.xml', 
-            'views/community/content/list.xml',
-            'views/community/content/search.xml',
-            'views/community/content/menu.xml',
             'views/community/criteria/form.xml',
-            'views/community/criteria/list.xml',
-            'views/community/criteria/search.xml',
-            'views/community/criteria/menu.xml',
             'views/community/outcome/form.xml',
-            'views/community/outcome/list.xml',
-            'views/community/outcome/search.xml',
-            'views/community/outcome/menu.xml',
 
             'views/planning_grading/menu.xml',
             'views/planning_grading/planning/list.xml',

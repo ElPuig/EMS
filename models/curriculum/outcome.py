@@ -11,8 +11,6 @@ class EmsOutcome(models.Model):
 	_sql_constraints = [
 		('unique_code', 'unique (subject_id, code)', 'duplicated code!')
     ]
-
-	active = fields.Boolean(default=True)
 	code = fields.Char(string='Code', required=True)
 	acronym = fields.Char(string='Acronym', required=True)
 	name = fields.Char(string='Name', required=True)

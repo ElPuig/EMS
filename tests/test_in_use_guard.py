@@ -56,9 +56,43 @@ class TestInUseGuard(TransactionCase):
             'planning_outcome_ids': [(0, 0, {'outcome_id': self.outcome.id, 'ponderation': 100})]})
         with self.assertRaises(UserError):
             self.course.unlink()
+        with self.assertRaises(UserError):
+            self.outcome.unlink()  # used by the planning's weight line
         unused = self.env['ems.course'].create({'start': 2093, 'end': 2094})
         unused.unlink()
         self.assertFalse(unused.exists())
+
+    def test_outcomes_contents_and_criteria_are_guarded_without_being_archivable(self):
+        # They only make sense inside their subject: a typo is fixed in place, a new curriculum
+        # archives the whole study and its subjects.
+        for model in ('ems.outcome', 'ems.content', 'ems.criteria'):
+            self.assertNotIn('active', self.env[model]._fields)
+        unused = self.env['ems.outcome'].create({
+            'code': 'TIUG01_RA2', 'acronym': 'RA2', 'name': 'Unused', 'subject_id': self.subject.id})
+        unused.unlink()
+        self.assertFalse(unused.exists())
+        self.env['ems.criteria'].create({
+            'code': 'TIUG01_RA1_CA1', 'acronym': 'CA1', 'name': 'Criterion', 'outcome_id': self.outcome.id})
+        with self.assertRaises(UserError) as error:
+            self.outcome.unlink()
+        self.assertNotIn('Archive it instead', str(error.exception))
+
+    def test_own_lines_and_records_deleted_together_are_no_use(self):
+        # A planning nobody graded with yet is deleted with its weight lines.
+        planning = self.env['ems.planning'].create({
+            'study_id': self.study.id, 'subject_id': self.subject.id, 'course_id': self.course.id,
+            'planning_outcome_ids': [(0, 0, {'outcome_id': self.outcome.id, 'ponderation': 100})]})
+        planning.unlink()
+        self.assertFalse(planning.exists())
+        # A content deleted together with its composite child.
+        parent = self.env['ems.content'].create({
+            'code': 'TIUG01_C1', 'acronym': 'C1', 'name': 'Parent', 'subject_id': self.subject.id})
+        child = self.env['ems.content'].create({
+            'code': 'TIUG01_C1A', 'acronym': 'C1A', 'name': 'Child', 'content_id': parent.id})
+        with self.assertRaises(UserError):
+            parent.unlink()
+        (parent | child).unlink()
+        self.assertFalse((parent | child).exists())
 
     def test_archived_records_leave_searches_and_selectors(self):
         self.subject.action_archive()

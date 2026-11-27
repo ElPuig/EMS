@@ -24,10 +24,15 @@ class EmsInUseGuardMixin(models.AbstractModel):
     @api.ondelete(at_uninstall=False)
     def _unlink_except_in_use(self):
         users = self._ems_referencing_models()
-        if users:
+        if not users:
+            return
+        records, where = ", ".join(self.mapped('display_name')), ", ".join(users)
+        if 'active' in self._fields:
             raise UserError(_(
                 "%(records)s cannot be deleted because it is in use (%(where)s). Archive it instead.",
-                records=", ".join(self.mapped('display_name')), where=", ".join(users)))
+                records=records, where=where))
+        raise UserError(_("%(records)s cannot be deleted because it is in use (%(where)s).",
+                          records=records, where=where))
 
     def _ems_referencing_models(self):
         """Names of the models with a record pointing at any of `self`: one query for the
@@ -36,7 +41,11 @@ class EmsInUseGuardMixin(models.AbstractModel):
             return []
         fields_data = self.env['ir.model.fields'].sudo().search_read([
             ('relation', '=', self._name), ('store', '=', True),
-            ('ttype', 'in', ('many2one', 'many2many'))], ['model', 'name'])
+            ('ttype', 'in', ('many2one', 'many2many'))], ['model', 'name', 'on_delete'])
+        # The record's own lines (a one2many of this model whose inverse is deleted in cascade, e.g. a
+        # planning's weight lines) go with it: they are part of the record, not a use of it.
+        owned = {(field.comodel_name, field.inverse_name) for field in self._fields.values()
+                 if field.type == 'one2many'}
         found = {}
         for field_data in fields_data:
             model_name = field_data['model']
@@ -45,8 +54,13 @@ class EmsInUseGuardMixin(models.AbstractModel):
             model = self.env[model_name]
             if model._transient or model._abstract or field_data['name'] not in model._fields:
                 continue
-            if model.sudo().with_context(active_test=False).search(
-                    [(field_data['name'], 'in', self.ids)], limit=1):
+            if field_data['on_delete'] == 'cascade' and (model_name, field_data['name']) in owned:
+                continue
+            domain = [(field_data['name'], 'in', self.ids)]
+            if model_name == self._name:
+                # A record deleted together with its parent (e.g. a composite content) is no use of it.
+                domain.append(('id', 'not in', self.ids))
+            if model.sudo().with_context(active_test=False).search(domain, limit=1):
                 # EMS descriptions read "Name: explanation"; the name is enough here.
                 found[model_name] = self.env['ir.model']._get(model_name).name.split(':')[0]
         return sorted(found.values())

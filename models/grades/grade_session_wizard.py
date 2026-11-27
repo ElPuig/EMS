@@ -2,7 +2,7 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
-from .grade_session import grade_round_selection, grade_session_type_selection, grade_state_selection
+from .grade_session import grade_round_selection, grade_state_selection
 
 class EmsGradeSessionWizard(models.TransientModel):
     _name = "ems.grade_session_wizard"
@@ -16,7 +16,8 @@ class EmsGradeSessionWizard(models.TransientModel):
     # Not required at the database level: it depends on the studies, a many2many that is only
     # written after the wizard's row is inserted.
     round = fields.Selection(string="Round", selection=grade_round_selection, compute="_compute_round", store=True, readonly=False)
-    session_type = fields.Selection(string="Type", selection=grade_session_type_selection, default="ordinary", required=True)
+    # Required by the form and by action_create_sessions(), not by the database: a NOT NULL would
+    # fail on the wizard rows left from before this field existed.
     claim_date_from = fields.Date(string="Claims from")
     claim_date_to = fields.Date(string="Claims until")
 
@@ -46,6 +47,8 @@ class EmsGradeSessionWizard(models.TransientModel):
         studies = self._target_studies()
         if not studies:
             raise UserError(_("Please select at least one level or study."))
+        if not (self.claim_date_from and self.claim_date_to):
+            raise UserError(_("Please set the claims period of the new sessions."))
 
         # sudo: the Head of Studies manages the sessions but has no rights on the grade lines
         # fill_students() creates (checked just above).
@@ -70,7 +73,6 @@ class EmsGradeSessionWizard(models.TransientModel):
                         "group_id": group.id,
                         "subject_id": subject.id,
                         "round": self.round,
-                        "session_type": self.session_type,
                         "claim_date_from": self.claim_date_from,
                         "claim_date_to": self.claim_date_to,
                         "teacher_id": session_model._derive_teacher(group, subject).id,
@@ -103,6 +105,8 @@ class EmsGradeSessionStateWizard(models.TransientModel):
     round = fields.Selection(string="Round", selection=grade_round_selection, default="1", required=True)
     target_state = fields.Selection(string="Target state", selection=grade_state_selection, default="board", required=True)
     from_selection = fields.Boolean(default=lambda self: bool(self._selected_sessions()))
+    publish_warning = fields.Text(string="Empty grades", compute="_compute_publish_warning",
+                                  help="Sessions about to be published that still have empty outcome grades.")
 
     def _target_studies(self):
         self.ensure_one()
@@ -118,17 +122,31 @@ class EmsGradeSessionStateWizard(models.TransientModel):
             return self.env["ems.grade_session"].browse(context["active_ids"])
         return self.env["ems.grade_session"]
 
-    def action_apply_state(self):
+    def _target_sessions(self):
         self.ensure_one()
         sessions = self._selected_sessions()
-        if not sessions:
-            studies = self._target_studies()
-            if not studies:
-                raise UserError(_("Please select at least one level or study."))
-            sessions = self.env["ems.grade_session"].search([
-                ("group_id.study_id", "in", studies.ids),
-                ("round", "=", self.round),
-            ])
+        if sessions:
+            return sessions
+        studies = self._target_studies()
+        if not studies:
+            return sessions
+        return self.env["ems.grade_session"].search([
+            ("group_id.study_id", "in", studies.ids),
+            ("round", "=", self.round),
+        ])
+
+    @api.depends("target_state", "mode", "level_ids", "study_ids", "round")
+    def _compute_publish_warning(self):
+        # A warning, not a block (issue #878): not every outcome is evaluated in every round.
+        for wizard in self:
+            lines = wizard._target_sessions()._ems_empty_grades_summary() if wizard.target_state == "published" else []
+            wizard.publish_warning = "\n".join(lines) or False
+
+    def action_apply_state(self):
+        self.ensure_one()
+        if not self._selected_sessions() and not self._target_studies():
+            raise UserError(_("Please select at least one level or study."))
+        sessions = self._target_sessions()
         if not sessions:
             raise UserError(_("No grade sessions were found for the selected scope and round."))
         sessions.write({"state": self.target_state})

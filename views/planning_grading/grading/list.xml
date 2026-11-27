@@ -4,15 +4,19 @@
             <field name="name">ems.grade_session.list</field>
             <field name="model">ems.grade_session</field>
             <field name="arch" type="xml">
-                <list expand="True" create="0" default_order="group_id asc, subject_id asc">
-                    <field name="group_id"/>
-                    <field name="subject_id"/>
-                    <field name="round"/>
-                    <field name="session_type" optional="show"/>
-                    <field name="state" widget="badge" decoration-success="state == 'open'" decoration-warning="state == 'board'" decoration-info="state == 'published'" decoration-muted="state == 'final'"/>
-                    <field name="claim_date_from" optional="hide"/>
-                    <field name="claim_date_to" optional="hide"/>
-                    <field name="teacher_id" widget="many2one_avatar_employee"/>
+                <!-- multi_edit (issue #878): the Head of Studies selects several sessions and sets
+                     their claims period or provisional grades in one go; write() refuses it to
+                     anybody else, and can_manage keeps those cells read-only for them. -->
+                <list expand="True" create="0" multi_edit="1" default_order="group_id asc, subject_id asc">
+                    <field name="can_manage" column_invisible="1"/>
+                    <field name="group_id" readonly="1"/>
+                    <field name="subject_id" readonly="1"/>
+                    <field name="round" readonly="1"/>
+                    <field name="state" widget="badge" readonly="1" decoration-success="state == 'open'" decoration-warning="state == 'board'" decoration-info="state == 'published'" decoration-muted="state == 'final'"/>
+                    <field name="teacher_id" widget="many2one_avatar_employee" readonly="1"/>
+                    <field name="claim_date_from" optional="show" readonly="not can_manage"/>
+                    <field name="claim_date_to" optional="show" readonly="not can_manage"/>
+                    <field name="allow_provisional" optional="hide" readonly="not can_manage"/>
                     <field name="has_planning" optional="hide"/>
                 </list>
             </field>

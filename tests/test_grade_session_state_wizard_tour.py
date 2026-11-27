@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group
+from .common import create_level_study_group, create_role_user
 
 
 @tagged('post_install', '-at_install')
@@ -27,10 +27,19 @@ class TestGradeSessionStateWizardTour(HttpCase):
             'group_id': cls.group.id, 'subject_id': cls.subject.id, 'round': '1',
             'teacher_id': cls.teacher_employee.id,
         })
+        # The Head of Studies changes the states (issue #878), the least-privileged role allowed.
+        cls.hos_user = create_role_user(cls, 'head_of_studies', 'tour_hos_state_wizard')
 
     def test_grade_session_state_wizard_apply_tour(self):
         self.assertEqual(self.grade_session.state, 'open')
 
-        self.start_tour("/odoo", "ems_grade_session_state_wizard_apply", login="admin")
+        self.start_tour("/odoo", "ems_grade_session_state_wizard_apply", login="tour_hos_state_wizard")
 
+        self.assertEqual(self.grade_session.state, 'board')
+
+    def test_grade_session_state_from_list_tour(self):
+        # Issue #878: from the list's selection; the overlay used to stay forever once the wizard's
+        # dialog closed, which the tour sees as a step that never finds its trigger.
+        self.start_tour("/odoo/action-ems.action_grade_session_tree",
+                        "ems_grade_session_state_from_list", login="tour_hos_state_wizard")
         self.assertEqual(self.grade_session.state, 'board')

@@ -30,6 +30,9 @@
                         <i class="fa fa-check me-1"/>Apply changes
                     </button>
                     <span t-if="dirty.value" class="o_grade_matrix_hint ms-2">Pending changes — the grades will be recalculated on apply.</span>
+                    <span class="o_grade_matrix_hint ms-2">
+                        <i class="fa fa-info-circle me-1"/>To mark a grade as provisional, type * or p after it (e.g. 6*).
+                    </span>
                     <span class="o_grade_tutor_scope ms-auto">
                         <t t-if="data.groups.length > 1">
                             <label class="me-1">Group:</label>

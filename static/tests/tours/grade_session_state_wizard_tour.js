@@ -59,3 +59,53 @@ registry.category("web_tour.tours").add("ems_grade_session_state_wizard_apply", 
         },
     ],
 });
+
+// Issue #878: the same wizard on the sessions selected in the list (Actions > Change state). The
+// last step also proves the screen is usable again: while the overlay is up, no trigger matches.
+registry.category("web_tour.tours").add("ems_grade_session_state_from_list", {
+    test: true,
+    steps: () => [
+        {
+            // The action groups by round and group by default: drop the grouping to get plain rows.
+            trigger: ".o_searchview_facet .o_facet_remove",
+            content: "Remove the default grouping",
+            run: "click",
+        },
+        {
+            // Only this tour's group (the database may hold many other sessions).
+            trigger: ".o_searchview_input",
+            content: "Search the tour's group",
+            run: "edit TGSSW",
+        },
+        { trigger: ".o_searchview_input", content: "Confirm the search", run: "press Enter" },
+        {
+            trigger: ".o_list_view .o_data_row:contains('TGSSW') .o_list_record_selector input",
+            content: "Select the session",
+            run: "click",
+        },
+        {
+            trigger: ".o_control_panel .o_cp_action_menus button",
+            content: "Open the Actions menu",
+            run: "click",
+        },
+        {
+            trigger: ".o-dropdown--menu .o-dropdown-item:contains('Change state')",
+            content: "Change state",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_form_view .o_field_widget[name='target_state']",
+            content: "Only the target state is asked: it acts on the selection",
+        },
+        {
+            trigger: ".modal footer button[name='action_apply_state']",
+            content: "Apply (board, the default)",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('TGSSW')",
+            content: "Back on the list, usable again",
+            run: "click",
+        },
+    ],
+});

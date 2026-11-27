@@ -36,9 +36,11 @@ class TestGradeTutorMatrixTour(HttpCase):
         # second, so the test needs to know exactly which student is which.
         cls.student_first = cls.env['res.partner'].create({
             'name': 'Tgtm Alpha', 'firstname': 'Tgtm', 'lastname': 'Alpha', 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': cls.group.id,
         })
         cls.student_second = cls.env['res.partner'].create({
             'name': 'Tgtm Beta', 'firstname': 'Tgtm', 'lastname': 'Beta', 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': cls.group.id,
         })
         for student in (cls.student_first, cls.student_second):
             cls.env['ems.enrollment'].create({
@@ -54,8 +56,8 @@ class TestGradeTutorMatrixTour(HttpCase):
         cls.grade_session.fill_students()
 
         # ems.grade_tutor_matrix (static/src/js/backend/grade_tutor_matrix.js) resolves the
-        # tutored groups from the CLICKING user's own tutorship (group_id.tutor_id.user_id),
-        # not from any teacher_id on the session - a dedicated tutor user/employee is needed,
+        # students from the CLICKING user's own tutorship (student_id.tutor_id.user_id, issue
+        # #878: their main group's tutor here), not from any teacher_id on the session - a dedicated tutor user/employee is needed,
         # the same pattern already established for the daily roll-call tour
         # (attendance_passlist_tour.py: real teacher accounts only, not admin).
         cls.tutor_user = create_role_user(

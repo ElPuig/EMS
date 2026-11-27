@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from collections import defaultdict
+
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 
@@ -24,6 +26,9 @@ class EmsGradeOutcomeLine(models.Model):
     is_provisional = fields.Boolean(string="Provisional", default=False, help="The teacher marks this grade as provisional (e.g. pending a submission); the student sees it as such. Only when the session allows provisional grades.")
     is_auto_generated = fields.Boolean(default=False)
 
+    # Read by the tutors' view, which may show lines of sessions the tutor cannot read (issue #878).
+    allow_provisional = fields.Boolean(string="Provisional grades allowed", related="grade_session_id.allow_provisional")
+
     # Used only for access-rule filtering.
     teacher_id = fields.Many2one(string="Teacher", related="grade_session_id.teacher_id", store=False)
 
@@ -37,25 +42,33 @@ class EmsGradeOutcomeLine(models.Model):
     def _compute_is_locked(self):
         # A passed outcome (score >= 5) from an earlier round of the same group and subject is final: it
         # must not be re-evaluated. This crosses grade sessions, so it is recomputed on read (store=False),
-        # like grade_session.can_edit.
-        for line in self:
-            line.is_locked = False
-            # An official import may release the lock on the line it overwrites (see is_lock_released),
-            # without altering the earlier rounds that would otherwise keep it locked.
-            if line.is_lock_released:
-                continue
-            session = line.grade_session_id
-            if not (line.student_id and line.outcome_id and session.group_id and session.subject_id and session.round):
-                continue
-            line.is_locked = bool(self.search_count([
-                ("student_id", "=", line.student_id.id),
-                ("outcome_id", "=", line.outcome_id.id),
-                ("grade_session_id.group_id", "=", session.group_id.id),
-                ("grade_session_id.subject_id", "=", session.subject_id.id),
-                ("grade_session_id.round", "<", session.round),
+        # like grade_session.can_edit. One query for the whole batch: a search_count per line took 12 s
+        # to open a tutor's view of 1,400 lines (issue #878). sudo: it is a safety lock, so it counts
+        # every earlier grade, not only those the reader may see.
+        to_check = self.filtered(lambda line: not line.is_lock_released and line.student_id and line.outcome_id
+                                 and line.grade_session_id.group_id and line.grade_session_id.subject_id
+                                 and line.grade_session_id.round)
+        passed_rounds = defaultdict(list)
+        if to_check:
+            sessions = to_check.grade_session_id
+            for passed in self.sudo().search([
+                ("student_id", "in", to_check.student_id.ids),
+                ("outcome_id", "in", to_check.outcome_id.ids),
+                ("grade_session_id.group_id", "in", sessions.group_id.ids),
+                ("grade_session_id.subject_id", "in", sessions.subject_id.ids),
+                ("grade_session_id.round", "<", max(sessions.mapped("round"))),
                 ("is_scored", "=", True),
                 ("score", ">=", 5),
-            ]))
+            ]):
+                earlier = passed.grade_session_id
+                passed_rounds[(passed.student_id.id, passed.outcome_id.id, earlier.group_id.id,
+                               earlier.subject_id.id)].append(earlier.round)
+        for line in self:
+            session = line.grade_session_id
+            rounds = passed_rounds.get((line.student_id.id, line.outcome_id.id, session.group_id.id,
+                                        session.subject_id.id), ()) if line in to_check else ()
+            # round is a single-digit selection, so a string comparison orders it.
+            line.is_locked = any(earlier_round < session.round for earlier_round in rounds)
 
     def write(self, vals):
         # open: scoped teachers/tutors; board: only the group's tutor; published and final: only admin.
@@ -64,7 +77,7 @@ class EmsGradeOutcomeLine(models.Model):
         # truth. This bypass is set only by ems.grade_import_wizard, never on manual editing.
         bypass_lock = self.env.context.get("ems_grade_import_bypass_lock")
         for line in self:
-            line.grade_session_id._ems_check_can_edit()
+            line.grade_session_id._ems_check_can_edit(line.student_id)
             # A passed outcome from an earlier round cannot be re-evaluated (no exception, not even for admins).
             if scoring and line.is_locked and not bypass_lock:
                 raise UserError(_("This learning outcome was already passed in an earlier round; its grade cannot be modified."))

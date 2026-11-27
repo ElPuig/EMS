@@ -1,5 +1,6 @@
 /** @odoo-module **/
 
+import { onWillDestroy } from "@odoo/owl";
 import { FormController } from "@web/views/form/form_controller";
 import { formView } from "@web/views/form/form_view";
 import { useService } from "@web/core/utils/hooks";
@@ -29,6 +30,18 @@ export function blockingActionFormView(messages) {
             super.setup();
             this.ui = useService("ui");
             this.uiBlocked = false;
+            // When the button returns an action that closes this wizard's dialog (e.g. back to the
+            // sessions' list), the dialog is destroyed before afterExecuteActionButton runs, and
+            // Odoo's protected action service then never resolves for it: the overlay would stay
+            // forever (issue #878). Unblock when the wizard goes away.
+            onWillDestroy(() => this._unblockUi());
+        }
+
+        _unblockUi() {
+            if (this.uiBlocked) {
+                this.ui.unblock();
+                this.uiBlocked = false;
+            }
         }
 
         async beforeExecuteActionButton(clickParams) {
@@ -43,10 +56,7 @@ export function blockingActionFormView(messages) {
         async afterExecuteActionButton(clickParams) {
             // useViewButtons calls this even when the action raised (it catches, calls the
             // hook, then re-throws), so a failed run cannot leave the UI blocked.
-            if (this.uiBlocked) {
-                this.ui.unblock();
-                this.uiBlocked = false;
-            }
+            this._unblockUi();
             return super.afterExecuteActionButton(clickParams);
         }
     }

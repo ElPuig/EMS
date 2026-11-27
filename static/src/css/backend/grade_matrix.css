@@ -434,3 +434,11 @@
 .o_grade_matrix td.o_grade_cell_provisional {
     font-style: italic;
 }
+
+/* "Provisional" tick on an outcome's column header (issue #878). */
+.o_grade_matrix .o_grade_matrix_provisional_toggle {
+    display: block;
+    font-weight: normal;
+    font-size: 0.8em;
+    cursor: pointer;
+}

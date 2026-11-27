@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 
+from collections import defaultdict
+
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from ..shared import base
 from psycopg2 import IntegrityError
 
-grade_round_selection = [("1", "1a"), ("2", "2a"), ("3", "3a"), ("4", "4a")]
+# The three ordinary evaluations and the extraordinary one (2a convocatòria), the last round:
+# it carries over the outcomes passed in the ordinary ones (issue #878).
+grade_round_selection = [("1", "1a"), ("2", "2a"), ("3", "3a"), ("4", "Extraordinary evaluation")]
 grade_state_selection = [("open", "Open"), ("board", "Board"), ("published", "Published"), ("final", "Finalised")]
-grade_session_type_selection = [("ordinary", "Ordinary"), ("second_chance", "Second chance")]
 # Fields only the Head of Studies (or an administrator) may change on a session: its place in the
 # evaluation calendar and what teachers may do in it (issue #878).
-MANAGED_FIELDS = {"state", "claim_date_from", "claim_date_to", "allow_provisional", "session_type"}
+MANAGED_FIELDS = {"state", "claim_date_from", "claim_date_to", "allow_provisional"}
 
 class EmsGradeSession(models.Model):
     _name = "ems.grade_session"
@@ -29,7 +32,6 @@ class EmsGradeSession(models.Model):
     allowed_subject_ids = fields.Many2many(related="group_id.study_id.subject_ids", store=False)
     round = fields.Selection(string="Round", selection=grade_round_selection, default="1", required=True)
     state = fields.Selection(string="State", selection=grade_state_selection, default="open", required=True, tracking=True)
-    session_type = fields.Selection(string="Type", selection=grade_session_type_selection, default="ordinary", required=True)
     claim_date_from = fields.Date(string="Claims from", help="First day students may claim a grade of this session once it is published.")
     claim_date_to = fields.Date(string="Claims until", help="Last day students may claim a grade of this session.")
     allow_provisional = fields.Boolean(string="Provisional grades allowed", default=True, help="Teachers may mark a learning outcome's grade as provisional.")
@@ -38,7 +40,7 @@ class EmsGradeSession(models.Model):
     planning_id = fields.Many2one(string="Planning", comodel_name="ems.planning", compute="_compute_planning_id", store=True)
     has_planning = fields.Boolean(string="Has planning", compute="_compute_has_planning", store=True)
     can_edit = fields.Boolean(string="Can edit", compute="_compute_can_edit", store=False, help="Whether the current user may edit the grades at the session's current state.")
-    can_manage = fields.Boolean(string="Can manage", compute="_compute_can_manage", store=False, help="Whether the current user may change the session's state, type, claims period and provisional grades.")
+    can_manage = fields.Boolean(string="Can manage", compute="_compute_can_manage", store=False, help="Whether the current user may change the session's state, claims period and provisional grades.")
 
     grade_outcome_line_ids = fields.One2many(string="Grades per outcome", comodel_name="ems.grade_outcome_line", inverse_name="grade_session_id")
     grade_subject_line_ids = fields.One2many(string="Subject grades", comodel_name="ems.grade_subject_line", inverse_name="grade_session_id")
@@ -87,11 +89,16 @@ class EmsGradeSession(models.Model):
     def _compute_can_manage(self):
         self.can_manage = self._ems_user_manages_sessions()
 
-    def _ems_check_can_edit(self):
+    def _ems_check_can_edit(self, student=None):
         """Raise the reason the current user may not edit this session's grades (see can_edit).
-        Shared by the outcome and subject lines' write()."""
+        Shared by the outcome and subject lines' write(), which pass the line's student: while the
+        session is open or in the board, the tutor who follows the student may edit their grades
+        too, whatever group the session is (issue #878: a 2nd-year student's 1st-year module)."""
         for session in self:
             if session.can_edit:
+                continue
+            if (student and session.state in ("open", "board")
+                    and base.EmsBase.user_acts_as_tutor(self, student.tutor_id)):
                 continue
             if session.state == "final":
                 raise UserError(_("This evaluation session is final; only administrators can edit the grades."))
@@ -99,15 +106,11 @@ class EmsGradeSession(models.Model):
                 raise UserError(_("The grades of this evaluation session are published; only administrators can edit them."))
             raise UserError(_("This evaluation session is in the board stage; only the group's tutor (or an administrator) can edit the grades."))
 
-    @api.depends("group_id", "subject_id", "round", "session_type")
+    @api.depends("group_id", "subject_id", "round")
     def _compute_display_name(self):
-        labels = dict(grade_round_selection)
-        second_chance = dict(self._fields["session_type"]._description_selection(self.env))["second_chance"]
+        labels = dict(self._fields["round"]._description_selection(self.env))
         for session in self:
-            label = labels.get(session.round, "")
-            if session.session_type == "second_chance":
-                label = f"{label}, {second_chance}"
-            session.display_name = f"{session.group_id.name or ''} {session.subject_id.display_name or ''} ({label})"
+            session.display_name = f"{session.group_id.name or ''} {session.subject_id.display_name or ''} ({labels.get(session.round, '')})"
 
     @api.constrains("claim_date_from", "claim_date_to")
     def _check_claim_dates(self):
@@ -143,17 +146,22 @@ class EmsGradeSession(models.Model):
             ]).mapped("student_id")
             session.grade_outcome_line_ids = [(5, 0, 0)]
             session.grade_subject_line_ids = [(5, 0, 0)]
-            for student in students:
-                session._ems_add_student_lines(student)
+            session._ems_add_students_lines(students)
 
     def _ems_add_student_lines(self, student):
-        """Add 'student's grade lines (subject + per-outcome) to this session, carrying over
-        passed-outcome scores from earlier rounds the same way 'fill_students' does. Idempotent
-        (a no-op if the student already has lines here) and leaves every other student's lines
-        untouched, so it is safe to call incrementally (e.g. when a new ems.enrollment is
-        created for this group+subject) without wiping grades other students already have."""
+        """Add 'student's grade lines to this session (see _ems_add_students_lines)."""
+        self._ems_add_students_lines(student)
+
+    def _ems_add_students_lines(self, students):
+        """Add the grade lines (subject + per-outcome) of 'students' to this session, carrying
+        over passed-outcome scores from earlier rounds. Idempotent (a student who already has
+        lines here is skipped) and leaves every other student's lines untouched, so it is safe
+        to call incrementally (e.g. when a new ems.enrollment is created for this group+subject)
+        without wiping grades other students already have. Every line is written in one go:
+        one student at a time made each write recompute the whole session (issue #878)."""
         self.ensure_one()
-        if self.grade_subject_line_ids.filtered(lambda line: line.student_id == student):
+        students = students - self.grade_subject_line_ids.student_id
+        if not students:
             return
 
         # The outcomes to grade come from the planning; if there's no planning yet, fall back to the subject's outcomes.
@@ -162,44 +170,46 @@ class EmsGradeSession(models.Model):
         # Every evaluated outcome from an earlier round of the same group and subject is carried over:
         # the new line starts from the score of the most recent earlier round. Passed outcomes stay
         # locked (see grade_outcome_line.is_locked); failed ones are editable but keep their previous
-        # score as a starting point.
+        # score as a starting point. One search for every student.
         previous_scores = {}
         if self.group_id and self.subject_id and self.round:
             best_round = {}
             for line in self.env["ems.grade_outcome_line"].search([
-                ("student_id", "=", student.id),
+                ("student_id", "in", students.ids),
                 ("grade_session_id.group_id", "=", self.group_id.id),
                 ("grade_session_id.subject_id", "=", self.subject_id.id),
                 ("grade_session_id.round", "<", self.round),
                 ("is_scored", "=", True),
             ]):
-                outcome_id = line.outcome_id.id
+                key = (line.student_id.id, line.outcome_id.id)
                 line_round = line.grade_session_id.round
                 # round is a single-digit selection, so a string comparison is enough to keep the latest.
-                if outcome_id not in best_round or line_round > best_round[outcome_id]:
-                    best_round[outcome_id] = line_round
-                    previous_scores[outcome_id] = line.score
+                if key not in best_round or line_round > best_round[key]:
+                    best_round[key] = line_round
+                    previous_scores[key] = line.score
 
         outcome_cmds = []
-        for outcome in outcomes:
-            vals = {
+        subject_cmds = []
+        convalidation = self.env["ems.convalidation.line"]
+        for student in students:
+            for outcome in outcomes:
+                vals = {
+                    "student_id": student.id,
+                    "outcome_id": outcome.id,
+                    "is_auto_generated": True,
+                }
+                previous = previous_scores.get((student.id, outcome.id))
+                if previous is not None:
+                    vals["score"] = previous
+                    vals["is_scored"] = True
+                outcome_cmds.append((0, 0, vals))
+            convalidation_grade = convalidation._ems_convalidation_grade(student, self.subject_id)
+            subject_cmds.append((0, 0, {
                 "student_id": student.id,
-                "outcome_id": outcome.id,
-                "is_auto_generated": True,
-            }
-            previous = previous_scores.get(outcome.id)
-            if previous is not None:
-                vals["score"] = previous
-                vals["is_scored"] = True
-            outcome_cmds.append((0, 0, vals))
-
-        convalidation_grade = self.env["ems.convalidation.line"]._ems_convalidation_grade(student, self.subject_id)
-        self.grade_subject_line_ids = [(0, 0, {
-            "student_id": student.id,
-            "is_convalidated": convalidation_grade is not None,
-            "convalidation_grade": convalidation_grade or 0,
-        })]
-        self.grade_outcome_line_ids = outcome_cmds
+                "is_convalidated": convalidation_grade is not None,
+                "convalidation_grade": convalidation_grade or 0,
+            }))
+        self.write({"grade_subject_line_ids": subject_cmds, "grade_outcome_line_ids": outcome_cmds})
 
     @api.model
     def _ems_has_scored_grades(self, student_id, group_id, subject_id):
@@ -257,9 +267,49 @@ class EmsGradeSession(models.Model):
     def _ems_user_manages_sessions(self):
         return self.env.user.has_group("ems.group_academic_admin") or self.env.user.has_group("ems.group_head_of_studies")
 
+    def _ems_check_state_change(self, new_state):
+        """A session moves one step at a time, forwards or backwards (issue #878): open, board,
+        published, final. Publishing needs the claims period, which is when students may claim."""
+        order = [state for state, _label in grade_state_selection]
+        labels = dict(self._fields["state"]._description_selection(self.env))
+        for session in self:
+            if session.state == new_state:
+                continue
+            if abs(order.index(new_state) - order.index(session.state)) != 1:
+                raise UserError(_("%(session)s is %(state)s: it can only move to the previous or the next state, not to %(new)s.",
+                                  session=session.display_name, state=labels[session.state], new=labels[new_state]))
+            if new_state == "published" and not (session.claim_date_from and session.claim_date_to):
+                raise UserError(_("%(session)s has no claims period: set it before publishing the grades.",
+                                  session=session.display_name))
+
+    def _ems_empty_grades_summary(self):
+        """One line per session that still has empty outcome grades, for the warning shown before
+        publishing. Publishing is not blocked: not every outcome is evaluated in every round. A
+        convalidated subject's outcomes are never graded, so they don't count. Two queries for
+        every session together."""
+        convalidated = {
+            (line.grade_session_id.id, line.student_id.id)
+            for line in self.env["ems.grade_subject_line"].sudo().search([
+                ("grade_session_id", "in", self.ids), ("is_convalidated", "=", True)])
+        }
+        empty = defaultdict(int)
+        for session, student, count in self.env["ems.grade_outcome_line"].sudo()._read_group([
+            ("grade_session_id", "in", self.ids),
+            ("is_scored", "=", False),
+        ], groupby=["grade_session_id", "student_id"], aggregates=["__count"]):
+            if (session.id, student.id) not in convalidated:
+                empty[session.id] += count
+        return [
+            _("%(session)s: %(count)s empty outcome grade(s)", session=session.display_name, count=empty[session.id])
+            for session in self if empty[session.id]
+        ]
+
     def write(self, vals):
         if MANAGED_FIELDS & set(vals) and not self._ems_user_manages_sessions():
-            raise UserError(_("Only the Head of Studies or an administrator can change the evaluation state, type, claims period or provisional grades."))
+            raise UserError(_("Only the Head of Studies or an administrator can change the evaluation state, claims period or provisional grades."))
+        # The superuser (data migrations, tests building fixtures) may set any state directly.
+        if "state" in vals and not self.env.su:
+            self._ems_check_state_change(vals["state"])
         if not self.env.user.has_group("ems.group_academic_admin"):
             # Archiving / unarchiving (active) is a write; only administrators may archive or restore sessions.
             if "active" in vals:

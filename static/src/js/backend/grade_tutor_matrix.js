@@ -9,10 +9,10 @@ import { user } from "@web/core/user";
 import { _t } from "@web/core/l10n/translation";
 import { formatGradeInput, parseGradeInput } from "./grade_input";
 
-const ROUND_LABELS = { "1": "1a", "2": "2a", "3": "3a", "4": "4a" };
 
-// Client action for the tutor's evaluation view: it aggregates the non-closed grade sessions of the
-// tutored group (a single open/board round) and shows, one STUDENT at a time, a grid with one row per
+// Client action for the tutor's evaluation view: it aggregates the editable (open/board) grade sessions
+// of the tutor's students (issue #878: the students the tutor follows, in whichever group each subject
+// is) and shows, one STUDENT at a time, a grid with one row per
 // enrolled subject and the learning-outcome scores laid out positionally (RA 1..N, N = the largest RA
 // count among the student's subjects; cells a subject does not have are disabled), plus the same subject
 // columns as the per-subject view (External / Override Internal / Internal / Final / Notes). Editing goes
@@ -43,7 +43,6 @@ export class GradeTutorMatrix extends Component {
         this.editRef = useRef("editInput");
         // Snapshots of the applied values, to diff on apply.
         this._outRaw = {};
-        this._provisionalSessionIds = new Set();
         this._subRaw = {};
 
         useSetupAction({
@@ -65,24 +64,39 @@ export class GradeTutorMatrix extends Component {
 
     async _load() {
         this.state.loading = true;
-        const sessions = await this.orm.searchRead(
-            "ems.grade_session",
-            // Only what the tutor can still edit: published and final sessions are read-only (#878).
-            [["group_id.tutor_id.user_id", "=", user.userId], ["state", "in", ["open", "board"]]],
-            ["group_id", "subject_id", "round", "state", "allow_provisional"]
-        );
-        if (!sessions.length) {
+        // Issue #878: the students are the tutor's own (the tutor who follows them, student_id.tutor_id),
+        // with every subject they are taking, in whichever group its session is (a 2nd-year student
+        // repeating a 1st-year module comes with it); a student of another tutor who attends one of
+        // this tutor's groups for a module is that other tutor's. Only what can still be edited:
+        // published and final sessions are read-only.
+        const subjectFields = [
+            "grade_session_id", "round", "tutorship_group_id",
+            "subject_id", "subject_name", "student_id", "student_firstname", "student_lastname",
+            "internal_ponderation", "external_ponderation", "internal_score", "internal_is_scored",
+            "internal_is_complete", "external_score", "external_is_scored", "computed_score",
+            "computed_is_scored", "is_overridden", "final_score", "has_final", "notes", "is_convalidated",
+        ];
+        const [allSubjectLines, roundInfo] = await Promise.all([
+            this.orm.searchRead(
+                "ems.grade_subject_line",
+                [["student_id.tutor_id.user_id", "=", user.userId], ["session_state", "in", ["open", "board"]]],
+                subjectFields
+            ),
+            this.orm.call("ems.grade_session", "fields_get", [["round"]], { attributes: ["selection"] }),
+        ]);
+        this._roundLabels = Object.fromEntries(roundInfo.round.selection);
+        if (!allSubjectLines.length) {
             this.data.students = [];
             this.data.groups = [];
             this.state.empty = true;
             this.state.loading = false;
             return;
         }
-        // Distinct tutored groups that have an open (non-final) evaluation.
+        // The tutor's groups: their students' tutorship groups.
         const groupsMap = new Map();
-        for (const s of sessions) {
-            if (!groupsMap.has(s.group_id[0])) {
-                groupsMap.set(s.group_id[0], s.group_id[1] || "");
+        for (const sl of allSubjectLines) {
+            if (sl.tutorship_group_id && !groupsMap.has(sl.tutorship_group_id[0])) {
+                groupsMap.set(sl.tutorship_group_id[0], sl.tutorship_group_id[1] || "");
             }
         }
         this.data.groups = [...groupsMap.entries()]
@@ -90,28 +104,24 @@ export class GradeTutorMatrix extends Component {
             .sort((a, b) => a.name.localeCompare(b.name));
         // Keep the current group selection if still valid, otherwise take the first.
         if (!this.data.groups.some((g) => g.id === this.state.groupId)) {
-            this.state.groupId = this.data.groups[0].id;
+            this.state.groupId = this.data.groups.length ? this.data.groups[0].id : null;
         }
-        const groupSessions = sessions.filter((s) => s.group_id[0] === this.state.groupId);
-        const sessionIds = groupSessions.map((s) => s.id);
-        this._provisionalSessionIds = new Set(groupSessions.filter((s) => s.allow_provisional).map((s) => s.id));
-        this.data.groupName = groupSessions[0].group_id[1] || "";
-        this.data.round = groupSessions[0].round;
-
-        const subjectLines = await this.orm.searchRead(
-            "ems.grade_subject_line",
-            [["grade_session_id", "in", sessionIds]],
-            [
-                "subject_id", "subject_name", "student_id", "student_firstname", "student_lastname",
-                "internal_ponderation", "external_ponderation", "internal_score", "internal_is_scored",
-                "internal_is_complete", "external_score", "external_is_scored", "computed_score",
-                "computed_is_scored", "is_overridden", "final_score", "has_final", "notes", "is_convalidated",
-            ]
+        const subjectLines = allSubjectLines.filter(
+            (sl) => sl.tutorship_group_id && sl.tutorship_group_id[0] === this.state.groupId
         );
+        this.data.groupName = groupsMap.get(this.state.groupId) || "";
+        this.data.round = subjectLines.length ? subjectLines[0].round : null;
+
         const outcomeLines = await this.orm.searchRead(
             "ems.grade_outcome_line",
-            [["grade_session_id", "in", sessionIds]],
-            ["grade_session_id", "subject_id", "student_id", "outcome_id", "outcome_acronym", "ponderation", "score", "is_scored", "is_provisional", "is_locked"]
+            [
+                ["grade_session_id", "in", [...new Set(subjectLines.map((sl) => sl.grade_session_id[0]))]],
+                ["student_id", "in", [...new Set(subjectLines.map((sl) => sl.student_id[0]))]],
+            ],
+            [
+                "grade_session_id", "allow_provisional", "subject_id", "student_id", "outcome_id",
+                "outcome_acronym", "ponderation", "score", "is_scored", "is_provisional", "is_locked",
+            ]
         );
 
         // Outcome lines grouped by (student, subject).
@@ -235,7 +245,7 @@ export class GradeTutorMatrix extends Component {
     }
 
     roundLabel() {
-        return ROUND_LABELS[this.data.round] || "";
+        return (this._roundLabels || {})[this.data.round] || "";
     }
 
     avatarUrl(studentId) {
@@ -565,7 +575,7 @@ export class GradeTutorMatrix extends Component {
 
     _applyOne(row, col, raw) {
         const ol = col.kind === "external" ? null : row.outcomes[col.pos];
-        const allowProvisional = !!ol && this._provisionalSessionIds.has(ol.grade_session_id[0]);
+        const allowProvisional = !!ol && ol.allow_provisional;
         const changes = parseGradeInput(raw, allowProvisional);
         if (changes) {
             this._cellSet(row, col, changes.score, changes.is_scored, changes.is_provisional);

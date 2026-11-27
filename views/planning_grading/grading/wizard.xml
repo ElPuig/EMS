@@ -11,10 +11,9 @@
                         <field name="level_ids" widget="many2many_tags" invisible="mode != 'level'" required="mode == 'level'"/>
                         <field name="study_ids" widget="many2many_tags" invisible="mode != 'study'" required="mode == 'study'"/>
                         <field name="round" readonly="1" force_save="1"/>
-                        <field name="session_type" widget="radio" options="{'horizontal': true}"/>
                         <label for="claim_date_from" string="Claims period"/>
                         <div class="o_row">
-                            <field name="claim_date_from"/> - <field name="claim_date_to"/>
+                            <field name="claim_date_from" required="1"/> - <field name="claim_date_to" required="1"/>
                         </div>
                     </group>
                     <footer>
@@ -49,6 +48,10 @@
                         <field name="round" invisible="from_selection"/>
                         <field name="target_state"/>
                     </group>
+                    <div class="alert alert-warning" role="alert" invisible="not publish_warning">
+                        <p class="mb-1">These sessions still have empty outcome grades. You can publish them anyway:</p>
+                        <field name="publish_warning" readonly="1" nolabel="1"/>
+                    </div>
                     <footer>
                         <button name="action_apply_state" type="object" string="Apply" class="btn-primary"/>
                         <button string="Cancel" class="btn-secondary" special="cancel"/>

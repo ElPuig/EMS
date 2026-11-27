@@ -194,10 +194,6 @@ msgstr "3a evaluación"
 msgid "3rd round"
 msgstr "3a evaluación"
 
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_grade_session__round__4 model:ir.model.fields.selection,name:ems.selection__ems_grade_session_state_wizard__round__4 model:ir.model.fields.selection,name:ems.selection__ems_grade_session_wizard__round__4
-msgid "4a"
-msgstr "4a evaluación"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_grade_outcome__round__4
@@ -5001,10 +4997,6 @@ msgstr "Línea de calificación por RA: la nota de un alumno para un único resu
 msgid "Grade session"
 msgstr "Sesión de evaluación"
 
-#. module: ems
-#: model:ir.model,name:ems.model_ems_grade_session_state_wizard
-msgid "Grade session state wizard: bulk state transition (board / final) by level or study."
-msgstr "Asistente de estado de sesión de evaluación: transición masiva de estado (junta / final) por nivel o estudio."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_grade_session_wizard
@@ -8701,6 +8693,7 @@ msgstr "Funciones: El puesto de coordinación que desempeñan los empleados."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__round model:ir.model.fields,field_description:ems.field_ems_grade_session__round model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__round model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__round model_terms:ir.ui.view,arch_db:ems.view_grade_session_search
+#: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__round
 msgid "Round"
 msgstr "Evaluación"
 
@@ -21724,6 +21717,7 @@ msgstr "No se puede poner un strike con fecha futura."
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_form
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_session_form
 msgid "Actions"
 msgstr "Acciones"
 
@@ -25884,6 +25878,7 @@ msgstr "Bajas que han pasado a antiguo alumnado"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_notice__can_manage
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__can_manage
+#: model:ir.model.fields,field_description:ems.field_ems_grade_session__can_manage
 msgid "Can manage"
 msgstr "Puede gestionar"
 
@@ -31588,6 +31583,9 @@ msgstr "Publicar"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_resolution__state__published
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_search
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call__phase__published
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_session__state__published
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_session_state_wizard__target_state__published
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_session_search
 msgid "Published"
 msgstr "Publicada"
 
@@ -40114,6 +40112,7 @@ msgstr "Solo para las modalidades de este proyecto. Vacío: ambos proyectos."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__provisional
+#: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__is_provisional
 msgid "Provisional"
 msgstr "Provisional"
 
@@ -56145,6 +56144,7 @@ msgstr "El grupo cuyo tutor hace el seguimiento de este alumno (asistencia, fami
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__tutorship_group_id model:ir.model.fields,field_description:ems.field_res_users__tutorship_group_id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__tutorship_group_id
 msgid "Tutorship group"
 msgstr "Grupo de tutoría"
 
@@ -56547,3 +56547,176 @@ msgstr "Abrir el enlace"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_document_list
 msgid "Write what to correct"
 msgstr "Escribe qué hay que corregir"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_session.py:0
+msgid "%(session)s has no claims period: set it before publishing the grades."
+msgstr "%(session)s no tiene plazo de reclamaciones: indíquelo antes de publicar las notas."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_session.py:0
+msgid "%(session)s is %(state)s: it can only move to the previous or the next state, not to %(new)s."
+msgstr "%(session)s está en estado %(state)s: solo puede pasar al estado anterior o al siguiente, no a %(new)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_session.py:0
+msgid "%(session)s: %(count)s empty outcome grade(s)"
+msgstr "%(session)s: %(count)s nota(s) de RA sin poner"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_grade_session_state_wizard_selection
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_session_form
+msgid "Change state"
+msgstr "Cambiar el estado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_session__claim_date_from
+#: model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__claim_date_from
+msgid "Claims from"
+msgstr "Reclamaciones desde"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_session_wizard_form
+msgid "Claims period"
+msgstr "Plazo de reclamaciones"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_session__claim_date_to
+#: model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__claim_date_to
+msgid "Claims until"
+msgstr "Reclamaciones hasta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__publish_warning
+msgid "Empty grades"
+msgstr "Notas sin poner"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__session_state
+msgid "Evaluation state"
+msgstr "Estado de la evaluación"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_import_wizard__round__4
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_session__round__4
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_session_state_wizard__round__4
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_session_wizard__round__4
+msgid "Extraordinary evaluation"
+msgstr "Evaluación extraordinaria"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_session__claim_date_from
+msgid "First day students may claim a grade of this session once it is published."
+msgstr "Primer día en que el alumnado puede reclamar una nota de esta sesión una vez publicada."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__from_selection
+msgid "From Selection"
+msgstr "Desde la selección"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_grade_session_state_wizard
+msgid "Grade session state wizard: state transition of the selected sessions, or of a whole level or study."
+msgstr "Asistente de estado de las sesiones de evaluación: cambio de estado de las sesiones seleccionadas, o de un nivel o estudio entero."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_session__claim_date_to
+msgid "Last day students may claim a grade of this session."
+msgstr "Último día en que el alumnado puede reclamar una nota de esta sesión."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/grade_matrix_field.xml:0
+msgid "Mark every grade of this outcome as provisional"
+msgstr "Marca todas las notas de este RA como provisionales"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_session.py:0
+msgid "Only the Head of Studies or an administrator can change the evaluation state, claims period or provisional grades."
+msgstr "Solo el jefe de estudios o un administrador pueden cambiar el estado de la evaluación, el plazo de reclamaciones o las notas provisionales."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_session_wizard.py:0
+msgid "Only the Head of Studies or an administrator can create evaluation sessions."
+msgstr "Solo el jefe de estudios o un administrador pueden crear sesiones de evaluación."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_session_wizard.py:0
+msgid "Please set the claims period of the new sessions."
+msgstr "Indique el plazo de reclamaciones de las sesiones nuevas."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/grade_matrix_field.js:0
+#: code:addons/ems/static/src/js/backend/grade_tutor_matrix.js:0
+msgid "Provisional grade"
+msgstr "Nota provisional"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__allow_provisional
+#: model:ir.model.fields,field_description:ems.field_ems_grade_session__allow_provisional
+msgid "Provisional grades allowed"
+msgstr "Notas provisionales permitidas"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_session_state_wizard__publish_warning
+msgid "Sessions about to be published that still have empty outcome grades."
+msgstr "Sesiones que se publicarán y que aún tienen notas de RA sin poner."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_outcome_line__allow_provisional
+#: model:ir.model.fields,help:ems.field_ems_grade_session__allow_provisional
+msgid "Teachers may mark a learning outcome's grade as provisional."
+msgstr "El profesorado puede marcar la nota de un RA como provisional."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_session.py:0
+#: code:addons/ems/models/grades/grade_session_wizard.py:0
+msgid "The claims period cannot end before it starts."
+msgstr "El plazo de reclamaciones no puede terminar antes de empezar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_session.py:0
+msgid "The grades of this evaluation session are published; only administrators can edit them."
+msgstr "Las notas de esta sesión de evaluación están publicadas; solo los administradores pueden modificarlas."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_outcome_line__is_provisional
+msgid "The teacher marks this grade as provisional (e.g. pending a submission); the student sees it as such. Only when the session allows provisional grades."
+msgstr "El profesor marca esta nota como provisional (p. ej. pendiente de una entrega); el alumno la ve así. Solo si la sesión permite notas provisionales."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_session_state_wizard_form
+msgid "These sessions still have empty outcome grades. You can publish them anyway:"
+msgstr "Estas sesiones aún tienen notas de RA sin poner. Puede publicarlas igualmente:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_outcome_line.py:0
+msgid "This evaluation session does not allow provisional grades."
+msgstr "Esta sesión de evaluación no permite notas provisionales."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/grade_matrix_field.xml:0
+msgid "To mark a grade as provisional, type * or p after it (e.g. 6*), or tick \"Provisional\" on the outcome's column to mark all its grades."
+msgstr "Para marcar una nota como provisional, escriba * o p detrás de la nota (p. ej. 6*), o marque «Provisional» en la columna del RA para marcar todas sus notas."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0
+msgid "To mark a grade as provisional, type * or p after it (e.g. 6*)."
+msgstr "Para marcar una nota como provisional, escriba * o p detrás de la nota (p. ej. 6*)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_session__can_manage
+msgid "Whether the current user may change the session's state, claims period and provisional grades."
+msgstr "Si el usuario actual puede cambiar el estado, el plazo de reclamaciones y las notas provisionales de la sesión."

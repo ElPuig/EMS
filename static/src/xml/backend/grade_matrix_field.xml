@@ -14,6 +14,9 @@
                     <i class="fa fa-check me-1"/>Apply changes
                 </button>
                 <span t-if="dirty.value" class="o_grade_matrix_hint ms-2">Pending changes — the computed grades will be recalculated on apply.</span>
+                <span t-if="showProvisional" class="o_grade_matrix_hint ms-2">
+                    <i class="fa fa-info-circle me-1"/>To mark a grade as provisional, type * or p after it (e.g. 6*), or tick "Provisional" on the outcome's column to mark all its grades.
+                </span>
             </div>
             <table class="table table-sm table-bordered mb-0">
                 <colgroup>
@@ -40,6 +43,12 @@
                         <t t-foreach="columns" t-as="col" t-key="col.id">
                             <th class="text-center o_grade_matrix_col" t-att-class="col.isExternal ? 'o_grade_matrix_sep' : ''">
                                 <t t-esc="col.label"/>-<t t-esc="formatPonderation(col.ponderation)"/>%
+                                <label t-if="showProvisional and !col.isExternal" class="o_grade_matrix_provisional_toggle"
+                                       title="Mark every grade of this outcome as provisional">
+                                    <input type="checkbox" class="form-check-input me-1"
+                                           t-att-checked="isColumnProvisional(col)"
+                                           t-on-change="(ev) => this.onColumnProvisional(col, ev)"/>Provisional
+                                </label>
                                 <span class="o_grade_matrix_resizer" t-on-mousedown="(ev) => this.onResizeStart('ra_' + col.id, ev)"/>
                             </th>
                         </t>

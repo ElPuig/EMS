@@ -43,9 +43,6 @@
                              (also enforced in write()). -->
                         <group col="4">
                             <group>
-                                <field name="session_type" readonly="not can_manage"/>
-                            </group>
-                            <group>
                                 <field name="claim_date_from" readonly="not can_manage"/>
                             </group>
                             <group>

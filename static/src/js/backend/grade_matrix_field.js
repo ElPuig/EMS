@@ -131,6 +131,30 @@ export class GradeMatrixField extends Component {
         return !!this.props.record.data.allow_provisional;
     }
 
+    // The provisional hint and the per-outcome "Provisional" checkboxes (issue #878).
+    get showProvisional() {
+        return this.allowProvisional && !this.props.readonly;
+    }
+
+    // Editable graded cells of an outcome's column: those a "Provisional" tick acts on.
+    _columnGradedBuffers(col) {
+        return this.rows
+            .map((row) => this._outcomeBuf(row, col))
+            .filter((b) => b && b.is_scored && !b.is_locked);
+    }
+
+    isColumnProvisional(col) {
+        const graded = this._columnGradedBuffers(col);
+        return graded.length > 0 && graded.every((b) => b.is_provisional);
+    }
+
+    onColumnProvisional(col, ev) {
+        for (const b of this._columnGradedBuffers(col)) {
+            b.is_provisional = ev.target.checked;
+        }
+        this.dirty.value = true;
+    }
+
     // Whether a cell is locked (an outcome already passed in an earlier round). Locked cells show the
     // carried-over value but cannot be edited, cleared or pasted over. The external column is never locked.
     _cellLocked(row, col) {

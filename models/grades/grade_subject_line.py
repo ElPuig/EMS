@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from collections import defaultdict
+
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
@@ -41,6 +43,13 @@ class EmsGradeSubjectLine(models.Model):
 
     # Used only for access-rule filtering.
     teacher_id = fields.Many2one(string="Teacher", related="grade_session_id.teacher_id", store=False)
+    # Read by the tutors' view (issue #878), which groups the students by the group whose tutor
+    # follows them and may show subjects of several groups' sessions.
+    tutorship_group_id = fields.Many2one(string="Tutorship group", related="student_id.tutorship_group_id")
+    round = fields.Selection(string="Round", related="grade_session_id.round")
+    # Stored so the tutors' view can filter by it: a search through grade_session_id.state applies
+    # the session's record rules, which hide the sessions of other groups from the tutor.
+    session_state = fields.Selection(string="Evaluation state", related="grade_session_id.state", store=True)
 
     @api.depends(
         "is_overridden",
@@ -51,13 +60,11 @@ class EmsGradeSubjectLine(models.Model):
     def _compute_internal_score(self):
         # Computed-but-writable: computed from the outcomes unless the teacher overrides it, in which case
         # the manual value is kept until the override is cleared.
+        outcomes = self._ems_outcome_lines_by_student()
         for subject_line in self:
             if subject_line.is_overridden:
                 continue
-            all_lines = subject_line.grade_session_id.grade_outcome_line_ids.filtered(
-                lambda line: line.student_id == subject_line.student_id
-            )
-            scored = all_lines.filtered("is_scored")
+            scored = outcomes[subject_line._ems_outcome_key()].filtered("is_scored")
             subject_line.internal_score = self._internal_from_outcomes(
                 [(line.score, line.ponderation) for line in scored])
 
@@ -81,6 +88,18 @@ class EmsGradeSubjectLine(models.Model):
             internal = 4
         return internal
 
+    def _ems_outcome_key(self):
+        return (self.grade_session_id.id, self.student_id.id)
+
+    def _ems_outcome_lines_by_student(self):
+        """{(session id, student id): outcome lines} for every session of these subject lines,
+        built once per batch: filtering the session's outcome lines for each student made the
+        computes quadratic in the session's size (issue #878: 52 sessions took 28 s to create)."""
+        by_student = defaultdict(lambda: self.env["ems.grade_outcome_line"])
+        for line in self.grade_session_id.grade_outcome_line_ids:
+            by_student[(line.grade_session_id.id, line.student_id.id)] |= line
+        return by_student
+
     @api.depends(
         "is_overridden",
         "grade_session_id.grade_outcome_line_ids.is_scored",
@@ -88,13 +107,12 @@ class EmsGradeSubjectLine(models.Model):
     def _compute_internal_is_scored(self):
         # Kept apart from _compute_internal_score: writing the (computed-writable) internal_score would
         # skip a shared compute and leave this flag stale.
+        outcomes = self._ems_outcome_lines_by_student()
         for subject_line in self:
             if subject_line.is_overridden:
                 subject_line.internal_is_scored = True
             else:
-                subject_line.internal_is_scored = bool(subject_line.grade_session_id.grade_outcome_line_ids.filtered(
-                    lambda line: line.student_id == subject_line.student_id and line.is_scored
-                ))
+                subject_line.internal_is_scored = any(outcomes[subject_line._ems_outcome_key()].mapped("is_scored"))
 
     @api.depends(
         "is_overridden",
@@ -104,13 +122,12 @@ class EmsGradeSubjectLine(models.Model):
     def _compute_internal_is_complete(self):
         # Kept apart from _compute_internal_score for the same reason as _compute_internal_is_scored: the
         # writable internal_score would skip a shared compute and leave this flag stale.
+        outcomes = self._ems_outcome_lines_by_student()
         for subject_line in self:
             if subject_line.is_overridden or subject_line.is_convalidated:
                 subject_line.internal_is_complete = True
                 continue
-            lines = subject_line.grade_session_id.grade_outcome_line_ids.filtered(
-                lambda line: line.student_id == subject_line.student_id
-            )
+            lines = outcomes[subject_line._ems_outcome_key()]
             subject_line.internal_is_complete = bool(lines) and all(line.is_scored for line in lines)
 
     @api.model
@@ -190,7 +207,8 @@ class EmsGradeSubjectLine(models.Model):
         if self.env.context.get('ems_convalidation_sync') and set(vals) <= {'is_convalidated',
                                                                             'convalidation_grade'}:
             return super().write(vals)
-        self.grade_session_id._ems_check_can_edit()
+        for subject_line in self:
+            subject_line.grade_session_id._ems_check_can_edit(subject_line.student_id)
         return super().write(vals)
 
     @api.constrains("internal_score", "external_score", "final_score")

@@ -77,7 +77,8 @@
         <field name="name">Grade outcome line: tutored group</field>
         <field name="model_id" ref="ems.model_ems_grade_outcome_line"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('grade_session_id.group_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
+        <!-- Issue #878: also the tutor who follows the student, whatever group the session is. -->
+        <field name="domain_force">['|', ('grade_session_id.group_id.tutor_id.tutor_scope_user_ids', '=', user.id), ('student_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="False"/>
@@ -111,7 +112,8 @@
         <field name="name">Grade subject line: tutored group</field>
         <field name="model_id" ref="ems.model_ems_grade_subject_line"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('grade_session_id.group_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
+        <!-- Issue #878: also the tutor who follows the student, whatever group the session is. -->
+        <field name="domain_force">['|', ('grade_session_id.group_id.tutor_id.tutor_scope_user_ids', '=', user.id), ('student_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="False"/>

@@ -19,8 +19,13 @@ registry.category("web_tour.tours").add("ems_grade_session_ui", {
             content: "Study selector present (default mode)",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='round']",
-            content: "Round field present",
+            // Not asked any more (issue #354): computed and shown read-only.
+            trigger: ".o_form_view .o_field_widget[name='round'].o_readonly_modifier",
+            content: "Round field present, read-only",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='claim_date_from'].o_required_modifier",
+            content: "Claims period present and required (issue #878)",
         },
     ],
 });

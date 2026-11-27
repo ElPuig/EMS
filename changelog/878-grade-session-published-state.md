@@ -13,7 +13,7 @@
 
 - The portal's Grades page (until now "under construction") shows the student's published and final evaluations, newest first: a table like the tutors' view with each module's grade (or the provisional one while an outcome is still pending), one column per learning outcome (greyed where the module has none) and the teacher's comment. Families see their child's, also in view-only mode.
 - The grades can be downloaded as a non-official PDF.
-- When publishing, the Head of Studies can tick "Announce the publication": every student, and the family of a minor, gets one email per evaluation with a link to the portal and the claims period, never the grades.
+- When publishing, the Head of Studies can tick "Announce the publication": every student, and the family of a minor, gets one email per evaluation with a link to the portal and the claims period, never the grades. The emails are prepared in the background, so publishing a whole round does not keep the screen waiting.
 
 # Fixes
 
@@ -32,3 +32,9 @@
 ## Wizard overlay stuck after changing states from the list:
 
 - The "Changing the state..." overlay stayed on screen forever when the wizard closed itself and went back to the list, and the long-running wizards (session creation, imports, course transition) showed their "in progress" overlay forever when a required field was left empty.
+
+# Internal changes
+
+## Student portal pages share how they resolve the student:
+
+- The schedule and grades pages read the student the portal user is looking at through one shared helper instead of a copy each.

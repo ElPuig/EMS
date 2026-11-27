@@ -16,9 +16,10 @@ This guide explains in detail the steps students (or their families) must follow
 4. [Step 3 — Confirmation email](#step-3--confirmation-email)
 5. [Step 4 — Portal access](#step-4--portal-access)
 6. [Step 5 — Answering an authorization](#step-5--answering-an-authorization)
-7. [Signing in afterwards: personal email or school account](#signing-in-afterwards-personal-email-or-school-account)
-8. [Students under 18](#students-under-18)
-9. [When the student turns 18](#when-the-student-turns-18)
+7. [Checking the grades](#checking-the-grades)
+8. [Signing in afterwards: personal email or school account](#signing-in-afterwards-personal-email-or-school-account)
+9. [Students under 18](#students-under-18)
+10. [When the student turns 18](#when-the-student-turns-18)
 
 ---
 
@@ -35,7 +36,7 @@ Currently, the portal allows the following tasks:
 * **Profile:** Keep the personal, contact and account security data up to date.
 
 **Features available soon.** We are developing new modules to improve the tool. The following area will be activated very soon:
-* **Grades:** Access the marks of the different evaluations directly.
+* **Grades:** Check the grades of each evaluation once the school publishes them, and download them as a non-official PDF.
 
 ---
 
@@ -106,6 +107,24 @@ For each one:
 4. Click **Accept Authorization** or, if the authorization allows it, **Reject**.
 
 Once answered, the **Document** column holds a PDF certificate of your answer. Click it at any time to download or print it.
+
+---
+
+## Checking the grades
+
+The **Grades** card shows the student's grades once the school **publishes** an evaluation; when it does, you may receive an email saying so, with a button to the portal. It shows nothing before: the grades are still being prepared by the teaching team.
+
+Each evaluation, the most recent first, has a table with one row per module:
+
+* **Grade:** the module's grade, **green** when passed and **red** when failed. In **yellow with an asterisk** (`*`) it is a **provisional** grade: some learning outcomes have not been evaluated yet, so it may change. **Pending** means it has no grade yet, and **CV** that the module is convalidated.
+* **RA1, RA2…:** the grade of each **learning outcome** (RA) of the module. Hover over a cell to see the outcome's name. An asterisk (`*`) marks a provisional grade, a dash (`-`) an outcome not evaluated yet and a tick (`✓`) one already passed in an earlier evaluation. The cells in **grey** are outcomes the module does not have.
+* **Comments:** the teacher's comment for the module, if any.
+
+Above each table you will find the **claims period** of that evaluation.
+
+The **Download PDF (non-official)** button gives you the same tables in a PDF. It is not an official document.
+
+Families see the grades of the student they have selected, also when they can only consult them (see [When the student turns 18](#when-the-student-turns-18)).
 
 ---
 

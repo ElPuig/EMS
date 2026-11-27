@@ -16,9 +16,10 @@ Aquesta guia explica de forma detallada els passos que han de seguir els alumnes
 4. [Pas 3 — Email de confirmació](#pas-3--email-de-confirmació)
 5. [Pas 4 — Accés al portal](#pas-4--accés-al-portal)
 6. [Pas 5 — Respondre una autorització](#pas-5--respondre-una-autorització)
-7. [Entrar més endavant: correu personal o compte del centre](#entrar-més-endavant-correu-personal-o-compte-del-centre)
-8. [Alumnes menors d'edat](#alumnes-menors-dedat)
-9. [Quan l'alumne fa 18 anys](#quan-lalumne-fa-18-anys)
+7. [Consultar les notes](#consultar-les-notes)
+8. [Entrar més endavant: correu personal o compte del centre](#entrar-més-endavant-correu-personal-o-compte-del-centre)
+9. [Alumnes menors d'edat](#alumnes-menors-dedat)
+10. [Quan l'alumne fa 18 anys](#quan-lalumne-fa-18-anys)
 
 ---
 
@@ -35,7 +36,7 @@ Actualment, el portal permet realitzar les següents gestions:
 * **Perfil:** Mantenir actualitzades les dades personals, de contacte i de seguretat del compte d'accés.
 
 **Funcionalitats disponibles pròximament.** Estem treballant en el desenvolupament de nous mòduls per millorar l'eina. Molt aviat s'activarà l'entorn següent:
-* **Qualificacions:** Accedir de forma directa a les notes de les diferents avaluacions.
+* **Qualificacions:** Consultar les notes de cada avaluació un cop el centre les publica, i descarregar-les en un PDF no oficial.
 
 ---
 
@@ -106,6 +107,24 @@ Per a cadascuna:
 4. Feu clic a **Acceptar autorització** o, si l'autorització ho permet, a **Rebutjar**.
 
 Un cop respostes, la columna **Document** conté un certificat PDF de la vostra resposta. Hi podeu fer clic en qualsevol moment per descarregar-lo o imprimir-lo.
+
+---
+
+## Consultar les notes
+
+La targeta **Qualificacions** mostra les notes de l'alumne un cop el centre **publica** una avaluació; quan ho fa, podeu rebre un correu que us ho diu, amb un botó per anar al portal. Abans no hi surt res: l'equip docent encara les està preparant.
+
+Cada avaluació, la més recent primer, té una taula amb una fila per mòdul:
+
+* **Nota:** la nota del mòdul, en **verd** si està aprovat i en **vermell** si està suspès. En **groc amb un asterisc** (`*`) és una nota **provisional**: encara hi ha resultats d'aprenentatge per avaluar i pot canviar. **Pendent** vol dir que encara no té nota, i **CV** que el mòdul està convalidat.
+* **RA1, RA2…:** la nota de cada **resultat d'aprenentatge** (RA) del mòdul. Passant el ratolí per sobre d'una cel·la en veieu el nom. Un asterisc (`*`) marca una nota provisional, un guió (`-`) un RA encara no avaluat i un ✓ un RA ja superat en una avaluació anterior. Les cel·les en **gris** són RA que el mòdul no té.
+* **Comentaris:** el comentari del professor sobre el mòdul, si n'hi ha.
+
+A sobre de cada taula hi ha el **termini de reclamacions** d'aquella avaluació.
+
+El botó **Descarrega el PDF (no oficial)** us dona les mateixes taules en un PDF. No és un document oficial.
+
+Les famílies veuen les notes de l'alumne que tenen seleccionat, també quan només les poden consultar (vegeu [Quan l'alumne fa 18 anys](#quan-lalumne-fa-18-anys)).
 
 ---
 

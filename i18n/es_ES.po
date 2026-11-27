@@ -56850,3 +56850,9 @@ msgstr "Consultar las notas"
 #: model_terms:ir.ui.view,arch_db:ems.student_grades_tables
 msgid "RA"
 msgstr "RA"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_session_wizard.py:0
+msgid "Announce the publication of the grades"
+msgstr "Anunciar la publicación de las notas"

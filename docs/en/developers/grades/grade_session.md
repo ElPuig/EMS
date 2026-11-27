@@ -37,11 +37,13 @@ sessions; `create()` catches the resulting `IntegrityError` and re-raises as a f
 
 ```mermaid
 flowchart TD
-    A["state: open"] -->|"write() — admin only"| B["state: board"]
-    B -->|"write() — admin only"| C["state: final"]
-    A -. can_edit .-> D["everyone in scope\n(teacher/tutor/secretary via ir.rule)"]
-    B -. can_edit .-> E["only the group's own tutor,\nor an admin"]
-    C -. can_edit .-> F["only an admin"]
+    A["state: open"] <-->|"write(): Head of Studies / admin, one step"| B["state: board"]
+    B <-->|"write(): Head of Studies / admin, one step"| P["state: published"]
+    P <-->|"write(): Head of Studies / admin, one step"| C["state: final"]
+    A -. can_edit .-> D["the session's teacher,\nthe group's tutor scope"]
+    B -. can_edit .-> E["the group's tutor scope,\nor an admin"]
+    P -. can_edit .-> F["only an admin"]
+    C -. can_edit .-> F
 ```
 
 `can_edit` (`store=False`, `@api.depends_context('uid')`) is the single source of truth both
@@ -145,9 +147,9 @@ originally locked it).
 
 | View | File | Notes |
 |------|------|-------|
-| List/Form/Kanban | `views/planning_grading/grading/grade_session/` | Admin/secretary-facing session management. |
-| Tutor grading screen | Custom OWL component (`static/src/js/backend/...`), backed by `apply_grade_changes` | The actual day-to-day roll-call-style grading UI; covered by `static/tests/tours/grade_session_tour.js`. |
-| Bulk creation/state wizards | `views/planning_grading/grading/grade_session_wizard/` | See below. |
+| List/Form | `views/planning_grading/grading/{list,form,search}.xml` | Session management (Head of Studies and admin: claims period and provisional switch, editable in bulk from the list) and the session's grade matrix (`grade_matrix` widget). |
+| Tutors' view | OWL client action (`static/src/js/backend/grade_tutor_matrix.js`), backed by `apply_grade_changes` | One student at a time with every subject; covered by `static/tests/tours/grade_tutor_matrix_tour.js`. |
+| Bulk creation/state wizards | `views/planning_grading/grading/wizard.xml` | See below. |
 
 ### `ems.grade_session_wizard` / `ems.grade_session_state_wizard`
 
@@ -158,9 +160,12 @@ otherwise be many individual session creates/state writes:
   level(s)/study(ies), creates one session per subject with actual enrolled students
   (excluding tutorship subjects — never graded), skipping any that already exist for the
   chosen round, deriving the teacher via `EmsGradeSession._derive_teacher()` (the active
-  `ems.teaching` entry, falling back to the group's tutor).
-- **`EmsGradeSessionStateWizard.action_apply_state()`**: bulk `state` transition
-  (open→board→final) across every session in the selected scope+round in one write.
+  `ems.teaching` entry, falling back to the group's tutor). Head of Studies or admin only;
+  the round is computed and the claims period required (see the lifecycle section below).
+- **`EmsGradeSessionStateWizard.action_apply_state()`**: bulk `state` transition, one step
+  at a time, on the selected sessions (from the list or a session's Actions) or on every
+  session of the chosen scope and round (from the menu), with the optional publication
+  announcement.
 
 Both share a `_target_studies()` helper (level-mode resolves to that level's studies) and
 raise `UserError` if the scope/round selection matches nothing.
@@ -197,25 +202,24 @@ above). No dev doc existed for this triad before now.
 
 ## Evaluation lifecycle: publication, provisional outcomes and the student portal (issue #878)
 
-> **Spec, in progress (issue #878).** Requirements for this cycle; reconciled with the
-> implementation at Close.
-
 ```mermaid
 stateDiagram-v2
     [*] --> open: created by the Head of Studies
-    open --> board: list action
-    board --> published: list action (optional announcement email)
-    published --> final: list action (claims period over)
+    open --> board: state wizard
+    board --> open: state wizard
+    board --> published: state wizard (optional announcement email)
+    published --> board: state wizard
+    published --> final: state wizard
+    final --> published: state wizard
     note right of published
         Grades visible in the student portal.
-        Read-only except for an administrator
-        (accepted claims, issue #879).
+        Read-only except for an administrator.
     end note
 ```
 
 | Requirement | Design |
 |---|---|
-| New state | `published` between `board` and `final` (`grade_state_selection`). `can_edit` is `False` except for an administrator; #879 adds the accepted-claim exception. |
+| New state | `published` between `board` and `final` (`grade_state_selection`). `can_edit` is `False` except for an administrator. |
 | State changes | One step at a time, forwards or backwards (`_ems_check_state_change`, enforced in `write()` except for the superuser). Publishing needs the claims period. The state wizard only offers the states every target session can reach (`allowed_states`, read by the `ems_selection_allowed` widget), the next one by default. |
 | Publish warning | `ems.grade_session_state_wizard.publish_warning`: sessions with no outcome graded at all (a whole subject forgotten), convalidated students aside, from `_ems_empty_grades_summary()` (two queries). Not sessions with only some outcomes empty, the usual state of a term. A warning, not a block. |
 | Claims period | `claim_date_from` / `claim_date_to` (Date) on the session, required by the creation wizard (form and `action_create_sessions()`, not NOT NULL: old wizard rows), editable on the form and in bulk from the list (`multi_edit`); `from <= to` constraint. |
@@ -229,4 +233,4 @@ stateDiagram-v2
 | Performance | Lines are created per session in one write, and the subject line computes index the outcome lines by student once per batch: 52 sessions of a study went from 27.9 s to 5.8 s. `is_locked` is computed with one query per batch: a tutor's view went from 12.3 s to 0.2 s cold. |
 | Portal (#271) | `/my/calificaciones` (`controllers/portal_grades.py`): the student's published and final sessions, newest round first, from `res.partner._ems_portal_grade_rounds()` (`models/grades/grade_portal.py`, two searches through `sudo()` scoped to the student `get_portal_student()` resolves, so no student id travels in the URL). Per subject: the final grade, or, while an outcome is still pending, the internal grade marked provisional (as the grids show it), or pending; per outcome: its score, provisional mark, or "passed in an earlier round". One table per round laid out as the tutors' view: one column per outcome (natural order), as many as the subject with the most, greyed where a subject has fewer, and the teacher's comment (`notes`) last. Families see their child's, view-only included. Open and board sessions never show. |
 | PDF (#271) | `/my/calificaciones/pdf`: `ems.report_student_grades`, rendered on request and never stored, titled as non-official. Portal page and PDF share the tables (`ems.student_grades_tables`). |
-| Announcement | "Announce the publication" (`announce`) in the state wizard when the target is Published: `ems.grade_session._ems_announce_publication()` queues one email per student and round, whatever the number of their sessions, to `_ems_informed_recipients()` (the student, and the family while a minor), in each recipient's language. Template `ems.email_template_grades_published` on the student, card layout `ems.mail_layout_grades` with a button to the portal; it carries the round and the claims period, never the grades. |
+| Announcement | "Announce the publication" (`announce`) in the state wizard when the target is Published: `ems.grade_session._ems_announce_publication()` runs in the background (`queue_job`: about 20 ms per email, so a whole round of every FP study would keep the click waiting for half a minute) and queues one email per student and round, whatever the number of their sessions, to `_ems_informed_recipients()` (the student, and the family while a minor), in each recipient's language. Template `ems.email_template_grades_published` on the student, card layout `ems.mail_layout_grades` with a button to the portal; it carries the round and the claims period, never the grades. |

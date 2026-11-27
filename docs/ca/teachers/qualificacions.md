@@ -37,7 +37,7 @@ Cada sessió correspon a una combinació de **grup + mòdul + avaluació**. Desp
 
 ![Llista de sessions d'avaluació agrupada per avaluació i grup](../../assets/teachers/teachers-01-llista-sessions.png)
 
-> **Consell:** Pots filtrar o cercar per grup, mòdul o avaluació a la barra superior. La columna **Estat** mostra si la sessió és oberta, en junta o finalitzada (vegeu [Estats de l'avaluació](#estats-de-lavaluació)).
+> **Consell:** Pots filtrar o cercar per grup, mòdul o avaluació a la barra superior. La columna **Estat** mostra si la sessió és oberta, en junta, publicada o finalitzada (vegeu [Estats de l'avaluació](#estats-de-lavaluació)).
 
 ---
 
@@ -105,9 +105,14 @@ A la dreta de les columnes de RA hi ha les columnes que resumeixen la nota del m
 
 ## Notes provisionals
 
-Mentre **quedin RA per avaluar**, la nota del centre (i la final) es mostren **en cursiva i amb un asterisc** (`*`). Vol dir que és una nota **provisional**: s'ha calculat només amb els RA ja avaluats i pot canviar quan informis els que falten.
+**Nota del mòdul provisional.** Mentre **quedin RA per avaluar**, la nota del centre es mostra **en cursiva i amb un asterisc** (`*`): s'ha calculat només amb els RA ja avaluats i pot canviar quan informis els que falten. La nota final només apareix quan tots els RA estan avaluats.
 
-Quan tots els RA estan avaluats, la nota deixa de ser provisional i es mostra en format normal.
+**Nota d'un RA provisional.** Pots marcar com a provisional la nota d'un RA quan encara espera alguna cosa (un lliurament, una recuperació…); l'alumne la veu amb l'asterisc al portal:
+
+- **Una nota:** escriu la nota seguida de `*` o `p` (per exemple `6*` o `6p`). La cel·la mostra `6*` en cursiva. Si tornes a escriure la nota sense la marca, deixa de ser provisional.
+- **Tot el RA:** marca **Provisional** a la capçalera de la columna del RA. Totes les notes d'aquest RA passen a ser provisionals, també les que posis després, mentre la casella estigui marcada. Desmarca-la per tornar a posar notes definitives.
+
+L'ajuda que hi ha sota la graella recorda totes dues maneres. Només apareixen quan la sessió permet notes provisionals, que és l'opció per defecte; el cap d'estudis les pot desactivar en una sessió.
 
 ---
 
@@ -117,7 +122,7 @@ La graella treballa amb un **esborrany local**: tot el que escrius, enganxes o e
 
 - Mentre hi hagi canvis pendents, les columnes calculades (Centre, Final) es mostren en **gris** fins que apliques.
 - Quan prems **Aplica els canvis**, es desa tot de cop i el sistema recalcula les notes del mòdul.
-- Si intentes **sortir de la vista sense aplicar**, el sistema t'avisa perquè no perdis la feina.
+- Si intentes **sortir de la vista o passar a una altra sessió** amb les fletxes de dalt **sense aplicar**, el sistema t'avisa perquè no perdis la feina: **Queda't** et deixa a la sessió amb els canvis, **Surt i descarta** els perd.
 
 ![Botó Aplica els canvis amb canvis pendents](../../assets/teachers/teachers-06-aplicar-canvis.png)
 
@@ -129,11 +134,14 @@ Cada sessió d'avaluació té un **estat** que determina qui la pot editar:
 
 | Estat | Qui pot editar |
 |-------|----------------|
-| **Oberta** | El professorat i el tutor del grup poden introduir i modificar notes. |
-| **Junta d'avaluació** | Només el **tutor del grup** (i l'administració) pot editar; el professorat només consulta. |
+| **Oberta** | El professor de la sessió i el tutor del grup poden introduir i modificar notes. |
+| **Junta d'avaluació** | Només el **tutor** (i l'administració) pot editar; el professorat només consulta. |
+| **Publicada** | L'alumnat i les famílies veuen les notes al portal i el termini de reclamacions és obert. Només les pot editar l'**administració**. |
 | **Finalitzada** | Només l'**administració**. |
 
-L'estat el canvia l'administració. Si la sessió està en junta o finalitzada i no hi tens permís, veuràs les notes, però no les podràs modificar.
+El tutor que fa el seguiment d'un alumne també pot editar les notes d'aquest alumne en una sessió d'un altre grup (per exemple, un mòdul de 1r d'un alumne de 2n) mentre està oberta o en junta.
+
+L'estat el canvia el cap d'estudis. Si no tens permís en l'estat de la sessió, veuràs les notes, però no les podràs modificar.
 
 ![Estat de la sessió d'avaluació a la capçalera](../../assets/teachers/teachers-07-estat.png)
 
@@ -141,7 +149,7 @@ L'estat el canvia l'administració. Si la sessió està en junta o finalitzada i
 
 ## Com es calcula la nota
 
-- **Nota del centre:** mitjana ponderada dels RA **avaluats** segons els seus pesos, en escala del 0 al 10. Si falta algun RA per avaluar, es calcula només amb els avaluats i és **provisional**. Si algun RA avaluat està suspès (inferior a 5), la nota del centre queda **limitada a 4** (no es pot aprovar el mòdul amb un RA suspès o pendent).
+- **Nota del centre:** mitjana ponderada dels RA **avaluats** segons els seus pesos, en escala del 0 al 10. Si falta algun RA per avaluar, es calcula només amb els avaluats i és **provisional** (vegeu [Notes provisionals](#notes-provisionals)). Si algun RA avaluat està suspès (inferior a 5), la nota del centre queda **limitada a 4** (no es pot aprovar el mòdul amb un RA suspès o pendent).
 - **Nota de pràctiques en empresa:** s'informa manualment a la columna **Empresa**.
 - **Nota final:** combina la nota del centre i la d'empresa segons els percentatges de la [programació](planning.md). Per aprovar el mòdul cal **aprovar totes dues parts**; si una part està suspesa, la nota final queda limitada a 4.
 - **Sobreescriure la nota del centre:** si marques la casella **Sobr.**, pots fixar manualment la nota del centre en lloc de deixar que es calculi a partir dels RA.

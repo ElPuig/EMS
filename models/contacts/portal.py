@@ -274,6 +274,13 @@ class ems_contact_portal(models.Model):
             return students[0]
         return self
 
+    def _ems_portal_student_sudo(self):
+        """The student this portal partner is looking at (get_portal_student), in sudo for the
+        pages that read his data (schedule, issue #453; grades, issue #878), or an empty
+        recordset when it is not a student (an applicant, a family without children)."""
+        student = self.get_portal_student().sudo()
+        return student if student.contact_type == 'student' else student.browse()
+
     # ------------------------------------------------------------------
     # A student sharing the main email with the family (issue #833)
     # ------------------------------------------------------------------

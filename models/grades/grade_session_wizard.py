@@ -186,7 +186,9 @@ class EmsGradeSessionStateWizard(models.TransientModel):
             raise UserError(_("No grade sessions were found for the selected scope and round."))
         sessions.write({"state": self.target_state})
         if self.announce and self.target_state == "published":
-            sessions._ems_announce_publication()
+            # In the background: about 20 ms per email (rendering and queueing it), so a whole
+            # round of every FP study (~1,400 emails) would keep the click waiting for half a minute.
+            sessions.sudo().with_delay(description=_("Announce the publication of the grades"))._ems_announce_publication()
 
         action = self.env["ir.actions.act_window"]._for_xml_id("ems.action_grade_session_tree")
         action["domain"] = [("id", "in", sessions.ids)]

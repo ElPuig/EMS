@@ -16,9 +16,10 @@ Esta guía explica de forma detallada los pasos que deben seguir los alumnos (o 
 4. [Paso 3 — Email de confirmación](#paso-3--email-de-confirmación)
 5. [Paso 4 — Acceso al portal](#paso-4--acceso-al-portal)
 6. [Paso 5 — Responder una autorización](#paso-5--responder-una-autorización)
-7. [Entrar más adelante: correo personal o cuenta del centro](#entrar-más-adelante-correo-personal-o-cuenta-del-centro)
-8. [Alumnos menores de edad](#alumnos-menores-de-edad)
-9. [Cuando el alumno cumple 18 años](#cuando-el-alumno-cumple-18-años)
+7. [Consultar las notas](#consultar-las-notas)
+8. [Entrar más adelante: correo personal o cuenta del centro](#entrar-más-adelante-correo-personal-o-cuenta-del-centro)
+9. [Alumnos menores de edad](#alumnos-menores-de-edad)
+10. [Cuando el alumno cumple 18 años](#cuando-el-alumno-cumple-18-años)
 
 ---
 
@@ -35,7 +36,7 @@ Actualmente, el portal permite realizar las siguientes gestiones:
 * **Perfil:** Mantener actualizados los datos personales, de contacto y de seguridad de la cuenta de acceso.
 
 **Funcionalidades disponibles próximamente.** Estamos trabajando en el desarrollo de nuevos módulos para mejorar la herramienta. Muy pronto se activará el siguiente entorno:
-* **Calificaciones:** Acceder de forma directa a las notas de las diferentes evaluaciones.
+* **Calificaciones:** Consultar las notas de cada evaluación una vez el centro las publica, y descargarlas en un PDF no oficial.
 
 ---
 
@@ -106,6 +107,24 @@ Para cada una:
 4. Haced clic en **Aceptar autorización** o, si la autorización lo permite, en **Rechazar**.
 
 Una vez respondidas, la columna **Documento** contiene un certificado PDF de vuestra respuesta. Podéis hacer clic en cualquier momento para descargarlo o imprimirlo.
+
+---
+
+## Consultar las notas
+
+La tarjeta **Calificaciones** muestra las notas del alumno una vez el centro **publica** una evaluación; cuando lo hace, podéis recibir un correo que os lo indica, con un botón para ir al portal. Antes no aparece nada: el equipo docente aún las está preparando.
+
+Cada evaluación, la más reciente primero, tiene una tabla con una fila por módulo:
+
+* **Nota:** la nota del módulo, en **verde** si está aprobado y en **rojo** si está suspendido. En **amarillo con un asterisco** (`*`) es una nota **provisional**: aún quedan resultados de aprendizaje por evaluar y puede cambiar. **Pendiente** significa que aún no tiene nota, y **CV** que el módulo está convalidado.
+* **RA1, RA2…:** la nota de cada **resultado de aprendizaje** (RA) del módulo. Pasando el ratón por encima de una celda se ve su nombre. Un asterisco (`*`) marca una nota provisional, un guion (`-`) un RA aún no evaluado y un ✓ un RA ya superado en una evaluación anterior. Las celdas en **gris** son RA que el módulo no tiene.
+* **Comentarios:** el comentario del profesor sobre el módulo, si lo hay.
+
+Encima de cada tabla está el **plazo de reclamaciones** de esa evaluación.
+
+El botón **Descargar PDF (no oficial)** os da las mismas tablas en un PDF. No es un documento oficial.
+
+Las familias ven las notas del alumno que tienen seleccionado, también cuando solo las pueden consultar (véase [Cuando el alumno cumple 18 años](#cuando-el-alumno-cumple-18-años)).
 
 ---
 

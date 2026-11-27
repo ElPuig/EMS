@@ -27,13 +27,13 @@ Aquesta guia explica com el tutor revisa i ajusta les qualificacions dels alumne
 
 ![Menú Planificació i qualificació amb l'opció Avaluació per a tutors](../../assets/tutors/JuntaAvaluacio-tutors-01.png)
 
-> El grup i l'avaluació es trien automàticament: la vista carrega el grup que tuteles i l'avaluació oberta actual, així que en entrar ja veus el primer alumne.
+> La vista carrega **els alumnes que tuteles**, agrupats pel seu grup de tutoria, i les seves sessions **obertes o en junta**, així que en entrar ja veus el primer alumne. Les sessions publicades i finalitzades no hi surten: ja no es poden editar.
 
 ---
 
 ## La vista d'avaluació per a tutors
 
-La vista mostra **un alumne cada vegada** (foto i nom a la part superior) amb **totes les assignatures on està matriculat**:
+La vista mostra **un alumne cada vegada** (foto i nom a la part superior) amb **totes les assignatures on està matriculat**, sigui quin sigui el grup on s'imparteix cada assignatura (per exemple, un mòdul de 1r que un alumne de 2n encara ha d'aprovar):
 
 - **Files:** una assignatura per fila (per exemple, *MP 0225: Xarxes locals*).
 - **Columnes de RA:** **RA 1, RA 2… per posició**. Com que cada assignatura té els seus propis resultats d'aprenentatge, les columnes són genèriques; passa el ratolí per sobre d'una cel·la per veure l'acrònim i el pes del RA. Les cel·les **ombrejades amb ratlles** corresponen a assignatures que **no tenen aquell RA** i no es poden editar.
@@ -64,7 +64,7 @@ El **comptador** (*1 / 19*) t'indica en quin alumne ets i quants n'hi ha al grup
 
 ## Seleccionar el grup
 
-Si tuteles **més d'un grup** amb una avaluació oberta, tria'l al selector **Group** **(1)** de la part superior dreta. L'avaluació (per exemple, *2a*) es selecciona automàticament.
+Si tuteles alumnes de **més d'un grup**, tria el grup al selector **Group** **(1)** de la part superior dreta. L'avaluació (per exemple, *2a*) es selecciona automàticament.
 
 Si només tuteles un grup, el selector no cal tocar-lo.
 
@@ -82,7 +82,7 @@ La graella funciona com un full de càlcul, igual que la vista de professors:
 
 A la imatge, **(1)** mostra una cel·la seleccionada per editar.
 
-> **Qui pot editar durant la junta:** quan l'avaluació està en estat **Junta d'avaluació**, **només el tutor del grup** (i l'administració) pot modificar les notes; el professorat només consulta. És el moment de revisar i tancar la qualificació de cada alumne assignatura per assignatura. Si l'avaluació ja està **finalitzada**, veuràs les notes, però no les podràs modificar.
+> **Qui pot editar durant la junta:** quan l'avaluació està en estat **Junta d'avaluació**, **només el tutor** (i l'administració) pot modificar les notes; el professorat només consulta. És el moment de revisar i tancar la qualificació de cada alumne assignatura per assignatura. Pots editar les notes dels alumnes que tuteles en totes les assignatures que surten, també les que s'imparteixen en un altre grup.
 
 ---
 
@@ -92,7 +92,8 @@ Igual que a la vista de professors:
 
 - **Colors:** **verd** (nota ≥ 5, aprovat), **vermell** (nota < 5, suspès), **blanc** (sense informar).
 - **RA bloquejats:** un RA **ja aprovat en una avaluació anterior** apareix en **verd amb un cadenat** i no es pot modificar.
-- **Notes provisionals:** mentre quedin RA per avaluar, la nota del centre (i la final) es mostren **en cursiva i amb un asterisc** (`*`); són provisionals i canviaran quan s'informin els RA que falten.
+- **Nota del mòdul provisional:** mentre quedin RA per avaluar, la nota del centre es mostra **en cursiva i amb un asterisc** (`*`); canviarà quan s'informin els RA que falten. La nota final només apareix quan tots els RA estan avaluats.
+- **Nota d'un RA provisional:** escriu la nota seguida de `*` o `p` (per exemple `6*`) per marcar-la com a provisional; l'alumne la veu amb l'asterisc al portal. L'ajuda que hi ha sota la graella t'ho recorda, quan la sessió permet notes provisionals.
 
 ---
 

@@ -27,13 +27,13 @@ Esta guía explica cómo el tutor revisa y ajusta las calificaciones de los alum
 
 ![Menú Planificación y calificación con la opción Evaluación para tutores](../../assets/tutors/JuntaAvaluacio-tutors-01.png)
 
-> El grupo y la evaluación se eligen automáticamente: la vista carga el grupo que tutorizas y la evaluación abierta actual, así que al entrar ya ves al primer alumno.
+> La vista carga **los alumnos que tutorizas**, agrupados por su grupo de tutoría, y sus sesiones **abiertas o en junta**, así que al entrar ya ves al primer alumno. Las sesiones publicadas y finalizadas no aparecen: ya no se pueden editar.
 
 ---
 
 ## La vista de evaluación para tutores
 
-La vista muestra **un alumno cada vez** (foto y nombre en la parte superior) con **todas las asignaturas en las que está matriculado**:
+La vista muestra **un alumno cada vez** (foto y nombre en la parte superior) con **todas las asignaturas en las que está matriculado**, sea cual sea el grupo donde se imparte cada asignatura (por ejemplo, un módulo de 1.º que un alumno de 2.º aún tiene que aprobar):
 
 - **Filas:** una asignatura por fila (por ejemplo, *MP 0225: Redes locales*).
 - **Columnas de RA:** **RA 1, RA 2… por posición**. Como cada asignatura tiene sus propios resultados de aprendizaje, las columnas son genéricas; pasa el ratón por encima de una celda para ver el acrónimo y el peso del RA. Las celdas **sombreadas con rayas** corresponden a asignaturas que **no tienen ese RA** y no se pueden editar.
@@ -64,7 +64,7 @@ El **contador** (*1 / 19*) te indica en qué alumno estás y cuántos hay en el 
 
 ## Seleccionar el grupo
 
-Si tutorizas **más de un grupo** con una evaluación abierta, elígelo en el selector **Group** **(1)** de la parte superior derecha. La evaluación (por ejemplo, *2a*) se selecciona automáticamente.
+Si tutorizas alumnos de **más de un grupo**, elige el grupo en el selector **Group** **(1)** de la parte superior derecha. La evaluación (por ejemplo, *2a*) se selecciona automáticamente.
 
 Si solo tutorizas un grupo, no hace falta tocar el selector.
 
@@ -82,7 +82,7 @@ La cuadrícula funciona como una hoja de cálculo, igual que la vista de profeso
 
 En la imagen, **(1)** muestra una celda seleccionada para editar.
 
-> **Quién puede editar durante la junta:** cuando la evaluación está en estado **Junta de evaluación**, **solo el tutor del grupo** (y la administración) puede modificar las notas; el profesorado solo consulta. Es el momento de revisar y cerrar la calificación de cada alumno asignatura por asignatura. Si la evaluación ya está **finalizada**, verás las notas, pero no las podrás modificar.
+> **Quién puede editar durante la junta:** cuando la evaluación está en estado **Junta de evaluación**, **solo el tutor** (y la administración) puede modificar las notas; el profesorado solo consulta. Es el momento de revisar y cerrar la calificación de cada alumno asignatura por asignatura. Puedes editar las notas de los alumnos que tutorizas en todas las asignaturas que aparecen, también las que se imparten en otro grupo.
 
 ---
 
@@ -92,7 +92,8 @@ Igual que en la vista de profesores:
 
 - **Colores:** **verde** (nota ≥ 5, aprobado), **rojo** (nota < 5, suspenso), **blanco** (sin informar).
 - **RA bloqueados:** un RA **ya aprobado en una evaluación anterior** aparece en **verde con un candado** y no se puede modificar.
-- **Notas provisionales:** mientras queden RA por evaluar, la nota del centro (y la final) se muestran **en cursiva y con un asterisco** (`*`); son provisionales y cambiarán cuando se informen los RA que faltan.
+- **Nota del módulo provisional:** mientras queden RA por evaluar, la nota del centro se muestra **en cursiva y con un asterisco** (`*`); cambiará cuando se informen los RA que faltan. La nota final solo aparece cuando todos los RA están evaluados.
+- **Nota de un RA provisional:** escribe la nota seguida de `*` o `p` (por ejemplo `6*`) para marcarla como provisional; el alumno la ve con el asterisco en el portal. La ayuda que hay bajo la cuadrícula te lo recuerda, cuando la sesión permite notas provisionales.
 
 ---
 

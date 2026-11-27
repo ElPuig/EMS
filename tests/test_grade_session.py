@@ -704,6 +704,15 @@ class TestGradeSession(TransactionCase):
         line.with_user(self.teacher_user).write({'score': 7, 'is_scored': True, 'is_provisional': False})
         self.assertFalse(line.is_provisional)
 
+    def test_provisional_outcome_column_not_applied_to_official_import(self):
+        # Issue #878: the official grade import writes final grades, never provisional ones.
+        session = self._new_session()
+        session.fill_students()
+        line = session.grade_outcome_line_ids[0]
+        session.provisional_outcome_ids = line.outcome_id
+        line.with_context(ems_grade_import_bypass_lock=True).write({'score': 7, 'is_scored': True})
+        self.assertFalse(line.is_provisional)
+
     def test_provisional_outcome_column_refused_when_not_allowed(self):
         session = self._new_session()
         session.fill_students()
@@ -754,7 +763,7 @@ class TestGradeSession(TransactionCase):
         sessions.fill_students()
         sessions.write(dict(CLAIMS, state='board'))
         wizard = self.env['ems.grade_session_state_wizard'].with_user(self._head_of_studies()).with_context(
-            active_model='ems.grade_session', active_ids=sessions.ids,
+            active_model='ems.grade_session', active_ids=sessions.ids, queue_job__no_delay=True,
         ).create({'target_state': 'published', 'announce': True})
         wizard.action_apply_state()
         mails = self.env['mail.mail'].search([('email_to', 'in', ['student.one@example.com', 'student.two@example.com'])])

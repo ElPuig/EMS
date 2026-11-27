@@ -17,6 +17,7 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 - [Erasmus+: answering an appeal against a resolution](erasmus-appeals.md) — The applicant's own Head of Studies answers the appeals against the definitive list of an Erasmus+ call.
 - [Meeting attendance with the NFC tag](../secretary/meeting-attendance.md) — Confirming attendance to a staff meeting or any meeting with the NFC reader at the door (shared manual with the secretariat).
 - [Plannings: setting the grading ponderations](planning.md)
+- [Evaluation sessions: creating, publishing and closing them](evaluation-sessions.md) — Creating each round's grade sessions, the claims period, the states and publishing the grades to students and families.
 - [Managing student and family contacts](../secretary/student-contacts.md) — you have the same full read/write access as secretary here, for any student centre-wide.
 - [Registering a withdrawal or an expulsion](../secretary/graduation-withdrawal.md) — you can register a student's withdrawal or expulsion, same steps as the secretariat (shared manual).
 - [Ex officio withdrawal: Direction, Head of Studies and Coexistence](ex-officio-withdrawal.md) — Direction's green light, what the Head of Studies can do and the Coexistence steps of the compulsory circuit.

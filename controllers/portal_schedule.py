@@ -11,13 +11,9 @@ class EmsPortalScheduleController(CustomerPortal):
     no student id travels in the URL, so nobody can ask for another student's schedule. sudo because
     portal users have no ACL on resource.calendar* - see docs/en/developers/contacts/student_schedule.md."""
 
-    def _get_portal_schedule_student(self):
-        student = request.env.user.partner_id.get_portal_student().sudo()
-        return student if student.contact_type == 'student' else student.browse()
-
     @http.route('/my/asistencia', type='http', auth='user', website=True)
     def portal_schedule(self, **kwargs):
-        student = self._get_portal_schedule_student()
+        student = request.env.user.partner_id._ems_portal_student_sudo()
         values = self._prepare_portal_layout_values()
         values.update({
             'page_name': 'schedule',
@@ -31,7 +27,7 @@ class EmsPortalScheduleController(CustomerPortal):
     def portal_schedule_pdf(self, **kwargs):
         """Rendered on request, never stored: private, per student and low volume (unlike the
         group's public link, see ems.group._generate_public_schedule)."""
-        student = self._get_portal_schedule_student()
+        student = request.env.user.partner_id._ems_portal_student_sudo()
         if not student:
             return request.redirect('/my/asistencia')
         content, _content_type = request.env['ir.actions.report'].sudo()._render_qweb_pdf(

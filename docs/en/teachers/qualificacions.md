@@ -37,7 +37,7 @@ Each session corresponds to a combination of **group + subject + round**. Expand
 
 ![Grade session list grouped by round and group](../../assets/teachers/teachers-01-llista-sessions.png)
 
-> **Tip:** You can filter or search by group, subject or round in the top bar. The **State** column shows whether the session is open, in the board stage or finalised (see [Evaluation states](#evaluation-states)).
+> **Tip:** You can filter or search by group, subject or round in the top bar. The **State** column shows whether the session is open, in the board stage, published or finalised (see [Evaluation states](#evaluation-states)).
 
 ---
 
@@ -105,9 +105,14 @@ To the right of the outcome columns are the columns that summarise the subject g
 
 ## Provisional grades
 
-While there are **outcomes still to be evaluated**, the internal grade (and the final one) are shown **in italics with an asterisk** (`*`). This means the grade is **provisional**: it has been computed only with the outcomes already evaluated and may change when you inform the missing ones.
+**A provisional subject grade.** While there are **outcomes still to be evaluated**, the internal grade is shown **in italics with an asterisk** (`*`): it has been computed only with the outcomes already evaluated and may change when you inform the missing ones. The final grade only appears once every outcome is evaluated.
 
-When every outcome is evaluated, the grade stops being provisional and is shown in normal format.
+**A provisional outcome grade.** You can mark the grade of an outcome as provisional when it is still waiting for something (a submission, a resit…); the student sees it with the asterisk in the portal:
+
+- **One grade:** type the grade followed by `*` or `p` (for example `6*` or `6p`). The cell shows `6*` in italics. Typing the grade again without the mark makes it final.
+- **The whole outcome:** tick **Provisional** in the outcome's column header. Every grade of that outcome becomes provisional, also those you enter later, while the box stays ticked. Untick it to enter final grades again.
+
+The hint under the grid reminds you of both ways. They only appear when the session allows provisional grades, which is the default; the Head of Studies can turn them off for a session.
 
 ---
 
@@ -117,7 +122,7 @@ The grid works with a **local draft**: everything you type, paste or clear is st
 
 - While there are pending changes, the computed columns (Internal, Final) are shown in **grey** until you apply.
 - When you press **Apply changes**, everything is saved at once and the system recomputes the subject grades.
-- If you try to **leave the view without applying**, the system warns you so you do not lose your work.
+- If you try to **leave the view or move to another session** with the arrows at the top **without applying**, the system warns you so you do not lose your work: **Stay** keeps you in the session with your changes, **Leave and discard** drops them.
 
 ![Apply changes button with pending changes](../../assets/teachers/teachers-06-aplicar-canvis.png)
 
@@ -129,11 +134,14 @@ Each grade session has a **state** that determines who can edit it:
 
 | State | Who can edit |
 |-------|--------------|
-| **Open** | Teachers and the group's tutor can enter and modify grades. |
-| **Board** | Only the **group's tutor** (and the administration) can edit; teachers can only view. |
+| **Open** | The session's teacher and the group's tutor can enter and modify grades. |
+| **Board** | Only the **tutor** (and the administration) can edit; teachers can only view. |
+| **Published** | The grades are visible to students and families in the portal, and the claims period is open. Only the **administration** can edit them. |
 | **Finalised** | Only the **administration**. |
 
-The administration changes the state. If the session is in the board stage or finalised and you do not have permission, you will see the grades but will not be able to modify them.
+The tutor who follows a student can also edit that student's grades in a session of another group (for example, a 1st-year subject of a 2nd-year student) while it is open or in the board stage.
+
+The Head of Studies changes the state. If you do not have permission in the session's state, you will see the grades but will not be able to modify them.
 
 ![Grade session state in the header](../../assets/teachers/teachers-07-estat.png)
 
@@ -141,7 +149,7 @@ The administration changes the state. If the session is in the board stage or fi
 
 ## How the grade is computed
 
-- **Internal grade:** weighted average of the **evaluated** outcomes according to their weights, on a 0-to-10 scale. If any outcome is still to be evaluated, it is computed only with the evaluated ones and is **provisional**. If any evaluated outcome is failed (below 5), the internal grade is **capped at 4** (the subject cannot be passed with a failed or pending outcome).
+- **Internal grade:** weighted average of the **evaluated** outcomes according to their weights, on a 0-to-10 scale. If any outcome is still to be evaluated, it is computed only with the evaluated ones and is **provisional** (see [Provisional grades](#provisional-grades)). If any evaluated outcome is failed (below 5), the internal grade is **capped at 4** (the subject cannot be passed with a failed or pending outcome).
 - **Work-placement grade:** informed manually in the **External** column.
 - **Final grade:** combines the internal and external grades according to the [planning](planning.md) percentages. To pass the subject **both parts must be passed**; if one part is failed, the final grade is capped at 4.
 - **Overriding the internal grade:** if you tick the **Override Internal** checkbox, you can set the internal grade manually instead of letting it be computed from the outcomes.

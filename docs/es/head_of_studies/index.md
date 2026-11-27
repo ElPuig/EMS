@@ -17,6 +17,7 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 - [Erasmus+: responder un recurso de alzada contra una resolución](erasmus-appeals.md) — El jefe de estudios de la persona responde los recursos contra la lista definitiva de una convocatoria Erasmus+.
 - [Asistencia a reuniones con la tarjeta NFC](../secretary/meeting-attendance.md) — Confirmar la asistencia a un claustro o a una reunión con el lector NFC de la entrada (manual compartido con secretaría).
 - [Programaciones docentes: definir las ponderaciones de la calificación](planning.md)
+- [Sesiones de evaluación: crearlas, publicarlas y cerrarlas](evaluation-sessions.md) — Crear las sesiones de cada evaluación, el plazo de reclamaciones, los estados y publicar las notas al alumnado y a las familias.
 - [Gestión de contactos de alumnos y familias](../secretary/student-contacts.md) — tienes el mismo acceso completo de lectura/escritura que secretaría aquí, para cualquier alumno de todo el centro.
 - [Tramitar una baja o una expulsión](../secretary/graduation-withdrawal.md) — puedes tramitar la baja o la expulsión de un alumno, con los mismos pasos que secretaría (manual compartido).
 - [Baja de oficio: Dirección, jefatura de estudios y Convivencia](ex-officio-withdrawal.md) — el visto bueno de Dirección, lo que puede hacer la jefatura de estudios y los pasos de Convivencia del circuito de obligatoria.

@@ -37,7 +37,7 @@ Cada sesión corresponde a una combinación de **grupo + módulo + evaluación**
 
 ![Lista de sesiones de evaluación agrupada por evaluación y grupo](../../assets/teachers/teachers-01-llista-sessions.png)
 
-> **Consejo:** Puedes filtrar o buscar por grupo, módulo o evaluación en la barra superior. La columna **Estado** muestra si la sesión está abierta, en junta o finalizada (véase [Estados de la evaluación](#estados-de-la-evaluación)).
+> **Consejo:** Puedes filtrar o buscar por grupo, módulo o evaluación en la barra superior. La columna **Estado** muestra si la sesión está abierta, en junta, publicada o finalizada (véase [Estados de la evaluación](#estados-de-la-evaluación)).
 
 ---
 
@@ -105,9 +105,14 @@ A la derecha de las columnas de RA están las columnas que resumen la nota del m
 
 ## Notas provisionales
 
-Mientras **queden RA por evaluar**, la nota del centro (y la final) se muestran **en cursiva y con un asterisco** (`*`). Significa que es una nota **provisional**: se ha calculado solo con los RA ya evaluados y puede cambiar cuando informes los que faltan.
+**Nota del módulo provisional.** Mientras **queden RA por evaluar**, la nota del centro se muestra **en cursiva y con un asterisco** (`*`): se ha calculado solo con los RA ya evaluados y puede cambiar cuando informes los que faltan. La nota final solo aparece cuando todos los RA están evaluados.
 
-Cuando todos los RA están evaluados, la nota deja de ser provisional y se muestra en formato normal.
+**Nota de un RA provisional.** Puedes marcar como provisional la nota de un RA cuando aún espera algo (una entrega, una recuperación…); el alumno la ve con el asterisco en el portal:
+
+- **Una nota:** escribe la nota seguida de `*` o `p` (por ejemplo `6*` o `6p`). La celda muestra `6*` en cursiva. Si vuelves a escribir la nota sin la marca, deja de ser provisional.
+- **Todo el RA:** marca **Provisional** en la cabecera de la columna del RA. Todas las notas de ese RA pasan a ser provisionales, también las que pongas después, mientras la casilla esté marcada. Desmárcala para volver a poner notas definitivas.
+
+La ayuda que hay bajo la cuadrícula recuerda las dos maneras. Solo aparecen cuando la sesión permite notas provisionales, que es la opción por defecto; el jefe de estudios las puede desactivar en una sesión.
 
 ---
 
@@ -117,7 +122,7 @@ La cuadrícula trabaja con un **borrador local**: todo lo que escribes, pegas o 
 
 - Mientras haya cambios pendientes, las columnas calculadas (Centro, Final) se muestran en **gris** hasta que aplicas.
 - Al pulsar **Aplicar los cambios**, se guarda todo de golpe y el sistema recalcula las notas del módulo.
-- Si intentas **salir de la vista sin aplicar**, el sistema te avisa para que no pierdas el trabajo.
+- Si intentas **salir de la vista o pasar a otra sesión** con las flechas de arriba **sin aplicar**, el sistema te avisa para que no pierdas el trabajo: **Permanecer** te deja en la sesión con los cambios, **Salir y descartar** los pierde.
 
 ![Botón Aplicar los cambios con cambios pendientes](../../assets/teachers/teachers-06-aplicar-canvis.png)
 
@@ -129,11 +134,14 @@ Cada sesión de evaluación tiene un **estado** que determina quién la puede ed
 
 | Estado | Quién puede editar |
 |--------|--------------------|
-| **Abierta** | El profesorado y el tutor del grupo pueden introducir y modificar notas. |
-| **Junta de evaluación** | Solo el **tutor del grupo** (y la administración) puede editar; el profesorado solo consulta. |
+| **Abierta** | El profesor de la sesión y el tutor del grupo pueden introducir y modificar notas. |
+| **Junta de evaluación** | Solo el **tutor** (y la administración) puede editar; el profesorado solo consulta. |
+| **Publicada** | El alumnado y las familias ven las notas en el portal y el plazo de reclamaciones está abierto. Solo las puede editar la **administración**. |
 | **Finalizada** | Solo la **administración**. |
 
-El estado lo cambia la administración. Si la sesión está en junta o finalizada y no tienes permiso, verás las notas, pero no las podrás modificar.
+El tutor que sigue a un alumno también puede editar las notas de ese alumno en una sesión de otro grupo (por ejemplo, un módulo de 1.º de un alumno de 2.º) mientras está abierta o en junta.
+
+El estado lo cambia el jefe de estudios. Si no tienes permiso en el estado de la sesión, verás las notas, pero no las podrás modificar.
 
 ![Estado de la sesión de evaluación en la cabecera](../../assets/teachers/teachers-07-estat.png)
 
@@ -141,7 +149,7 @@ El estado lo cambia la administración. Si la sesión está en junta o finalizad
 
 ## Cómo se calcula la nota
 
-- **Nota del centro:** media ponderada de los RA **evaluados** según sus pesos, en escala del 0 al 10. Si falta algún RA por evaluar, se calcula solo con los evaluados y es **provisional**. Si algún RA evaluado está suspenso (inferior a 5), la nota del centro queda **limitada a 4** (no se puede aprobar el módulo con un RA suspenso o pendiente).
+- **Nota del centro:** media ponderada de los RA **evaluados** según sus pesos, en escala del 0 al 10. Si falta algún RA por evaluar, se calcula solo con los evaluados y es **provisional** (véase [Notas provisionales](#notas-provisionales)). Si algún RA evaluado está suspenso (inferior a 5), la nota del centro queda **limitada a 4** (no se puede aprobar el módulo con un RA suspenso o pendiente).
 - **Nota de prácticas en empresa:** se informa manualmente en la columna **Empresa**.
 - **Nota final:** combina la nota del centro y la de empresa según los porcentajes de la [programación](planning.md). Para aprobar el módulo hay que **aprobar ambas partes**; si una parte está suspensa, la nota final queda limitada a 4.
 - **Sobrescribir la nota del centro:** si marcas la casilla **Sobrescribir centro**, puedes fijar manualmente la nota del centro en lugar de dejar que se calcule a partir de los RA.

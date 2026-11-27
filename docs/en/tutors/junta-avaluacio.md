@@ -27,13 +27,13 @@ This guide explains how the tutor reviews and adjusts the grades of the students
 
 ![Planning and Grading menu with the Evaluation for tutors option](../../assets/tutors/JuntaAvaluacio-tutors-01.png)
 
-> The group and the round are chosen automatically: the view loads the group you tutor and the current open round, so you see the first student as soon as you enter.
+> The view loads **the students you tutor**, grouped by their tutorship group, and their sessions that are **open or in the board stage**, so you see the first student as soon as you enter. Published and finalised sessions are not shown here: they can no longer be edited.
 
 ---
 
 ## The evaluation-for-tutors view
 
-The view shows **one student at a time** (photo and name at the top) with **all the subjects they are enrolled in**:
+The view shows **one student at a time** (photo and name at the top) with **all the subjects they are enrolled in**, whatever group each subject is taught in (for example, a 1st-year subject that a 2nd-year student still has to pass):
 
 - **Rows:** one subject per row (for example, *MP 0225*).
 - **Outcome columns:** **RA 1, RA 2… by position**. Because each subject has its own learning outcomes, the columns are generic; hover over a cell to see the outcome's acronym and weight. The **hatched, greyed cells** correspond to subjects that **do not have that outcome** and cannot be edited.
@@ -64,7 +64,7 @@ The **counter** (*1 / 19*) tells you which student you are on and how many there
 
 ## Selecting the group
 
-If you tutor **more than one group** with an open round, choose it in the **Group** selector **(1)** at the top right. The round (for example, *2a*) is selected automatically.
+If you tutor students of **more than one group**, choose the group in the **Group** selector **(1)** at the top right. The round (for example, *2a*) is selected automatically.
 
 If you only tutor one group, there is no need to touch the selector.
 
@@ -82,7 +82,7 @@ The grid works like a spreadsheet, the same as the teachers' view:
 
 In the image, **(1)** shows a cell selected for editing.
 
-> **Who can edit during the board:** when the round is in the **Board** state, **only the group's tutor** (and the administration) can modify the grades; teachers can only view. This is the moment to review and close each student's grades subject by subject. If the round is already **finalised**, you will see the grades but will not be able to modify them.
+> **Who can edit during the board:** when the round is in the **Board** state, **only the tutor** (and the administration) can modify the grades; teachers can only view. This is the moment to review and close each student's grades subject by subject. You can edit the grades of the students you tutor in every subject shown, also those taught in another group.
 
 ---
 
@@ -92,7 +92,8 @@ The same as in the teachers' view:
 
 - **Colours:** **green** (grade ≥ 5, pass), **red** (grade < 5, fail), **white** (not informed).
 - **Locked outcomes:** an outcome **already passed in an earlier round** appears **green with a padlock** and cannot be modified.
-- **Provisional grades:** while there are outcomes still to be evaluated, the internal grade (and the final one) are shown **in italics with an asterisk** (`*`); they are provisional and will change when the missing outcomes are informed.
+- **Provisional subject grade:** while there are outcomes still to be evaluated, the internal grade is shown **in italics with an asterisk** (`*`); it will change when the missing outcomes are informed. The final grade only appears once every outcome is evaluated.
+- **Provisional outcome grade:** type the grade followed by `*` or `p` (for example `6*`) to mark it as provisional; the student sees it with the asterisk in the portal. The hint under the grid reminds you of it, when the session allows provisional grades.
 
 ---
 

@@ -11,7 +11,7 @@
 
 ## Published grades in the student portal:
 
-- The portal's Grades page (until now "under construction") shows the student's published and final evaluations, newest first: each module's grade (or the provisional one while an outcome is still pending) and every learning outcome's grade. Families see their child's, also in view-only mode.
+- The portal's Grades page (until now "under construction") shows the student's published and final evaluations, newest first: a table like the tutors' view with each module's grade (or the provisional one while an outcome is still pending), one column per learning outcome (greyed where the module has none) and the teacher's comment. Families see their child's, also in view-only mode.
 - The grades can be downloaded as a non-official PDF.
 - When publishing, the Head of Studies can tick "Announce the publication": every student, and the family of a minor, gets one email per evaluation with a link to the portal and the claims period, never the grades.
 

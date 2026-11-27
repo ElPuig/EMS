@@ -2728,6 +2728,7 @@ msgstr "Comentari"
 #. module: ems
 #. odoo-javascript
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__notes code:addons/ems/static/src/xml/backend/grade_matrix_field.xml:0 code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0 model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__notes
+#: model_terms:ir.ui.view,arch_db:ems.student_grades_tables
 msgid "Comments"
 msgstr "Comentaris"
 
@@ -18109,7 +18110,6 @@ msgstr "Resultat d'aprenentatge"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__line_ids
-#: model_terms:ir.ui.view,arch_db:ems.student_grades_tables
 msgid "Learning outcomes"
 msgstr "Resultats d'aprenentatge"
 
@@ -56708,8 +56708,8 @@ msgstr "'Qualificacions - %s' % object.name"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.student_grades_tables
-msgid "* Provisional grade: something is still pending. - Not evaluated yet. (✓) Passed in an earlier evaluation. CV: convalidated."
-msgstr "* Nota provisional: encara hi ha alguna cosa pendent. - Encara no avaluat. (✓) Superat en una avaluació anterior. CV: convalidat."
+msgid "* Provisional grade: something is still pending. - Not evaluated yet. ✓ Passed in an earlier evaluation. CV: convalidated. Grey: the module has no such outcome."
+msgstr "* Nota provisional: encara hi ha alguna cosa pendent. - Encara no avaluat. ✓ Superat en una avaluació anterior. CV: convalidat. Gris: el mòdul no té aquest RA."
 
 
 #. module: ems
@@ -56742,8 +56742,8 @@ msgstr "<i class=\"fa fa-download me-2\"/>Descarrega el PDF (no oficial)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.student_grades_tables
-msgid "<span class=\"badge text-bg-light\">Pending</span>"
-msgstr "<span class=\"badge text-bg-light\">Pendent</span>"
+msgid "<span class=\"badge\" style=\"background-color: #f8f9fa; color: #000;\">Pending</span>"
+msgstr "<span class=\"badge\" style=\"background-color: #f8f9fa; color: #000;\">Pendent</span>"
 
 
 #. module: ems
@@ -56811,3 +56811,7 @@ msgstr "RA amb totes les notes provisionals: qualsevol nota que s'hi posi es mar
 msgid "See the grades"
 msgstr "Consulta les notes"
 
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.student_grades_tables
+msgid "RA"
+msgstr "RA"

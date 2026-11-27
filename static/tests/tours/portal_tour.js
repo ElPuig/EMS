@@ -60,7 +60,7 @@ registry.category("web_tour.tours").add("ems_portal_grades_render", {
             content: "The published session's subject is listed",
         },
         {
-            trigger: ".o_ems_portal_grades .o_ems_grades_table .badge.text-bg-success",
+            trigger: ".o_ems_portal_grades .o_ems_grades_table .badge.o_ems_grade_pass",
             content: "Its grade is shown as passed",
         },
         {

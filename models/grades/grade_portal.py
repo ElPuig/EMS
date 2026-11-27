@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import re
 from collections import defaultdict
 
 from odoo import models
@@ -35,7 +36,9 @@ class ResPartner(models.Model):
             ("grade_session_id", "in", subject_lines.grade_session_id.ids),
         ])
         outcomes_by_session = defaultdict(list)
-        for line in outcome_lines.sorted(lambda line: line.outcome_id.acronym or ""):
+        # Natural order (RA2 before RA10): the table puts each subject's outcomes in columns.
+        for line in outcome_lines.sorted(lambda line: [int(part) if part.isdigit() else part
+                                                       for part in re.split(r"(\d+)", line.outcome_id.acronym or "")]):
             outcomes_by_session[line.grade_session_id.id].append({
                 "acronym": line.outcome_id.acronym,
                 "name": line.outcome_id.name,
@@ -65,15 +68,19 @@ class ResPartner(models.Model):
                 "name": line.subject_id.name,
                 "score": score,
                 "status": status,
+                "notes": line.notes,
                 "outcomes": [] if line.is_convalidated else outcomes_by_session[session.id],
                 "claim_from": session.claim_date_from,
                 "claim_to": session.claim_date_to,
                 "published": session.state == "published",
             })
-        return [
-            {"round": round_key, "label": labels.get(round_key, round_key), "subjects": rounds[round_key]}
-            for round_key in sorted(rounds, reverse=True)
-        ]
+        return [{
+            "round": round_key,
+            "label": labels.get(round_key, round_key),
+            "subjects": rounds[round_key],
+            # One column per outcome, as many as the subject with the most (as the tutors' view).
+            "outcome_columns": max(len(subject["outcomes"]) for subject in rounds[round_key]),
+        } for round_key in sorted(rounds, reverse=True)]
 
 
 class EmsGradeSession(models.Model):

@@ -4,6 +4,7 @@
         <!-- Issue #878 (#271) - the student's grades, shared by the portal page (ems.portal_grades)
              and its non-official PDF: one table per round, newest first, from
              res.partner._ems_portal_grade_rounds(). -->
+        <!-- The grade badges carry their colours inline: wkhtmltopdf ignores Bootstrap 5's text-bg-*. -->
         <template id="student_grades_tables">
             <t t-foreach="rounds" t-as="grade_round">
                 <div class="o_ems_grades_round mb-4">
@@ -12,12 +13,14 @@
                     <p t-if="claim_subject" class="text-muted small mb-2">
                         Claims period: <span t-out="claim_subject[0]['claim_from']" t-options="{'widget': 'date'}"/> - <span t-out="claim_subject[0]['claim_to']" t-options="{'widget': 'date'}"/>
                     </p>
+                    <t t-set="columns" t-value="grade_round['outcome_columns']"/>
                     <table class="table table-sm table-bordered o_ems_grades_table">
                         <thead>
                             <tr>
                                 <th>Module</th>
-                                <th class="text-center" style="width: 90px;">Grade</th>
-                                <th>Learning outcomes</th>
+                                <th class="text-center" style="width: 70px;">Grade</th>
+                                <th t-foreach="range(columns)" t-as="column" class="text-center" style="width: 46px;">RA<t t-out="column + 1"/></th>
+                                <th>Comments</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -25,34 +28,35 @@
                                 <td><t t-out="subject['code']"/> - <t t-out="subject['name']"/></td>
                                 <td class="text-center">
                                     <t t-if="subject['status'] == 'convalidated'">
-                                        <span class="badge text-bg-info"><t t-if="subject['score']" t-out="subject['score']"/> CV</span>
+                                        <span class="badge" style="background-color: #0dcaf0; color: #000;"><t t-if="subject['score']" t-out="subject['score']"/> CV</span>
                                     </t>
                                     <t t-elif="subject['status'] == 'pending'">
-                                        <span class="badge text-bg-light">Pending</span>
+                                        <span class="badge" style="background-color: #f8f9fa; color: #000;">Pending</span>
                                     </t>
                                     <t t-elif="subject['status'] == 'provisional'">
-                                        <span class="badge text-bg-warning"><t t-out="subject['score']"/>*</span>
+                                        <span class="badge" style="background-color: #ffc107; color: #000;"><t t-out="subject['score']"/>*</span>
                                     </t>
                                     <t t-else="">
-                                        <span t-attf-class="badge {{ 'text-bg-success' if subject['status'] == 'pass' else 'text-bg-danger' }}" t-out="subject['score']"/>
+                                        <span t-attf-class="badge o_ems_grade_{{ subject['status'] }}" t-attf-style="background-color: {{ '#198754' if subject['status'] == 'pass' else '#dc3545' }}; color: #fff;" t-out="subject['score']"/>
                                     </t>
                                 </td>
-                                <td class="small">
-                                    <t t-foreach="subject['outcomes']" t-as="outcome">
-                                        <span class="me-3 text-nowrap" t-att-title="outcome['name']">
-                                            <strong t-out="outcome['acronym']"/>:
-                                            <t t-if="outcome['score'] is None">-</t>
-                                            <t t-else=""><t t-out="outcome['score']"/><t t-if="outcome['provisional']">*</t><t t-if="outcome['carried']"> (✓)</t></t>
-                                        </span>
-                                    </t>
-                                </td>
+                                <t t-foreach="range(columns)" t-as="column">
+                                    <t t-set="outcome" t-value="subject['outcomes'][column] if column &lt; len(subject['outcomes']) else None"/>
+                                    <!-- An outcome this subject does not have: greyed out, as in the tutors' view. -->
+                                    <td t-if="not outcome" class="o_ems_grades_no_outcome" style="background-color: #e9ecef;"/>
+                                    <td t-else="" class="text-center" t-att-title="'%s: %s' % (outcome['acronym'], outcome['name'])">
+                                        <t t-if="outcome['score'] is None">-</t>
+                                        <t t-else=""><t t-out="outcome['score']"/><t t-if="outcome['provisional']">*</t><t t-if="outcome['carried']"> ✓</t></t>
+                                    </td>
+                                </t>
+                                <td class="small"><t t-out="subject['notes'] or ''"/></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </t>
             <p class="text-muted small mb-0">
-                * Provisional grade: something is still pending. - Not evaluated yet. (✓) Passed in an earlier evaluation. CV: convalidated.
+                * Provisional grade: something is still pending. - Not evaluated yet. ✓ Passed in an earlier evaluation. CV: convalidated. Grey: the module has no such outcome.
             </p>
         </template>
 

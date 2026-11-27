@@ -721,8 +721,11 @@ class TestGradeSession(TransactionCase):
         session.grade_subject_line_ids.filtered(lambda line: line.student_id == self.student1).write(
             {'external_score': 6, 'external_is_scored': True})
         self.assertEqual(self.student1._ems_portal_grade_rounds(), [])
+        session.grade_subject_line_ids.filtered(lambda line: line.student_id == self.student1).notes = 'Keep it up'
         session.write(dict(CLAIMS, state='published'))
         rounds = self.student1._ems_portal_grade_rounds()
+        self.assertEqual(rounds[0]['outcome_columns'], 2)
+        self.assertEqual(rounds[0]['subjects'][0]['notes'], 'Keep it up')
         self.assertEqual([grade_round['round'] for grade_round in rounds], ['1'])
         subject = rounds[0]['subjects'][0]
         self.assertEqual(subject['code'], 'TGSUB1')

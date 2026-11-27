@@ -44,9 +44,9 @@
                                     <t t-set="outcome" t-value="subject['outcomes'][column] if column &lt; len(subject['outcomes']) else None"/>
                                     <!-- An outcome this subject does not have: greyed out, as in the tutors' view. -->
                                     <td t-if="not outcome" class="o_ems_grades_no_outcome" style="background-color: #e9ecef;"/>
-                                    <!-- A passed outcome lightly green, a failed one lightly red. -->
+                                    <!-- Barely a hint of green (passed) or red (failed): a student's page, not the board's grid. -->
                                     <td t-else="" class="text-center" t-att-title="'%s: %s' % (outcome['acronym'], outcome['name'])"
-                                        t-att-style="'background-color: #d1e7dd;' if outcome['score'] is not None and outcome['score'] &gt;= 5 else ('background-color: #f8d7da;' if outcome['score'] is not None else None)">
+                                        t-att-style="'background-color: #f3faf6;' if outcome['score'] is not None and outcome['score'] &gt;= 5 else ('background-color: #fdf3f4;' if outcome['score'] is not None else None)">
                                         <t t-if="outcome['score'] is None">-</t>
                                         <t t-else=""><t t-out="outcome['score']"/><t t-if="outcome['provisional']">*</t><t t-if="outcome['carried']"> ✓</t></t>
                                     </td>

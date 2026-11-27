@@ -43,9 +43,16 @@ A **Schedule** tab and a chatter (for internal notes, messages and activities) a
 
 ---
 
-## Edit or Delete
+## Edit, Archive or Delete
 
-Open the record from its list, edit any field, and save — or select it in the list and use the **Action** menu (⚙) to delete it. A Space Type or Space in active use (referenced by a session, group, minute or schedule) cannot be deleted until those references are cleared.
+Open the record from its list, edit any field, and save. A space (or space type) that no longer exists is archived, not deleted: its past sessions, schedules and reservations keep it, and an archived space is no longer offered when looking for a free room.
+
+1. Open the space or space type (or select it in the list).
+2. Click the **Action** menu (⚙) and select **Archive**.
+
+An archived space no longer appears in lists or selectors, but everything that already uses it keeps showing it. To see it again, open the search options (▾ at the right of the search box) and choose the **Archived** filter; open it and use **Action** (⚙) → **Unarchive** to restore it.
+
+You can only **Delete** a space or space type that nothing uses yet (for example, one created by mistake). If anything uses it, EMS refuses and tells you what uses it.
 
 ---
 

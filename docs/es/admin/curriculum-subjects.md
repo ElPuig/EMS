@@ -84,13 +84,18 @@ Los contenidos viven en la pestaña **Contenido**, separada de Resultado de apre
 
 ---
 
-## Eliminar una asignatura
+## Archivar o eliminar una asignatura
 
-1. Selecciona la asignatura en la lista (marca la casilla de la izquierda).
-2. Haz clic en el menú **Acción** (⚙) y selecciona **Eliminar**.
-3. Confirma la eliminación en el diálogo.
+Una asignatura que ya no se imparte se archiva, no se elimina: eliminarla también eliminaría sus matrículas y asignaciones docentes.
 
-> **Aviso:** No se puede eliminar una asignatura si tiene registros vinculados en otras partes del sistema (asignaciones docentes, sesiones de calificación, planificación...).
+1. Abre la asignatura (o selecciónala en la lista).
+2. Haz clic en el menú **Acción** (⚙) y selecciona **Archivar**.
+
+Una asignatura archivada ya no aparece en las listas ni en los desplegables, pero todo lo que ya la usa la sigue mostrando. Para volver a verla, abre las opciones de búsqueda (▾ a la derecha del cuadro de búsqueda) y elige el filtro **Archivado**; ábrela y usa **Acción** (⚙) → **Desarchivar** para recuperarla.
+
+Solo puedes **Eliminar** una asignatura que todavía no use nada (por ejemplo, una creada por error). Si algo la usa, EMS no lo permite y te indica qué la usa.
+
+Los resultados de aprendizaje, los contenidos y los criterios de evaluación no se archivan por separado: solo tienen sentido dentro de su asignatura. Corrige una errata directamente en el formulario de la asignatura; cuando cambie el currículo, archiva el estudio antiguo y sus asignaturas y crea las nuevas. Solo se pueden eliminar mientras nada los use.
 
 ---
 

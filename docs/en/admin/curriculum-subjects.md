@@ -84,13 +84,18 @@ Content items live in the **Content** tab, separate from Learning Outcome, and c
 
 ---
 
-## Delete a Subject
+## Archive or Delete a Subject
 
-1. Select the subject in the list (tick the checkbox on the left).
-2. Click the **Action** menu (⚙) and select **Delete**.
-3. Confirm the deletion in the dialog.
+A subject that is no longer taught is archived, not deleted: deleting it would also delete its enrolments and teaching assignments.
 
-> **Warning:** A subject cannot be deleted if it has linked records elsewhere in the system (teaching assignments, grade sessions, planning...).
+1. Open the subject (or select it in the list).
+2. Click the **Action** menu (⚙) and select **Archive**.
+
+An archived subject no longer appears in lists or selectors, but everything that already uses it keeps showing it. To see it again, open the search options (▾ at the right of the search box) and choose the **Archived** filter; open it and use **Action** (⚙) → **Unarchive** to restore it.
+
+You can only **Delete** a subject that nothing uses yet (for example, one created by mistake). If anything uses it, EMS refuses and tells you what uses it.
+
+Learning outcomes, contents and evaluation criteria are not archived on their own: they only make sense inside their subject. Fix a typo directly in the subject's form; when the curriculum changes, archive the old study and its subjects and create the new ones. They can only be deleted while nothing uses them.
 
 ---
 

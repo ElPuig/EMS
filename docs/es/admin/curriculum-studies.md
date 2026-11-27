@@ -72,21 +72,21 @@ se construye a partir del acrónimo del estudio: si el acrónimo cambia, el enla
 
 ## Retirar un estudio
 
-Los estudios raramente se eliminan, ya que hacerlo se bloquea en cuanto otros registros (matrículas, grupos, calificaciones) los referencian. Para dejar de ofrecer un estudio manteniendo su historial:
+Hay dos maneras, para dos situaciones distintas:
 
-1. Abre el estudio.
-2. Marca el campo **Obsoleto**.
-3. Haz clic en **Guardar**.
+- **Obsoleto**: el currículo ya no está vigente, pero todavía hay alumnos que lo terminan. El estudio sigue visible y se puede usar. Abre el estudio, marca **Obsoleto** y haz clic en **Guardar**.
+- **Archivar**: el estudio ya no se usa en absoluto (por ejemplo, un currículo nuevo lo ha sustituido y nadie cursa ya el antiguo). Desaparece de las listas y de los desplegables, y sus matrículas, grupos y calificaciones lo conservan.
 
 ---
 
-## Eliminar un estudio
+## Archivar o eliminar un estudio
 
-1. Selecciona el estudio en la lista (marca la casilla de la izquierda).
-2. Haz clic en el menú **Acción** (⚙) y selecciona **Eliminar**.
-3. Confirma la eliminación en el diálogo.
+1. Abre el estudio (o selecciónalo en la lista).
+2. Haz clic en el menú **Acción** (⚙) y selecciona **Archivar**.
 
-> **Aviso:** No se puede eliminar un estudio si tiene registros vinculados en otras partes del sistema (matrículas, grupos, planificación...). En ese caso, usa **Obsoleto** en su lugar.
+Un estudio archivado ya no aparece en las listas ni en los desplegables, pero todo lo que ya lo usa lo sigue mostrando. Para volver a verlo, abre las opciones de búsqueda (▾ a la derecha del cuadro de búsqueda) y elige el filtro **Archivado**; ábrelo y usa **Acción** (⚙) → **Desarchivar** para recuperarlo.
+
+Solo puedes **Eliminar** un estudio que todavía no use nada (por ejemplo, uno creado por error). Si algo lo usa, EMS no lo permite y te indica qué lo usa.
 
 ---
 

@@ -16,7 +16,8 @@ This guide explains how the Head of Studies and the Deputy Head of Studies creat
 3. [Finding a planning](#finding-a-planning)
 4. [Editing a planning](#editing-a-planning)
 5. [Creating a planning](#creating-a-planning)
-6. [What you cannot do](#what-you-cannot-do)
+6. [Archiving a planning](#archiving-a-planning)
+7. [What you cannot do](#what-you-cannot-do)
 
 ---
 
@@ -86,9 +87,15 @@ course or the internal/external ponderations, and when.
 
 Each study and subject can only have one planning per course.
 
+## Archiving a planning
+
+A planning that should no longer be used is archived: open it and use **Action** (⚙) → **Archive**. A new grade session no longer picks it and the course transition no longer copies it, but the grades already given with it keep it. To see it again, choose the **Archived** filter in the search options (▾); **Action** (⚙) → **Unarchive** restores it.
+
+---
+
 ## What you cannot do
 
-- **Delete a planning**: only the academic administration can.
+- **Delete a planning**: only the academic administration can, and only one nothing uses yet (no grade session).
 - **Change a planning's course**: it is always the course it was created in.
 
 ---

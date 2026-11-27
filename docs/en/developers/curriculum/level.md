@@ -88,18 +88,9 @@ flowchart TD
     G --> H([display_name recomputed])
 ```
 
-### Delete
+### Archive and delete
 
-```mermaid
-flowchart TD
-    A([Admin user]) --> B[Select level in list]
-    B --> C[Action ⚙ → Delete]
-    C --> D[Confirm dialog]
-    D --> E{Linked studies?}
-    E -- Yes --> F[DB integrity error: cannot delete]
-    E -- No --> G[(DELETE FROM ems_level WHERE id = ...)]
-    G --> H([Record removed])
-```
+A level can be archived (**Action ⚙ → Archive**, back with **Unarchive**): it leaves searches and selectors, and every record pointing at it keeps showing it. The list's **Archived** filter finds it again. Deleting is refused while anything points at it, archived records included, and only the administrators see **Delete** — see [the in-use guard](../shared/in_use_guard.md).
 
 ---
 

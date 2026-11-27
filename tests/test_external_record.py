@@ -162,6 +162,18 @@ class TestExternalRecord(TransactionCase):
         self.assertIn(self.study, offered)
         self.assertNotIn(self.study_no_plan, offered)
 
+    def test_an_archived_teaching_plan_and_subject_are_still_found(self):
+        # Issue #868: a past course's plan, or a subject retired since, may be archived.
+        planning = self.env['ems.planning'].search([
+            ('subject_id', '=', self.subject_a.id), ('course_id', '=', self.past_course.id)])
+        planning.action_archive()
+        self.subject_a.action_archive()
+        wizard = self.env['ems.external_record_wizard'].new(
+            {'student_id': self.student.id, 'course_id': self.past_course.id, 'study_id': self.study.id})
+        self.assertIn(self.study, wizard.available_study_ids._origin)
+        self.assertEqual(wizard._planning(self.subject_a, self.past_course), planning)
+        self.assertEqual(wizard._subject_from_code('EXRSUBA', ''), self.subject_a)
+
     def test_a_course_already_in_the_history_is_rejected(self):
         self._create()
         wizard = self.env['ems.external_record_wizard'].create({

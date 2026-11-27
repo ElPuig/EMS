@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 from datetime import date
+from types import SimpleNamespace
 
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
+
+from .common import create_role_user
 
 
 class TestInUseGuard(TransactionCase):
@@ -37,6 +40,9 @@ class TestInUseGuard(TransactionCase):
         self.assertIn('Archive it instead', str(error.exception))
         self.assertIn(self.env['ir.model']._get('ems.study').name.split(':')[0], str(error.exception))
         self.assertTrue(self.level.exists())
+        with self.assertRaises(UserError) as error:
+            self.level.with_context(lang='ca_ES').unlink()
+        self.assertIn("Arxiva el registre en lloc d'eliminar-lo", str(error.exception))
 
     def test_superuser_is_refused_too(self):
         # A subject cascades to its enrolments and teaching assignments: never deleted while in use,
@@ -94,6 +100,21 @@ class TestInUseGuard(TransactionCase):
         (parent | child).unlink()
         self.assertFalse((parent | child).exists())
 
+    def test_archive_is_only_offered_to_who_can_write(self):
+        # The web client offers Archive whenever `active` isn't readonly, without checking the
+        # user's write access: a role that only reads (a teacher on subjects, spaces or plannings)
+        # would get the entry and then an error.
+        teacher = create_role_user(self, 'teacher', 'tiug_teacher')
+        hos = create_role_user(self, 'head_of_studies', 'tiug_hos')
+        admin = create_role_user(self, 'academic_admin', 'tiug_admin')
+        for model in ('ems.level', 'ems.study', 'ems.subject', 'ems.planning', 'ems.space',
+                      'ems.space_type', 'ems.role', 'ems.workgroup'):
+            self.assertTrue(self.env[model].with_user(teacher).fields_get(['active'])['active']['readonly'], model)
+            self.assertFalse(self.env[model].with_user(admin).fields_get(['active'])['active']['readonly'], model)
+        # Heads of Studies edit plannings, so they may archive them, but not subjects.
+        self.assertFalse(self.env['ems.planning'].with_user(hos).fields_get(['active'])['active']['readonly'])
+        self.assertTrue(self.env['ems.subject'].with_user(hos).fields_get(['active'])['active']['readonly'])
+
     def test_archived_records_leave_searches_and_selectors(self):
         self.subject.action_archive()
         self.assertFalse(self.env['ems.subject'].search([('id', '=', self.subject.id)]))
@@ -101,12 +122,15 @@ class TestInUseGuard(TransactionCase):
         self.subject.action_unarchive()
         self.assertIn(self.subject, self.study.subject_ids)
 
-    def test_a_past_course_planning_is_found_once_archived(self):
-        # External records and grade corrections read the planning of the course they belong to,
-        # which may have been archived since.
+    def test_a_convalidated_subject_reads_its_archived_planning(self):
+        # The academic record of a convalidated subject reads the study's plan weights, which may
+        # have been archived since (the other past-course lookups are tested in their own areas).
         planning = self.env['ems.planning'].create({
             'study_id': self.study.id, 'subject_id': self.subject.id, 'course_id': self.course.id,
+            'internal_ponderation': 70.0, 'external_ponderation': 30.0,
             'planning_outcome_ids': [(0, 0, {'outcome_id': self.outcome.id, 'ponderation': 100})]})
         planning.action_archive()
-        wizard = self.env['ems.external_record_wizard'].new({'study_id': self.study.id})
-        self.assertEqual(wizard._planning(self.subject, self.course), planning)
+        line = SimpleNamespace(subject_id=self.subject, convalidation_id=SimpleNamespace(name=False),
+                               _ems_resolved_grade=lambda: 5)
+        vals = self.env['ems.student.year_record.subject']._convalidated_vals(line, self.study)
+        self.assertEqual((vals['internal_weight'], vals['external_weight']), (70.0, 30.0))

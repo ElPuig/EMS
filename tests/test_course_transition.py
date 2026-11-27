@@ -1729,3 +1729,15 @@ class TestCourseTransition(TransactionCase):
             ('course_id', '=', self.target_course.id),
         ])
         self.assertEqual(len(target), 1)
+
+    def test_planning_rollover_skips_an_archived_target_planning(self):
+        # Issue #868: an archived target-course planning still holds unique_study_subject_course.
+        wizard = self._wizard(backup_done=True)
+        wizard.action_preview()
+        wizard._apply_planning_rollover()
+        Planning = self.env['ems.planning'].with_context(active_test=False)
+        domain = [('study_id', '=', self.study.id), ('subject_id', '=', self.subject_ext.id),
+                  ('course_id', '=', self.target_course.id)]
+        Planning.search(domain).action_archive()
+        wizard._apply_planning_rollover()
+        self.assertEqual(len(Planning.search(domain)), 1)

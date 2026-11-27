@@ -47,13 +47,16 @@ En obrir el menú es mostra una llista de tots els nivells ordenada alfabèticam
 
 ---
 
-## Eliminar un nivell
+## Arxivar o eliminar un nivell
 
-1. Selecciona el nivell a la llista (marca la casella de l'esquerra).
-2. Fes clic al menú **Acció** (⚙) i selecciona **Suprimeix**.
-3. Confirma l'eliminació al diàleg.
+Un nivell que ja no s'ofereix s'arxiva, no s'elimina: els seus estudis, grups i alumnes el conserven.
 
-> **Avís:** No es pot eliminar un nivell si té estudis vinculats. Cal eliminar o reassignar primer tots els estudis associats.
+1. Obre el nivell (o selecciona'l a la llista).
+2. Fes clic al menú **Acció** (⚙) i selecciona **Arxiva**.
+
+Un nivell arxivat ja no apareix a les llistes ni als desplegables, però tot el que ja el fa servir el continua mostrant. Per tornar-lo a veure, obre les opcions de cerca (▾ a la dreta del quadre de cerca) i tria el filtre **Arxivat**; obre'l i fes servir **Acció** (⚙) → **Desarxiva** per recuperar-lo.
+
+Només pots **Suprimir** un nivell que encara no faci servir res (per exemple, un de creat per error). Si alguna cosa el fa servir, l'EMS no ho permet i t'indica què el fa servir.
 
 ---
 

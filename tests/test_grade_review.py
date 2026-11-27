@@ -359,6 +359,16 @@ class TestGradeReview(TransactionCase):
         self.assertEqual(added.outcome_record_ids.mapped('weight'), [50.0, 50.0])
         self.assertEqual(added.review_note, 'Reviewed and resolved as passed.')
 
+    def test_add_uses_the_records_course_planning_even_archived(self):
+        # Issue #868: the teaching plan of a past course may have been archived since.
+        self.planning3.action_archive()
+        record = self._record()
+        form = self._form(record, operation='add')
+        form.subject_id = self.subject3
+        self.assertEqual(form.internal_weight, 90.0)
+        self.assertEqual(form.external_weight, 10.0)
+        self.assertEqual(len(form.line_ids), 2)
+
     def test_add_uses_the_planning_of_the_records_own_course_not_a_different_ones(self):
         # Issue #503 regression: a different course's planning for the SAME study+subject, with
         # DIFFERENT ponderations, must never leak into a correction of cls.course's own record.

@@ -28,9 +28,16 @@ Navigate to: **Educational Community → Configuration → Teachers → Workgrou
 
 ---
 
-## Edit or Delete a Workgroup
+## Edit, Archive or Delete a Workgroup
 
-Open it from the list, edit any field, and save — or select it in the list and use the **Action** menu (⚙) to delete it.
+Open it from the list, edit any field, and save. A workgroup that no longer meets is archived, not deleted: its minutes, meeting attendance and quality actions keep it.
+
+1. Open the workgroup (or select it in the list).
+2. Click the **Action** menu (⚙) and select **Archive**.
+
+An archived workgroup no longer appears in lists or selectors, but everything that already uses it keeps showing it. To see it again, open the search options (▾ at the right of the search box) and choose the **Archived** filter; open it and use **Action** (⚙) → **Unarchive** to restore it.
+
+You can only **Delete** a workgroup that nothing uses yet (for example, one created by mistake). If anything uses it, EMS refuses and tells you what uses it.
 
 ---
 

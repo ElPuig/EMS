@@ -84,13 +84,18 @@ Els continguts viuen a la pestanya **Contingut**, separada de Resultat d'aprenen
 
 ---
 
-## Eliminar una assignatura
+## Arxivar o eliminar una assignatura
 
-1. Selecciona l'assignatura a la llista (marca la casella de l'esquerra).
-2. Fes clic al menú **Acció** (⚙) i selecciona **Suprimeix**.
-3. Confirma l'eliminació al diàleg.
+Una assignatura que ja no s'imparteix s'arxiva, no s'elimina: eliminar-la també eliminaria les seves matrícules i assignacions docents.
 
-> **Avís:** No es pot eliminar una assignatura si té registres vinculats en altres parts del sistema (assignacions docents, sessions de qualificació, planificació...).
+1. Obre l'assignatura (o selecciona-la a la llista).
+2. Fes clic al menú **Acció** (⚙) i selecciona **Arxiva**.
+
+Una assignatura arxivada ja no apareix a les llistes ni als desplegables, però tot el que ja la fa servir la continua mostrant. Per tornar-la a veure, obre les opcions de cerca (▾ a la dreta del quadre de cerca) i tria el filtre **Arxivat**; obre-la i fes servir **Acció** (⚙) → **Desarxiva** per recuperar-la.
+
+Només pots **Suprimir** una assignatura que encara no faci servir res (per exemple, una de creada per error). Si alguna cosa la fa servir, l'EMS no ho permet i t'indica què la fa servir.
+
+Els resultats d'aprenentatge, els continguts i els criteris d'avaluació no s'arxiven per separat: només tenen sentit dins de la seva assignatura. Corregeix una errada directament al formulari de l'assignatura; quan canviï el currículum, arxiva l'estudi antic i les seves assignatures i crea'n de noves. Només es poden eliminar mentre no els faci servir res.
 
 ---
 

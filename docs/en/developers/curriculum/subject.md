@@ -171,18 +171,9 @@ flowchart TD
     G --> H[Sync linked product.product if name/code changed]
 ```
 
-### Delete
+### Archive and delete
 
-```mermaid
-flowchart TD
-    A([Admin user]) --> B[Select subject in list]
-    B --> C[Action ⚙ → Delete]
-    C --> D[Confirm dialog]
-    D --> E{Linked records with a hard FK<br/>e.g. teaching assignments, grade sessions}
-    E -- Yes --> F[DB integrity error: cannot delete]
-    E -- No --> G[(DELETE FROM ems_subject WHERE id = ...)]
-    G --> H([Record removed; linked product.product is NOT deleted — ondelete='set null'])
-```
+A subject can be archived (**Action ⚙ → Archive**, back with **Unarchive**): it leaves searches and selectors, and every record pointing at it keeps showing it. The list's **Archived** filter finds it again. Deleting is refused while anything points at it, archived records included, and only the administrators see **Delete** — see [the in-use guard](../shared/in_use_guard.md). Deleting one would cascade to its enrolments and teaching assignments (`ondelete='cascade'`), which is why the guard refuses it while in use. Its learning outcomes and contents are not archivable: archiving the subject is how they are retired.
 
 ---
 

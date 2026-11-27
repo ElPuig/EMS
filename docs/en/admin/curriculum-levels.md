@@ -47,13 +47,16 @@ Opening the menu shows a list of all levels sorted alphabetically by acronym. Ea
 
 ---
 
-## Delete a Level
+## Archive or Delete a Level
 
-1. Select the level in the list (tick the checkbox on the left).
-2. Click the **Action** menu (⚙) and select **Delete**.
-3. Confirm the deletion in the dialog.
+A level that is no longer offered is archived, not deleted: its studies, groups and students keep it.
 
-> **Warning:** A level cannot be deleted if it has linked studies. You must first delete or reassign all studies associated with it.
+1. Open the level (or select it in the list).
+2. Click the **Action** menu (⚙) and select **Archive**.
+
+An archived level no longer appears in lists or selectors, but everything that already uses it keeps showing it. To see it again, open the search options (▾ at the right of the search box) and choose the **Archived** filter; open it and use **Action** (⚙) → **Unarchive** to restore it.
+
+You can only **Delete** a level that nothing uses yet (for example, one created by mistake). If anything uses it, EMS refuses and tells you what uses it.
 
 ---
 

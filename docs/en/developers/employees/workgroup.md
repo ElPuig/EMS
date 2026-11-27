@@ -24,7 +24,7 @@ Uses `hr.employee.public` (not the full `hr.employee`) for `employee_ids` — th
 
 ## CRUD Operations
 
-Standard CRUD via its own menu — no custom `create()`/`write()`/`unlink()` overrides, no constraints.
+CRUD via its own menu. `unlink()` resyncs the quality committee's members when the committee itself is deleted. A workgroup can be archived; deleting one is refused while anything points at it (minutes, meeting attendance, quality actions) — see [the in-use guard](../shared/in_use_guard.md).
 
 ```mermaid
 flowchart TD

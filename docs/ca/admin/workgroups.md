@@ -28,9 +28,16 @@ Navega a: **Comunitat Educativa → Configuració → Professorat → Grups de t
 
 ---
 
-## Editar o eliminar un grup de treball
+## Editar, arxivar o eliminar un grup de treball
 
-Obre'l des de la llista, edita qualsevol camp i desa — o selecciona'l a la llista i usa el menú **Acció** (⚙) per eliminar-lo.
+Obre'l des de la llista, edita qualsevol camp i desa. Un grup de treball que ja no es reuneix s'arxiva, no s'elimina: les seves actes, assistències a reunions i accions de qualitat el conserven.
+
+1. Obre el grup de treball (o selecciona'l a la llista).
+2. Fes clic al menú **Acció** (⚙) i selecciona **Arxiva**.
+
+Un grup de treball arxivat ja no apareix a les llistes ni als desplegables, però tot el que ja el fa servir el continua mostrant. Per tornar-lo a veure, obre les opcions de cerca (▾ a la dreta del quadre de cerca) i tria el filtre **Arxivat**; obre'l i fes servir **Acció** (⚙) → **Desarxiva** per recuperar-lo.
+
+Només pots **Suprimir** un grup de treball que encara no faci servir res (per exemple, un de creat per error). Si alguna cosa el fa servir, l'EMS no ho permet i t'indica què el fa servir.
 
 ---
 

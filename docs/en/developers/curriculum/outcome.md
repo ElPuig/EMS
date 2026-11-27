@@ -60,7 +60,7 @@ flowchart TD
 
 ### Delete
 
-Removed via the inline list's row-delete action, then confirmed by saving the parent subject form. Deleting the row cascades to its `criteria_ids` only if a user explicitly clears them first — there is no `ondelete='cascade'` from criteria's side (see `ems.criteria` doc); an outcome with linked criteria would keep them orphaned of an outcome until the criteria are removed too.
+Removed via the inline list's row-delete action, then confirmed by saving the parent subject form. Learning outcomes are not archivable: a typo is fixed in place and a new curriculum archives the whole subject. Deleting is refused while anything points at the outcome (criteria, planning weight lines, grades, academic records) — see [the in-use guard](../shared/in_use_guard.md).
 
 ---
 

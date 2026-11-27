@@ -43,9 +43,16 @@ Un cop creat l'espai, hi ha disponibles una pestanya **Horari** i un xat (per a 
 
 ---
 
-## Editar o eliminar
+## Editar, arxivar o eliminar
 
-Obre'l des de la seva llista, edita qualsevol camp i desa — o selecciona'l a la llista i usa el menú **Acció** (⚙) per eliminar-lo. Un Tipus d'espai o Espai en ús actiu (referenciat per una sessió, grup, acta o horari) no es pot eliminar fins que s'eliminin aquestes referències.
+Obre el registre des de la llista, edita qualsevol camp i desa. Un espai (o tipus d'espai) que ja no existeix s'arxiva, no s'elimina: les seves sessions, horaris i reserves passades el conserven, i un espai arxivat ja no s'ofereix quan es busca una aula lliure.
+
+1. Obre l'espai o el tipus d'espai (o selecciona'l a la llista).
+2. Fes clic al menú **Acció** (⚙) i selecciona **Arxiva**.
+
+Un espai arxivat ja no apareix a les llistes ni als desplegables, però tot el que ja el fa servir el continua mostrant. Per tornar-lo a veure, obre les opcions de cerca (▾ a la dreta del quadre de cerca) i tria el filtre **Arxivat**; obre'l i fes servir **Acció** (⚙) → **Desarxiva** per recuperar-lo.
+
+Només pots **Suprimir** un espai o un tipus d'espai que encara no faci servir res (per exemple, un de creat per error). Si alguna cosa el fa servir, l'EMS no ho permet i t'indica què el fa servir.
 
 ---
 

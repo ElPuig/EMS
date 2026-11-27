@@ -79,6 +79,8 @@ change, whose onchange empties the lines. Deleting a whole `ems.planning` stays 
 with OR, so a HOS user (who also holds `group_teacher` by implication) effectively gets
 `rule_planning_hos_all`'s unrestricted domain.
 
+A planning can be archived (**Action ⚙ → Archive**), and the list's **Archived** filter finds it again. An archived planning is not picked by a new grade session nor copied by the course transition, but lookups of a past course's planning (external records, grade corrections, the academic record) still find it. Deleting one is refused while anything points at it (grade sessions); its own weight lines are deleted with it — see [the in-use guard](../shared/in_use_guard.md). Versioning approved plannings is tracked in issue #38.
+
 ## "Show only mine" search filter
 
 `is_own_subject` (compute + search, not stored) mirrors `res.partner.is_my_student`'s pattern

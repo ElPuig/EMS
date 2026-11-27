@@ -29,6 +29,10 @@
 
 ---
 
+## Archive and delete
+
+A space can be archived (**Action ⚙ → Archive**): it leaves searches, selectors and the free-space search, and every session, schedule, group or reservation pointing at it keeps showing it; the list's **Archived** filter finds it again. Deleting is refused while anything points at it — see [the in-use guard](../shared/in_use_guard.md).
+
 ## Access Control
 
 Defined in `security/ir.model.access.csv` (lines 22–24).

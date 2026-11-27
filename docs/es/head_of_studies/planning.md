@@ -16,7 +16,8 @@ Esta guía explica cómo el jefe de estudios y el jefe de estudios adjunto crean
 3. [Encontrar una programación](#encontrar-una-programación)
 4. [Editar una programación](#editar-una-programación)
 5. [Crear una programación](#crear-una-programación)
-6. [Qué no puedes hacer](#qué-no-puedes-hacer)
+6. [Archivar una programación](#archivar-una-programación)
+7. [Qué no puedes hacer](#qué-no-puedes-hacer)
 
 ---
 
@@ -88,9 +89,15 @@ asignatura, el curso o las ponderaciones del centro y de la empresa, y cuándo.
 
 Cada estudio y asignatura solo puede tener una programación por curso.
 
+## Archivar una programación
+
+Una programación que ya no debe usarse se archiva: ábrela y usa **Acción** (⚙) → **Archivar**. Una sesión de calificación nueva ya no la coge y el cambio de curso ya no la copia, pero las calificaciones que ya se pusieron con ella la conservan. Para volver a verla, elige el filtro **Archivado** en las opciones de búsqueda (▾); **Acción** (⚙) → **Desarchivar** la recupera.
+
+---
+
 ## Qué no puedes hacer
 
-- **Eliminar una programación**: solo puede hacerlo la administración académica.
+- **Eliminar una programación**: solo puede hacerlo la administración académica, y solo si todavía no la usa nada (ninguna sesión de calificación).
 - **Cambiar el curso de una programación**: siempre es el curso en el que se creó.
 
 ---

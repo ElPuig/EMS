@@ -60,6 +60,19 @@ La insignia muestra automáticamente el color elegido con un texto legible, sea 
 
 ---
 
+## Archivar o eliminar un rol
+
+Un cargo de coordinación que ya no existe (**Comunidad Educativa → Configuración → Profesores/PAS → Roles**) se archiva, no se elimina: las actas, los sellos de certificados y las acciones de calidad que lo mencionan lo conservan.
+
+1. Abre el rol (o selecciónalo en la lista).
+2. Haz clic en el menú **Acción** (⚙) y selecciona **Archivar**.
+
+Un rol archivado ya no aparece en las listas ni en los desplegables, pero todo lo que ya lo usa lo sigue mostrando. Para volver a verlo, abre las opciones de búsqueda (▾ a la derecha del cuadro de búsqueda) y elige el filtro **Archivado**; ábrelo y usa **Acción** (⚙) → **Desarchivar** para recuperarlo.
+
+Solo puedes **Eliminar** un rol que todavía no use nada (por ejemplo, uno creado por error). Si algo lo usa, EMS no lo permite y te indica qué lo usa.
+
+---
+
 ## Asignar un rol
 
 1. Abrir la ficha del empleado del profesor.
@@ -70,7 +83,7 @@ La insignia muestra automáticamente el color elegido con un texto legible, sea 
 
 La cuenta de usuario del profesor se actualiza de inmediato: se concede el grupo de seguridad vinculado al rol, junto con todo lo que implica (p. ej. asignar **Jefe de departamento** también concede el acceso de Tutor y de Profesor).
 
-> Los roles **Tutor**, **Jefe de departamento**, **Jefe de seminario**, **Jefe de estudios**, **Jefe de estudios adjunto**, **Secretario/a** y **Director** no se pueden añadir ni quitar manualmente — ni desde aquí, ni desde la lista **Asignado a** del propio rol (**Comunidad Educativa → Configuración → Profesorado/PAS → Roles**), ni mediante importación o edición masiva. Intentarlo muestra un mensaje que indica exactamente dónde hay que hacer el cambio en realidad. El Tutor se gestiona automáticamente según si el profesor es tutor de algún Grupo; los cinco siguientes se gestionan automáticamente desde el formulario de un departamento; el director se gestiona automáticamente desde Ajustes (ver más abajo).
+> Los roles **Tutor**, **Jefe de departamento**, **Jefe de seminario**, **Jefe de estudios**, **Jefe de estudios adjunto**, **Secretario/a** y **Director** no se pueden añadir ni quitar manualmente — ni desde aquí, ni desde la lista **Asignado a** del propio rol (**Comunidad Educativa → Configuración → Profesores/PAS → Roles**), ni mediante importación o edición masiva. Intentarlo muestra un mensaje que indica exactamente dónde hay que hacer el cambio en realidad. El Tutor se gestiona automáticamente según si el profesor es tutor de algún Grupo; los cinco siguientes se gestionan automáticamente desde el formulario de un departamento; el director se gestiona automáticamente desde Ajustes (ver más abajo).
 
 ---
 

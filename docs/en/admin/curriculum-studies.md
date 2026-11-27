@@ -70,21 +70,21 @@ built from the study's acronym: if the acronym changes, the link changes too.
 
 ## Retire a Study
 
-Studies are rarely deleted, since doing so is blocked once other records (enrolments, groups, grades) reference them. To stop offering a study while keeping its history:
+There are two ways, for two different situations:
 
-1. Open the study.
-2. Check the **Deprecated** field.
-3. Click **Save**.
+- **Deprecated**: the curriculum is no longer in force, but students are still finishing it. The study stays visible and usable. Open the study, check **Deprecated** and click **Save**.
+- **Archive**: the study is no longer used at all (for example, a new curriculum has replaced it and nobody is studying the old one). It disappears from lists and selectors, and its enrolments, groups and grades keep it.
 
 ---
 
-## Delete a Study
+## Archive or Delete a Study
 
-1. Select the study in the list (tick the checkbox on the left).
-2. Click the **Action** menu (⚙) and select **Delete**.
-3. Confirm the deletion in the dialog.
+1. Open the study (or select it in the list).
+2. Click the **Action** menu (⚙) and select **Archive**.
 
-> **Warning:** A study cannot be deleted if it has linked records elsewhere in the system (enrolments, groups, planning...). Use **Deprecated** instead in that case.
+An archived study no longer appears in lists or selectors, but everything that already uses it keeps showing it. To see it again, open the search options (▾ at the right of the search box) and choose the **Archived** filter; open it and use **Action** (⚙) → **Unarchive** to restore it.
+
+You can only **Delete** a study that nothing uses yet (for example, one created by mistake). If anything uses it, EMS refuses and tells you what uses it.
 
 ---
 

@@ -69,6 +69,10 @@ flowchart TD
 
 ---
 
+## Delete
+
+A course is not archivable. Deleting one is refused while anything points at it (plannings, groups, enrolments, minutes...), so only one created by mistake can be deleted — see [the in-use guard](../shared/in_use_guard.md).
+
 ## Access Control
 
 Defined in `security/ir.model.access.csv` (lines 169–171, 227).

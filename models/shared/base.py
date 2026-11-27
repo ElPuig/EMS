@@ -204,8 +204,8 @@ class EmsBase(models.AbstractModel):
     # secretary, the Head of Studies or an admin may register), so a plain teacher got the entry
     # only to hit an error.
     # Called from a model's fields_get() override, unbound
-    # (base.EmsBase.fields_get_active_readonly_for_teachers(self, res)), since res.partner and
-    # hr.employee don't inherit ems.base.
+    # (base.EmsBase.fields_get_active_readonly_for_teachers(self, res)), since res.partner,
+    # hr.employee and the catalog models of ems.in_use_guard.mixin don't inherit ems.base.
     def fields_get_active_readonly_for_teachers(self, res):
         if 'readonly' in res.get('active', {}) and not EmsBase.user_can_archive(self):
             res['active']['readonly'] = True

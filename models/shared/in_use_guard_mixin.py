@@ -3,6 +3,8 @@
 from odoo import _, api, models
 from odoo.exceptions import UserError
 
+from .base import EmsBase
+
 
 class EmsInUseGuardMixin(models.AbstractModel):
     """Refuses to delete a record that another record still points at (issue #868, part of #52).
@@ -21,6 +23,13 @@ class EmsInUseGuardMixin(models.AbstractModel):
     _name = 'ems.in_use_guard.mixin'
     _description = 'Refuses to delete records still in use'
 
+    @api.model
+    def fields_get(self, allfields=None, attributes=None):
+        """Archive is only offered to who may write the model: the web client offers it whenever
+        `active` isn't readonly, never checking the user's write access, so a role that only reads
+        (a teacher on subjects, spaces or plannings) got the entry and then an access error."""
+        return EmsBase.fields_get_active_readonly_for_teachers(self, super().fields_get(allfields, attributes))
+
     @api.ondelete(at_uninstall=False)
     def _unlink_except_in_use(self):
         users = self._ems_referencing_models()
@@ -36,7 +45,8 @@ class EmsInUseGuardMixin(models.AbstractModel):
 
     def _ems_referencing_models(self):
         """Names of the models with a record pointing at any of `self`: one query for the
-        referencing fields, then one indexed lookup (limit 1) per field, stopping at none."""
+        referencing fields, then one indexed lookup (limit 1) per field; every model is named, so
+        the message tells the administrator everything that uses the record."""
         if not self:
             return []
         fields_data = self.env['ir.model.fields'].sudo().search_read([

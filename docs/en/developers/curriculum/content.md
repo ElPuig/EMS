@@ -85,7 +85,7 @@ flowchart TD
 
 ### Delete
 
-Deleting a content item with children is blocked at the DB level (no `ondelete` on `content_id`, defaults to `restrict` since the field isn't required) — children must be removed first.
+Contents are not archivable (they only make sense inside their subject). Deleting a content item is refused while anything points at it, its composite children included, unless they are deleted in the same operation — see [the in-use guard](../shared/in_use_guard.md).
 
 ---
 

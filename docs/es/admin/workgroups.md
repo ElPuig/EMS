@@ -28,9 +28,16 @@ Navega a: **Comunidad Educativa → Configuración → Profesorado → Grupos de
 
 ---
 
-## Editar o eliminar un grupo de trabajo
+## Editar, archivar o eliminar un grupo de trabajo
 
-Ábrelo desde la lista, edita cualquier campo y guarda — o selecciónalo en la lista y usa el menú **Acción** (⚙) para eliminarlo.
+Ábrelo desde la lista, edita cualquier campo y guarda. Un grupo de trabajo que ya no se reúne se archiva, no se elimina: sus actas, asistencias a reuniones y acciones de calidad lo conservan.
+
+1. Abre el grupo de trabajo (o selecciónalo en la lista).
+2. Haz clic en el menú **Acción** (⚙) y selecciona **Archivar**.
+
+Un grupo de trabajo archivado ya no aparece en las listas ni en los desplegables, pero todo lo que ya lo usa lo sigue mostrando. Para volver a verlo, abre las opciones de búsqueda (▾ a la derecha del cuadro de búsqueda) y elige el filtro **Archivado**; ábrelo y usa **Acción** (⚙) → **Desarchivar** para recuperarlo.
+
+Solo puedes **Eliminar** un grupo de trabajo que todavía no use nada (por ejemplo, uno creado por error). Si algo lo usa, EMS no lo permite y te indica qué lo usa.
 
 ---
 

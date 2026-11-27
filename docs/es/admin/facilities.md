@@ -43,9 +43,16 @@ Una vez creado el espacio, están disponibles una pestaña **Horario** y un chat
 
 ---
 
-## Editar o eliminar
+## Editar, archivar o eliminar
 
-Ábrelo desde su lista, edita cualquier campo y guarda — o selecciónalo en la lista y usa el menú **Acción** (⚙) para eliminarlo. Un Tipo de espacio o Espacio en uso activo (referenciado por una sesión, grupo, acta u horario) no se puede eliminar hasta que se eliminen esas referencias.
+Abre el registro desde la lista, edita cualquier campo y guarda. Un espacio (o tipo de espacio) que ya no existe se archiva, no se elimina: sus sesiones, horarios y reservas pasadas lo conservan, y un espacio archivado ya no se ofrece al buscar un aula libre.
+
+1. Abre el espacio o el tipo de espacio (o selecciónalo en la lista).
+2. Haz clic en el menú **Acción** (⚙) y selecciona **Archivar**.
+
+Un espacio archivado ya no aparece en las listas ni en los desplegables, pero todo lo que ya lo usa lo sigue mostrando. Para volver a verlo, abre las opciones de búsqueda (▾ a la derecha del cuadro de búsqueda) y elige el filtro **Archivado**; ábrelo y usa **Acción** (⚙) → **Desarchivar** para recuperarlo.
+
+Solo puedes **Eliminar** un espacio o un tipo de espacio que todavía no use nada (por ejemplo, uno creado por error). Si algo lo usa, EMS no lo permite y te indica qué lo usa.
 
 ---
 

@@ -60,6 +60,19 @@ La insígnia mostra automàticament el color triat amb un text llegible, sigui q
 
 ---
 
+## Arxivar o eliminar un rol
+
+Un càrrec de coordinació que ja no existeix (**Comunitat Educativa → Configuració → Professors/PAS → Rols**) s'arxiva, no s'elimina: les actes, els segells de certificats i les accions de qualitat que l'esmenten el conserven.
+
+1. Obre el rol (o selecciona'l a la llista).
+2. Fes clic al menú **Acció** (⚙) i selecciona **Arxiva**.
+
+Un rol arxivat ja no apareix a les llistes ni als desplegables, però tot el que ja el fa servir el continua mostrant. Per tornar-lo a veure, obre les opcions de cerca (▾ a la dreta del quadre de cerca) i tria el filtre **Arxivat**; obre'l i fes servir **Acció** (⚙) → **Desarxiva** per recuperar-lo.
+
+Només pots **Suprimir** un rol que encara no faci servir res (per exemple, un de creat per error). Si alguna cosa el fa servir, l'EMS no ho permet i t'indica què el fa servir.
+
+---
+
 ## Assignar un rol
 
 1. Obriu la fitxa de l'empleat del professor.
@@ -70,7 +83,7 @@ La insígnia mostra automàticament el color triat amb un text llegible, sigui q
 
 El compte d'usuari del professor s'actualitza immediatament: es concedeix el grup de seguretat vinculat al rol, juntament amb tot allò que implica (p. ex. assignar **Cap de departament** també concedeix l'accés de Tutor i de professor).
 
-> Els rols **Tutor**, **Cap de departament**, **Cap de seminari**, **Cap d'estudis**, **Cap d'estudis adjunt**, **Secretari/ària** i **Director** no es poden afegir ni treure manualment — ni des d'aquí, ni des de la llista **Assignat a** del rol (**Comunitat Educativa → Configuració → Professorat/PAS → Rols**), ni per importació o edició massiva. Intentar-ho mostra un missatge que indica exactament on s'ha de fer el canvi en realitat. El Tutor es gestiona automàticament segons si el professor és tutor d'algun Grup; els cinc següents es gestionen automàticament des del formulari d'un departament; el director es gestiona automàticament des d'Ajustes (vegeu més avall).
+> Els rols **Tutor**, **Cap de departament**, **Cap de seminari**, **Cap d'estudis**, **Cap d'estudis adjunt**, **Secretari/ària** i **Director** no es poden afegir ni treure manualment — ni des d'aquí, ni des de la llista **Assignat a** del rol (**Comunitat Educativa → Configuració → Professors/PAS → Rols**), ni per importació o edició massiva. Intentar-ho mostra un missatge que indica exactament on s'ha de fer el canvi en realitat. El Tutor es gestiona automàticament segons si el professor és tutor d'algun Grup; els cinc següents es gestionen automàticament des del formulari d'un departament; el director es gestiona automàticament des d'Ajustes (vegeu més avall).
 
 ---
 

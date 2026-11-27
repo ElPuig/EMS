@@ -16,7 +16,8 @@ Aquesta guia explica com el cap d'estudis i el cap d'estudis adjunt creen i edit
 3. [Trobar una programació](#trobar-una-programació)
 4. [Editar una programació](#editar-una-programació)
 5. [Crear una programació](#crear-una-programació)
-6. [Què no pots fer](#què-no-pots-fer)
+6. [Arxivar una programació](#arxivar-una-programació)
+7. [Què no pots fer](#què-no-pots-fer)
 
 ---
 
@@ -88,9 +89,15 @@ l'assignatura, el curs o les ponderacions del centre i de l'empresa, i quan.
 
 Cada estudi i assignatura només pot tenir una programació per curs.
 
+## Arxivar una programació
+
+Una programació que ja no s'ha de fer servir s'arxiva: obre-la i fes servir **Acció** (⚙) → **Arxiva**. Una sessió de qualificació nova ja no l'agafa i el canvi de curs ja no la copia, però les qualificacions que ja s'hi van posar la conserven. Per tornar-la a veure, tria el filtre **Arxivat** a les opcions de cerca (▾); **Acció** (⚙) → **Desarxiva** la recupera.
+
+---
+
 ## Què no pots fer
 
-- **Eliminar una programació**: només ho pot fer l'administració acadèmica.
+- **Eliminar una programació**: només ho pot fer l'administració acadèmica, i només si encara no la fa servir res (cap sessió de qualificació).
 - **Canviar el curs d'una programació**: sempre és el curs en què es va crear.
 
 ---

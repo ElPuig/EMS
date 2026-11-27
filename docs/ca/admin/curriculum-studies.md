@@ -71,21 +71,21 @@ construeix a partir de l'acrònim de l'estudi: si l'acrònim canvia, l'enllaç t
 
 ## Retirar un estudi
 
-Els estudis rarament s'eliminen, ja que fer-ho es bloqueja tan bon punt altres registres (matrícules, grups, qualificacions) els referencien. Per deixar d'oferir un estudi mantenint el seu historial:
+Hi ha dues maneres, per a dues situacions diferents:
 
-1. Obre l'estudi.
-2. Marca el camp **Obsolet**.
-3. Fes clic a **Desa**.
+- **Obsolet**: el currículum ja no és vigent, però encara hi ha alumnes que l'acaben. L'estudi continua visible i es pot fer servir. Obre l'estudi, marca **Obsolet** i fes clic a **Desa**.
+- **Arxivar**: l'estudi ja no es fa servir gens (per exemple, un currículum nou l'ha substituït i ja ningú no cursa l'antic). Desapareix de les llistes i dels desplegables, i les seves matrícules, grups i qualificacions el conserven.
 
 ---
 
-## Eliminar un estudi
+## Arxivar o eliminar un estudi
 
-1. Selecciona l'estudi a la llista (marca la casella de l'esquerra).
-2. Fes clic al menú **Acció** (⚙) i selecciona **Suprimeix**.
-3. Confirma l'eliminació al diàleg.
+1. Obre l'estudi (o selecciona'l a la llista).
+2. Fes clic al menú **Acció** (⚙) i selecciona **Arxiva**.
 
-> **Avís:** No es pot eliminar un estudi si té registres vinculats en altres parts del sistema (matrícules, grups, planificació...). En aquest cas, usa **Obsolet** en lloc seu.
+Un estudi arxivat ja no apareix a les llistes ni als desplegables, però tot el que ja el fa servir el continua mostrant. Per tornar-lo a veure, obre les opcions de cerca (▾ a la dreta del quadre de cerca) i tria el filtre **Arxivat**; obre'l i fes servir **Acció** (⚙) → **Desarxiva** per recuperar-lo.
+
+Només pots **Suprimir** un estudi que encara no faci servir res (per exemple, un de creat per error). Si alguna cosa el fa servir, l'EMS no ho permet i t'indica què el fa servir.
 
 ---
 

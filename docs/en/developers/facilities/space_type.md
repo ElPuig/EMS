@@ -23,6 +23,10 @@ The model had a stale `# TODO: config page in facilities to manage this model` c
 
 ---
 
+## Archive and delete
+
+A space type can be archived like a space; deleting one is refused while any space (archived ones included) uses it — see [the in-use guard](../shared/in_use_guard.md).
+
 ## Access Control
 
 Defined in `security/ir.model.access.csv` (lines 26–28).

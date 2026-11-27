@@ -1225,6 +1225,14 @@ msgstr "Acció Necessària"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__active
 #: model:ir.model.fields,field_description:ems.field_ems_reason_catalog__active
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type__active
+#: model:ir.model.fields,field_description:ems.field_ems_level__active
+#: model:ir.model.fields,field_description:ems.field_ems_study__active
+#: model:ir.model.fields,field_description:ems.field_ems_subject__active
+#: model:ir.model.fields,field_description:ems.field_ems_planning__active
+#: model:ir.model.fields,field_description:ems.field_ems_space__active
+#: model:ir.model.fields,field_description:ems.field_ems_space_type__active
+#: model:ir.model.fields,field_description:ems.field_ems_role__active
+#: model:ir.model.fields,field_description:ems.field_ems_workgroup__active
 msgid "Active"
 msgstr "Actiu"
 
@@ -1808,6 +1816,22 @@ msgstr "Aprovat"
 #: model_terms:ir.ui.view,arch_db:ems.view_teaching_reduction_type_form
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_discard_reason_form
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+#: model_terms:ir.ui.view,arch_db:ems.level_view_form
+#: model_terms:ir.ui.view,arch_db:ems.view_study_form
+#: model_terms:ir.ui.view,arch_db:ems.view_subject_form
+#: model_terms:ir.ui.view,arch_db:ems.view_planning_form
+#: model_terms:ir.ui.view,arch_db:ems.view_space_form
+#: model_terms:ir.ui.view,arch_db:ems.view_space_type_form
+#: model_terms:ir.ui.view,arch_db:ems.view_role_form
+#: model_terms:ir.ui.view,arch_db:ems.view_workgroup_form
+#: model_terms:ir.ui.view,arch_db:ems.view_level_search
+#: model_terms:ir.ui.view,arch_db:ems.view_study_search
+#: model_terms:ir.ui.view,arch_db:ems.view_subject_search
+#: model_terms:ir.ui.view,arch_db:ems.view_planning_search
+#: model_terms:ir.ui.view,arch_db:ems.view_space_search
+#: model_terms:ir.ui.view,arch_db:ems.view_space_type_search
+#: model_terms:ir.ui.view,arch_db:ems.view_role_search
+#: model_terms:ir.ui.view,arch_db:ems.view_workgroup_search
 msgid "Archived"
 msgstr "Arxivat"
 
@@ -6511,6 +6535,7 @@ msgstr "Nivell"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_modality__level_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__level_ids
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard__line_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_level_search
 msgid "Levels"
 msgstr "Nivells"
 
@@ -8686,6 +8711,7 @@ msgstr "Noms del rols"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_employee__role_ids model:ir.model.fields,field_description:ems.field_hr_employee_base__role_ids model:ir.model.fields,field_description:ems.field_hr_employee_public__role_ids model:ir.ui.menu,name:ems.menu_asp_roles model:ir.ui.menu,name:ems.menu_teachers_roles model_terms:ir.ui.view,arch_db:ems.view_employee_form
+#: model_terms:ir.ui.view,arch_db:ems.view_role_search
 msgid "Roles"
 msgstr "Rols"
 
@@ -11047,6 +11073,7 @@ msgstr "Grup de treball: Els empleats (professors, proveïdors i PAS) poden defi
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_workgroup_tree model:ir.ui.menu,name:ems.menu_workgroups
+#: model_terms:ir.ui.view,arch_db:ems.view_workgroup_search
 msgid "Workgroups"
 msgstr "Grups de treball"
 
@@ -56825,3 +56852,25 @@ msgstr "La reserva de la sala d'una reunió segueix la reunió: canvia o treu la
 #: code:addons/ems/models/facilities/space_reservation.py:0
 msgid "You can only change your own reservations."
 msgstr "Només pots canviar les teves reserves."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/in_use_guard_mixin.py:0
+msgid "%(records)s cannot be deleted because it is in use (%(where)s). Archive it instead."
+msgstr "No es pot eliminar %(records)s perquè està en ús (%(where)s). Arxiva el registre en lloc d'eliminar-lo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/in_use_guard_mixin.py:0
+msgid "%(records)s cannot be deleted because it is in use (%(where)s)."
+msgstr "No es pot eliminar %(records)s perquè està en ús (%(where)s)."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_in_use_guard_mixin
+msgid "Refuses to delete records still in use"
+msgstr "Impedeix eliminar registres en ús"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_space_type_search
+msgid "Space types"
+msgstr "Tipus d'espai"

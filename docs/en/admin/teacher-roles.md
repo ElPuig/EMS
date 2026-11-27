@@ -60,6 +60,19 @@ The badge automatically shows the color you picked with readable text, whatever 
 
 ---
 
+## Archive or Delete a Role
+
+A coordination post that no longer exists (**Educational Community → Configuration → Teachers/ASP → Roles**) is archived, not deleted: the minutes, certificate stamps and quality actions that name it keep it.
+
+1. Open the role (or select it in the list).
+2. Click the **Action** menu (⚙) and select **Archive**.
+
+An archived role no longer appears in lists or selectors, but everything that already uses it keeps showing it. To see it again, open the search options (▾ at the right of the search box) and choose the **Archived** filter; open it and use **Action** (⚙) → **Unarchive** to restore it.
+
+You can only **Delete** a role that nothing uses yet (for example, one created by mistake). If anything uses it, EMS refuses and tells you what uses it.
+
+---
+
 ## Assign a Role
 
 1. Open the teacher's employee record.

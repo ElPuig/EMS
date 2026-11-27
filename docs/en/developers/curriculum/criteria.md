@@ -53,7 +53,7 @@ flowchart TD
 
 ## CRUD Operations
 
-Criteria are always created/edited/deleted from within an outcome's popup form — there is no standalone menu, and reaching that popup itself requires going through a subject's form first.
+Criteria are always created/edited/deleted from within an outcome's popup form — there is no standalone menu, and reaching that popup itself requires going through a subject's form first. Criteria are not archivable; deleting one is refused while anything points at it — see [the in-use guard](../shared/in_use_guard.md).
 
 ```mermaid
 flowchart TD

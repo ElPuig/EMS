@@ -47,13 +47,16 @@ Al abrir el menú se muestra una lista de todos los niveles ordenada alfabética
 
 ---
 
-## Eliminar un nivel
+## Archivar o eliminar un nivel
 
-1. Selecciona el nivel en la lista (marca la casilla de la izquierda).
-2. Haz clic en el menú **Acción** (⚙) y selecciona **Eliminar**.
-3. Confirma la eliminación en el diálogo.
+Un nivel que ya no se ofrece se archiva, no se elimina: sus estudios, grupos y alumnos lo conservan.
 
-> **Aviso:** No se puede eliminar un nivel si tiene estudios vinculados. Debes eliminar o reasignar primero todos los estudios asociados.
+1. Abre el nivel (o selecciónalo en la lista).
+2. Haz clic en el menú **Acción** (⚙) y selecciona **Archivar**.
+
+Un nivel archivado ya no aparece en las listas ni en los desplegables, pero todo lo que ya lo usa lo sigue mostrando. Para volver a verlo, abre las opciones de búsqueda (▾ a la derecha del cuadro de búsqueda) y elige el filtro **Archivado**; ábrelo y usa **Acción** (⚙) → **Desarchivar** para recuperarlo.
+
+Solo puedes **Eliminar** un nivel que todavía no use nada (por ejemplo, uno creado por error). Si algo lo usa, EMS no lo permite y te indica qué lo usa.
 
 ---
 

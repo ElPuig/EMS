@@ -47,6 +47,11 @@ ACCESS_MATRIX = {
     # Issue #878: the Head of Studies creates the evaluation sessions and changes their state.
     'ems.grade_session_wizard': {'teacher': '', 'secretary': '', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
     'ems.grade_session_state_wizard': {'teacher': '', 'secretary': '', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
+    # Issue #879: grade claims are read through record rules and answered by methods that check who
+    # answers; nobody writes them directly but an administrator. The answer wizard is the teachers'.
+    'ems.grade_claim': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'r', 'academic_admin': 'rwcu'},
+    'ems.grade_claim.answer_wizard': {'teacher': 'rwc', 'secretary': '', 'head_of_studies': 'rwc', 'academic_admin': 'rwc'},
+    'ems.grade_claim.denial_reason': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
     # Heads of Studies maintain the reasons they pick from, archiving instead of deleting (issue #654).
     'ems.convalidation.info_reason': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
     'ems.convalidation.rejection_reason': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},

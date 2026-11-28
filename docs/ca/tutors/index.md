@@ -18,6 +18,7 @@ Aquesta secció conté els manuals per als **tutors de grup**.
 | [Històric acadèmic del vostre alumnat](academic-history.md) | Consultar el registre permanent per curs dels vostres tutoritzats: mòduls, notes per RA i assistència |
 | [Posar la nota de l'estada a l'empresa (EM)](work-placement-grade.md) | Posar la nota de l'estada a un estudiant quan acaba les pràctiques: completa la nota final de tots els mòduls amb pes d'estada, incloses les finals pendents de cursos anteriors |
 | [Junta d'avaluació: revisar les qualificacions per alumne](junta-avaluacio.md) | Revisar i ajustar les qualificacions de cada alumne del grup, assignatura per assignatura, per a la junta d'avaluació |
+| [Reclamacions de notes: la segona instància](../teachers/grade-claims.md) | Respondre les reclamacions que els teus alumnes et porten després que el professor les denegui (manual compartit) |
 | [Com generar propostes de matrícula](propostes-matricula.md) | Proposar la matrícula del curs següent per als alumnes aprovats, incloses les matrícules especials |
 | [Autoritzacions: enviar-les al vostre alumnat i fer-ne el seguiment](authorizations.md) | Enviar autoritzacions del catàleg al vostre alumnat o als vostres grups i fer el seguiment de les respostes |
 | [Sol·licituds de dades de contacte: demanar a les famílies que actualitzin les dades](contact-data-requests.md) | Demanar a l'alumnat i a les famílies que revisin les dades de contacte des del portal, fer el seguiment de les respostes i aprovar els canvis |

@@ -1093,6 +1093,7 @@ msgstr "Només acceptació"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_correction__state__accepted model:ir.model.fields.selection,name:ems.selection__ems_authorization__status__yes model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_search model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_claim__state__accepted
 msgid "Accepted"
 msgstr "Acceptat"
 
@@ -1185,6 +1186,7 @@ msgstr "Acció"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__message_needaction
 msgid "Action Needed"
 msgstr "Acció Necessària"
 
@@ -1317,6 +1319,7 @@ msgstr "Confirmar l'arxivat de grup(s) amb alumnes actius"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__activity_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_ids
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__activity_ids
 msgid "Activities"
 msgstr "Activitats"
 
@@ -1364,6 +1367,7 @@ msgstr "Activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__activity_exception_decoration
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_exception_decoration
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "Decorador de l'excepció a una activitat"
 
@@ -1399,6 +1403,7 @@ msgstr "Decorador de l'excepció a una activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__activity_state
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_state
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__activity_state
 msgid "Activity State"
 msgstr "Estat de l'activitat"
 
@@ -1434,6 +1439,7 @@ msgstr "Estat de l'activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__activity_type_icon
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_type_icon
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__activity_type_icon
 msgid "Activity Type Icon"
 msgstr "Icona del tipus d'activitat"
 
@@ -1706,6 +1712,7 @@ msgstr "Marc d'origen"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment_answer__text
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_staff_self_assessment_wizard_line__text
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades
 msgid "Answer"
 msgstr "Resposta"
 
@@ -1934,6 +1941,7 @@ msgstr "Adjunt"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__message_attachment_count
 msgid "Attachment Count"
 msgstr "Quantitat d'adjunts"
 
@@ -2465,6 +2473,7 @@ msgstr "Pot editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_discard_wizard_form
 #: model:ir.model.fields.selection,name:ems.selection__ems_certificate_wizard__mode__cancel
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_claim_answer_wizard_form
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -3194,6 +3203,9 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_value__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_answer_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_denial_reason__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -3369,6 +3381,9 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_value__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_answer_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_denial_reason__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3665,6 +3680,7 @@ msgstr "Descripció i notes"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__details
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__details
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_answer_wizard__details
 msgid "Details"
 msgstr "Detalls"
 
@@ -3870,6 +3886,9 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_value__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_answer_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_denial_reason__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -4633,8 +4652,12 @@ msgid "Final"
 msgstr "Final"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_claim.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__final_score model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__final_grade
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__preview_final_grade
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_claim__kind__final
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades
 msgid "Final grade"
 msgstr "Nota final"
 
@@ -4719,6 +4742,7 @@ msgstr "Seguiment"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__message_follower_ids
 msgid "Followers"
 msgstr "Seguidors"
 
@@ -4755,6 +4779,7 @@ msgstr "Seguidors"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "Seguidors (Companys)"
 
@@ -4790,6 +4815,7 @@ msgstr "Seguidors (Companys)"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_expense__activity_type_icon
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__activity_type_icon
 #: model:ir.model.fields,help:ems.field_ems_certificate__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_grade_claim__activity_type_icon
 msgid "Font awesome icon e.g. fa-tasks"
 msgstr "Icona de font impressionant, p. ex. tasques-fa"
 
@@ -5078,6 +5104,8 @@ msgstr "Atorgar accés"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__group_id
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__group_id
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_claim_search
 msgid "Group"
 msgstr "Grup"
 
@@ -5107,6 +5135,7 @@ msgstr "Grup"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_claim_search
 msgid "Group By"
 msgstr "Agrupar per"
 
@@ -5218,6 +5247,7 @@ msgstr "Té taxes"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__has_message
 msgid "Has Message"
 msgstr "Té missatge"
 
@@ -5496,6 +5526,9 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__id
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__id
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_value__id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_answer_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_denial_reason__id
 msgid "ID"
 msgstr "ID"
 
@@ -5539,6 +5572,7 @@ msgstr "IDALU"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__activity_exception_icon
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_exception_icon
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__activity_exception_icon
 msgid "Icon"
 msgstr "Icona"
 
@@ -5574,6 +5608,7 @@ msgstr "Icona"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_expense__activity_exception_icon
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__activity_exception_icon
 #: model:ir.model.fields,help:ems.field_ems_certificate__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_grade_claim__activity_exception_icon
 msgid "Icon to indicate an exception activity."
 msgstr "Icona per indicar una activitat d'excepció."
 
@@ -5615,6 +5650,7 @@ msgstr "Si l'IBAN està mapejat i una fila té valor, tots els comptes bancaris 
 #: model:ir.model.fields,help:ems.field_ems_erasmus_expense__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_certificate__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_grade_claim__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr "Si està marcat, nous missatges que requereixen de la vostra atenció. "
 
@@ -5680,6 +5716,8 @@ msgstr "Si està marcat, nous missatges que requereixen de la vostra atenció. "
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__message_has_sms_error
 #: model:ir.model.fields,help:ems.field_ems_certificate__message_has_error
 #: model:ir.model.fields,help:ems.field_ems_certificate__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_grade_claim__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_grade_claim__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "Si està marcat, alguns missatges han fallat en intentar ser lliurats."
 
@@ -5977,6 +6015,7 @@ msgstr "És taxa de matrícula"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__message_is_follower
 msgid "Is Follower"
 msgstr "És seguidor"
 
@@ -6267,6 +6306,9 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_value__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_answer_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_denial_reason__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -6442,6 +6484,9 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_value__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_answer_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_denial_reason__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -6822,6 +6867,7 @@ msgstr "Missatge"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__message_has_error
 msgid "Message Delivery error"
 msgstr "Error de lliurament del missatge"
 
@@ -6858,6 +6904,7 @@ msgstr "Error de lliurament del missatge"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__message_ids
 msgid "Messages"
 msgstr "Missatges"
 
@@ -6991,6 +7038,7 @@ msgstr "Mare"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__my_activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__my_activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__my_activity_date_deadline
 msgid "My Activity Deadline"
 msgstr "Data límit de la meva activitat"
 
@@ -7036,6 +7084,7 @@ msgstr "NUSS"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type__name
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_step__name
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_denial_reason__name
 msgid "Name"
 msgstr "Nom"
 
@@ -7100,6 +7149,7 @@ msgstr "Nou contacte d'alumne/a"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__activity_date_deadline
 msgid "Next Activity Deadline"
 msgstr "Data límit de la següent activitat"
 
@@ -7135,6 +7185,7 @@ msgstr "Data límit de la següent activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__activity_summary
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_summary
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__activity_summary
 msgid "Next Activity Summary"
 msgstr "Resum de l'activitat següent"
 
@@ -7170,6 +7221,7 @@ msgstr "Resum de l'activitat següent"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__activity_type_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_type_id
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__activity_type_id
 msgid "Next Activity Type"
 msgstr "Tipus d'activitat següent"
 
@@ -7421,6 +7473,7 @@ msgstr "Número"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__message_needaction_counter
 msgid "Number of Actions"
 msgstr "Quantitat d'accions"
 
@@ -7457,6 +7510,7 @@ msgstr "Quantitat d'accions"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__message_has_error_counter
 msgid "Number of errors"
 msgstr "Quantitat d'errors"
 
@@ -7493,6 +7547,7 @@ msgstr "Quantitat d'errors"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_expense__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_certificate__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_grade_claim__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr "Quantitat de missatges que requereixen d'una acció"
 
@@ -7529,6 +7584,7 @@ msgstr "Quantitat de missatges que requereixen d'una acció"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_expense__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_certificate__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_grade_claim__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "Quantitat de missatges amb error de lliurament"
 
@@ -7914,6 +7970,7 @@ msgstr "Pla de pagament"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_value__is_pending
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 #: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_claim_search
 msgid "Pending"
 msgstr "Pendent"
 
@@ -8247,6 +8304,7 @@ msgstr "Plantilla de pressupost"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__rating_ids
 msgid "Ratings"
 msgstr "Qualificacions"
 
@@ -8594,6 +8652,7 @@ msgstr "Detalls de la resposta"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__activity_user_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_user_id
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__activity_user_id
 msgid "Responsible User"
 msgstr "Usuari responsable"
 
@@ -8700,6 +8759,7 @@ msgstr "Rols: El càrrec de coordinació que ostenten els empleats."
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__round model:ir.model.fields,field_description:ems.field_ems_grade_session__round model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__round model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__round model_terms:ir.ui.view,arch_db:ems.view_grade_session_search
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__round
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__round
 msgid "Round"
 msgstr "Avaluació"
 
@@ -8765,6 +8825,7 @@ msgstr "En execució"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "Error de lliurament d'un SMS"
 
@@ -9106,6 +9167,7 @@ msgstr "Enviat el"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_value__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_denial_reason__sequence
 msgid "Sequence"
 msgstr "Seqüència"
 
@@ -9388,6 +9450,9 @@ msgstr "Iniciant procés en segon pla; rebràs una notificació en finalitzar (p
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form_economy
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__state
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__state
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_claim_search
 msgid "State"
 msgstr "Estat"
 
@@ -9446,6 +9511,7 @@ msgstr "Estat"
 #: model:ir.model.fields,help:ems.field_ems_quality_action__activity_state
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__activity_state
 #: model:ir.model.fields,help:ems.field_ems_certificate__activity_state
+#: model:ir.model.fields,help:ems.field_ems_grade_claim__activity_state
 msgid ""
 "Status based on activities\n"
 "Overdue: Due date is already passed\n"
@@ -9523,6 +9589,7 @@ msgstr "Carrer 2"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__student_id
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__student_id
 msgid "Student"
 msgstr "Estudiant"
 
@@ -9724,6 +9791,8 @@ msgstr "Estudi: El tipus d'estudi concret (tipus de batxillerat, grau universita
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_grant_wizard__line_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_reject_wizard__line_id
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__subject_id
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_claim_search
 msgid "Subject"
 msgstr "Assignatura"
 
@@ -10548,6 +10617,7 @@ msgstr "Conflicte"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_expense__activity_exception_decoration
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__activity_exception_decoration
 #: model:ir.model.fields,help:ems.field_ems_certificate__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_grade_claim__activity_exception_decoration
 msgid "Type of the exception activity on record."
 msgstr "Tipus de l'activitat d'excepció registrada."
 
@@ -10883,6 +10953,7 @@ msgstr "Estem treballant en aquesta secció per oferir-te la millor experiència
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__website_message_ids
 msgid "Website Messages"
 msgstr "Missatges del lloc web"
 
@@ -10919,6 +10990,7 @@ msgstr "Missatges del lloc web"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_expense__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_certificate__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_grade_claim__website_message_ids
 msgid "Website communication history"
 msgstr "Històric de comunicacions del lloc web"
 
@@ -11291,6 +11363,7 @@ msgstr "Mateix docent, aula diferent"
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_contact_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_wizard_form
 #, python-format
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_claim_answer_wizard_form
 msgid "Confirm"
 msgstr "Confirmar"
 
@@ -11810,6 +11883,8 @@ msgstr "%(employee)s (%(date)s)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_claim_answer_wizard__decision__accept
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_claim_form
 msgid "Accept"
 msgstr "Acceptar"
 
@@ -11859,6 +11934,7 @@ msgstr "Nota de la decisió"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
 #: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__method
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__decision
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_answer_wizard__decision
 msgid "Decision"
 msgstr "Decisió"
 
@@ -11919,6 +11995,7 @@ msgstr "Sortida original"
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__reason
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_answer_wizard__reason_id
 msgid "Reason"
 msgstr "Motiu"
 
@@ -17658,6 +17735,7 @@ msgstr "Marqueu els mòduls que ja heu superat en altres estudis."
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__activity_calendar_event_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_calendar_event_id
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_calendar_event_id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__activity_calendar_event_id
 msgid "Next Activity Calendar Event"
 msgstr "Esdeveniment de calendari de la següent activitat"
 
@@ -18105,6 +18183,8 @@ msgstr "Qualificat"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__outcome_name
 #: model:ir.model.fields.selection,name:ems.selection__ems_external_record_wizard_line__kind__outcome
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__outcome_id
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_claim__kind__outcome
 msgid "Learning outcome"
 msgstr "Resultat d'aprenentatge"
 
@@ -18504,6 +18584,7 @@ msgstr "EMS: Convalidació, documentació sol·licitada"
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__grade
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_grade__grade
 #: model_terms:ir.ui.view,arch_db:ems.student_grades_tables
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades
 msgid "Grade"
 msgstr "Nota"
 
@@ -20762,6 +20843,7 @@ msgstr "Resolució del Ministeri.pdf"
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_previous_curriculum_record_line__kind__module
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_grade__subject_id
 #: model_terms:ir.ui.view,arch_db:ems.student_grades_tables
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades
 msgid "Module"
 msgstr "Mòdul"
 
@@ -21725,6 +21807,7 @@ msgstr "No es pot posar un strike amb data futura."
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_session_form
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_claim_form
 msgid "Actions"
 msgstr "Accions"
 
@@ -29508,6 +29591,7 @@ msgstr "Fila del quadre resum de la declaració horària oficial on se sumen aqu
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_non_teaching_type__declaration_code__other
 #: model:ems.absence_pending.discard_reason,name:ems.absence_pending_discard_reason_other
+#: model:ems.grade_claim.denial_reason,name:ems.grade_claim_denial_other
 msgid "Others"
 msgstr "Altres"
 
@@ -32590,6 +32674,7 @@ msgstr "Recursos"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_claim_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_staff_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_claim_wizard_form
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_answer_wizard__claim_id
 msgid "Claim"
 msgstr "Reclamació"
 
@@ -33126,6 +33211,8 @@ msgstr "Pendent de resposta"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__description
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__kind
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_answer_wizard__kind
 msgid "What is claimed"
 msgstr "Què es reclama"
 
@@ -38200,6 +38287,7 @@ msgstr "Una excepció a la classificació necessita un motiu."
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__satisfaction_state__answered
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_satisfaction__state__answered
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_search
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_claim_search
 msgid "Answered"
 msgstr "Resposta"
 
@@ -41867,6 +41955,7 @@ msgstr "Envia els canvis"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_claim_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades
 msgid "Send the claim"
 msgstr "Envia la reclamació"
 
@@ -42222,6 +42311,7 @@ msgstr "Recurs d'alçada davant el cap d'estudis"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__can_resolve
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__can_answer
 msgid "Can answer"
 msgstr "Pot respondre"
 
@@ -49263,6 +49353,8 @@ msgstr "Ja tenen un justificant que se superposa amb aquest període: %(students
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__requires_details
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__requires_details
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__requires_details
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_answer_wizard__requires_details
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_denial_reason__requires_details
 msgid "Requires details"
 msgstr "Demana detalls"
 
@@ -56165,6 +56257,7 @@ msgstr "Tipus de contacte"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_portal_access_result_line__holder_active
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim_denial_reason__active
 msgid "Active"
 msgstr "Actiu"
 
@@ -56719,7 +56812,7 @@ msgid ""
 "    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">GRADES PUBLISHED</td></tr></table>\n"
 "    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\"><t t-out=\"ctx.get('ems_round_label')\"/></h1>\n"
 "    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello, the grades of <strong t-out=\"object.name\"/> for this evaluation are now available on the portal.</p>\n"
-"    <p t-if=\"ctx.get('ems_claim_from') and ctx.get('ems_claim_to')\" style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">The claims period runs from <strong t-out=\"ctx.get('ems_claim_from')\"/> to <strong t-out=\"ctx.get('ems_claim_to')\"/>.</p>\n"
+"    <p t-if=\"ctx.get('ems_claim_from') and ctx.get('ems_claim_to')\" style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">The claims period runs from <strong t-out=\"ctx.get('ems_claim_from')\"/> to <strong t-out=\"ctx.get('ems_claim_to')\"/>: if a grade does not match the calculation the teacher shared, you can claim it from the portal, explaining what does not match.</p>\n"
 "</div>\n"
 "                \n"
 "            "
@@ -56728,7 +56821,7 @@ msgstr ""
 "    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">NOTES PUBLICADES</td></tr></table>\n"
 "    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\"><t t-out=\"ctx.get('ems_round_label')\"/></h1>\n"
 "    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, les notes de <strong t-out=\"object.name\"/> d'aquesta avaluació ja es poden consultar al portal.</p>\n"
-"    <p t-if=\"ctx.get('ems_claim_from') and ctx.get('ems_claim_to')\" style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">El termini de reclamacions va del <strong t-out=\"ctx.get('ems_claim_from')\"/> al <strong t-out=\"ctx.get('ems_claim_to')\"/>.</p>\n"
+"    <p t-if=\"ctx.get('ems_claim_from') and ctx.get('ems_claim_to')\" style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">El termini de reclamacions va del <strong t-out=\"ctx.get('ems_claim_from')\"/> al <strong t-out=\"ctx.get('ems_claim_to')\"/>: si una nota no quadra amb el càlcul que ha compartit el professor, la podeu reclamar des del portal explicant què no quadra.</p>\n"
 "</div>\n"
 "                \n"
 "            "
@@ -56821,3 +56914,475 @@ msgstr "RA"
 #: code:addons/ems/models/grades/grade_session_wizard.py:0
 msgid "Announce the publication of the grades"
 msgstr "Anuncia la publicació de les notes"
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_grade_claim_answered
+msgid ""
+"<div>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">GRADE CLAIM</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\"><t t-out=\"object.subject_id.name\"/></h1>\n"
+"    <p style=\"margin:0 0 12px 0;font-size:14px;line-height:22px;color:#596679;\">Hello, the claim about the grade of <t t-if=\"object.kind == 'outcome'\"><strong t-out=\"object.outcome_id.acronym\"/></t><t t-else=\"\">the subject</t> of <strong t-out=\"object.student_id.name\"/> has been answered.</p>\n"
+"    <t t-if=\"object.state == 'accepted'\">\n"
+"        <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">It has been <strong>accepted</strong>: the grade is now <strong t-out=\"object.new_score\"/>.</p>\n"
+"    </t>\n"
+"    <t t-else=\"\">\n"
+"        <t t-set=\"answer_reason\" t-value=\"object.teacher_reason_id if ctx.get('ems_claim_instance') == 'teacher' else object.tutor_reason_id\"/>\n"
+"        <t t-set=\"answer_details\" t-value=\"object.teacher_details if ctx.get('ems_claim_instance') == 'teacher' else object.tutor_details\"/>\n"
+"        <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">It has been <strong>denied</strong>: <t t-out=\"answer_reason.name\"/>.</p>\n"
+"        <p t-if=\"answer_details\" style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\" t-out=\"answer_details\"/>\n"
+"        <p t-if=\"object.state == 'teacher_denied'\" style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">If the grade still does not match the calculation, you can take the claim to the tutor from the portal until <strong t-out=\"object.escalation_deadline\" t-options=\"{'widget': 'date'}\"/>.</p>\n"
+"    </t>\n"
+"</div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">RECLAMACIÓ DE NOTA</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\"><t t-out=\"object.subject_id.name\"/></h1>\n"
+"    <p style=\"margin:0 0 12px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, la reclamació de la nota de <t t-if=\"object.kind == 'outcome'\"><strong t-out=\"object.outcome_id.acronym\"/></t><t t-else=\"\">el mòdul</t> de <strong t-out=\"object.student_id.name\"/> ja té resposta.</p>\n"
+"    <t t-if=\"object.state == 'accepted'\">\n"
+"        <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">S'ha <strong>acceptat</strong>: ara la nota és <strong t-out=\"object.new_score\"/>.</p>\n"
+"    </t>\n"
+"    <t t-else=\"\">\n"
+"        <t t-set=\"answer_reason\" t-value=\"object.teacher_reason_id if ctx.get('ems_claim_instance') == 'teacher' else object.tutor_reason_id\"/>\n"
+"        <t t-set=\"answer_details\" t-value=\"object.teacher_details if ctx.get('ems_claim_instance') == 'teacher' else object.tutor_details\"/>\n"
+"        <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">S'ha <strong>denegat</strong>: <t t-out=\"answer_reason.name\"/>.</p>\n"
+"        <p t-if=\"answer_details\" style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\" t-out=\"answer_details\"/>\n"
+"        <p t-if=\"object.state == 'teacher_denied'\" style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">Si la nota continua sense quadrar amb el càlcul, podeu portar la reclamació al tutor des del portal fins al <strong t-out=\"object.escalation_deadline\" t-options=\"{'widget': 'date'}\"/>.</p>\n"
+"    </t>\n"
+"</div>\n"
+"                \n"
+"            "
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades
+msgid "<strong>A claim is not asking for a higher grade.</strong>"
+msgstr "<strong>Reclamar no és demanar més nota.</strong>"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades
+msgid "<strong>Teacher:</strong>"
+msgstr "<strong>Professor:</strong>"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades
+msgid "<strong>Tutor:</strong>"
+msgstr "<strong>Tutor:</strong>"
+
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_claim.py:0
+msgid "A claim about a learning outcome needs its grade."
+msgstr "Una reclamació sobre un resultat d'aprenentatge necessita la seva nota."
+
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_grade_claim_answer_wizard
+msgid "Answer a grade claim: accept it with the corrected grade, or deny it with a reason."
+msgstr "Respondre una reclamació de nota: acceptar-la amb la nota corregida o denegar-la amb un motiu."
+
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_grade_claim_answer_wizard model:mail.activity.type,name:ems.mail_activity_grade_claim_answer model_terms:ir.ui.view,arch_db:ems.view_grade_claim_answer_wizard_form
+msgid "Answer the grade claim"
+msgstr "Respon la reclamació de nota"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__teacher_answered_by_id
+msgid "Answered by (first instance)"
+msgstr "Resposta de (primera instància)"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__tutor_answered_by_id
+msgid "Answered by (second instance)"
+msgstr "Resposta de (segona instància)"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__teacher_answer_date
+msgid "Answered on (first instance)"
+msgstr "Data de resposta (primera instància)"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__tutor_answer_date
+msgid "Answered on (second instance)"
+msgstr "Data de resposta (segona instància)"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__escalation_deadline
+msgid "Can be taken to the tutor until"
+msgstr "Es pot portar al tutor fins al"
+
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_claim.py:0
+msgid "Choose the reason for denying the claim."
+msgstr "Tria el motiu per denegar la reclamació."
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__claim_key
+msgid "Claim Key"
+msgstr "Clau de la reclamació"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades
+msgid "Claim a grade when it does not match the calculation your teacher shared: a mark that was left out, something that was not taken into account, a mistake when adding up... Explain exactly what does not match. During the claims period you can claim each learning outcome graded in this evaluation, and the module's final grade once every outcome has been evaluated."
+msgstr "Reclama una nota quan no quadra amb el càlcul que ha compartit el teu professor: una nota que no s'ha tingut en compte, alguna cosa que s'ha oblidat, un error en sumar... Explica exactament què no quadra. Durant el termini de reclamacions pots reclamar cada resultat d'aprenentatge avaluat en aquesta avaluació, i la nota final del mòdul quan tots els RA estiguin avaluats."
+
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_grade_claim_denial_reason model:ir.ui.menu,name:ems.menu_grade_claim_denial_reasons model_terms:ir.ui.view,arch_db:ems.view_grade_claim_denial_reason_list
+msgid "Claim denial reasons"
+msgstr "Motius de denegació de reclamacions"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades
+msgid "Claimed"
+msgstr "Reclamada"
+
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_claim.py:0
+msgid "Claims can only be answered while the grades are published."
+msgstr "Les reclamacions només es poden respondre mentre les notes estan publicades."
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__new_score model:ir.model.fields,field_description:ems.field_ems_grade_claim_answer_wizard__new_score
+msgid "Corrected grade"
+msgstr "Nota corregida"
+
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_claim__state__denied
+msgid "Denied"
+msgstr "Denegada"
+
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_claim__state__teacher_denied
+msgid "Denied by the teacher"
+msgstr "Denegada pel professor"
+
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_claim_answer_wizard__decision__deny model_terms:ir.ui.view,arch_db:ems.view_grade_claim_form
+msgid "Deny"
+msgstr "Denegar"
+
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_grade_claim_answered
+msgid "EMS: Grade claim answered"
+msgstr "EMS: Reclamació de nota resposta"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__session_id
+msgid "Evaluation session"
+msgstr "Sessió d'avaluació"
+
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_claim.py:0
+msgid "Explain the reason for denying the claim."
+msgstr "Explica el motiu per denegar la reclamació."
+
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_claim.py:0
+msgid "Explain what does not match the calculation the teacher shared."
+msgstr "Explica què no quadra amb el càlcul que ha compartit el professor."
+
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_claim.py:0
+msgid "Explain why you take the claim to the tutor."
+msgstr "Explica per què portes la reclamació al tutor."
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__filed_by_id
+msgid "Filed by"
+msgstr "Presentada per"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_claim_form model_terms:ir.ui.view,arch_db:ems.view_grade_claim_list
+msgid "Filed on"
+msgstr "Presentada el"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_claim_form
+msgid "First instance: teacher"
+msgstr "Primera instància: professor"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_claim_form
+msgid "Grade claim"
+msgstr "Reclamació de nota"
+
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_grade_claim_answered
+msgid "Grade claim answered: {{ object.subject_id.name }} - {{ object.student_id.name }}"
+msgstr "Reclamació de nota resposta: {{ object.subject_id.name }} - {{ object.student_id.name }}"
+
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_grade_claim_denial_reason
+msgid "Grade claim denial reason"
+msgstr "Motiu de denegació de reclamació de nota"
+
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_grade_claim
+msgid "Grade claim: a student asks for a published grade to be reviewed."
+msgstr "Reclamació de nota: un alumne demana que es revisi una nota publicada."
+
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_grade_claim model:ir.ui.menu,name:ems.menu_grade_claims model_terms:ir.ui.view,arch_db:ems.portal_grades model_terms:ir.ui.view,arch_db:ems.view_grade_claim_list
+msgid "Grade claims"
+msgstr "Reclamacions de notes"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__claimed_score model:ir.model.fields,field_description:ems.field_ems_grade_claim_answer_wizard__claimed_score
+msgid "Grade when claimed"
+msgstr "Nota en reclamar"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades
+msgid "If the grade still does not match, you can take the claim to the tutor until"
+msgstr "Si la nota continua sense quadrar, pots portar la reclamació al tutor fins al"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__outcome_line_id
+msgid "Learning outcome grade"
+msgstr "Nota del resultat d'aprenentatge"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_claim_search
+msgid "My tasks"
+msgstr "Les meves tasques"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades
+msgid "New grade:"
+msgstr "Nota nova:"
+
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_claim__state__teacher
+msgid "Pending: teacher"
+msgstr "Pendent: professor"
+
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_claim__state__tutor
+msgid "Pending: tutor"
+msgstr "Pendent: tutor"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_claim_form
+msgid "Second instance: tutor"
+msgstr "Segona instància: tutor"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__subject_line_id
+msgid "Subject grade"
+msgstr "Nota del mòdul"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades
+msgid "Take it to the tutor"
+msgstr "Porta-la al tutor"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__escalation_date
+msgid "Taken to the tutor on"
+msgstr "Portada al tutor el"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__teacher_details
+msgid "Teacher's answer"
+msgstr "Resposta del professor"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__teacher_reason_id
+msgid "Teacher's reason"
+msgstr "Motiu del professor"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades
+msgid "The claim could not be sent: this grade can no longer be claimed. Reload the page and try again."
+msgstr "No s'ha pogut enviar la reclamació: aquesta nota ja no es pot reclamar. Torna a carregar la pàgina i torna-ho a provar."
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_claim_answer_wizard_form
+msgid "The corrected grade overrides the subject's internal grade (the centre's part)."
+msgstr "La nota corregida sobreescriu la nota del centre del mòdul."
+
+
+#. module: ems
+#: model:ems.grade_claim.denial_reason,name:ems.grade_claim_denial_evidence
+msgid "The evidence was already taken into account"
+msgstr "Les evidències ja es van tenir en compte"
+
+
+#. module: ems
+#: model:ems.grade_claim.denial_reason,name:ems.grade_claim_denial_matches
+msgid "The grade matches the shared calculation"
+msgstr "La nota coincideix amb el càlcul compartit"
+
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_claim__claimed_score model:ir.model.fields,help:ems.field_ems_grade_claim_answer_wizard__claimed_score
+msgid "The grade when the claim was filed."
+msgstr "La nota quan es va presentar la reclamació."
+
+
+#. module: ems
+#: model:ems.grade_claim.denial_reason,name:ems.grade_claim_denial_late
+msgid "The work was handed in after the deadline"
+msgstr "El lliurament es va fer fora de termini"
+
+
+#. module: ems
+#: model:ems.grade_claim.denial_reason,name:ems.grade_claim_denial_no_error
+msgid "There is no calculation or entry error"
+msgstr "No hi ha cap error de càlcul ni d'introducció"
+
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_claim.py:0
+msgid "This claim can no longer be taken to the tutor."
+msgstr "Aquesta reclamació ja no es pot portar al tutor."
+
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_claim.py:0
+msgid "This claim has already been answered."
+msgstr "Aquesta reclamació ja té resposta."
+
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_claim.py:0
+msgid "This grade cannot be claimed now."
+msgstr "Aquesta nota no es pot reclamar ara."
+
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_grade_claim_grade_claim_unique
+msgid "This grade has already been claimed."
+msgstr "Aquesta nota ja s'ha reclamat."
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__tutor_details
+msgid "Tutor's answer"
+msgstr "Resposta del tutor"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__tutor_reason_id
+msgid "Tutor's reason"
+msgstr "Motiu del tutor"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__reason model_terms:ir.ui.view,arch_db:ems.view_grade_claim_form
+msgid "What does not match"
+msgstr "Què no quadra"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades
+msgid "What does not match the shared calculation"
+msgstr "Què no quadra amb el càlcul compartit"
+
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_claim_answer_wizard__requires_details model:ir.model.fields,help:ems.field_ems_grade_claim_denial_reason__requires_details
+msgid "Whoever denies the claim must explain it in the details (e.g. 'Other')."
+msgstr "Qui denega la reclamació l'ha d'explicar als detalls (p. ex. «Altres»)."
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_claim__escalation_reason
+msgid "Why it goes to the tutor"
+msgstr "Per què va al tutor"
+
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_claim__reason
+msgid "Why the student thinks the grade does not match the calculation the teacher shared."
+msgstr "Per què l'alumne creu que la nota no quadra amb el càlcul que ha compartit el professor."
+
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_claim.py:0
+msgid "You cannot answer this claim."
+msgstr "No pots respondre aquesta reclamació."
+
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_claim.py:0
+msgid "You cannot take this claim to the tutor."
+msgstr "No pots portar aquesta reclamació al tutor."
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades
+msgid "Your claim has been sent to the teacher."
+msgstr "La reclamació s'ha enviat al professor."
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_grades
+msgid "Your claim has been sent to the tutor."
+msgstr "La reclamació s'ha enviat al tutor."
+
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_session.py:0
+msgid "%(count)s grade claim(s) of these sessions are still unanswered: answer them before finalising."
+msgstr "%(count)s reclamació(ons) de notes d'aquestes sessions encara no tenen resposta: responeu-les abans de finalitzar."
+

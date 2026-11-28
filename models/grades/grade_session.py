@@ -287,6 +287,13 @@ class EmsGradeSession(models.Model):
             if new_state == "published" and not (session.claim_date_from and session.claim_date_to):
                 raise UserError(_("%(session)s has no claims period: set it before publishing the grades.",
                                   session=session.display_name))
+        if new_state == "final":
+            # Grade claims are answered while the grades are published (issue #879).
+            pending = self.env["ems.grade_claim"].sudo().search_count([
+                ("session_id", "in", self.ids), ("state", "in", ("teacher", "tutor"))])
+            if pending:
+                raise UserError(_("%(count)s grade claim(s) of these sessions are still unanswered: answer them before finalising.",
+                                  count=pending))
 
     def _ems_empty_grades_summary(self):
         """One line per session with no outcome grade at all, for the warning shown before

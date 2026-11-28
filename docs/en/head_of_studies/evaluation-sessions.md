@@ -16,6 +16,7 @@ This guide explains how the Head of Studies (and the Deputy Head of Studies) man
 4. [The states of a session](#the-states-of-a-session)
 5. [Changing the state](#changing-the-state)
 6. [Publishing the grades](#publishing-the-grades)
+7. [Grade claims](#grade-claims)
 
 ---
 
@@ -62,7 +63,7 @@ Only the Head of Studies and the administration can change them.
 | **Open** | The session's teacher and the tutor enter the grades. |
 | **Board** | Evaluation board: only the tutor (and the administration) can modify the grades. |
 | **Published** | Students and families see the grades in the portal, and the claims period is open. Only the administration can modify them. |
-| **Finalised** | The round is closed. Only the administration can modify the grades. |
+| **Finalised** | The round is closed. Only the administration can modify the grades. It cannot be finalised while any grade claim is unanswered. |
 
 A session moves **one step at a time**, forwards or backwards: from Open to Board, from Board back to Open or on to Published, and so on.
 
@@ -89,6 +90,14 @@ When the target state is **Published**:
 ![Publishing the selected sessions and announcing it](../../assets/head_of_studies/evaluation-sessions-02-publicar.png)
 
 From then on, students and families see the grades in the portal's **Grades** card and can download them as a non-official PDF (see the [student portal guide](../families/manual-portal-alumne.md#checking-the-grades)).
+
+---
+
+## Grade claims
+
+During the claims period, students can claim a published grade from the portal. The teacher answers first and the tutor in a second instance; you can answer either instance of the claims of the students of your area, from **Grades → Grade claims** (see [Grade claims: answering them](../teachers/grade-claims.md)).
+
+The reasons teachers and tutors choose when denying a claim are in **Evaluation management → Claim denial reasons**: you can add, rename and reorder them, and archive the ones you do not use. Tick **Requires details** for a reason that needs an explanation, like **Others**.
 
 ---
 

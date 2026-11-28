@@ -18,6 +18,7 @@ This section contains the manuals for **group tutors**.
 | [Academic history of your students](academic-history.md) | Consult the permanent per-course record of your tutees: subjects, grades per learning outcome and attendance |
 | [Grading the work placement (EM)](work-placement-grade.md) | Enter the work placement grade of a student as they finish their internship: it completes the final grade of every module with a placement weight, including the pending finals of previous courses |
 | [Evaluation board: reviewing the grades per student](junta-avaluacio.md) | Review and adjust each group student's grades, subject by subject, for the evaluation board |
+| [Grade claims: the second instance](../teachers/grade-claims.md) | Answer the claims your students take to you after the teacher denies them (shared manual) |
 | [How to generate enrollment proposals](propostes-matricula.md) | Propose the enrollment for the next course for approved students, including special enrollments |
 | [Authorizations: sending them to your students and following up](authorizations.md) | Send authorizations from the catalogue to your students or your groups, and follow up their answers |
 | [Contact data requests: asking families to update their details](contact-data-requests.md) | Ask students and families to review their contact details from the portal, follow up the answers and approve the changes |

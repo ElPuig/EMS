@@ -16,6 +16,7 @@ Aquesta guia explica com el cap d'estudis (i el cap d'estudis adjunt) gestiona c
 4. [Els estats d'una sessió](#els-estats-duna-sessió)
 5. [Canviar l'estat](#canviar-lestat)
 6. [Publicar les notes](#publicar-les-notes)
+7. [Reclamacions de notes](#reclamacions-de-notes)
 
 ---
 
@@ -62,7 +63,7 @@ Només el cap d'estudis i l'administració ho poden canviar.
 | **Oberta** | El professor de la sessió i el tutor posen les notes. |
 | **Junta d'avaluació** | Junta d'avaluació: només el tutor (i l'administració) pot modificar les notes. |
 | **Publicada** | L'alumnat i les famílies veuen les notes al portal i el termini de reclamacions és obert. Només les pot modificar l'administració. |
-| **Finalitzada** | L'avaluació està tancada. Només l'administració pot modificar les notes. |
+| **Finalitzada** | L'avaluació està tancada. Només l'administració pot modificar les notes. No es pot finalitzar mentre hi hagi alguna reclamació de nota sense resposta. |
 
 Una sessió avança **d'un en un**, endavant o enrere: d'Oberta a Junta d'avaluació, de Junta d'avaluació de nou a Oberta o a Publicada, i així successivament.
 
@@ -89,6 +90,14 @@ Quan l'estat destí és **Publicada**:
 ![Publicar les sessions seleccionades i anunciar-ho](../../assets/head_of_studies/evaluation-sessions-02-publicar.png)
 
 A partir d'aquest moment, l'alumnat i les famílies veuen les notes a la targeta **Qualificacions** del portal i les poden descarregar en un PDF no oficial (vegeu la [guia del portal de l'alumne](../families/manual-portal-alumne.md#consultar-les-notes)).
+
+---
+
+## Reclamacions de notes
+
+Durant el termini de reclamacions, l'alumnat pot reclamar una nota publicada des del portal. Primer respon el professor i, en segona instància, el tutor; tu pots respondre qualsevol de les dues instàncies de les reclamacions dels alumnes del teu àmbit, des de **Qualificacions → Reclamacions de notes** (vegeu [Reclamacions de notes: respondre-les](../teachers/grade-claims.md)).
+
+Els motius que trien el professorat i els tutors en denegar una reclamació són a **Gestió d'avaluacions → Motius de denegació de reclamacions**: en pots afegir, canviar el nom i l'ordre, i arxivar els que no facis servir. Marca **Demana detalls** en un motiu que necessiti una explicació, com **Altres**.
 
 ---
 

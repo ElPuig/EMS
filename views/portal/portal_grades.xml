@@ -21,6 +21,78 @@
                     <t t-call="ems.student_grades_tables"/>
                 </div>
                 <div t-else="" class="alert alert-info">No grades published yet.</div>
+
+                <!-- Issue #879: grade claims, a circuit before the official claim (teacher, then tutor). -->
+                <div t-if="claimable or claims" id="claims" class="mt-5 o_ems_portal_grade_claims">
+                    <h4>Grade claims</h4>
+                    <div t-if="claim_done == 'claimed'" class="alert alert-success">Your claim has been sent to the teacher.</div>
+                    <div t-if="claim_done == 'escalated'" class="alert alert-success">Your claim has been sent to the tutor.</div>
+                    <div t-if="claim_error" class="alert alert-danger">The claim could not be sent: this grade can no longer be claimed. Reload the page and try again.</div>
+
+                    <t t-if="can_claim and claimable">
+                        <div class="alert alert-light border">
+                            <p class="mb-1"><strong>A claim is not asking for a higher grade.</strong></p>
+                            <p class="mb-0">Claim a grade when it does not match the calculation your teacher shared: a mark that was left out, something that was not taken into account, a mistake when adding up... Explain exactly what does not match. During the claims period you can claim each learning outcome graded in this evaluation, and the module's final grade once every outcome has been evaluated.</p>
+                        </div>
+                        <form action="/my/calificaciones/reclamar" method="post" class="card card-body mb-4 o_ems_grade_claim_form">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold" for="claim_item">Grade</label>
+                                <select id="claim_item" name="item" class="form-select" required="required">
+                                    <t t-foreach="claimable" t-as="claimable_item">
+                                        <t t-set="claim_session" t-value="claimable_item[0]"/>
+                                        <t t-set="claim_line" t-value="claimable_item[2]"/>
+                                        <option t-att-value="'%s-%s' % (claimable_item[1], claim_line.id)">
+                                            <t t-out="claim_session.subject_id.code"/> - <t t-out="claim_session.subject_id.name"/>:
+                                            <t t-if="claimable_item[1] == 'outcome'" t-out="claim_line.outcome_id.acronym"/><t t-else="">Final grade</t>
+                                            (<t t-out="claimable_item[3]"/>)
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold" for="claim_reason">What does not match the shared calculation</label>
+                                <textarea id="claim_reason" name="reason" class="form-control" rows="4" required="required"/>
+                            </div>
+                            <div><button type="submit" class="btn btn-primary">Send the claim</button></div>
+                        </form>
+                    </t>
+
+                    <table t-if="claims" class="table table-sm table-bordered o_ems_grade_claims_table">
+                        <thead>
+                            <tr>
+                                <th>Module</th>
+                                <th class="text-center">Grade</th>
+                                <th class="text-center">Claimed</th>
+                                <th>State</th>
+                                <th>Answer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="claims" t-as="claim">
+                                <td><t t-out="claim.subject_id.code"/> - <t t-out="claim.subject_id.name"/> (<t t-out="dict(claim._fields['round']._description_selection(claim.env)).get(claim.round)"/>)</td>
+                                <td class="text-center"><t t-if="claim.kind == 'outcome'" t-out="claim.outcome_id.acronym"/><t t-else="">Final grade</t></td>
+                                <td class="text-center" t-out="claim.claimed_score"/>
+                                <td>
+                                    <span t-attf-class="badge {{ 'text-bg-success' if claim.state == 'accepted' else ('text-bg-danger' if claim.state in ('denied', 'teacher_denied') else 'text-bg-info') }}"
+                                          t-out="dict(claim._fields['state']._description_selection(claim.env)).get(claim.state)"/>
+                                </td>
+                                <td class="small">
+                                    <t t-if="claim.state == 'accepted'">New grade: <strong t-out="claim.new_score"/></t>
+                                    <t t-if="claim.teacher_reason_id"><div><strong>Teacher:</strong> <t t-out="claim.teacher_reason_id.name"/><t t-if="claim.teacher_details">. <t t-out="claim.teacher_details"/></t></div></t>
+                                    <t t-if="claim.tutor_reason_id"><div><strong>Tutor:</strong> <t t-out="claim.tutor_reason_id.name"/><t t-if="claim.tutor_details">. <t t-out="claim.tutor_details"/></t></div></t>
+                                    <form t-if="can_claim and claim.state == 'teacher_denied' and claim.session_id.state == 'published' and claim.escalation_deadline and today &lt;= claim.escalation_deadline"
+                                          t-attf-action="/my/calificaciones/reclamar/{{ claim.id }}/tutor" method="post" class="mt-2 o_ems_grade_claim_escalate">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <label class="form-label" t-attf-for="escalate_{{ claim.id }}">If the grade still does not match, you can take the claim to the tutor until <t t-out="claim.escalation_deadline" t-options="{'widget': 'date'}"/>:</label>
+                                        <textarea t-attf-id="escalate_{{ claim.id }}" name="reason" class="form-control form-control-sm mb-2" rows="2" required="required"/>
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">Take it to the tutor</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </t>
     </template>

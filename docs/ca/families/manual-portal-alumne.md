@@ -17,9 +17,10 @@ Aquesta guia explica de forma detallada els passos que han de seguir els alumnes
 5. [Pas 4 — Accés al portal](#pas-4--accés-al-portal)
 6. [Pas 5 — Respondre una autorització](#pas-5--respondre-una-autorització)
 7. [Consultar les notes](#consultar-les-notes)
-8. [Entrar més endavant: correu personal o compte del centre](#entrar-més-endavant-correu-personal-o-compte-del-centre)
-9. [Alumnes menors d'edat](#alumnes-menors-dedat)
-10. [Quan l'alumne fa 18 anys](#quan-lalumne-fa-18-anys)
+8. [Reclamar una nota](#reclamar-una-nota)
+9. [Entrar més endavant: correu personal o compte del centre](#entrar-més-endavant-correu-personal-o-compte-del-centre)
+10. [Alumnes menors d'edat](#alumnes-menors-dedat)
+11. [Quan l'alumne fa 18 anys](#quan-lalumne-fa-18-anys)
 
 ---
 
@@ -127,6 +128,22 @@ A sobre de cada taula hi ha el **termini de reclamacions** d'aquella avaluació.
 El botó **Descarrega el PDF (no oficial)** us dona les mateixes taules en un PDF. No és un document oficial.
 
 Les famílies veuen les notes de l'alumne que tenen seleccionat, també quan només les poden consultar (vegeu [Quan l'alumne fa 18 anys](#quan-lalumne-fa-18-anys)).
+
+---
+
+## Reclamar una nota
+
+Durant el **termini de reclamacions** d'una avaluació, la pàgina **Qualificacions** permet reclamar una nota. Reclamar no és demanar més nota: reclameu una nota quan **no quadra amb el càlcul que ha compartit el professor** (una nota que no s'ha tingut en compte, alguna cosa que s'ha oblidat, un error en sumar).
+
+Podeu reclamar cada resultat d'aprenentatge avaluat en aquella avaluació i, quan tots els RA estan avaluats, la nota final del mòdul, un cop cadascun.
+
+1. A **Reclamacions de notes**, trieu la **Nota**.
+2. Expliqueu **què no quadra amb el càlcul compartit**.
+3. Premeu **Envia la reclamació**.
+
+El professor la respon i rebeu un correu amb la resposta. Si la denega i la nota continua sense quadrar, la fila de la reclamació mostra un quadre per **portar-la al tutor**, fins a la data que hi diu: expliqueu per què i premeu **Porta-la al tutor**. La resposta del tutor tanca la reclamació.
+
+Les reclamacions d'un alumne menor d'edat les presenta la família; un alumne major d'edat les presenta ell mateix, i també la seva família si ha autoritzat compartir-hi la informació.
 
 ---
 

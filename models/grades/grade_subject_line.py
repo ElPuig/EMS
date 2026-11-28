@@ -208,7 +208,10 @@ class EmsGradeSubjectLine(models.Model):
                                                                             'convalidation_grade'}:
             return super().write(vals)
         for subject_line in self:
-            subject_line.grade_session_id._ems_check_can_edit(subject_line.student_id)
+            # An accepted grade claim writes its one grade in a published session (issue #879), in
+            # sudo after checking who answers it: a context flag alone, which any RPC can send, is not enough.
+            if not (self.env.su and self.env.context.get("ems_grade_claim_apply")):
+                subject_line.grade_session_id._ems_check_can_edit(subject_line.student_id)
         return super().write(vals)
 
     @api.constrains("internal_score", "external_score", "final_score")

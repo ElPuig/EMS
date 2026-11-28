@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Issue #879 - sent by ems.grade_claim._ems_send_resolution() when a teacher (first
+             instance) or a tutor (second) answers a grade claim, to the student and whoever is kept
+             informed about them. The context says which instance answered (ems_claim_instance).
+             Card layout (ems.mail_layout_grades) with a button to the portal. -->
+        <record id="email_template_grade_claim_answered" model="mail.template">
+            <field name="name">EMS: Grade claim answered</field>
+            <field name="model_id" ref="ems.model_ems_grade_claim"/>
+            <field name="subject">Grade claim answered: {{ object.subject_id.name }} - {{ object.student_id.name }}</field>
+            <field name="email_from">{{ user.company_id.name }} &lt;{{ user.company_id.email }}&gt;</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="email_layout_xmlid">ems.mail_layout_grades</field>
+            <field name="body_html">
+                <![CDATA[
+<div>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr><td style="background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;">GRADE CLAIM</td></tr></table>
+    <h1 style="margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;"><t t-out="object.subject_id.name"/></h1>
+    <p style="margin:0 0 12px 0;font-size:14px;line-height:22px;color:#596679;">Hello, the claim about the grade of <t t-if="object.kind == 'outcome'"><strong t-out="object.outcome_id.acronym"/></t><t t-else="">the subject</t> of <strong t-out="object.student_id.name"/> has been answered.</p>
+    <t t-if="object.state == 'accepted'">
+        <p style="margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;">It has been <strong>accepted</strong>: the grade is now <strong t-out="object.new_score"/>.</p>
+    </t>
+    <t t-else="">
+        <t t-set="answer_reason" t-value="object.teacher_reason_id if ctx.get('ems_claim_instance') == 'teacher' else object.tutor_reason_id"/>
+        <t t-set="answer_details" t-value="object.teacher_details if ctx.get('ems_claim_instance') == 'teacher' else object.tutor_details"/>
+        <p style="margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;">It has been <strong>denied</strong>: <t t-out="answer_reason.name"/>.</p>
+        <p t-if="answer_details" style="margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;" t-out="answer_details"/>
+        <p t-if="object.state == 'teacher_denied'" style="margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;">If the grade still does not match the calculation, you can take the claim to the tutor from the portal until <strong t-out="object.escalation_deadline" t-options="{'widget': 'date'}"/>.</p>
+    </t>
+</div>
+                ]]>
+            </field>
+        </record>
+    </data>
+</odoo>

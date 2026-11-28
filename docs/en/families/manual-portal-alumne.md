@@ -17,9 +17,10 @@ This guide explains in detail the steps students (or their families) must follow
 5. [Step 4 — Portal access](#step-4--portal-access)
 6. [Step 5 — Answering an authorization](#step-5--answering-an-authorization)
 7. [Checking the grades](#checking-the-grades)
-8. [Signing in afterwards: personal email or school account](#signing-in-afterwards-personal-email-or-school-account)
-9. [Students under 18](#students-under-18)
-10. [When the student turns 18](#when-the-student-turns-18)
+8. [Claiming a grade](#claiming-a-grade)
+9. [Signing in afterwards: personal email or school account](#signing-in-afterwards-personal-email-or-school-account)
+10. [Students under 18](#students-under-18)
+11. [When the student turns 18](#when-the-student-turns-18)
 
 ---
 
@@ -127,6 +128,22 @@ Above each table you will find the **claims period** of that evaluation.
 The **Download PDF (non-official)** button gives you the same tables in a PDF. It is not an official document.
 
 Families see the grades of the student they have selected, also when they can only consult them (see [When the student turns 18](#when-the-student-turns-18)).
+
+---
+
+## Claiming a grade
+
+During an evaluation's **claims period**, the **Grades** page lets you claim a grade. Claiming is not asking for a higher grade: claim a grade when it **does not match the calculation the teacher shared** (a mark that was left out, something that was not taken into account, a mistake when adding up).
+
+You can claim each learning outcome graded in that evaluation and, once every outcome is evaluated, the module's final grade, once each.
+
+1. Under **Grade claims**, choose the **Grade**.
+2. Explain **what does not match the shared calculation**.
+3. Press **Send the claim**.
+
+The teacher answers it, and you receive an email with the answer. If the teacher denies it and the grade still does not match, the claim's row shows a box to **take it to the tutor**, until the date it says: explain why and press **Take it to the tutor**. The tutor's answer closes the claim.
+
+A minor's claims are filed by the family; an adult student files them himself, and his family too if he authorized sharing his information with it.
 
 ---
 

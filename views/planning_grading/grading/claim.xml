@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #879: grade claims filed from the portal. Teachers answer those of their
+             sessions, tutors the second instance, the Head of Studies of the tutor's chain either. -->
+        <record id="view_grade_claim_list" model="ir.ui.view">
+            <field name="name">ems.grade_claim.list</field>
+            <field name="model">ems.grade_claim</field>
+            <field name="arch" type="xml">
+                <list string="Grade claims" create="0" delete="0" decoration-info="state in ('teacher', 'tutor')" decoration-muted="state in ('accepted', 'denied', 'teacher_denied')">
+                    <field name="create_date" string="Filed on" widget="date"/>
+                    <field name="student_id"/>
+                    <field name="group_id"/>
+                    <field name="subject_id"/>
+                    <field name="round"/>
+                    <field name="kind"/>
+                    <field name="outcome_id"/>
+                    <field name="claimed_score"/>
+                    <field name="new_score" invisible="state != 'accepted'"/>
+                    <field name="state" widget="badge" decoration-info="state in ('teacher', 'tutor')" decoration-success="state == 'accepted'" decoration-danger="state in ('denied', 'teacher_denied')"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_grade_claim_form" model="ir.ui.view">
+            <field name="name">ems.grade_claim.form</field>
+            <field name="model">ems.grade_claim</field>
+            <field name="arch" type="xml">
+                <form string="Grade claim" create="0" delete="0" edit="0">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_accept" type="object" string="Accept" invisible="not can_answer"/>
+                            <button name="action_deny" type="object" string="Deny" invisible="not can_answer"/>
+                        </div>
+                        <field name="state" widget="statusbar" statusbar_visible="teacher,tutor,accepted,denied"/>
+                    </header>
+                    <sheet>
+                        <field name="can_answer" invisible="1"/>
+                        <div class="oe_title">
+                            <h1><field name="display_name" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="student_id" readonly="1"/>
+                                <field name="session_id" readonly="1"/>
+                                <field name="kind" readonly="1"/>
+                                <field name="outcome_id" readonly="1" invisible="kind != 'outcome'"/>
+                            </group>
+                            <group>
+                                <field name="claimed_score" readonly="1"/>
+                                <field name="new_score" invisible="state != 'accepted'"/>
+                                <field name="create_date" string="Filed on" readonly="1"/>
+                                <field name="filed_by_id" readonly="1"/>
+                            </group>
+                        </group>
+                        <group string="What does not match">
+                            <field name="reason" nolabel="1" colspan="2" readonly="1"/>
+                        </group>
+                        <group string="First instance: teacher" invisible="not teacher_answer_date">
+                            <field name="teacher_answered_by_id"/>
+                            <field name="teacher_answer_date"/>
+                            <field name="teacher_reason_id" invisible="not teacher_reason_id"/>
+                            <field name="teacher_details" invisible="not teacher_details"/>
+                        </group>
+                        <group string="Second instance: tutor" invisible="not escalation_date">
+                            <field name="escalation_date"/>
+                            <field name="escalation_reason"/>
+                            <field name="tutor_answered_by_id" invisible="not tutor_answer_date"/>
+                            <field name="tutor_answer_date" invisible="not tutor_answer_date"/>
+                            <field name="tutor_reason_id" invisible="not tutor_reason_id"/>
+                            <field name="tutor_details" invisible="not tutor_details"/>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_grade_claim_search" model="ir.ui.view">
+            <field name="name">ems.grade_claim.search</field>
+            <field name="model">ems.grade_claim</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="student_id"/>
+                    <field name="group_id"/>
+                    <field name="subject_id"/>
+                    <filter name="pending" string="Pending" domain="[('state', 'in', ('teacher', 'tutor'))]"/>
+                    <filter name="answered" string="Answered" domain="[('state', 'not in', ('teacher', 'tutor'))]"/>
+                    <separator/>
+                    <filter name="my_tasks" string="My tasks" domain="[('activity_user_id', '=', uid)]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_by_state" string="State" context="{'group_by': 'state'}"/>
+                        <filter name="group_by_group" string="Group" context="{'group_by': 'group_id'}"/>
+                        <filter name="group_by_subject" string="Subject" context="{'group_by': 'subject_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_grade_claim" model="ir.actions.act_window">
+            <field name="name">Grade claims</field>
+            <field name="res_model">ems.grade_claim</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{'search_default_pending': 1}</field>
+        </record>
+
+        <menuitem name="Grade claims" sequence="3" id="menu_grade_claims" parent="menu_grades" action="action_grade_claim" groups="ems.group_teacher"/>
+
+        <record id="view_grade_claim_answer_wizard_form" model="ir.ui.view">
+            <field name="name">ems.grade_claim.answer_wizard.form</field>
+            <field name="model">ems.grade_claim.answer_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Answer the grade claim">
+                    <group>
+                        <field name="claim_id" readonly="1"/>
+                        <field name="claimed_score" readonly="1"/>
+                        <field name="decision" widget="radio" options="{'horizontal': true}"/>
+                        <field name="new_score" invisible="decision != 'accept'" required="decision == 'accept'"/>
+                        <field name="reason_id" invisible="decision != 'deny'" required="decision == 'deny'" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="requires_details" invisible="1"/>
+                        <field name="details" invisible="decision != 'deny'" required="decision == 'deny' and requires_details"/>
+                    </group>
+                    <div class="alert alert-info" role="alert" invisible="decision != 'accept' or kind != 'final'">
+                        The corrected grade overrides the subject's internal grade (the centre's part).
+                    </div>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Confirm" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_grade_claim_answer_wizard" model="ir.actions.act_window">
+            <field name="name">Answer the grade claim</field>
+            <field name="res_model">ems.grade_claim.answer_wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <record id="view_grade_claim_denial_reason_list" model="ir.ui.view">
+            <field name="name">ems.grade_claim.denial_reason.list</field>
+            <field name="model">ems.grade_claim.denial_reason</field>
+            <field name="arch" type="xml">
+                <list string="Claim denial reasons" editable="bottom">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="requires_details"/>
+                    <field name="active" widget="boolean_toggle"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_grade_claim_denial_reason" model="ir.actions.act_window">
+            <field name="name">Claim denial reasons</field>
+            <field name="res_model">ems.grade_claim.denial_reason</field>
+            <field name="view_mode">list</field>
+            <field name="context">{'active_test': False}</field>
+        </record>
+
+        <menuitem name="Claim denial reasons" sequence="10" id="menu_grade_claim_denial_reasons" parent="menu_grade_management" action="action_grade_claim_denial_reason" groups="ems.group_head_of_studies,ems.group_academic_admin"/>
+    </data>
+</odoo>

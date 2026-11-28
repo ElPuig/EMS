@@ -265,4 +265,25 @@
         <field name="perm_create" eval="True"/>
         <field name="perm_unlink" eval="False"/>
     </record>
+
+    <!-- Issue #879: grade claims. Teachers read those of their sessions and those of the students
+         of their tutorship chain (the tutor, their chiefs, the Head of Studies above them and the
+         Director: tutor_scope_user_ids). Answering is a method that checks who answers. -->
+    <record id="rule_grade_claim_teacher" model="ir.rule">
+        <field name="name">Grade claim: own sessions and tutorship chain</field>
+        <field name="model_id" ref="ems.model_ems_grade_claim"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">['|', ('session_id.teacher_id.acting_user_ids', '=', user.id), ('student_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_grade_claim_admin" model="ir.rule">
+        <field name="name">Grade claim: all data (admin)</field>
+        <field name="model_id" ref="ems.model_ems_grade_claim"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
+        <field name="domain_force">[]</field>
+    </record>
 </odoo>

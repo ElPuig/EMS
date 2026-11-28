@@ -17,9 +17,10 @@ Esta guía explica de forma detallada los pasos que deben seguir los alumnos (o 
 5. [Paso 4 — Acceso al portal](#paso-4--acceso-al-portal)
 6. [Paso 5 — Responder una autorización](#paso-5--responder-una-autorización)
 7. [Consultar las notas](#consultar-las-notas)
-8. [Entrar más adelante: correo personal o cuenta del centro](#entrar-más-adelante-correo-personal-o-cuenta-del-centro)
-9. [Alumnos menores de edad](#alumnos-menores-de-edad)
-10. [Cuando el alumno cumple 18 años](#cuando-el-alumno-cumple-18-años)
+8. [Reclamar una nota](#reclamar-una-nota)
+9. [Entrar más adelante: correo personal o cuenta del centro](#entrar-más-adelante-correo-personal-o-cuenta-del-centro)
+10. [Alumnos menores de edad](#alumnos-menores-de-edad)
+11. [Cuando el alumno cumple 18 años](#cuando-el-alumno-cumple-18-años)
 
 ---
 
@@ -127,6 +128,22 @@ Encima de cada tabla está el **plazo de reclamaciones** de esa evaluación.
 El botón **Descargar PDF (no oficial)** os da las mismas tablas en un PDF. No es un documento oficial.
 
 Las familias ven las notas del alumno que tienen seleccionado, también cuando solo las pueden consultar (véase [Cuando el alumno cumple 18 años](#cuando-el-alumno-cumple-18-años)).
+
+---
+
+## Reclamar una nota
+
+Durante el **plazo de reclamaciones** de una evaluación, la página **Calificaciones** permite reclamar una nota. Reclamar no es pedir más nota: reclamad una nota cuando **no cuadra con el cálculo que ha compartido el profesor** (una nota que no se ha tenido en cuenta, algo que se ha olvidado, un error al sumar).
+
+Podéis reclamar cada resultado de aprendizaje evaluado en esa evaluación y, cuando todos los RA están evaluados, la nota final del módulo, una vez cada uno.
+
+1. En **Reclamaciones de notas**, elegid la **Nota**.
+2. Explicad **qué no cuadra con el cálculo compartido**.
+3. Pulsad **Enviar la reclamación**.
+
+El profesor la responde y recibís un correo con la respuesta. Si la deniega y la nota sigue sin cuadrar, la fila de la reclamación muestra un cuadro para **llevarla al tutor**, hasta la fecha que indica: explicad por qué y pulsad **Llevarla al tutor**. La respuesta del tutor cierra la reclamación.
+
+Las reclamaciones de un alumno menor de edad las presenta la familia; un alumno mayor de edad las presenta él mismo, y también su familia si ha autorizado compartir con ella la información.
 
 ---
 

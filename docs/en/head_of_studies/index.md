@@ -18,6 +18,7 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 - [Meeting attendance with the NFC tag](../secretary/meeting-attendance.md) — Confirming attendance to a staff meeting or any meeting with the NFC reader at the door (shared manual with the secretariat).
 - [Plannings: setting the grading ponderations](planning.md)
 - [Evaluation sessions: creating, publishing and closing them](evaluation-sessions.md) — Creating each round's grade sessions, the claims period, the states and publishing the grades to students and families.
+- [Grade claims: answering them](../teachers/grade-claims.md) — Answer either instance of the claims of the students of your area, as the teacher and the tutor do (shared manual).
 - [Managing student and family contacts](../secretary/student-contacts.md) — you have the same full read/write access as secretary here, for any student centre-wide.
 - [Registering a withdrawal or an expulsion](../secretary/graduation-withdrawal.md) — you can register a student's withdrawal or expulsion, same steps as the secretariat (shared manual).
 - [Ex officio withdrawal: Direction, Head of Studies and Coexistence](ex-officio-withdrawal.md) — Direction's green light, what the Head of Studies can do and the Coexistence steps of the compulsory circuit.

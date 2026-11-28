@@ -19,7 +19,7 @@
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr><td style="background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;">GRADES PUBLISHED</td></tr></table>
     <h1 style="margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;"><t t-out="ctx.get('ems_round_label')"/></h1>
     <p style="margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;">Hello, the grades of <strong t-out="object.name"/> for this evaluation are now available on the portal.</p>
-    <p t-if="ctx.get('ems_claim_from') and ctx.get('ems_claim_to')" style="margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;">The claims period runs from <strong t-out="ctx.get('ems_claim_from')"/> to <strong t-out="ctx.get('ems_claim_to')"/>.</p>
+    <p t-if="ctx.get('ems_claim_from') and ctx.get('ems_claim_to')" style="margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;">The claims period runs from <strong t-out="ctx.get('ems_claim_from')"/> to <strong t-out="ctx.get('ems_claim_to')"/>: if a grade does not match the calculation the teacher shared, you can claim it from the portal, explaining what does not match.</p>
 </div>
                 ]]>
             </field>

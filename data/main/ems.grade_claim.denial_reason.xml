@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Issue #879: why a teacher or a tutor denies a grade claim. A claim is about a grade that
+         does not match the calculation the teacher shared, so the reasons answer that. noupdate:
+         the Head of Studies reorders, renames and adds reasons from Configuration, and an upgrade
+         must not undo it. "Other" asks for details. -->
+    <data noupdate="1">
+        <record id="grade_claim_denial_matches" model="ems.grade_claim.denial_reason">
+            <field name="name">The grade matches the shared calculation</field>
+            <field name="sequence">1</field>
+        </record>
+        <record id="grade_claim_denial_evidence" model="ems.grade_claim.denial_reason">
+            <field name="name">The evidence was already taken into account</field>
+            <field name="sequence">2</field>
+        </record>
+        <record id="grade_claim_denial_late" model="ems.grade_claim.denial_reason">
+            <field name="name">The work was handed in after the deadline</field>
+            <field name="sequence">3</field>
+        </record>
+        <record id="grade_claim_denial_no_error" model="ems.grade_claim.denial_reason">
+            <field name="name">There is no calculation or entry error</field>
+            <field name="sequence">4</field>
+        </record>
+        <record id="grade_claim_denial_other" model="ems.grade_claim.denial_reason">
+            <field name="name">Others</field>
+            <field name="sequence">99</field>
+            <field name="requires_details" eval="True"/>
+        </record>
+    </data>
+</odoo>

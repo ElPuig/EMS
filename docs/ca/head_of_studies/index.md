@@ -18,6 +18,7 @@ Aquesta secció conté els manuals per a **cap d'estudis, cap d'estudis adjunt/a
 - [Assistència a reunions amb la targeta NFC](../secretary/meeting-attendance.md) — Confirmar l'assistència a un claustre o a una reunió amb el lector NFC de l'entrada (manual compartit amb secretaria).
 - [Programacions docents: definir les ponderacions de la qualificació](planning.md)
 - [Sessions d'avaluació: crear-les, publicar-les i tancar-les](evaluation-sessions.md) — Crear les sessions de cada avaluació, el termini de reclamacions, els estats i publicar les notes a l'alumnat i a les famílies.
+- [Reclamacions de notes: respondre-les](../teachers/grade-claims.md) — Respondre qualsevol de les dues instàncies de les reclamacions dels alumnes del teu àmbit, com fan el professor i el tutor (manual compartit).
 - [Gestió de contactes d'alumnes i famílies](../secretary/student-contacts.md) — tens el mateix accés complet de lectura/escriptura que secretaria aquí, per a qualsevol alumne de tot el centre.
 - [Tramitar una baixa o una expulsió](../secretary/graduation-withdrawal.md) — pots tramitar la baixa o l'expulsió d'un alumne, amb els mateixos passos que secretaria (manual compartit).
 - [Baixa d'ofici: Direcció, prefectura d'estudis i Convivència](ex-officio-withdrawal.md) — el vistiplau de Direcció, el que pot fer la prefectura d'estudis i els passos de Convivència del circuit d'obligatòria.

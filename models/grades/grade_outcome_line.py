@@ -77,7 +77,10 @@ class EmsGradeOutcomeLine(models.Model):
         # truth. This bypass is set only by ems.grade_import_wizard, never on manual editing.
         bypass_lock = self.env.context.get("ems_grade_import_bypass_lock")
         for line in self:
-            line.grade_session_id._ems_check_can_edit(line.student_id)
+            # An accepted grade claim writes its one grade in a published session (issue #879), in
+            # sudo after checking who answers it: a context flag alone, which any RPC can send, is not enough.
+            if not (self.env.su and self.env.context.get("ems_grade_claim_apply")):
+                line.grade_session_id._ems_check_can_edit(line.student_id)
             # A passed outcome from an earlier round cannot be re-evaluated (no exception, not even for admins).
             if scoring and line.is_locked and not bypass_lock:
                 raise UserError(_("This learning outcome was already passed in an earlier round; its grade cannot be modified."))

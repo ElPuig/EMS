@@ -16,6 +16,7 @@ Esta guía explica cómo el jefe de estudios (y el jefe de estudios adjunto) ges
 4. [Los estados de una sesión](#los-estados-de-una-sesión)
 5. [Cambiar el estado](#cambiar-el-estado)
 6. [Publicar las notas](#publicar-las-notas)
+7. [Reclamaciones de notas](#reclamaciones-de-notas)
 
 ---
 
@@ -62,7 +63,7 @@ Solo el jefe de estudios y la administración lo pueden cambiar.
 | **Abierta** | El profesor de la sesión y el tutor ponen las notas. |
 | **Junta de evaluación** | Junta de evaluación: solo el tutor (y la administración) puede modificar las notas. |
 | **Publicada** | El alumnado y las familias ven las notas en el portal y el plazo de reclamaciones está abierto. Solo las puede modificar la administración. |
-| **Finalizada** | La evaluación está cerrada. Solo la administración puede modificar las notas. |
+| **Finalizada** | La evaluación está cerrada. Solo la administración puede modificar las notas. No se puede finalizar mientras haya alguna reclamación de nota sin respuesta. |
 
 Una sesión avanza **de uno en uno**, hacia delante o hacia atrás: de Abierta a Junta de evaluación, de Junta de evaluación de nuevo a Abierta o a Publicada, y así sucesivamente.
 
@@ -89,6 +90,14 @@ Cuando el estado destino es **Publicada**:
 ![Publicar las sesiones seleccionadas y anunciarlo](../../assets/head_of_studies/evaluation-sessions-02-publicar.png)
 
 A partir de ese momento, el alumnado y las familias ven las notas en la tarjeta **Calificaciones** del portal y las pueden descargar en un PDF no oficial (véase la [guía del portal del alumno](../families/manual-portal-alumne.md#consultar-las-notas)).
+
+---
+
+## Reclamaciones de notas
+
+Durante el plazo de reclamaciones, el alumnado puede reclamar una nota publicada desde el portal. Primero responde el profesor y, en segunda instancia, el tutor; tú puedes responder cualquiera de las dos instancias de las reclamaciones de los alumnos de tu ámbito, desde **Calificaciones → Reclamaciones de notas** (véase [Reclamaciones de notas: responderlas](../teachers/grade-claims.md)).
+
+Los motivos que eligen el profesorado y los tutores al denegar una reclamación están en **Gestión de evaluaciones → Motivos de denegación de reclamaciones**: puedes añadir, cambiar el nombre y el orden, y archivar los que no uses. Marca **Pide detalles** en un motivo que necesite una explicación, como **Otros**.
 
 ---
 

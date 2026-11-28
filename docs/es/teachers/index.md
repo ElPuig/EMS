@@ -16,6 +16,7 @@ Esta sección contiene los manuales para los **profesores**.
 | [Fichajes: revisar tus entradas/salidas y solicitar correcciones](attendance-corrections.md) | Revisar tus entradas/salidas y solicitar correcciones |
 | [Iniciar sesión en el EMS con la cuenta corporativa de Google](acces-ems-google.md) | Acceder al EMS con el botón **Iniciar sesión con Google** y tu cuenta `@elpuig.xeill.net`, sin contraseña separada |
 | [Evaluación: Introducir calificaciones por RAs](qualificacions.md) | Introducir las calificaciones de cada evaluación para preparar la junta de evaluación |
+| [Reclamaciones de notas: responderlas](grade-claims.md) | Aceptar o denegar las reclamaciones que el alumnado presenta desde el portal contra una nota publicada |
 | [Strikes: notificar una incidencia disciplinaria](strike.md) | Poner un strike desde la vista de pasar lista cuando hay que dejar constancia del comportamiento de un alumno |
 | [Certificados de FCT: completar la formación (coordinación de FP)](certificates.md) | Completar la empresa, el periodo, las horas y el convenio de las solicitudes de certificado de FCT y pasarlas a secretaría |
 | [Tu horario semanal](working-schedules.md) | Consultar tus asignaturas, grupos, aulas, patios y reuniones en tu horario semanal |

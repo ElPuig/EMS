@@ -1,4 +1,4 @@
-# Evaluation board minutes (issue #880)
+# Evaluation board minutes (issues #880 and #881)
 
 The minute of an evaluation board (*junta d'avaluació*) replaces the evaluation tabs of the tutor's
 spreadsheet. It is an ordinary `ems.minute` of the type **Acta de junta d'avaluació** (`JA`,
@@ -54,6 +54,62 @@ sent for approval. Going back to open and to the board again does not create a s
   raw SQL query for the whole group, because the length lives on the header, which `_read_group` cannot
   sum through the line.
 
+## The board's decisions (issue #881)
+
+Each `ems.minute.board.student` line carries a `decision`:
+
+| Minute's round | Decisions offered | Meaning |
+|---|---|---|
+| 1st | none (the column is hidden) | |
+| 2nd and 3rd | `repeat_risk`, `next_course` (or `graduate_expected` in the study's last course), `dropout` | a forecast |
+| Extraordinary (`4`) | `promote` (or `graduate` in the study's last course), `repeat`, `dropout` | the decision |
+
+The study's last course is the group's course when no group of the same study has a higher one
+(`_ems_board_last_course`). `allowed_decisions` (non-stored) gives the line's options to the
+`ems_selection_allowed` dropdown, and `_check_decision` refuses any other value on the server.
+
+`recommended_subject_ids` is a stored editable compute on `decision`: for `promote` and `repeat` it is
+filled with the modules failed in the course up to the minute's round (`_ems_board_failed_subjects`), and
+emptied for every other decision. "Failed" is the academic record's own rule,
+`ems.grade_outcome_line._ems_subjects_passed()`: a module passes when every outcome's latest scored grade
+is 5 or more; the work placement (external part) never fails it, and a convalidated module is left out.
+Two searches for the minute. It only recomputes when the decision
+changes, so the tutor's edits stay. A `dropout` decision shows a button that opens the student's own
+"Expected withdrawal" wizard (`res.partner.action_withdrawal_expected_wizard`, with its permission check):
+nothing is marked automatically.
+
+`_ems_final_decisions(students, course)` (one search, sudo) returns the extraordinary board's line per
+student for a course. Three readers use it:
+
+```mermaid
+flowchart LR
+    line["ems.minute.board.student<br/>decision + recommended modules<br/>(extraordinary board)"]
+    proposal["Enrollment proposal wizard<br/>template + modules"]
+    transition["Course transition preview<br/>warning on mismatch"]
+    record["ems.student.year_record<br/>board_decision"]
+    line --> proposal
+    line --> transition
+    line --> record
+```
+
+- **Enrollment proposal** (`ems.enrollment_proposal_wizard`): when no template is chosen by the
+  pre-enrollment course, the decision selects it (same course for `repeat`, next one for `promote`) if
+  every selected student agrees. On creation, when the template is the course the decision sends the
+  student to and the study is the student's own: `repeat` drops the template's module lines that are not
+  recommended (the tutorship and the non-module lines stay), and both decisions add the recommended
+  modules the template lacks. `board_decision_info` summarises the decisions in the dialog. In the
+  centre the proposal comes after the board: a student still being evaluated has none yet.
+- **Course transition** (`_board_mismatches`): a warning listing the students whose incoming-course
+  enrollment contradicts the decision (an enrollment for a student who drops out; another course or study
+  for one who repeats; the same course for one who promotes or gets the title). The enrollment is still
+  what the transition applies.
+- **Academic record**: `ems.student.year_record.board_decision`, copied when the record is generated.
+  It is independent of `academic_result`, which keeps coming from the destination enrollment and the
+  grades.
+
+The minute's PDF prints the decision and the recommended modules' acronyms in the students' table. The
+decision is never shown in the portal.
+
 ## The family comment in the portal
 
 `res.partner._ems_portal_board_comments()` gives each round's `family_comment`;
@@ -72,3 +128,9 @@ read every student comment.
 
 Measured on the dev database (odoo shell, a group of 14 students): creating the minute takes 0.34 s,
 of which the absences query 16 ms; refreshing the outcomes, 8 ms.
+
+The decisions (issue #881), measured cold on the same group's minute set to the extraordinary round: the
+failed modules of its 14 students, 17.3 ms; setting a decision on every line, recommended
+modules included, 18.3 ms; the options of the 14 lines, 15.7 ms; the final decisions of 14 students,
+5.6 ms (one search); the transition's mismatch check over a study scope of 1,153 students, 29.9 ms,
+incoming enrollments index included.

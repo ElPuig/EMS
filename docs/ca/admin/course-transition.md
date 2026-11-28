@@ -67,10 +67,11 @@ Obtindràs un quadre vermell si alguna cosa bloqueja l'execució, un quadre blau
 | **Matrícula sense grup destí** | Matrícula confirmada sense grup: **bloqueja l'execució** |
 | **Sense matrícula per al curs vinent** | No té cap matrícula |
 
-Dues d'aquestes mereixen la teva atenció:
+Algunes d'aquestes mereixen la teva atenció:
 
 - **Matrícula sense grup destí** — la matrícula està confirmada, però ningú n'ha triat el grup, així que l'execució queda bloquejada fins que l'assignis: deixar-lo sense grup no tindria arranjament després. Fes servir l'acció *Suggerir grup destí* i torna a previsualitzar.
 - **Alumnes sense cap grup** — si surt aquest avís, són fitxes d'alumne actives que no són a cap grup, de manera que **cap execució les veu**: no se'ls congela l'expedient ni se'ls netegen les dades. Assigna'ls grup o registra'ls la baixa abans d'aplicar; després quedaran barrejades amb els centenars d'alumnes que la transició deixa sense grup legítimament i ja no es distingeixen.
+- **Matrícula que no coincideix amb la junta d'avaluació** — la matrícula de l'alumne per al curs vinent contradiu la decisió de la junta d'avaluació extraordinària (una matrícula per a un alumne que abandona, un altre curs per a un que repeteix, el mateix curs per a un que promociona). Només és un avís: la transició aplica la matrícula. Comprova-ho amb el tutor i corregeix la matrícula si no és correcta.
 - **Sense matrícula per al curs vinent** — l'alumne no s'ha matriculat. **No** se'l dona de baixa: simplement es queda sense grup. És deliberat, perquè al juliol no hi ha manera de distingir qui se'n va a un altre institut de qui es matricula tard. Guarda aquesta llista: és la que revisaràs després per decidir qui ha marxat de debò.
 
 ---

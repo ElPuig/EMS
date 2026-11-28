@@ -60,6 +60,7 @@ Step 5 resets every study back to `active` when the flip happens, so the next co
 | Students with no group at all | `_orphan_students()`, **listed one by one** (D18) |
 | Attendance templates to archive | Including templates whose `group_ids` span studies both in and out of scope |
 | Records to delete | Counts per model for step 8, grade sessions included |
+| Enrollments contradicting the board | `_board_mismatches(order_index)`: students whose incoming-course enrollment contradicts the extraordinary evaluation board's decision (issue #881, see [evaluation board minutes](../quality/evaluation_board_minute.md)); the enrollment is still what is applied |
 
 ### Incomplete-evaluation rule (D9)
 

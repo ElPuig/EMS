@@ -30479,6 +30479,7 @@ msgstr ". L'alumne no ha d'assistir a cap classe mentre es tramita la baixa."
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__can_mark_withdrawal_expected
 #: model:ir.model.fields,field_description:ems.field_res_users__can_mark_withdrawal_expected
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_student__can_mark_withdrawal_expected
 msgid "Can mark an expected withdrawal"
 msgstr "Pot marcar una baixa prevista"
 
@@ -30488,6 +30489,8 @@ msgstr "Pot marcar una baixa prevista"
 #: model:ir.model.fields,field_description:ems.field_res_users__withdrawal_expected
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__not_expected_reason__withdrawal
 #: code:addons/ems/models/contacts/contact.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_student__student_withdrawal_expected
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 msgid "Expected withdrawal"
 msgstr "Baixa prevista"
 
@@ -57644,3 +57647,142 @@ msgstr "Treballa"
 msgid "Write the evaluation board minute"
 msgstr "Redacta l'acta de la junta d'avaluació"
 
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid ""
+"%(count)s student(s) have an enrollment for the incoming course that does "
+"not match the extraordinary evaluation board's decision; the enrollment is "
+"what is applied: %(students)s."
+msgstr ""
+"%(count)s alumne(s) tenen una matrícula per al curs entrant que no "
+"coincideix amb la decisió de la junta d'avaluació extraordinària; s'aplica "
+"la matrícula: %(students)s."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_board_student__decision
+msgid ""
+"A forecast in the 2nd and 3rd evaluations; the decision in the extraordinary"
+" evaluation, which the enrollment proposal and the course transition use and"
+" the academic record keeps."
+msgstr ""
+"Una previsió a la 2a i la 3a avaluació; la decisió a l'avaluació "
+"extraordinària, que fan servir la proposta de matrícula i la transició de "
+"curs i que guarda l'expedient."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_student__allowed_decisions
+msgid "Allowed decisions"
+msgstr "Decisions permeses"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_student__decision
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__board_decision
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Board decision"
+msgstr "Decisió de la junta"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_board_student__decision__graduate_expected
+msgid "Can graduate"
+msgstr "Pot titular"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_board_student__decision__dropout
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__board_decision__dropout
+msgid "Drops out"
+msgstr "Abandona"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__board_decision_info
+msgid "Evaluation board"
+msgstr "Junta d'avaluació"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_board_student__decision__graduate
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__board_decision__graduate
+msgid "Gets the title"
+msgstr "Titula"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Mark the student's expected withdrawal"
+msgstr "Marca la baixa prevista de l'alumne"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_board_student__decision__next_course
+msgid "Moves up to the 2nd year"
+msgstr "Passa a 2n"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_board_student__decision__repeat_risk
+msgid "Possible repeater"
+msgstr "Possible repetidor"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_board_student__decision__promote
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__board_decision__promote
+msgid "Promotes"
+msgstr "Promociona"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_student__recommended_subject_ids
+msgid "Recommended enrollment"
+msgstr "Matrícula recomanada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_board_student__decision__repeat
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__board_decision__repeat
+msgid "Repeats"
+msgstr "Repeteix"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute_board.py:0
+msgid ""
+"The decision %(decision)s does not apply to this evaluation of %(student)s."
+msgstr ""
+"La decisió %(decision)s no correspon a aquesta avaluació de %(student)s."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_board_student__allowed_decisions
+msgid ""
+"The decisions this student's board offers, comma-separated (none in the 1st "
+"evaluation)."
+msgstr ""
+"Les decisions que ofereix la junta per a aquest alumne, separades per comes "
+"(cap a la 1a avaluació)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_enrollment_proposal_wizard__board_decision_info
+msgid ""
+"The extraordinary evaluation board's decisions for the selected students: a "
+"student who repeats is enrolled only in the recommended modules; one who "
+"promotes gets the next course's template plus the recommended modules it "
+"lacks."
+msgstr ""
+"Les decisions de la junta d'avaluació extraordinària per als alumnes "
+"seleccionats: un alumne que repeteix es matricula només dels mòduls "
+"recomanats; un que promociona rep la plantilla del curs següent més els "
+"mòduls recomanats que no hi són."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_board_student__recommended_subject_ids
+msgid ""
+"The modules to enrol in again: filled with the failed ones when the board "
+"decides that the student promotes or repeats, and editable. The enrollment "
+"proposal adds them to the next course (promotes) or enrols only in them "
+"(repeats)."
+msgstr ""
+"Els mòduls dels quals s'ha de tornar a matricular: s'omplen amb els suspesos"
+" quan la junta decideix que l'alumne promociona o repeteix, i es poden "
+"editar. La proposta de matrícula els afegeix al curs següent (promociona) o "
+"matricula només d'aquests (repeteix)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_year_record__board_decision
+msgid ""
+"What the extraordinary evaluation board decided for the student that course."
+msgstr ""
+"El que va decidir la junta d'avaluació extraordinària per a l'alumne aquell "
+"curs."

@@ -3,7 +3,8 @@
 from collections import defaultdict
 from datetime import date
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 from ..grades.grade_session import grade_round_selection
 
@@ -13,6 +14,14 @@ WRITE_TASK = "ems.mail_activity_board_minute_write"
 ABSENCE_THRESHOLD = 0.25
 UNJUSTIFIED_THRESHOLD = 0.05
 BOARD_KINDS = ("board_difficulties", "board_statistics", "board_students")
+FINAL_ROUND = "4"
+# What the board decides for each student (issue #881): a forecast in the 2nd and 3rd evaluations,
+# the decision in the extraordinary one (2a convocatòria). "Promotes" only exists before the
+# study's last course, "Gets the title" only in it.
+FORECASTS = ("repeat_risk", "next_course", "graduate_expected", "dropout")
+DECISIONS = ("promote", "graduate", "repeat", "dropout")
+# The decisions that come with a recommended enrollment: the modules to enrol in again.
+WITH_ENROLLMENT = ("promote", "repeat")
 
 
 class EmsMinuteBoardDifficulty(models.Model):
@@ -54,6 +63,87 @@ class EmsMinuteBoardStudent(models.Model):
     comments = fields.Text(string="Teaching team's comments", help="Stay in the minute: never shown to the student or the family.")
     family_comment = fields.Text(string="Tutor's comment for the family",
                                  help="Shown to the student and the family in the portal and the grades' PDF once the round's grades are published.")
+    decision = fields.Selection(string="Board decision", selection=[
+        ("repeat_risk", "Possible repeater"),
+        ("next_course", "Moves up to the 2nd year"),
+        ("graduate_expected", "Can graduate"),
+        ("promote", "Promotes"),
+        ("graduate", "Gets the title"),
+        ("repeat", "Repeats"),
+        ("dropout", "Drops out"),
+    ], help="A forecast in the 2nd and 3rd evaluations; the decision in the extraordinary evaluation, which the "
+            "enrollment proposal and the course transition use and the academic record keeps.")
+    allowed_decisions = fields.Char(string="Allowed decisions", compute="_compute_allowed_decisions",
+                                    help="The decisions this student's board offers, comma-separated (none in the 1st evaluation).")
+    recommended_subject_ids = fields.Many2many(
+        string="Recommended enrollment", comodel_name="ems.subject", relation="ems_minute_board_student_subject_rel",
+        compute="_compute_recommended_subject_ids", store=True, readonly=False,
+        help="The modules to enrol in again: filled with the failed ones when the board decides that the student "
+             "promotes or repeats, and editable. The enrollment proposal adds them to the next course (promotes) or "
+             "enrols only in them (repeats).")
+    student_withdrawal_expected = fields.Boolean(related="student_id.withdrawal_expected")
+    can_mark_withdrawal_expected = fields.Boolean(string="Can mark an expected withdrawal", compute="_compute_can_mark_withdrawal_expected")
+
+    @api.depends("student_id")
+    @api.depends_context("uid")
+    def _compute_can_mark_withdrawal_expected(self):
+        """The student's own permission (their tutor and the chain above, whoever registers exits):
+        the minute's other writers do not get the button."""
+        for line in self:
+            line.can_mark_withdrawal_expected = line.student_id.can_mark_withdrawal_expected
+
+    @api.depends("minute_id.grade_round", "minute_id.group_id")
+    def _compute_allowed_decisions(self):
+        for minute, lines in self.grouped("minute_id").items():
+            if minute.grade_round in ("2", "3"):
+                options = [key for key in FORECASTS if key != ("next_course" if minute._ems_board_last_course() else "graduate_expected")]
+            elif minute.grade_round == FINAL_ROUND:
+                options = [key for key in DECISIONS if key != ("promote" if minute._ems_board_last_course() else "graduate")]
+            else:
+                options = []
+            lines.allowed_decisions = ",".join(options)
+
+    @api.depends("decision")
+    def _compute_recommended_subject_ids(self):
+        """The modules failed in the course, when the decision comes with an enrollment; empty
+        otherwise. Recomputed only when the decision changes, so the tutor's edits stay. One
+        search per minute."""
+        for minute, lines in self.grouped("minute_id").items():
+            with_enrollment = lines.filtered(lambda line: line.decision in WITH_ENROLLMENT)
+            failed = minute._ems_board_failed_subjects(with_enrollment.student_id) if with_enrollment else {}
+            for line in lines:
+                line.recommended_subject_ids = failed.get(line.student_id.id, self.env["ems.subject"]) \
+                    if line in with_enrollment else False
+
+    @api.constrains("decision")
+    def _check_decision(self):
+        """The dropdown only offers the round's decisions; the server holds the same line."""
+        for line in self.filtered("decision"):
+            if line.decision not in (line.allowed_decisions or "").split(","):
+                raise ValidationError(_("The decision %(decision)s does not apply to this evaluation of %(student)s.",
+                                        decision=self._ems_decision_labels()[line.decision],
+                                        student=line.student_id.name))
+
+    @api.model
+    def _ems_decision_labels(self):
+        """{decision: its label in the user's language}, for messages built in Python."""
+        return dict(self._fields["decision"]._description_selection(self.env))
+
+    @api.model
+    def _ems_final_decisions(self, students, course):
+        """{student id: board line} with the decision of the extraordinary evaluation board of
+        `course`: what the enrollment proposal, the course transition and the academic record read.
+        One search. sudo: the reader (the secretary) need not see the minute."""
+        lines = self.sudo().search([
+            ("student_id", "in", students.ids), ("decision", "in", DECISIONS),
+            ("minute_id.grade_round", "=", FINAL_ROUND), ("minute_id.course_id", "=", course.id)])
+        return {line.student_id.id: line for line in lines}
+
+    def action_mark_withdrawal_expected(self):
+        """The student's "Expected withdrawal" (issue #881): offered on a "Drops out" decision, for
+        the tutor to mark if they see fit. The student's own action, with its own permission check."""
+        self.ensure_one()
+        return self.student_id.action_withdrawal_expected_wizard()
 
 
 class EmsMinute(models.Model):
@@ -113,6 +203,30 @@ class EmsMinute(models.Model):
             created |= minute
         created._ems_sync_board_task()
         return created
+
+    def _ems_board_last_course(self):
+        """Whether the minute's group is in its study's last course (no group of the study above it):
+        its students graduate instead of promoting."""
+        self.ensure_one()
+        group = self.group_id
+        return bool(group) and not self.env["ems.group"].sudo().search_count([
+            ("study_id", "=", group.study_id.id), ("course", ">", group.course)], limit=1)
+
+    def _ems_board_failed_subjects(self, students):
+        """{student id: subjects} failed in the course up to the minute's round, by the academic
+        record's own rule (ems.grade_outcome_line._ems_subjects_passed: an outcome below 5 or never
+        scored fails the subject), leaving out the convalidated ones. Two searches for every student."""
+        self.ensure_one()
+        domain = [("student_id", "in", students.ids), ("grade_session_id.round", "<=", self.grade_round)]
+        passed = self.env["ems.grade_outcome_line"].sudo().search(domain)._ems_subjects_passed()
+        convalidated = {(line.student_id.id, line.grade_session_id.subject_id.id)
+                        for line in self.env["ems.grade_subject_line"].sudo().search(domain + [("is_convalidated", "=", True)])}
+        Subject = self.env["ems.subject"]
+        failed = defaultdict(lambda: Subject)
+        for (student_id, subject_id), is_passed in passed.items():
+            if not is_passed and (student_id, subject_id) not in convalidated:
+                failed[student_id] |= Subject.browse(subject_id)
+        return failed
 
     def _ems_board_students(self):
         """The group's students: those it tutors (tutorship_group_id), the ones the board talks about."""

@@ -25,6 +25,7 @@
                                    options="{'no_create': True}"/>
                             <field name="ems_group_id" options="{'no_create': True}"
                                    help="Written to every generated enrollment. Leave empty to suggest one group per student."/>
+                            <field name="board_decision_info" invisible="not board_decision_info"/>
                         </group>
                         <group string="Students">
                             <field name="student_ids" nolabel="1">

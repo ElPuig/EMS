@@ -53,6 +53,8 @@ A dialog will open with the selected students.
 
 ![Proposal dialog with selected template and Create Enrollments button](../../assets/tutors/propostes-02-dialeg-plantilla.png)
 
+> **If the extraordinary evaluation board decided on the student:** the dialog shows the decisions in **Evaluation board**, and EMS suggests the template of the course they send the students to (the same one if they repeat, the next one if they promote). On creating the enrollments, a student who repeats is enrolled only in the modules of the minute's **Recommended enrollment**, and one who promotes also gets the recommended modules the template lacks. See [Evaluation board minute](board-minute.md).
+
 ---
 
 ## View Generated Pre-enrollments

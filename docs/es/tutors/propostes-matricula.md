@@ -53,6 +53,8 @@ Se abrirá un diálogo con los alumnos seleccionados.
 
 ![Diálogo de propuesta con plantilla seleccionada y botón Crear matrículas](../../assets/tutors/propostes-02-dialeg-plantilla.png)
 
+> **Si la junta de evaluación extraordinaria ha decidido sobre el alumno:** el diálogo muestra las decisiones en **Junta de evaluación**, y EMS sugiere la plantilla del curso al que envían a los alumnos (el mismo si repiten, el siguiente si promocionan). Al crear las matrículas, un alumno que repite se matricula solo de los módulos de la **Matrícula recomendada** del acta, y uno que promociona recibe también los módulos recomendados que la plantilla no tiene. Ver [Acta de junta de evaluación](board-minute.md).
+
 ---
 
 ## Consultar las pre-matrículas creadas

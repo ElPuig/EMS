@@ -43,6 +43,7 @@
                             </group>
                             <group>
                                 <field name="academic_result"/>
+                                <field name="board_decision" readonly="1" invisible="not board_decision"/>
                                 <field name="title_obtained"/>
                             </group>
                             <group>

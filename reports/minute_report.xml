@@ -232,12 +232,19 @@
                             <t t-if="doc.board_student_ids">
                                 <h4>Teaching team's comments</h4>
                                 <table>
-                                    <thead><tr><th>Student</th><th>Outcomes passed</th><th>Outcomes evaluated</th><th>Comments</th></tr></thead>
+                                    <t t-set="with_decision" t-value="doc.grade_round in ('2', '3', '4')"/>
+                                    <thead><tr><th>Student</th><th>Outcomes passed</th><th>Outcomes evaluated</th><th t-if="with_decision">Board decision</th><th>Comments</th></tr></thead>
                                     <tbody>
                                         <tr t-foreach="doc.board_student_ids" t-as="board_student">
                                             <td t-out="board_student.student_id.name"/>
                                             <td t-out="board_student.passed_count"/>
                                             <td t-out="board_student.evaluated_count"/>
+                                            <td t-if="with_decision">
+                                                <span t-field="board_student.decision"/>
+                                                <t t-if="board_student.recommended_subject_ids">
+                                                    <br/><span t-out="', '.join(board_student.recommended_subject_ids.mapped('acronym'))"/>
+                                                </t>
+                                            </td>
                                             <td t-out="board_student.comments or ''"/>
                                         </tr>
                                     </tbody>

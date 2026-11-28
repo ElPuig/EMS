@@ -63,6 +63,23 @@ Two rules worth stating explicitly:
 
 ---
 
+## The evaluation board's decision (issue #881)
+
+The extraordinary evaluation board's decision of each selected student (`ems.minute.board.student`,
+read with `_ems_final_decisions()` for the current course) is used twice:
+
+- **Template:** when the pre-enrollment course picks none, `default_get()` picks the template of the
+  course the decision sends every selected student to (the same one for "Repeats", the next one for
+  "Promotes"), if they all agree. `board_decision_info` sums the decisions up in the dialog.
+- **Modules:** `_ems_apply_board_recommendation()`, after the template's lines are loaded, when the
+  template is that course and the study is the student's own: "Repeats" drops the module lines that are
+  not recommended (the tutorship and the non-module lines, such as the fee, stay), and both add the
+  recommended modules the template lacks (one pending from an earlier course).
+
+See [evaluation board minutes](../quality/evaluation_board_minute.md).
+
+---
+
 ## `default_get()` flow
 
 The wizard never raises for a user who can act on the problem. It raises for one who cannot.

@@ -53,6 +53,8 @@ S'obrirà un diàleg amb els alumnes seleccionats.
 
 ![Diàleg de proposta amb plantilla seleccionada i botó Crear matrícules](../../assets/tutors/propostes-02-dialeg-plantilla.png)
 
+> **Si la junta d'avaluació extraordinària ha decidit sobre l'alumne:** el diàleg mostra les decisions a **Junta d'avaluació**, i EMS suggereix la plantilla del curs on envien els alumnes (el mateix si repeteixen, el següent si promocionen). En crear les matrícules, un alumne que repeteix es matricula només dels mòduls de la **Matrícula recomanada** de l'acta, i un que promociona rep també els mòduls recomanats que la plantilla no té. Vegeu [Acta de junta d'avaluació](board-minute.md).
+
 ---
 
 ## Consultar les prematrícules creades

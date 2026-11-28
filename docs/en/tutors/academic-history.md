@@ -21,6 +21,7 @@ The records are ordered **by study and course**, so you can read each study from
 ## How to read a record
 
 - **Academic result:** *Fully passed*, *Partially passed* (promotes carrying some subject), *Repeating* or *Withdrawn*.
+- **Board decision:** what the extraordinary evaluation board decided (*Promotes*, *Gets the title*, *Repeats* or *Drops out*), when it recorded it in its minute.
 - **Title obtained:** marked when the student got the title that course.
 - **Subject state:** **Passed / Not passed**, decided **only by the RAs**. A subject with every RA passed is passed even if the work placement (EM) is still pending: in that case the **final grade** stays empty (*Final pending*) until the placement is graded. A failed placement is repeated — it never fails the subject.
 - **Round columns:** each RA shows the grade standing at each round; the resolved grade is the one of the last round in which it was evaluated.

@@ -13,7 +13,8 @@ Quan el cap d'estudis passa les sessions d'avaluació del teu grup a **Junta d'a
 1. [On la trobes](#on-la-trobes)
 2. [Què ja conté](#què-ja-conté)
 3. [Completar-la](#completar-la)
-4. [Què veuen les famílies](#què-veuen-les-famílies)
+4. [Les decisions de la junta](#les-decisions-de-la-junta)
+5. [Què veuen les famílies](#què-veuen-les-famílies)
 
 ---
 
@@ -40,6 +41,27 @@ Quan el cap d'estudis passa les sessions d'avaluació del teu grup a **Junta d'a
    - **Comentari del tutor per a la família**: el teu comentari general per a l'alumne i la família.
 3. Si les notes han canviat durant la junta, prem **Actualitza els RA a partir de les notes**.
 4. Afegeix-hi els acords i el seguiment dels anteriors, com en qualsevol acta, i prem **Enviar a aprovar**.
+
+---
+
+## Les decisions de la junta
+
+A partir de la 2a avaluació, la taula **Alumnes** té la columna **Decisió de la junta**. El desplegable només ofereix les opcions d'aquella avaluació:
+
+| Avaluació | Opcions |
+|---|---|
+| 2a i 3a | Una previsió: **Possible repetidor**, **Passa a 2n** (a l'últim curs de l'estudi, **Pot titular**) o **Abandona**. |
+| Extraordinària (2a convocatòria) | La decisió: **Promociona** (a l'últim curs de l'estudi, **Titula**), **Repeteix** o **Abandona**. |
+
+- Quan tries **Promociona** o **Repeteix**, la columna **Matrícula recomanada** s'omple amb els mòduls que l'alumne té suspesos. Treu-ne o afegeix-ne si la junta acorda una matrícula diferent.
+- Quan tries **Abandona**, la fila mostra el botó **Baixa prevista**. Prem-lo si vols marcar ara la baixa prevista de l'alumne (vegeu [Baixa prevista](withdrawal-expected.md)). EMS no la marca pel seu compte.
+
+La decisió de l'avaluació extraordinària es fa servir després:
+
+- Quan proposes la matrícula de l'alumne (vegeu [Propostes de matrícula](propostes-matricula.md)), EMS suggereix la plantilla del curs on l'envia la decisió i ajusta els mòduls: un alumne que repeteix es matricula només dels mòduls recomanats, i un que promociona rep també els mòduls recomanats del curs anterior.
+- Queda a l'expedient acadèmic de l'alumne.
+
+La decisió s'imprimeix al PDF de l'acta. No es mostra al portal.
 
 ---
 

@@ -530,6 +530,31 @@ class ems_course_transition_wizard(models.TransientModel):
                                ", ".join(self.pending_study_ids.mapped('display_name')[:10])))
         return warnings
 
+    def _board_mismatches(self, order_index):
+        """Students whose enrollment for the incoming course contradicts the extraordinary
+        evaluation board's decision (issue #881). A warning, never a blocker: the confirmed
+        enrollment is what the transition executes."""
+        self.ensure_one()
+        students = self._scope_students()
+        decisions = self.env['ems.minute.board.student']._ems_final_decisions(students, self.source_course_id)
+        labels = self.env['ems.minute.board.student']._ems_decision_labels()
+        mismatched = []
+        for student in students.filtered(lambda partner: partner.id in decisions):
+            decision = decisions[student.id].decision
+            order = order_index.get(student.id)
+            group = student.main_group_id
+            same_study = order and order.ems_study_id == group.study_id
+            year = order and (order.ems_group_id.course or order.sale_order_template_id.study_year)
+            if decision == 'dropout' and order \
+                    or decision == 'repeat' and order and (not same_study or year and year != group.course) \
+                    or decision in ('promote', 'graduate') and same_study and year == group.course:
+                mismatched.append(f"{student.display_name} ({labels[decision]})")
+        if not mismatched:
+            return []
+        return [_("%(count)s student(s) have an enrollment for the incoming course that does not match "
+                  "the extraordinary evaluation board's decision; the enrollment is what is applied: %(students)s.",
+                  count=len(mismatched), students=", ".join(mismatched[:10]))]
+
     def _as_html(self, messages):
         if not messages:
             return ""
@@ -567,7 +592,7 @@ class ems_course_transition_wizard(models.TransientModel):
         self.write({
             'blocking_html': self._as_html(blockers),
             'has_blockers': bool(blockers),
-            'warning_html': self._as_html(self._collect_warnings()),
+            'warning_html': self._as_html(self._collect_warnings() + self._board_mismatches(order_index)),
             'state': 'preview',
         })
         return {

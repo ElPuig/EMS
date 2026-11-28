@@ -61,6 +61,14 @@ class EmsStudentYearRecord(models.Model):
         ('repeating', 'Repeating'),
         ('withdrawn', 'Withdrawn'),
     ])
+    # The extraordinary evaluation board's decision (issue #881), copied when the record is generated.
+    # Independent of academic_result, which comes from the destination enrollment and the grades.
+    board_decision = fields.Selection(string="Board decision", selection=[
+        ('promote', 'Promotes'),
+        ('graduate', 'Gets the title'),
+        ('repeat', 'Repeats'),
+        ('dropout', 'Drops out'),
+    ], help="What the extraordinary evaluation board decided for the student that course.")
     # Whether the title was obtained this course. Per record (= per study·course):
     # has_graduated alone is a global, permanent mark that does not say which
     # study/course granted the title. Independent of academic_result: a student can
@@ -267,6 +275,8 @@ class EmsStudentYearRecord(models.Model):
             'exit_date': student.exit_date if exited_this_course else False,
             'academic_result': academic_result,
             'title_obtained': title_obtained,
+            'board_decision': self.env['ems.minute.board.student']._ems_final_decisions(
+                student, course).get(student.id, self.env['ems.minute.board.student']).decision or False,
             'is_provisional': False,
             'subject_record_ids': [(0, 0, vals) for vals in subject_vals],
         }
@@ -423,7 +433,7 @@ class EmsStudentYearRecord(models.Model):
             ('student_id', '=', student.id),
             ('grade_session_id.subject_id', '=', subject.id)])
         vals_list = []
-        state = 'passed' if lines else 'failed'
+        state = 'passed' if lines._ems_subjects_passed().get((student.id, subject.id)) else 'failed'
         for outcome in lines.mapped('outcome_id'):
             outcome_lines = lines.filtered(lambda line: line.outcome_id == outcome).sorted(
                 key=lambda line: line.grade_session_id.round)
@@ -443,8 +453,6 @@ class EmsStudentYearRecord(models.Model):
                     final_score = line.score
                     final_is_scored = True
             vals.update({'final_score': final_score, 'final_is_scored': final_is_scored})
-            if not final_is_scored or final_score < 5:
-                state = 'failed'
             vals_list.append(vals)
         return vals_list, state
 

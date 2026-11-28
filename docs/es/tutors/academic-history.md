@@ -21,6 +21,7 @@ Los registros están ordenados **por estudio y curso**, de modo que puede leer c
 ## Cómo leer un registro
 
 - **Resultado académico:** *Superado íntegramente*, *Superado parcialmente* (promociona arrastrando algún módulo), *Repite curso* o *Baja*.
+- **Decisión de la junta:** lo que decidió la junta de evaluación extraordinaria (*Promociona*, *Titula*, *Repite* o *Abandona*), cuando lo registró en el acta.
 - **Título obtenido:** marcado cuando el alumno/a obtuvo el título ese curso.
 - **Estado del módulo:** **Superado / No superado**, decidido **solo por los RA**. Un módulo con todos los RA aprobados está aprobado aunque la estancia (EM) esté pendiente: en ese caso la **nota final** queda vacía (*Final pendiente*) hasta que se evalúe la estancia. Una estancia suspendida se repite — nunca suspende el módulo.
 - **Columnas de convocatoria:** cada RA muestra la nota vigente en cada convocatoria; la nota resuelta es la de la última convocatoria en que se evaluó.

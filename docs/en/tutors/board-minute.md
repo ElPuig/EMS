@@ -13,7 +13,8 @@ When the Head of Studies moves your group's evaluation sessions to **Board**, EM
 1. [Where you find it](#where-you-find-it)
 2. [What it already contains](#what-it-already-contains)
 3. [Completing it](#completing-it)
-4. [What the families see](#what-the-families-see)
+4. [The board's decisions](#the-boards-decisions)
+5. [What the families see](#what-the-families-see)
 
 ---
 
@@ -40,6 +41,27 @@ When the Head of Studies moves your group's evaluation sessions to **Board**, EM
    - **Tutor's comment for the family**: your general comment for the student and the family.
 3. If grades changed during the board, press **Update the outcomes from the grades**.
 4. Add the agreements and the follow-up of earlier ones, as in any minute, and press **Send for approval**.
+
+---
+
+## The board's decisions
+
+From the 2nd evaluation on, the **Students** table has a **Board decision** column. The dropdown only offers the options of that evaluation:
+
+| Evaluation | Options |
+|---|---|
+| 2nd and 3rd | A forecast: **Possible repeater**, **Moves up to the 2nd year** (in the study's last course, **Can graduate**) or **Drops out**. |
+| Extraordinary (2a convocatòria) | The decision: **Promotes** (in the study's last course, **Gets the title**), **Repeats** or **Drops out**. |
+
+- When you choose **Promotes** or **Repeats**, the **Recommended enrollment** column fills in with the modules the student has failed. Remove or add modules if the board agrees on a different enrollment.
+- When you choose **Drops out**, the row shows the **Expected withdrawal** button. Press it if you want to mark the student's expected withdrawal now (see [Expected withdrawal](withdrawal-expected.md)). EMS does not mark it on its own.
+
+The extraordinary evaluation's decision is used afterwards:
+
+- When you propose the student's enrollment (see [Enrollment proposals](propostes-matricula.md)), EMS suggests the template of the course the decision sends them to and adjusts the modules: a student who repeats is enrolled only in the recommended modules, and one who promotes also gets the recommended modules from the previous course.
+- It is kept in the student's academic record.
+
+The decision is printed in the minute's PDF. It is not shown in the portal.
 
 ---
 

@@ -111,3 +111,23 @@ class EmsGradeOutcomeLine(models.Model):
     def _compute_display_name(self):
         for line in self:
             line.display_name = "%s | %s" % (line.student_id.display_name or "", line.outcome_id.display_name or "")
+
+    def _ems_subjects_passed(self):
+        """{(student id, subject id): passed} over these lines: a subject is passed when every one
+        of its outcomes resolves to 5 or more, each outcome's grade being its latest scored round's.
+        Only the outcomes count: a pending or failed work placement never fails a subject (the
+        student repeats the placement). The academic record's subject state and the evaluation
+        board's failed modules share this rule."""
+        latest = {}
+        for line in self:
+            key = (line.student_id.id, line.grade_session_id.subject_id.id, line.outcome_id.id)
+            session_round = line.grade_session_id.round
+            if key not in latest:
+                latest[key] = (None, None)
+            if line.is_scored and (latest[key][0] is None or session_round > latest[key][0]):
+                latest[key] = (session_round, line.score)
+        passed = {}
+        for (student_id, subject_id, __), (session_round, score) in latest.items():
+            key = (student_id, subject_id)
+            passed[key] = passed.get(key, True) and session_round is not None and score >= 5
+        return passed

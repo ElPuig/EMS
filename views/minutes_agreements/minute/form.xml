@@ -429,6 +429,18 @@
                                     <field name="works"/>
                                     <field name="comments" widget="text"/>
                                     <field name="family_comment" widget="text"/>
+                                    <field name="allowed_decisions" column_invisible="1"/>
+                                    <field name="student_withdrawal_expected" column_invisible="1"/>
+                                    <field name="can_mark_withdrawal_expected" column_invisible="1"/>
+                                    <field name="decision" widget="ems_selection_allowed" options="{'allowed_field': 'allowed_decisions'}"
+                                           column_invisible="parent.grade_round not in ('2', '3', '4')"/>
+                                    <field name="recommended_subject_ids" widget="many2many_tags"
+                                           column_invisible="parent.grade_round != '4'"
+                                           invisible="decision not in ('promote', 'repeat')"/>
+                                    <button name="action_mark_withdrawal_expected" type="object" string="Expected withdrawal"
+                                            icon="fa-sign-out" title="Mark the student's expected withdrawal"
+                                            column_invisible="parent.grade_round not in ('2', '3', '4')"
+                                            invisible="decision != 'dropout' or student_withdrawal_expected or not can_mark_withdrawal_expected"/>
                                 </list>
                             </field>
                         </div>

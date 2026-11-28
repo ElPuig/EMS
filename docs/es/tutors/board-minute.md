@@ -13,7 +13,8 @@ Cuando el jefe de estudios pasa las sesiones de evaluación de tu grupo a **Junt
 1. [Dónde la encuentras](#dónde-la-encuentras)
 2. [Qué contiene ya](#qué-contiene-ya)
 3. [Completarla](#completarla)
-4. [Qué ven las familias](#qué-ven-las-familias)
+4. [Las decisiones de la junta](#las-decisiones-de-la-junta)
+5. [Qué ven las familias](#qué-ven-las-familias)
 
 ---
 
@@ -40,6 +41,27 @@ Cuando el jefe de estudios pasa las sesiones de evaluación de tu grupo a **Junt
    - **Comentario del tutor para la familia**: tu comentario general para el alumno y la familia.
 3. Si las notas han cambiado durante la junta, pulsa **Actualizar los RA a partir de las notas**.
 4. Añade los acuerdos y el seguimiento de los anteriores, como en cualquier acta, y pulsa **Enviar a aprobar**.
+
+---
+
+## Las decisiones de la junta
+
+A partir de la 2.ª evaluación, la tabla **Alumnos** tiene la columna **Decisión de la junta**. El desplegable solo ofrece las opciones de esa evaluación:
+
+| Evaluación | Opciones |
+|---|---|
+| 2.ª y 3.ª | Una previsión: **Posible repetidor**, **Pasa a 2.º** (en el último curso del estudio, **Puede titular**) o **Abandona**. |
+| Extraordinaria (2.ª convocatoria) | La decisión: **Promociona** (en el último curso del estudio, **Titula**), **Repite** o **Abandona**. |
+
+- Cuando eliges **Promociona** o **Repite**, la columna **Matrícula recomendada** se rellena con los módulos que el alumno tiene suspendidos. Quita o añade módulos si la junta acuerda una matrícula distinta.
+- Cuando eliges **Abandona**, la fila muestra el botón **Baja prevista**. Púlsalo si quieres marcar ya la baja prevista del alumno (ver [Baja prevista](withdrawal-expected.md)). EMS no la marca por su cuenta.
+
+La decisión de la evaluación extraordinaria se usa después:
+
+- Cuando propones la matrícula del alumno (ver [Propuestas de matrícula](propostes-matricula.md)), EMS sugiere la plantilla del curso al que lo envía la decisión y ajusta los módulos: un alumno que repite se matricula solo de los módulos recomendados, y uno que promociona recibe también los módulos recomendados del curso anterior.
+- Queda en el expediente académico del alumno.
+
+La decisión se imprime en el PDF del acta. No se muestra en el portal.
 
 ---
 

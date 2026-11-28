@@ -67,10 +67,11 @@ You get a red box if something blocks the run, a blue box with everything worth 
 | **Enrollment with no destination group** | Confirmed enrollment with no group: it **blocks the run** |
 | **No enrollment for the next course** | No enrollment at all |
 
-Two of these deserve your attention:
+Some of these deserve your attention:
 
 - **Enrollment with no destination group** — the enrollment is confirmed but nobody chose the group, so the run is blocked until you assign it: leaving them with no group would have no way back afterwards. Use the *Suggest destination group* action and preview again.
 - **Students with no group at all** — if this warning appears, these are active student records in no group whatsoever, so **no run can see them**: their academic history is not frozen and their records are not cleaned. Give them a group or register their withdrawal before applying; afterwards they sit among the hundreds of students the transition legitimately leaves group-less and can no longer be told apart.
+- **Enrollment that does not match the evaluation board** — the student's enrollment for the next course contradicts the decision of the extraordinary evaluation board (an enrollment for a student who drops out, another course for one who repeats, the same course for one who promotes). It is only a warning: the transition applies the enrollment. Check it with the tutor and correct the enrollment if it is wrong.
 - **No enrollment for the next course** — the student has not enrolled. They are **not** withdrawn: they simply end up with no group. This is deliberate, because in July there is no way to tell someone moving to another school from someone who enrolls late. Keep this list: it is the one you will review afterwards to decide who really left.
 
 ---

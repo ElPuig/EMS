@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api, _
+from collections import Counter
+
+from odoo import Command, api, fields, models, _
 from odoo.exceptions import UserError
 
 
@@ -30,6 +32,38 @@ class EmsEnrollmentProposalWizard(models.TransientModel):
         domain="[('study_id', '=', dest_study_id)]",
         help="Suggested group written to every generated enrollment. Leave empty to "
              "let each student get its own suggested group.")
+
+    board_decision_info = fields.Char(
+        string='Evaluation board', compute='_compute_board_decision_info',
+        help="The extraordinary evaluation board's decisions for the selected students: a student who repeats "
+             "is enrolled only in the recommended modules; one who promotes gets the next course's template plus "
+             "the recommended modules it lacks.")
+
+    @api.depends('student_ids')
+    def _compute_board_decision_info(self):
+        for wizard in self:
+            decisions = self._ems_board_decisions(wizard.student_ids)
+            labels = self.env['ems.minute.board.student']._ems_decision_labels()
+            counts = Counter(line.decision for line in decisions.values())
+            wizard.board_decision_info = ", ".join(
+                f"{labels[decision]} ({count})" for decision, count in sorted(counts.items())) or False
+
+    @api.model
+    def _ems_board_decisions(self, students):
+        """{student id: board line} with the decision of this course's extraordinary evaluation board."""
+        course = self.env.company.current_course_id
+        if not students or not course:
+            return {}
+        return self.env['ems.minute.board.student']._ems_final_decisions(students._origin, course)
+
+    @api.model
+    def _ems_board_target_year(self, student, line):
+        """The course the board sends the student to (the same one if they repeat, the next one if
+        they promote) or False when the decision brings no enrollment of the student's own study."""
+        course = student.main_group_id.course
+        if not line or not course:
+            return False
+        return {'repeat': course, 'promote': course + 1}.get(line.decision, False)
 
     @api.depends('student_ids', 'allow_other_study')
     def _compute_available_templates(self):
@@ -79,6 +113,13 @@ class EmsEnrollmentProposalWizard(models.TransientModel):
         if len(courses) == 1:
             target = templates.filtered(
                 lambda t: t.study_year == int(next(iter(courses))))[:1]
+        if not target:
+            # The extraordinary evaluation board's decision (issue #881): the same course's template
+            # for those who repeat, the next one's for those who promote, when they all agree.
+            decisions = self._ems_board_decisions(students)
+            years = {self._ems_board_target_year(student, decisions.get(student.id)) for student in students}
+            if len(years) == 1 and False not in years:
+                target = templates.filtered(lambda t: t.study_year == next(iter(years)))[:1]
         if not target and all(p.contact_type == 'applicant' for p in students):
             target = templates.sorted('study_year')[:1]
         if target:
@@ -181,6 +222,25 @@ class EmsEnrollmentProposalWizard(models.TransientModel):
         matches = Group.search(domain)
         return matches if len(matches) == 1 else Group
 
+    def _ems_apply_board_recommendation(self, order, student, line):
+        """The board's recommended enrollment (issue #881), when the template is the course the board
+        sends the student to: a student who repeats keeps only the recommended modules (plus the
+        tutorship and the non-module lines, such as the fee); one who promotes keeps the next course's
+        template. Either way, a recommended module the template lacks is added."""
+        year = self._ems_board_target_year(student, line)
+        if not year or year != self.template_id.study_year:
+            return
+        recommended = line.recommended_subject_ids
+        if line.decision == 'repeat':
+            dropped = order.order_line.filtered(
+                lambda order_line: order_line.product_id.product_tmpl_id.ems_subject_ids
+                and not order_line.product_id.product_tmpl_id.ems_subject_ids & recommended
+                and not any(order_line.product_id.product_tmpl_id.ems_subject_ids.mapped('is_tutorship')))
+            order.order_line = [Command.unlink(order_line.id) for order_line in dropped]
+        # Both add what the template lacks: a module pending from an earlier course.
+        missing = recommended.product_id - order.order_line.product_id
+        order.order_line = [Command.create({'product_id': product.id}) for product in missing]
+
     def action_create_enrollments(self):
         self.ensure_one()
         if not self.template_id:
@@ -206,6 +266,7 @@ class EmsEnrollmentProposalWizard(models.TransientModel):
                 [('is_current', '=', True)], limit=1
             )
 
+        decisions = self._ems_board_decisions(self.student_ids)
         created = 0
         skipped = 0
         for student in self.student_ids:
@@ -238,6 +299,8 @@ class EmsEnrollmentProposalWizard(models.TransientModel):
                 'sale_order_template_id': self.template_id.id,
             })
             order._onchange_sale_order_template_id()
+            if dest_study == student.study_id:
+                self._ems_apply_board_recommendation(order, student, decisions.get(student.id))
             order.apply_authorizations()
             created += 1
 

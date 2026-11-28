@@ -61,7 +61,7 @@ Solo el jefe de estudios y la administración lo pueden cambiar.
 | Estado | Qué significa |
 |--------|---------------|
 | **Abierta** | El profesor de la sesión y el tutor ponen las notas. |
-| **Junta de evaluación** | Junta de evaluación: solo el tutor (y la administración) puede modificar las notas. |
+| **Junta de evaluación** | Junta de evaluación: solo el tutor (y la administración) puede modificar las notas. Pasar a ella las sesiones de un grupo crea el [acta de la junta de evaluación](../tutors/board-minute.md) para su tutor. |
 | **Publicada** | El alumnado y las familias ven las notas en el portal y el plazo de reclamaciones está abierto. Solo las puede modificar la administración. |
 | **Finalizada** | La evaluación está cerrada. Solo la administración puede modificar las notas. No se puede finalizar mientras haya alguna reclamación de nota sin respuesta. |
 

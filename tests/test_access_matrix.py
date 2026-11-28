@@ -223,6 +223,9 @@ ACCESS_MATRIX = {
     'ems.minute.intervention.wizard': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': ''},
     'ems.minute.intervention.wizard.line': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': ''},
     'ems.minute.member.line': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
+    # Issue #880: an evaluation board minute's lines, as the minute's other lines (rules narrow them to the minute).
+    'ems.minute.board.difficulty': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
+    'ems.minute.board.student': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
     'ems.minute.objective.line': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
     'ems.minute.pending.topic': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
     'ems.minute.section.value': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},

@@ -237,5 +237,81 @@
             <field name="groups" eval="[(6, 0, [ref('ems.group_head_of_studies'), ref('ems.group_secretary'), ref('ems.group_academic_admin')])]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
         </record>
+    
+        <!-- Issue #880: an evaluation board minute's difficulties and students (with the teaching
+             team's comments about each one) follow the minute: read and written on the same
+             conditions as the minute itself (rule_minute_teacher, rule_minute_teacher_write).
+             Repeated through minute_id on purpose: a record rule's domain is evaluated without
+             the minute's own rules, so ('minute_id.id', '!=', False) would let every teacher in. -->
+        <record model="ir.rule" id="rule_minute_board_difficulty_read">
+            <field name="name">Evaluation board minute lines (board_difficulty): read with the minute</field>
+            <field name="model_id" ref="ems.model_ems_minute_board_difficulty"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher')), (4, ref('ems.group_secretary'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+            <field name="domain_force">['|', '|', '|', '|', '|', '|', '|', '|', '|', '|',
+                ('minute_id.department_id.manager_id.tutor_scope_user_ids', '=', user.id),
+                ('minute_id.department_id.seminar_chief_id.tutor_scope_user_ids', '=', user.id),
+                ('minute_id.group_id.tutor_id.tutor_scope_user_ids', '=', user.id),
+                ('minute_id.approver_scope_user_ids', '=', user.id),
+                ('minute_id.is_centre', '=', True),
+                ('minute_id.redactor_scope_user_ids', '=', user.id),
+                ('minute_id.attendee_ids.user_id', '=', user.id),
+                ('minute_id.absentee_ids.user_id', '=', user.id),
+                ('minute_id.department_id.member_ids.user_id', '=', user.id),
+                ('minute_id.workgroup_id.employee_ids.user_id', '=', user.id),
+                ('minute_id.approver_role_id.employee_ids.user_id', '=', user.id)]</field>
+        </record>
+        <record model="ir.rule" id="rule_minute_board_difficulty_write">
+            <field name="name">Evaluation board minute lines (board_difficulty): written with the minute</field>
+            <field name="model_id" ref="ems.model_ems_minute_board_difficulty"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher')), (4, ref('ems.group_secretary'))]"/>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+            <field name="domain_force">[('minute_id.state', '!=', 'approved'), '|', '|', '|',
+                ('minute_id.approver_scope_user_ids', '=', user.id),
+                ('minute_id.redactor_scope_user_ids', '=', user.id),
+                ('minute_id.approver_role_id.employee_ids.user_id', '=', user.id),
+                ('minute_id.redactor_employee_id', '=', False)]</field>
+        </record>
+        <record model="ir.rule" id="rule_minute_board_student_read">
+            <field name="name">Evaluation board minute lines (board_student): read with the minute</field>
+            <field name="model_id" ref="ems.model_ems_minute_board_student"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher')), (4, ref('ems.group_secretary'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+            <field name="domain_force">['|', '|', '|', '|', '|', '|', '|', '|', '|', '|',
+                ('minute_id.department_id.manager_id.tutor_scope_user_ids', '=', user.id),
+                ('minute_id.department_id.seminar_chief_id.tutor_scope_user_ids', '=', user.id),
+                ('minute_id.group_id.tutor_id.tutor_scope_user_ids', '=', user.id),
+                ('minute_id.approver_scope_user_ids', '=', user.id),
+                ('minute_id.is_centre', '=', True),
+                ('minute_id.redactor_scope_user_ids', '=', user.id),
+                ('minute_id.attendee_ids.user_id', '=', user.id),
+                ('minute_id.absentee_ids.user_id', '=', user.id),
+                ('minute_id.department_id.member_ids.user_id', '=', user.id),
+                ('minute_id.workgroup_id.employee_ids.user_id', '=', user.id),
+                ('minute_id.approver_role_id.employee_ids.user_id', '=', user.id)]</field>
+        </record>
+        <record model="ir.rule" id="rule_minute_board_student_write">
+            <field name="name">Evaluation board minute lines (board_student): written with the minute</field>
+            <field name="model_id" ref="ems.model_ems_minute_board_student"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher')), (4, ref('ems.group_secretary'))]"/>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+            <field name="domain_force">[('minute_id.state', '!=', 'approved'), '|', '|', '|',
+                ('minute_id.approver_scope_user_ids', '=', user.id),
+                ('minute_id.redactor_scope_user_ids', '=', user.id),
+                ('minute_id.approver_role_id.employee_ids.user_id', '=', user.id),
+                ('minute_id.redactor_employee_id', '=', False)]</field>
+        </record>
     </data>
 </odoo>

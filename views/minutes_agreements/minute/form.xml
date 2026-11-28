@@ -97,6 +97,9 @@
                                        invisible="scope_kind != 'teaching_team' and (scope_kind != 'generic' or scope_choice != 'group')"
                                        required="scope_kind == 'teaching_team' or (scope_kind == 'generic' and scope_choice == 'group')"/>
                                 <field name="is_centre" invisible="1"/>
+                                <!-- Issue #880: the round an evaluation board's minute is about. -->
+                                <field name="board_kinds" invisible="1"/>
+                                <field name="grade_round" invisible="not board_kinds" required="board_kinds"/>
                             </group>
                             <group string="When and where" name="when" invisible="not type_id">
                                 <field name="start_datetime" required="type_id and modality != 'email'" invisible="modality == 'email'"/>
@@ -383,6 +386,51 @@
                                     </list>
                                 </field>
                             
+                        </div>
+
+                        <!-- Issue #880: the evaluation board's own sections, filled in when the minute is
+                             created as the group's sessions reach the board. -->
+                        <div class="o_ems_minute_block" name="block_board_difficulties" invisible="'board_difficulties' not in (board_kinds or '')">
+                            <h3>Group difficulties</h3>
+                            <field name="board_difficulty_ids" readonly="state == 'approved'">
+                                <list editable="bottom" create="0" delete="0">
+                                    <field name="area" readonly="1"/>
+                                    <field name="tests" widget="text"/>
+                                    <field name="diagnosis" widget="text"/>
+                                    <field name="objectives" widget="text"/>
+                                    <field name="priority"/>
+                                </list>
+                            </field>
+                        </div>
+                        <div class="o_ems_minute_block" name="block_board_statistics" invisible="'board_statistics' not in (board_kinds or '')">
+                            <h3>Statistics</h3>
+                            <group>
+                                <group>
+                                    <field name="board_absence_count" readonly="state == 'approved'"/>
+                                    <field name="board_unjustified_count" readonly="state == 'approved'"/>
+                                    <field name="board_working_count"/>
+                                </group>
+                                <group>
+                                    <field name="board_period_from"/>
+                                    <field name="board_period_to"/>
+                                </group>
+                            </group>
+                            <field name="board_withdrawals" placeholder="Withdrawals (students and reasons)" readonly="state == 'approved'"/>
+                        </div>
+                        <div class="o_ems_minute_block" name="block_board_students" invisible="'board_students' not in (board_kinds or '')">
+                            <h3>Students</h3>
+                            <button name="action_board_refresh_grades" type="object" string="Update the outcomes from the grades"
+                                    class="btn btn-secondary btn-sm mb-2" invisible="state == 'approved'"/>
+                            <field name="board_student_ids" readonly="state == 'approved'">
+                                <list editable="bottom" create="0">
+                                    <field name="student_id" readonly="1"/>
+                                    <field name="passed_count" readonly="1"/>
+                                    <field name="evaluated_count" readonly="1"/>
+                                    <field name="works"/>
+                                    <field name="comments" widget="text"/>
+                                    <field name="family_comment" widget="text"/>
+                                </list>
+                            </field>
                         </div>
 
                         <div class="o_ems_minute_block" name="block_annexes" invisible="not type_id">

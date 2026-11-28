@@ -14,3 +14,6 @@ __import__.minute_section_calendar,CAL,Calendari de reunions previst,meeting_cal
 __import__.minute_section_summary,RESUM,Resum del curs anterior,text,,0
 __import__.minute_section_method,METOD,Metodologia de treball,text,,0
 __import__.minute_section_record_data,DADES,Dades del registre,text,Allò de què es vol deixar constància.,0
+__import__.minute_section_board_difficulties,DIFIC,Dificultats del grup,board_difficulties,"Per a cada dificultat: les proves que l'han detectada, el resultat o diagnòstic del grup, els objectius de l'equip docent i la prioritat.",0
+__import__.minute_section_board_statistics,ESTAD,Dades estadístiques,board_statistics,Es calculen en crear l'acta; el tutor les pot corregir.,0
+__import__.minute_section_board_students,ALUMN,Comentaris de l'equip docent,board_students,"Els comentaris de l'equip docent queden a l'acta; el comentari per a la família es mostra al portal quan es publiquen les notes.",0

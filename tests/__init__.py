@@ -98,6 +98,7 @@ from . import test_attendance_reports_tour
 from . import test_attendance_issue_tour
 from . import test_grade_session
 from . import test_grade_claim
+from . import test_minute_board
 from . import test_grade_import_wizard
 from . import test_applicant_import_wizard
 from . import test_applicant_import_wizard_tour
@@ -118,6 +119,7 @@ from . import test_data_main_cat_prefix
 from . import test_security_group_references
 from . import test_grade_session_tour
 from . import test_grade_claim_tour
+from . import test_minute_board_tour
 from . import test_grade_session_state_wizard_tour
 from . import test_grade_import_wizard_tour
 from . import test_employee_google_workspace

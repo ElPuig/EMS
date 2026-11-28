@@ -61,7 +61,7 @@ Només el cap d'estudis i l'administració ho poden canviar.
 | Estat | Què vol dir |
 |-------|-------------|
 | **Oberta** | El professor de la sessió i el tutor posen les notes. |
-| **Junta d'avaluació** | Junta d'avaluació: només el tutor (i l'administració) pot modificar les notes. |
+| **Junta d'avaluació** | Junta d'avaluació: només el tutor (i l'administració) pot modificar les notes. Passar-hi les sessions d'un grup crea l'[acta de la junta d'avaluació](../tutors/board-minute.md) per al seu tutor. |
 | **Publicada** | L'alumnat i les famílies veuen les notes al portal i el termini de reclamacions és obert. Només les pot modificar l'administració. |
 | **Finalitzada** | L'avaluació està tancada. Només l'administració pot modificar les notes. No es pot finalitzar mentre hi hagi alguna reclamació de nota sense resposta. |
 

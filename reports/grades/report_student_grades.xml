@@ -55,6 +55,10 @@
                             </tr>
                         </tbody>
                     </table>
+                    <div t-if="grade_round.get('tutor_comment')" class="o_ems_grades_tutor_comment border rounded p-2 mb-2">
+                        <strong>Tutor's comment</strong>
+                        <div style="white-space: pre-line;" t-out="grade_round['tutor_comment']"/>
+                    </div>
                 </div>
             </t>
             <p class="text-muted small mb-0">

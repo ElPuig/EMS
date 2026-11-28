@@ -121,6 +121,8 @@ Cada avaluació, la més recent primer, té una taula amb una fila per mòdul:
 * **RA1, RA2…:** la nota de cada **resultat d'aprenentatge** (RA) del mòdul. Passant el ratolí per sobre d'una cel·la en veieu el nom. Un asterisc (`*`) marca una nota provisional, un guió (`-`) un RA encara no avaluat i un ✓ un RA ja superat en una avaluació anterior. Les cel·les en **gris** són RA que el mòdul no té.
 * **Comentaris:** el comentari del professor sobre el mòdul, si n'hi ha.
 
+Sota la taula, el **Comentari del tutor** és el comentari general del tutor per a aquella avaluació, quan n'hi ha.
+
 ![La pàgina Qualificacions del portal](../../assets/families/qualificacions-portal.png)
 
 A sobre de cada taula hi ha el **termini de reclamacions** d'aquella avaluació.

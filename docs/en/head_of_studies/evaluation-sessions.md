@@ -61,7 +61,7 @@ Only the Head of Studies and the administration can change them.
 | State | What it means |
 |-------|---------------|
 | **Open** | The session's teacher and the tutor enter the grades. |
-| **Board** | Evaluation board: only the tutor (and the administration) can modify the grades. |
+| **Board** | Evaluation board: only the tutor (and the administration) can modify the grades. Moving a group's sessions here creates the [evaluation board minute](../tutors/board-minute.md) for its tutor. |
 | **Published** | Students and families see the grades in the portal, and the claims period is open. Only the administration can modify them. |
 | **Finalised** | The round is closed. Only the administration can modify the grades. It cannot be finalised while any grade claim is unanswered. |
 

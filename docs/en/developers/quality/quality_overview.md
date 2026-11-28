@@ -528,6 +528,10 @@ change to an employee's user is not followed until the workgroup changes again.
 
 ---
 
+## Evaluation board minutes (issue #880)
+
+The minute of an evaluation board is a minute type with sections of its own, created when a group's grade sessions reach the board: see [Evaluation board minutes](evaluation_board_minute.md).
+
 ## Telling the people concerned (issue #753)
 
 Quality never emails the staff on its own (the meeting call aside, which has a date and goes to people

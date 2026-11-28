@@ -19,6 +19,10 @@ SECTION_KINDS = [
     ('team_constitution', "Team constitution"),
     ('objectives', "Objectives and indicators"),
     ('meeting_calendar', "Meeting calendar"),
+    # Evaluation board minutes (issue #880).
+    ('board_difficulties', "Group difficulties (evaluation board)"),
+    ('board_statistics', "Statistics (evaluation board)"),
+    ('board_students', "Per-student comments (evaluation board)"),
 ]
 
 

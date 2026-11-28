@@ -74,8 +74,11 @@ class ResPartner(models.Model):
                 "claim_to": session.claim_date_to,
                 "published": session.state == "published",
             })
+        # The tutor's comment for the family, from the round's evaluation board minute (issue #880).
+        comments = self._ems_portal_board_comments()
         return [{
             "round": round_key,
+            "tutor_comment": comments.get(round_key),
             "label": labels.get(round_key, round_key),
             "subjects": rounds[round_key],
             # One column per outcome, as many as the subject with the most (as the tutors' view).

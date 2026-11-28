@@ -146,6 +146,7 @@ msgstr "1. Detalles de la matrícula"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_grade_session__round__1 model:ir.model.fields.selection,name:ems.selection__ems_grade_session_state_wizard__round__1 model:ir.model.fields.selection,name:ems.selection__ems_grade_session_wizard__round__1
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__grade_round__1
 msgid "1a"
 msgstr "1a evaluación"
 
@@ -166,6 +167,7 @@ msgstr "2. Pago"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_grade_session__round__2 model:ir.model.fields.selection,name:ems.selection__ems_grade_session_state_wizard__round__2 model:ir.model.fields.selection,name:ems.selection__ems_grade_session_wizard__round__2
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__grade_round__2
 msgid "2a"
 msgstr "2a evaluación"
 
@@ -186,6 +188,7 @@ msgstr "3. Comunicaciones de matrícula"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_grade_session__round__3 model:ir.model.fields.selection,name:ems.selection__ems_grade_session_state_wizard__round__3 model:ir.model.fields.selection,name:ems.selection__ems_grade_session_wizard__round__3
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__grade_round__3
 msgid "3a"
 msgstr "3a evaluación"
 
@@ -2738,6 +2741,7 @@ msgstr "Comentario"
 #. odoo-javascript
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__notes code:addons/ems/static/src/xml/backend/grade_matrix_field.xml:0 code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0 model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__notes
 #: model_terms:ir.ui.view,arch_db:ems.student_grades_tables
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
 msgid "Comments"
 msgstr "Comentarios"
 
@@ -3206,6 +3210,8 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_claim__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_grade_claim_answer_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_grade_claim_denial_reason__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_difficulty__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_student__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -3384,6 +3390,8 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_claim__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_grade_claim_answer_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_grade_claim_denial_reason__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_difficulty__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_student__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3889,6 +3897,8 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_claim__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_grade_claim_answer_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_grade_claim_denial_reason__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_difficulty__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_student__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -5529,6 +5539,8 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_claim__id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_claim_answer_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_claim_denial_reason__id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_difficulty__id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_student__id
 msgid "ID"
 msgstr "ID"
 
@@ -6309,6 +6321,8 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_claim__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_grade_claim_answer_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_grade_claim_denial_reason__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_difficulty__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_student__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -6487,6 +6501,8 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_claim__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_grade_claim_answer_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_grade_claim_denial_reason__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_difficulty__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_student__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -6497,6 +6513,7 @@ msgstr "Última actualización:"
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data_family_fields
 #: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__student_lastname
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__student_lastname
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_student__student_lastname
 msgid "Last name"
 msgstr "Apellidos"
 
@@ -6926,6 +6943,8 @@ msgstr "Beca ministerio"
 #: model:ir.model.fields,field_description:ems.field_ems_minute_guest__minute_id
 #: model:ir.model.fields,field_description:ems.field_ems_minute_submit_wizard__minute_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__pdf_attachment_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_difficulty__minute_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_student__minute_id
 msgid "Minute"
 msgstr "Acta"
 
@@ -9590,6 +9609,8 @@ msgstr "Calle 2"
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_claim__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_student__student_id
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
 msgid "Student"
 msgstr "Alumno"
 
@@ -12345,6 +12366,7 @@ msgstr "%(student)s: el tutor/a '%(tutor)s' no tiene número de documento — se
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__round
+#: model:ir.model.fields,field_description:ems.field_ems_minute__grade_round
 msgid "Evaluation"
 msgstr "Evaluación"
 
@@ -48478,6 +48500,8 @@ msgstr "Enviada"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__line_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
+#: model:ir.model.fields,field_description:ems.field_ems_minute__board_student_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 msgid "Students"
 msgstr "Alumnado"
 
@@ -56701,6 +56725,7 @@ msgstr "Estado de la evaluación"
 #: model:ir.model.fields.selection,name:ems.selection__ems_grade_session__round__4
 #: model:ir.model.fields.selection,name:ems.selection__ems_grade_session_state_wizard__round__4
 #: model:ir.model.fields.selection,name:ems.selection__ems_grade_session_wizard__round__4
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__grade_round__4
 msgid "Extraordinary evaluation"
 msgstr "Evaluación extraordinaria"
 
@@ -57420,4 +57445,237 @@ msgstr "La reclamación se ha enviado al tutor."
 #: code:addons/ems/models/grades/grade_session.py:0
 msgid "%(count)s grade claim(s) of these sessions are still unanswered: answer them before finalising."
 msgstr "%(count)s reclamación(es) de notas de estas sesiones aún no tienen respuesta: respondedlas antes de finalizar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.student_grades_tables
+msgid "<strong>Tutor's comment</strong>"
+msgstr "<strong>Comentario del tutor</strong>"
+
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_board_difficulty__area__a
+msgid "A. Prior knowledge and basic competences"
+msgstr "A. Conocimientos previos y competencias básicas"
+
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_board_difficulty__area__b
+msgid "B. Expectations and interests"
+msgstr "B. Expectativas e intereses"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__board_kinds
+msgid "Board Kinds"
+msgstr "Secciones de junta"
+
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_board_difficulty__area__c
+msgid "C. Study techniques and habits"
+msgstr "C. Técnicas y hábitos de estudio"
+
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_board_difficulty__area__d
+msgid "D. Behaviour"
+msgstr "D. Comportamiento"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_difficulty__area model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Difficulty"
+msgstr "Dificultad"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__board_difficulty_ids model_terms:ir.ui.view,arch_db:ems.report_minute model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Group difficulties"
+msgstr "Dificultades del grupo"
+
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__board_difficulties
+msgid "Group difficulties (evaluation board)"
+msgstr "Dificultades del grupo (junta de evaluación)"
+
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_minute_board_difficulty
+msgid "Group difficulty reviewed by an evaluation board."
+msgstr "Dificultad del grupo revisada en una junta de evaluación."
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_difficulty__diagnosis model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Group result or diagnosis"
+msgstr "Resultado o diagnóstico del grupo"
+
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_board_difficulty__priority__high
+msgid "High"
+msgstr "Alta"
+
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_board_difficulty__tests
+msgid "How the difficulty was detected: an initial questionnaire, an interview, observation..."
+msgstr "Cómo se ha detectado la dificultad: un cuestionario inicial, una entrevista, la observación..."
+
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_board_difficulty__priority__low
+msgid "Low"
+msgstr "Baja"
+
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_board_difficulty__priority__medium
+msgid "Medium"
+msgstr "Media"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_student__evaluated_count model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Outcomes evaluated"
+msgstr "RA evaluados"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_student__passed_count model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Outcomes passed"
+msgstr "RA aprobados"
+
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__board_students
+msgid "Per-student comments (evaluation board)"
+msgstr "Comentarios por alumno (junta de evaluación)"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_difficulty__priority model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Priority"
+msgstr "Prioridad"
+
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_board_student__family_comment
+msgid "Shown to the student and the family in the portal and the grades' PDF once the round's grades are published."
+msgstr "Se muestra al alumno y a la familia en el portal y en el PDF de notas cuando se publican las notas de la evaluación."
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_minute model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Statistics"
+msgstr "Datos estadísticos"
+
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__board_statistics
+msgid "Statistics (evaluation board)"
+msgstr "Datos estadísticos (junta de evaluación)"
+
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_board_student__comments
+msgid "Stay in the minute: never shown to the student or the family."
+msgstr "Quedan en el acta: nunca se muestran al alumno ni a la familia."
+
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_minute_board_student
+msgid "Student reviewed by an evaluation board."
+msgstr "Alumno revisado en una junta de evaluación."
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__board_absence_count model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Students missing more than 25% of the hours"
+msgstr "Alumnos que faltan más del 25% de las horas"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__board_working_count model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Students who work"
+msgstr "Alumnado que trabaja"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__board_unjustified_count model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Students with unjustified absences above 5% of the hours"
+msgstr "Alumnos con faltas injustificadas por encima del 5% de las horas"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_student__comments model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Teaching team's comments"
+msgstr "Comentarios del equipo docente"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_difficulty__objectives model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Teaching team's objectives"
+msgstr "Objetivos del equipo docente"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__board_period_from
+msgid "Term from"
+msgstr "Trimestre desde"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__board_period_to
+msgid "Term until"
+msgstr "Trimestre hasta"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_difficulty__tests model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Tests"
+msgstr "Pruebas"
+
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute__board_kinds
+msgid "The evaluation board sections the minute's type has, comma-separated: which blocks the form shows."
+msgstr "Las secciones de junta de evaluación del tipo de acta, separadas por comas: qué bloques muestra la ficha."
+
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute__grade_round
+msgid "The round an evaluation board's minute is about."
+msgstr "La evaluación de la que trata el acta de la junta."
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_student__family_comment
+msgid "Tutor's comment for the family"
+msgstr "Comentario del tutor para la familia"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Update the outcomes from the grades"
+msgstr "Actualizar los RA a partir de las notas"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__board_withdrawals model_terms:ir.ui.view,arch_db:ems.report_minute model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Withdrawals (students and reasons)"
+msgstr "Bajas (alumnado y motivos)"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_board_student__works
+msgid "Works"
+msgstr "Trabaja"
+
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_board_minute_write
+msgid "Write the evaluation board minute"
+msgstr "Redactar el acta de la junta de evaluación"
 

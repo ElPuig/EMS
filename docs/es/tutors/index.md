@@ -18,6 +18,7 @@ Esta sección contiene los manuales para los **tutores de grupo**.
 | [Histórico académico de su alumnado](academic-history.md) | Consultar el registro permanente por curso de sus tutorizados: módulos, notas por RA y asistencia |
 | [Poner la nota de las prácticas de empresa (EM)](work-placement-grade.md) | Poner la nota de las prácticas a un estudiante cuando las termina: completa la nota final de todos los módulos con peso de prácticas, incluidas las finales pendientes de cursos anteriores |
 | [Junta de evaluación: revisar las calificaciones por alumno](junta-avaluacio.md) | Revisar y ajustar las calificaciones de cada alumno del grupo, asignatura por asignatura, para la junta de evaluación |
+| [Acta de la junta de evaluación](board-minute.md) | Completar el acta que EMS crea cuando las sesiones del grupo llegan a la junta: dificultades, datos estadísticos, comentarios por alumno |
 | [Reclamaciones de notas: la segunda instancia](../teachers/grade-claims.md) | Responder las reclamaciones que tus alumnos te llevan después de que el profesor las deniegue (manual compartido) |
 | [Cómo generar propuestas de matrícula](propostes-matricula.md) | Proponer la matrícula del curso siguiente para los alumnos aprobados, incluyendo matrículas especiales |
 | [Autorizaciones: enviarlas a vuestro alumnado y hacer el seguimiento](authorizations.md) | Enviar autorizaciones del catálogo a vuestro alumnado o a vuestros grupos y hacer el seguimiento de las respuestas |

@@ -202,6 +202,48 @@
                                 </table>
                             </t>
 
+                            <!-- Issue #880: an evaluation board's own sections. -->
+                            <t t-if="doc.board_difficulty_ids">
+                                <h4>Group difficulties</h4>
+                                <table>
+                                    <thead><tr><th>Difficulty</th><th>Tests</th><th>Group result or diagnosis</th><th>Teaching team's objectives</th><th>Priority</th></tr></thead>
+                                    <tbody>
+                                        <tr t-foreach="doc.board_difficulty_ids" t-as="difficulty">
+                                            <td t-out="dict(difficulty._fields['area']._description_selection(difficulty.env)).get(difficulty.area)"/>
+                                            <td t-out="difficulty.tests or ''"/>
+                                            <td t-out="difficulty.diagnosis or ''"/>
+                                            <td t-out="difficulty.objectives or ''"/>
+                                            <td t-out="dict(difficulty._fields['priority']._description_selection(difficulty.env)).get(difficulty.priority) or ''"/>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+                            <t t-if="'board_statistics' in (doc.board_kinds or '')">
+                                <h4>Statistics</h4>
+                                <table>
+                                    <tbody>
+                                        <tr><td>Withdrawals (students and reasons)</td><td style="white-space: pre-line;" t-out="doc.board_withdrawals or '-'"/></tr>
+                                        <tr><td>Students missing more than 25% of the hours</td><td t-out="doc.board_absence_count"/></tr>
+                                        <tr><td>Students with unjustified absences above 5% of the hours</td><td t-out="doc.board_unjustified_count"/></tr>
+                                        <tr><td>Students who work</td><td t-out="doc.board_working_count"/></tr>
+                                    </tbody>
+                                </table>
+                            </t>
+                            <t t-if="doc.board_student_ids">
+                                <h4>Teaching team's comments</h4>
+                                <table>
+                                    <thead><tr><th>Student</th><th>Outcomes passed</th><th>Outcomes evaluated</th><th>Comments</th></tr></thead>
+                                    <tbody>
+                                        <tr t-foreach="doc.board_student_ids" t-as="board_student">
+                                            <td t-out="board_student.student_id.name"/>
+                                            <td t-out="board_student.passed_count"/>
+                                            <td t-out="board_student.evaluated_count"/>
+                                            <td t-out="board_student.comments or ''"/>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+
                             <t t-if="doc.agreement_ids">
                                 <h4>Agreements</h4>
                                 <table>

@@ -121,6 +121,8 @@ Cada evaluación, la más reciente primero, tiene una tabla con una fila por mó
 * **RA1, RA2…:** la nota de cada **resultado de aprendizaje** (RA) del módulo. Pasando el ratón por encima de una celda se ve su nombre. Un asterisco (`*`) marca una nota provisional, un guion (`-`) un RA aún no evaluado y un ✓ un RA ya superado en una evaluación anterior. Las celdas en **gris** son RA que el módulo no tiene.
 * **Comentarios:** el comentario del profesor sobre el módulo, si lo hay.
 
+Bajo la tabla, el **Comentario del tutor** es el comentario general del tutor para esa evaluación, cuando lo hay.
+
 ![La página Calificaciones del portal](../../assets/families/qualificacions-portal.png)
 
 Encima de cada tabla está el **plazo de reclamaciones** de esa evaluación.
